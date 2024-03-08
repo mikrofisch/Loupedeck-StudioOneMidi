@@ -6,19 +6,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Loupedeck.Loupedeck_DNLMIDIPlugin.Controls
+namespace Loupedeck.Loupedeck_S1MIDIPlugin.Controls
 {
 	class MackieSelectedChannelBoolPropertyCommand : PluginDynamicCommand
 	{
 
-		Loupedeck_DNLMIDIPlugin plugin;
+		Loupedeck_S1MIDIPlugin plugin;
 
 		public MackieSelectedChannelBoolPropertyCommand() {
 			this.Description = "Control for currently selected Mackie channel";
 
-			for (int i = 0; i < Loupedeck_DNLMIDIPlugin.MackieChannelCount + 1; i++) {
+			for (int i = 0; i < Loupedeck_S1MIDIPlugin.MackieChannelCount + 1; i++) {
 				string prefix = $"{i}:";
-				string chstr = i == Loupedeck_DNLMIDIPlugin.MackieChannelCount ? " (Selected channel)" : $" (CH {i + 1})";
+				string chstr = i == Loupedeck_S1MIDIPlugin.MackieChannelCount ? " (Selected channel)" : $" (CH {i + 1})";
 
 				AddParameter(prefix + ((int)ChannelProperty.BoolType.Mute).ToString(), "Mute" + chstr, "Mackie mute");
 				AddParameter(prefix + ((int)ChannelProperty.BoolType.Solo).ToString(), "Solo " + chstr, "Mackie solo");
@@ -27,7 +27,7 @@ namespace Loupedeck.Loupedeck_DNLMIDIPlugin.Controls
 		}
 
 		protected override bool OnLoad() {
-			plugin = base.Plugin as Loupedeck_DNLMIDIPlugin;
+			plugin = base.Plugin as Loupedeck_S1MIDIPlugin;
 
 			plugin.MackieDataChanged += (object sender, EventArgs a) => {
 				ActionImageChanged();
@@ -77,7 +77,7 @@ namespace Loupedeck.Loupedeck_DNLMIDIPlugin.Controls
 			return new ParamData
 			{
 				param = Int32.Parse(dt[1]),
-				channelData = (dt[0] == Loupedeck_DNLMIDIPlugin.MackieChannelCount.ToString()) ? plugin.MackieSelectedChannel : plugin.mackieChannelData[dt[0]]
+				channelData = (dt[0] == Loupedeck_S1MIDIPlugin.MackieChannelCount.ToString()) ? plugin.MackieSelectedChannel : plugin.mackieChannelData[dt[0]]
 			};
 		}
 

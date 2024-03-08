@@ -6,23 +6,23 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Loupedeck.Loupedeck_DNLMIDIPlugin.Controls
+namespace Loupedeck.Loupedeck_S1MIDIPlugin.Controls
 {
 	public class MackieFader : PluginDynamicAdjustment
 	{
-		private Loupedeck_DNLMIDIPlugin plugin = null;
+		private Loupedeck_S1MIDIPlugin plugin = null;
 
 		public MackieFader() : base(true) {
 			this.Description = "Mackie Control compatible channel fader.\nButton press -> Mute\nScreen touch -> Select\nScreen double tap -> Arm/rec";
 
-			for (int i = 0; i < Loupedeck_DNLMIDIPlugin.MackieChannelCount; i++)
+			for (int i = 0; i < Loupedeck_S1MIDIPlugin.MackieChannelCount; i++)
 				AddParameter(i.ToString(), $"Fader (CH {i + 1})", "Mackie faders");
 
-			AddParameter(Loupedeck_DNLMIDIPlugin.MackieChannelCount.ToString(), $"Mackie master fader", "Mackie faders");
+			AddParameter(Loupedeck_S1MIDIPlugin.MackieChannelCount.ToString(), $"Mackie master fader", "Mackie faders");
 		}
 
 		protected override bool OnLoad() {
-			plugin = base.Plugin as Loupedeck_DNLMIDIPlugin;
+			plugin = base.Plugin as Loupedeck_S1MIDIPlugin;
 			plugin.mackieFader = this;
 
 			plugin.MackieDataChanged += (object sender, EventArgs e) => {

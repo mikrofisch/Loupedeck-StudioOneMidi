@@ -1,6 +1,6 @@
 {
-  "name": "loupedeck_dnlmidi",
-  "version": "1.0.0",
+  "name": "loupedeck_s1midi",
+  "version": "0.0.1",
   "description": "",
   "main": ".versionrc.js",
   "scripts": {
@@ -11,18 +11,18 @@
     "Loupedeck",
     "Plugin",
     "Extension",
-    "Loupedeck_DNLMIDI"
+    "Loupedeck_S1MIDI"
   ],
   "author": "XeroxDev",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/XeroxDev/Loupedeck-plugin-Loupedeck_DNLMIDI.git"
+    "url": "git+https://github.com/XeroxDev/Loupedeck-plugin-Loupedeck_S1MIDI.git"
   },
   "bugs": {
-    "url": "https://github.com/XeroxDev/Loupedeck-plugin-Loupedeck_DNLMIDI/issues"
+    "url": "https://github.com/XeroxDev/Loupedeck-plugin-Loupedeck_S1MIDI/issues"
   },
-  "homepage": "https://github.com/XeroxDev/Loupedeck-plugin-Loupedeck_DNLMIDI#readme",
+  "homepage": "https://github.com/XeroxDev/Loupedeck-plugin-Loupedeck_S1MIDI#readme",
   "devDependencies": {
     "@commitlint/cli": "^13.1.0",
     "@commitlint/config-conventional": "^13.1.0",

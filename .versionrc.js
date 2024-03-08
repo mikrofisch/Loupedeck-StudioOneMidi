@@ -1,7 +1,7 @@
 // .versionrc.js
 const tracker = [
     {
-        filename: './Loupedeck_DNLMIDIPlugin/Properties/AssemblyInfo.cs',
+        filename: './Loupedeck_S1MIDIPlugin/Properties/AssemblyInfo.cs',
         updater: require('./standard-version-updater/AssemblyInfo.js')
     },
     {

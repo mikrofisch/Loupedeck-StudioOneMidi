@@ -1,20 +1,20 @@
 ﻿type: plugin4
-name: 'Loupedeck_DNLMIDI'
-displayName: 'Loupedeck_DNLMIDI'
-version: 1.0.0.4
-author: Danol
-copyright: (c) 2022 Danol
+name: 'Loupedeck_S1MIDI'
+displayName: 'Loupedeck_S1MIDI'
+version: 0.0.0.1
+author: jr
+copyright: (c) 2024 jr
 
 supportedDevices:
   - LoupedeckCt
   - LoupedeckLive
 
-pluginFileName: Loupedeck_DNLMIDIPlugin.dll
+pluginFileName: Loupedeck_S1MIDIPlugin.dll
 pluginFolderWin: ./bin/win/
 #pluginFolderMac: ./bin/mac/
 
 license: MIT
 licenseUrl: https://opensource.org/licenses/MIT
 
-homePageUrl: https://github.com/CZDanol/loupedeck-dnlmidi
-supportPageUrl: https://github.com/CZDanol/loupedeck-dnlmidi
+homePageUrl: https://github.com/krawumski/loupedeck-s1midi
+supportPageUrl: https://github.com/krawumski/loupedeck-s1midi

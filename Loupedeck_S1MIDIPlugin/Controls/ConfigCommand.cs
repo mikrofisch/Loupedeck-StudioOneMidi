@@ -5,16 +5,16 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Loupedeck.Loupedeck_DNLMIDIPlugin.Controls
+namespace Loupedeck.Loupedeck_S1MIDIPlugin.Controls
 {
 	class ConfigCommand : PluginDynamicCommand
 	{
 
-		public ConfigCommand() : base("DNL MIDI Settings", "Open DNL MIDI settings window", "Control") {
+		public ConfigCommand() : base("S1 MIDI Settings", "Open S1 MIDI settings window", "Control") {
 
 		}
 		protected override void RunCommand(string actionParameter) {
-			(base.Plugin as Loupedeck_DNLMIDIPlugin).OpenConfigWindow();
+			(base.Plugin as Loupedeck_S1MIDIPlugin).OpenConfigWindow();
 		}
 
 	}

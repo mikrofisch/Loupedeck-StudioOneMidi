@@ -1,4 +1,4 @@
-namespace Loupedeck.Loupedeck_DNLMIDIPlugin
+namespace Loupedeck.Loupedeck_S1MIDIPlugin
 {
 	using System;
 	using System.Collections.Generic;
@@ -7,11 +7,11 @@ namespace Loupedeck.Loupedeck_DNLMIDIPlugin
 	using System.Threading;
 	using System.Threading.Tasks;
 	using System.Timers;
-	using Loupedeck.Loupedeck_DNLMIDIPlugin.Controls;
+	using Loupedeck.Loupedeck_S1MIDIPlugin.Controls;
 	using Melanchall.DryWetMidi.Core;
 	using Melanchall.DryWetMidi.Multimedia;
 
-	public class Loupedeck_DNLMIDIPlugin : Loupedeck.Plugin
+	public class Loupedeck_S1MIDIPlugin : Loupedeck.Plugin
 	{
 		public override bool HasNoApplication => true;
 		public override bool UsesApplicationApiOnly => true;
@@ -127,7 +127,7 @@ namespace Loupedeck.Loupedeck_DNLMIDIPlugin
 			}
 		}
 
-		public Loupedeck_DNLMIDIPlugin() {
+		public Loupedeck_S1MIDIPlugin() {
 			// + 1 - last channel is master
 			for (int i = 0; i < MackieChannelCount + 1; i++)
 				mackieChannelData[i.ToString()] = new MackieChannelData(this, i);

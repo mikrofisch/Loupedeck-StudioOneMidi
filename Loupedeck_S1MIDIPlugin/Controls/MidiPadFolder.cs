@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Loupedeck.Loupedeck_DNLMIDIPlugin.Controls
+namespace Loupedeck.Loupedeck_S1MIDIPlugin.Controls
 {
 	class MidiPadFolder : PluginDynamicFolder
 	{
@@ -51,7 +51,7 @@ namespace Loupedeck.Loupedeck_DNLMIDIPlugin.Controls
 		Adjustment currentHorizontalAdjustment, currentVerticalAdjustment;
 		int currentHorizontalAdjustmentIx = 0, currentVerticalAdjustmentIx = 1;
 
-		Loupedeck_DNLMIDIPlugin plugin;
+		Loupedeck_S1MIDIPlugin plugin;
 
 		public MidiPadFolder() {
 			this.DisplayName = "MIDI Pad";
@@ -136,7 +136,7 @@ namespace Loupedeck.Loupedeck_DNLMIDIPlugin.Controls
 		public override bool Load() {
 			var result = base.Load();
 
-			plugin = base.Plugin as Loupedeck_DNLMIDIPlugin;
+			plugin = base.Plugin as Loupedeck_S1MIDIPlugin;
 			return result;
 		}
 

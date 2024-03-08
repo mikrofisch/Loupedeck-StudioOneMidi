@@ -6,11 +6,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Loupedeck.Loupedeck_DNLMIDIPlugin.Controls
+namespace Loupedeck.Loupedeck_S1MIDIPlugin.Controls
 {
 	class MackieCommand : PluginDynamicCommand
 	{
-		Loupedeck_DNLMIDIPlugin plugin;
+		Loupedeck_S1MIDIPlugin plugin;
 
 		private class ButtonData
 		{
@@ -71,7 +71,7 @@ namespace Loupedeck.Loupedeck_DNLMIDIPlugin.Controls
 		}
 
 		protected override bool OnLoad() {
-			plugin = base.Plugin as Loupedeck_DNLMIDIPlugin;
+			plugin = base.Plugin as Loupedeck_S1MIDIPlugin;
 			plugin.MackieNoteReceived += OnMackieNoteReceived;
 
 			return base.OnLoad();

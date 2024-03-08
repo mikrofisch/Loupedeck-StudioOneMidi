@@ -7,8 +7,8 @@
     <ProjectGuid>{951A9EA6-9BFE-4686-B9DE-04C453C64063}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Loupedeck.Loupedeck_DNLMIDIPlugin</RootNamespace>
-    <AssemblyName>Loupedeck_DNLMIDIPlugin</AssemblyName>
+    <RootNamespace>Loupedeck.Loupedeck_S1MIDIPlugin</RootNamespace>
+    <AssemblyName>Loupedeck_S1MIDIPlugin</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <LangVersion>9</LangVersion>
@@ -25,7 +25,7 @@
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <OutputPath>C:\Users\Danol\AppData\Local\Loupedeck\Plugins\DNLMIDI\</OutputPath>
+    <OutputPath>C:\Users\Danol\AppData\Local\Loupedeck\Plugins\S1MIDI\</OutputPath>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -85,8 +85,8 @@
     <Compile Include="Controls\ConfigCommand.cs" />
     <Compile Include="Controls\MackieFader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Loupedeck_DNLMIDIApplication.cs" />
-    <Compile Include="Loupedeck_DNLMIDIPlugin.cs" />
+    <Compile Include="Loupedeck_S1MIDIApplication.cs" />
+    <Compile Include="Loupedeck_S1MIDIPlugin.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="PluginConfiguration.json" />

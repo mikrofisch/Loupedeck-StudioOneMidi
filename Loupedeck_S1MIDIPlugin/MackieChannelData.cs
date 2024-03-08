@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Loupedeck.Loupedeck_DNLMIDIPlugin
+namespace Loupedeck.Loupedeck_S1MIDIPlugin
 {
 	public class MackieChannelData
 	{
@@ -19,7 +19,7 @@ namespace Loupedeck.Loupedeck_DNLMIDIPlugin
 
 		public bool IsMasterChannel = false;
 
-		private Loupedeck_DNLMIDIPlugin plugin;
+		private Loupedeck_S1MIDIPlugin plugin;
 
 		public bool Muted {
 			get => BoolProperty[(int)ChannelProperty.BoolType.Mute];
@@ -42,11 +42,11 @@ namespace Loupedeck.Loupedeck_DNLMIDIPlugin
 			}
 		}
 
-		public MackieChannelData(Loupedeck_DNLMIDIPlugin plugin, int channelID) {
+		public MackieChannelData(Loupedeck_S1MIDIPlugin plugin, int channelID) {
 			this.plugin = plugin;
 
 			ChannelID = channelID;
-			IsMasterChannel = channelID == Loupedeck_DNLMIDIPlugin.MackieChannelCount;
+			IsMasterChannel = channelID == Loupedeck_S1MIDIPlugin.MackieChannelCount;
 
 			if (IsMasterChannel)
 				TrackName = "Master";

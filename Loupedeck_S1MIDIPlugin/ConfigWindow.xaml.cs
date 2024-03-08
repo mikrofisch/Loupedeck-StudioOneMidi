@@ -4,16 +4,16 @@ using System.Linq;
 using System.Windows;
 using Melanchall.DryWetMidi.Multimedia;
 
-namespace Loupedeck.Loupedeck_DNLMIDIPlugin
+namespace Loupedeck.Loupedeck_S1MIDIPlugin
 {
 	/// <summary>
 	/// Interaction logic for ConfigWindow.xaml
 	/// </summary>
 	public partial class ConfigWindow : Window
 	{
-		private Loupedeck_DNLMIDIPlugin plugin;
+		private Loupedeck_S1MIDIPlugin plugin;
 
-		public ConfigWindow(Loupedeck_DNLMIDIPlugin plugin) {
+		public ConfigWindow(Loupedeck_S1MIDIPlugin plugin) {
 			this.plugin = plugin;
 
 			InitializeComponent();

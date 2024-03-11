@@ -96,7 +96,7 @@
 
 		protected override bool ProcessTouchEvent(string actionParameter, DeviceTouchEvent touchEvent)
 		{
-			if (touchEvent.EventType == DeviceTouchEventType.TouchDown)    HandlePress(actionParameter, true);
+			if (touchEvent.EventType == DeviceTouchEventType.Press)        HandlePress(actionParameter, true);
 			else if (touchEvent.EventType == DeviceTouchEventType.TouchUp) HandlePress(actionParameter, false);
 
 			return base.ProcessTouchEvent(actionParameter, touchEvent);

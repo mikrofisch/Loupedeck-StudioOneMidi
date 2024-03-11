@@ -164,9 +164,9 @@ namespace Loupedeck.StudioOneMidiPlugin
         // This method is called when the plugin is loaded during the Loupedeck service start-up.
         public override void Load()
         {
-			this.Info.Icon16x16 = EmbeddedResources.ReadImage(EmbeddedResources.FindFile("midi_connector_male_16px.png"));
-			this.Info.Icon32x32 = EmbeddedResources.ReadImage(EmbeddedResources.FindFile("midi_connector_male_32px.png"));
-			this.Info.Icon48x48 = EmbeddedResources.ReadImage(EmbeddedResources.FindFile("midi_connector_male_48px.png"));
+			this.Info.Icon16x16   = EmbeddedResources.ReadImage(EmbeddedResources.FindFile("midi_connector_male_16px.png"));
+			this.Info.Icon32x32   = EmbeddedResources.ReadImage(EmbeddedResources.FindFile("midi_connector_male_32px.png"));
+			this.Info.Icon48x48   = EmbeddedResources.ReadImage(EmbeddedResources.FindFile("midi_connector_male_48px.png"));
 			this.Info.Icon256x256 = EmbeddedResources.ReadImage(EmbeddedResources.FindFile("midi_connector_male_96px.png"));
 
 			LoadSettings();

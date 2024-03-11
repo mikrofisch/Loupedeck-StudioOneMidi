@@ -5,9 +5,6 @@
 
     using System;
     using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
     
     class MackieCommand : PluginDynamicCommand
 	{
@@ -23,7 +20,7 @@
 
 			public BitmapColor OffColor = BitmapColor.Black;
 			public BitmapColor OnColor = new BitmapColor(64, 64, 64);
-			public BitmapImage Icon;
+			public BitmapImage Icon, IconOn;
 		}
 
 		private IDictionary<string, ButtonData> buttonData = new Dictionary<string, ButtonData>();
@@ -123,10 +120,16 @@
 			var bb = new BitmapBuilder(imageSize);
 			bb.FillRectangle(0, 0, bb.Width, bb.Height, bd.Activated ? bd.OnColor : bd.OffColor);
 
-			if (bd.Icon != null)
-				bb.DrawImage(bd.Icon);
+            if (bd.Activated && bd.IconOn != null)
+            {
+                bb.DrawImage(bd.IconOn);
+            }
+            else if (bd.Icon != null)
+            {
+                bb.DrawImage(bd.Icon);
+            }
 
-			return bb.ToImage();
+            return bb.ToImage();
 		}
 
 		private void HandlePress(string actionParameter, bool pressed)
@@ -149,8 +152,15 @@
 
 		private void AddButton(ButtonData bd)
         {
-			if (bd.IconName != null)
-				bd.Icon = EmbeddedResources.ReadImage(EmbeddedResources.FindFile($"{bd.IconName}_52px.png"));
+            if (bd.IconName != null)
+            {
+                bd.Icon = EmbeddedResources.ReadImage(EmbeddedResources.FindFile($"{bd.IconName}_52px.png"));
+                string iconNameOn = $"{bd.IconName}_on_52px.png";
+                if (System.IO.File.Exists(iconNameOn))
+                {
+                    bd.IconOn = EmbeddedResources.ReadImage(EmbeddedResources.FindFile(iconNameOn));
+                }
+            }
 
 			buttonData[bd.Code.ToString()] = bd;
 			AddParameter(bd.Code.ToString(), bd.Name, "Mackie control");

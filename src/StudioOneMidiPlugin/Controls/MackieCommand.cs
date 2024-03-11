@@ -32,7 +32,7 @@
 				Code = 94,
 				Name = "Play",
 				IconName = "play",
-				OnColor = new BitmapColor(0, 164, 0),
+				// OnColor = new BitmapColor(0, 164, 0),
 			});
 			this.AddButton(new ButtonData
 			{
@@ -45,7 +45,7 @@
 				Code = 95,
 				Name = "Record",
 				IconName = "record",
-				OnColor = new BitmapColor(128, 0, 0)
+				// OnColor = new BitmapColor(128, 0, 0)
 			}); ;
 			this.AddButton(new ButtonData
 			{
@@ -64,8 +64,8 @@
 			{
 				Code = 86,
 				Name = "Loop",
-				IconName = "repeat",
-				OnColor = new BitmapColor(0, 57, 148),
+				IconName = "loop",
+				// OnColor = new BitmapColor(0, 57, 148),
 			});
 		}
 
@@ -118,7 +118,7 @@
 			ButtonData bd = buttonData[actionParameter];
 
 			var bb = new BitmapBuilder(imageSize);
-			bb.FillRectangle(0, 0, bb.Width, bb.Height, bd.Activated ? bd.OnColor : bd.OffColor);
+			// bb.FillRectangle(0, 0, bb.Width, bb.Height, bd.Activated ? bd.OnColor : bd.OffColor);
 
             if (bd.Activated && bd.IconOn != null)
             {
@@ -155,10 +155,10 @@
             if (bd.IconName != null)
             {
                 bd.Icon = EmbeddedResources.ReadImage(EmbeddedResources.FindFile($"{bd.IconName}_52px.png"));
-                string iconNameOn = $"{bd.IconName}_on_52px.png";
-                if (System.IO.File.Exists(iconNameOn))
+                string iconResOn = EmbeddedResources.FindFile($"{bd.IconName}_on_52px.png");
+                if (iconResOn != null)
                 {
-                    bd.IconOn = EmbeddedResources.ReadImage(EmbeddedResources.FindFile(iconNameOn));
+                    bd.IconOn = EmbeddedResources.ReadImage(iconResOn);
                 }
             }
 

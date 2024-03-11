@@ -216,15 +216,17 @@ namespace Loupedeck.StudioOneMidiPlugin
 			if (TryGetPluginSetting("MidiIn", out midiInName))
 				MidiInName = midiInName;
 
-			if (TryGetPluginSetting("MackieMidiIn", out mackieMidiInName))
-				MackieMidiInName = mackieMidiInName;
+//			if (TryGetPluginSetting("MackieMidiIn", out mackieMidiInName))
+//                MackieMidiInName = mackieMidiInName;
+            MackieMidiInName = "Loupedeck S1 In";
 
-			if (TryGetPluginSetting("MidiOut", out midiOutName))
+            if (TryGetPluginSetting("MidiOut", out midiOutName))
 				MidiOutName = midiOutName;
 
-			if (TryGetPluginSetting("MackieMidiOut", out mackieMidiOutName))
-				MackieMidiOutName = mackieMidiOutName;
-		}
+//			if (TryGetPluginSetting("MackieMidiOut", out mackieMidiOutName))
+//				MackieMidiOutName = mackieMidiOutName;
+            MackieMidiOutName = "Loupedeck S1 Out";
+        }
 
 		private void OnMackieMidiEvent(object sender, MidiEventReceivedEventArgs args)
         {

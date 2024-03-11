@@ -97,6 +97,22 @@
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\fast_forward_52px.png" />
+    <EmbeddedResource Include="Resources\loop_52px.png" />
+    <EmbeddedResource Include="Resources\loop_on_52px.png" />
+    <EmbeddedResource Include="Resources\midi_connector_male_16px.png" />
+    <EmbeddedResource Include="Resources\midi_connector_male_32px.png" />
+    <EmbeddedResource Include="Resources\midi_connector_male_48px.png" />
+    <EmbeddedResource Include="Resources\midi_connector_male_96px.png" />
+    <EmbeddedResource Include="Resources\play_52px.png" />
+    <EmbeddedResource Include="Resources\play_on_52px.png" />
+    <EmbeddedResource Include="Resources\record_52px.png" />
+    <EmbeddedResource Include="Resources\record_on_52px.png" />
+    <EmbeddedResource Include="Resources\rewind_52px.png" />
+    <EmbeddedResource Include="Resources\stop_52px.png" />
+    <EmbeddedResource Include="Resources\stop_on_52px.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent Condition="$(OS) == 'Windows_NT'">call "$(ProjectDir)BuildEvents\postbuild.cmd" "$(ProjectDir)" "$(TargetDir)"</PostBuildEvent>

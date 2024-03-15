@@ -109,16 +109,19 @@ namespace Loupedeck.StudioOneMidiPlugin
         {
 			get => mackieMidiOutName;
 			set {
-				if (mackieMidiOut != null) {
+				if (mackieMidiOut != null)
+                {
 					mackieMidiOut.Dispose();
 				}
 
 				mackieMidiOutName = value;
-				try {
+				try
+                {
 					mackieMidiOut = OutputDevice.GetByName(value);
 					SetPluginSetting("MackieMidiOut", value, false);
 				}
-				catch (Exception) {
+				catch (Exception)
+                {
 					mackieMidiOut = null;
 				}
 			}

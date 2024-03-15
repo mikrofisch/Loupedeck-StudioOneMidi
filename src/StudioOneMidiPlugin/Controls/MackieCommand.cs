@@ -13,6 +13,7 @@
 		private class ButtonData
 		{
 			public int Code;
+            public int CodeOn = 0;              // alternative code to send when activated
 			public string Name;
 			public string IconName;
 
@@ -30,6 +31,7 @@
 			this.AddButton(new ButtonData
 			{
 				Code = 94,
+                CodeOn = 93,        // 1st click - play, 2nd click - stop
 				Name = "Play",
 				IconName = "play",
 				// OnColor = new BitmapColor(0, 164, 0),
@@ -109,11 +111,8 @@
 
 		protected override BitmapImage GetCommandImage(string actionParameter, PluginImageSize imageSize)
         {
-			if (actionParameter == null)
-				return null;
-
-			if (!buttonData.ContainsKey(actionParameter))
-				return null;
+			if (actionParameter == null) return null;
+			if (!buttonData.ContainsKey(actionParameter)) return null;
 
 			ButtonData bd = buttonData[actionParameter];
 
@@ -134,13 +133,22 @@
 
 		private void HandlePress(string actionParameter, bool pressed)
         {
-			if(plugin.mackieMidiOut == null)
-            {
-				plugin.OpenConfigWindow();
-				return;
-			}
+            //			if(plugin.mackieMidiOut == null)
+            //            {
+            //				plugin.OpenConfigWindow();
+            //				return;
+            //			}
 
-			int param = Int32.Parse(actionParameter);
+            if (!buttonData.ContainsKey(actionParameter)) return;
+
+            ButtonData bd = buttonData[actionParameter];
+            int param = (SevenBitNumber)(bd.Code);
+            if (bd.Activated && (bd.CodeOn > 0))
+            {
+                param = (SevenBitNumber)(bd.CodeOn);
+            }
+
+			// int param = Int32.Parse(actionParameter);
 
 			NoteOnEvent e = new NoteOnEvent();
 			e.Velocity = (SevenBitNumber)(pressed ? 127 : 0);

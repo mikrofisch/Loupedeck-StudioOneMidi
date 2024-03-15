@@ -310,3 +310,4 @@ testem.log
 *.xcactivitylog
 
 *.DotSettings
+/src/Visual Studio 2022/Visualizers

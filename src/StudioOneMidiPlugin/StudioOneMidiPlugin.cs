@@ -263,8 +263,7 @@ namespace Loupedeck.StudioOneMidiPlugin
                 // Solo
                 else if (ce.NoteNumber >= 8 && ce.NoteNumber < 16)
                 {
-                    if (!mackieChannelData.TryGetValue((ce.NoteNumber - 8).ToString(), out MackieChannelData cd))
-                        return;
+                    if (!mackieChannelData.TryGetValue((ce.NoteNumber - 8).ToString(), out MackieChannelData cd)) return;
 
                     cd.BoolProperty[(int)ChannelProperty.BoolType.Solo] = ce.Velocity > 0;
                     EmitMackieChannelDataChanged(cd);
@@ -273,8 +272,7 @@ namespace Loupedeck.StudioOneMidiPlugin
                 // Mute
                 else if (ce.NoteNumber >= 16 && ce.NoteNumber < 32)
                 {
-                    if (!mackieChannelData.TryGetValue((ce.NoteNumber - 16).ToString(), out MackieChannelData cd))
-                        return;
+                    if (!mackieChannelData.TryGetValue((ce.NoteNumber - 16).ToString(), out MackieChannelData cd)) return;
 
                     cd.BoolProperty[(int)ChannelProperty.BoolType.Mute] = ce.Velocity > 0;
                     EmitMackieChannelDataChanged(cd);
@@ -288,13 +286,11 @@ namespace Loupedeck.StudioOneMidiPlugin
 			else if (e is NormalSysExEvent)
             {
 				var ce = e as NormalSysExEvent;
-				if (ce.Data.Length < 5)
-					return;
+				if (ce.Data.Length < 5) return;
 
 				// Check if this is mackie control command
 				byte[] mackieControlPrefix = { 0x00, 0x00, 0x66 };
-				if (!ce.Data.SubArray(0, mackieControlPrefix.Length).SequenceEqual(mackieControlPrefix))
-					return;
+				if (!ce.Data.SubArray(0, mackieControlPrefix.Length).SequenceEqual(mackieControlPrefix)) return;
 
 				// LCD command
 				if (ce.Data.Length > 6 && ce.Data[4] == 0x12)
@@ -315,7 +311,7 @@ namespace Loupedeck.StudioOneMidiPlugin
 					for (int i = 0; i < MackieChannelCount; i++)
                     {
 						MackieChannelData cd = mackieChannelData[i.ToString()];
-						string newTrackName = mackieDisplayData.Substring(7 * i, 7);
+						string newTrackName = mackieDisplayData.Substring(7 * i, 7).Replace("\0", "");
                         if (!cd.TrackName.Equals(newTrackName))
                         {
                             cd.TrackName = newTrackName;
@@ -329,8 +325,10 @@ namespace Loupedeck.StudioOneMidiPlugin
 
 		public override bool TryProcessTouchEvent(string actionName, string actionParameter, DeviceTouchEvent deviceTouchEvent)
         {
-			if (actionName == mackieFader.GetResetActionName())
-				return mackieFader.TryProcessTouchEvent(actionParameter, deviceTouchEvent);
+            if (actionName == mackieFader.GetResetActionName())
+            {
+                return mackieFader.TryProcessTouchEvent(actionParameter, deviceTouchEvent);
+            }
 
 			return base.TryProcessTouchEvent(actionName, actionParameter, deviceTouchEvent);
 		}

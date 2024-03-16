@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DeviceDefinition
+	vendor="Loupedeck"
+	name="CT"
+	family="LoupedeckFamily"
+	
+	classID="{EE428900-E2B0-477a-B27C-2730D0F373B7}"
+	category="Surface"
+	
+	nativeCode="LoupedeckCT"
+	surfaceFile="LoupedeckCT.surface.xml"
+	surfacePlacementSize="8"
+	
+	scriptFile="LoupedeckCT.js"
+	scriptFile.functionName="createLoupedeckCTInstance"
+	
+	imageFile="LoupedeckCT.png"
+	textFile="MackieControl.txt"
+
+	skinFile="skin/"
+	formName="LoupedeckCT"
+	/>

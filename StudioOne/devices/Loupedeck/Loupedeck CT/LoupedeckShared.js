@@ -130,7 +130,7 @@ class ChannelInfo {
         this.valueString.setOriginal(null);
     }
 }
-class MackieSharedComponent extends FocusChannelPanComponent {
+class LoupedeckSharedComponent extends FocusChannelPanComponent {
     onInit(hostComponent) {
         super.onInit(hostComponent);
         this.assignment = new Assignment;
@@ -324,7 +324,7 @@ class MackieSharedComponent extends FocusChannelPanComponent {
         }
     }
     getDeviceSyncID() {
-        return "MackieControl";
+        return "LoupedeckCT";
     }
     getSyncData() {
         return this.assignment;

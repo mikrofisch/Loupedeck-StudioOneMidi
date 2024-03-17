@@ -6,7 +6,7 @@
 	<!-- ******************************************************************************************** -->
 
 	<Files>
-		<File url="MackieShared.surface.xml"/>
+		<File url="LoupedeckShared.surface.xml"/>
 	</Files>
 
 	<!-- ******************************************************************************************** -->
@@ -189,7 +189,7 @@
 		<!-- Defines -->
 		<!-- ******************************************************************************************** -->
 
-		<!-- Channel assignment modes, keep in sync with MackieControl.js -->
+		<!-- Channel assignment modes, keep in sync with LoupedeckCT.js -->
 		<define name="$MODE_TRACK" value="0"/>
 		<define name="$MODE_SEND" value="1"/>
 		<define name="$MODE_PAN" value="2"/>
@@ -197,7 +197,7 @@
 		<define name="$MODE_FX" value="4"/>
 		<define name="$MODE_PANFOCUS" value="5"/>
 
-		<!-- Mixer banks, keep in sync with script kMackieControlMixerBanks. -->
+		<!-- Mixer banks, keep in sync with script kLoupedeckCtMixerBanks. -->
 		<define name="$BANK_ALL" value="0"/>
 		<define name="$BANK_AUDIO_INPUT" value="1"/>
 		<define name="$BANK_AUDIO_TRACK" value="2"/>

@@ -1,6 +1,6 @@
 include_file("resource://com.presonus.musicdevices/sdk/controlsurfacecomponent.js");
-include_file("MackieShared.js");
-const kMackieControlMixerBanks = [
+include_file("LoupedeckShared.js");
+const kLoupedeckCtMixerBanks = [
     PreSonus.MixerConsoleBankID.kAll,
     PreSonus.MixerConsoleBankID.kAudioInput,
     PreSonus.MixerConsoleBankID.kAudioTrack,
@@ -11,7 +11,7 @@ const kMackieControlMixerBanks = [
     PreSonus.MixerConsoleBankID.kAudioVCA,
     PreSonus.MixerConsoleBankID.kUser
 ];
-class MackieControlComponent extends MackieSharedComponent {
+class LoupedeckCtComponent extends LoupedeckSharedComponent {
     onInit(hostComponent) {
         super.onInit(hostComponent);
         let paramList = hostComponent.paramList;
@@ -23,9 +23,9 @@ class MackieControlComponent extends MackieSharedComponent {
         this.panModeLED = paramList.addParam("panModeLED");
         this.updateModeParams();
         this.bankList = paramList.addList("bankList");
-        for (let i in kMackieControlMixerBanks)
-            this.bankList.appendString(kMackieControlMixerBanks[i]);
-        this.bankList.value = kMackieControlMixerBanks.indexOf(PreSonus.MixerConsoleBankID.kUser);
+        for (let i in kLoupedeckCtMixerBanks)
+            this.bankList.appendString(kLoupedeckCtMixerBanks[i]);
+        this.bankList.value = kLoupedeckCtMixerBanks.indexOf(PreSonus.MixerConsoleBankID.kUser);
     }
     onPanButtonPressed(value) {
         if (!value)
@@ -82,6 +82,6 @@ class MackieControlComponent extends MackieSharedComponent {
         }
     }
 }
-function createMackieControlInstance() {
-    return new MackieControlComponent();
+function createLoupedeckCtInstance() {
+    return new LoupedeckCtComponent();
 }

@@ -15,8 +15,5 @@
 	scriptFile.functionName="createLoupedeckCTInstance"
 	
 	imageFile="LoupedeckCT.png"
-	textFile="MackieControl.txt"
-
-	skinFile="skin/"
-	formName="LoupedeckCT"
+	textFile="LoupedeckCT.txt"
 	/>

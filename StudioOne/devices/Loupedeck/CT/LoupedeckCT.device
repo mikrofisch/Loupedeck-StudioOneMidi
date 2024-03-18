@@ -2,12 +2,12 @@
 <DeviceDefinition
 	vendor="Loupedeck"
 	name="CT"
-	family="LoupedeckFamily"
+	family="MackieFamily"
 	
-	classID="{EE428900-E2B0-477a-B27C-2730D0F373B7}"
+	classID="{EF427900-E2B0-478a-B17D-4652F0F273A6}"
 	category="Surface"
 	
-	nativeCode="LoupedeckCT"
+	nativeCode="MackieControl"
 	surfaceFile="LoupedeckCT.surface.xml"
 	surfacePlacementSize="8"
 	
@@ -16,4 +16,5 @@
 	
 	imageFile="LoupedeckCT.png"
 	textFile="LoupedeckCT.txt"
-	/>
+
+/>

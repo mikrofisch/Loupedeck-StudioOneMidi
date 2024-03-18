@@ -138,6 +138,14 @@ class LoupedeckSharedComponent extends FocusChannelPanComponent {
         this.focusSendsBankElement = this.focusChannelElement.find("SendsBankElement");
         let genericMappingElement = this.root.getGenericMapping();
         let paramList = hostComponent.paramList;
+
+        this.selectedChannel = new ChannelInfo;
+        // selectedChannel.faderValue = paramList.addAlias("faderValueSelected");
+        // selectedChannel = paramList.addAlias("potValueSelected");
+        this.selectedChannel.labelString = paramList.addAlias("labelStringSelected");
+        this.selectedChannel.valueString = paramList.addAlias("valueStringSelected");
+        this.selectedChannel.channelElement = this.mixerMapping.find("FocusBankElement").getElement(0);
+
         this.channels = [];
         for (let i = 0; i < kNumChannels; i++) {
             let channelInfo = new ChannelInfo;
@@ -154,7 +162,7 @@ class LoupedeckSharedComponent extends FocusChannelPanComponent {
     }
     onConnectChannel(channelIndex) {
         this.updateChannel(channelIndex);
-    }
+}
     onConnectChannelInsert(channelIndex, insertIndex) {
     }
     onConnectChannelSend(channelIndex, sendIndex) {
@@ -163,9 +171,17 @@ class LoupedeckSharedComponent extends FocusChannelPanComponent {
     }
     onConnectFocusChannel() {
         super.onConnectFocusChannel();
-        if (this.assignment.mode == ChannelAssignmentMode.kTrackMode || this.assignment.mode == ChannelAssignmentMode.kFXMode)
+        if (this.assignment.mode == ChannelAssignmentMode.kTrackMode || this.assignment.mode == ChannelAssignmentMode.kFXMode) {
             this.updateAll();
-    }
+        }
+        this.selectedChannel.setLabel(this.selectedChannel.channelElement, PreSonus.ParamID.kLabel);
+//        let channelInfo = this.channels[0];
+//        channelInfo.setLabel(channelInfo.channelElement, PreSonus.ParamID.kLabel);
+
+        //this.selectedChannel.setLabel(this.selectedChannel.channelElement, "Krawumm");
+        //this.selectedChannel.setLabelDirect("Murks");
+        //this.signalSyncDevice();
+}
     onConnectFocusChannelInsert(insertIndex) {
         if (this.assignment.mode == ChannelAssignmentMode.kFXMode)
             this.updateChannel(insertIndex);
@@ -330,6 +346,7 @@ class LoupedeckSharedComponent extends FocusChannelPanComponent {
         return this.assignment;
     }
     onSyncDevice(otherData) {
+        Host.Console.writeLine("onSyncDevice [LoupedeckShared]");
         this.assignment.sync(otherData);
         this.updateAll();
     }

@@ -164,6 +164,21 @@
 		<Control name="rudesoloLED" options="transmit"> <MidiMessage status="#90" address="#73"/> </Control>
 
 		<!-- ******************************************************************************************** -->
+		<!-- Selected Channel Controls -->
+		<!-- ******************************************************************************************** -->
+		<Control name="recordButtonSelected" type="trigger" options="receive"> <MidiMessage status="#90" address="#74"/> </Control>
+		<Control name="soloButtonSelected" type="trigger" options="receive"> <MidiMessage status="#90" address="#75"/> </Control>
+		<Control name="muteButtonSelected" type="trigger" options="receive"> <MidiMessage status="#90" address="#76"/> </Control>
+		<Control name="monitorButtonSelected" type="trigger" options="receive"> <MidiMessage status="#90" address="#77"/> </Control>
+
+		<Control name="recordLEDSelected" options="transmit"> <MidiMessage status="#90" address="#74"/> </Control>
+		<Control name="soloLEDSelected" options="transmit"> <MidiMessage status="#90" address="#75"/> </Control>
+		<Control name="muteLEDSelected" options="transmit"> <MidiMessage status="#90" address="#76"/> </Control>
+		<Control name="monitorLEDSelected" options="transmit"> <MidiMessage status="#90" address="#77"/> </Control>
+
+		<Control name="selectedLabel" type="textdisplay" options="transmit public"/>
+
+		<!-- ******************************************************************************************** -->
 		<!-- Displays -->
 		<!-- ******************************************************************************************** -->
 
@@ -334,6 +349,8 @@
 
 			<include template="ChannelStripAliasMapping"/>
 
+            <Value control="selectedFader" param="volume"/>
+            <String control="selectedLabel" param="labelStringSelected"/>
 		</Global>
 
 		<!-- ******************************************************************************************** -->
@@ -389,6 +406,19 @@
 
 					<Radio control="writeButton"   param="automationMode" value="4" options="toggle"/>
 					<Radio control="writeLED"      param="automationMode" value="4"/>
+
+					<!-- Selected Console Channel -->
+					<Toggle control="recordButtonSelected" param="recordArmed"/>
+					<Value control="recordLEDSelected" param="recordArmed"/>
+
+					<Toggle control="soloButtonSelected" param="solo" options="momentary"/>
+					<Value control="soloLEDSelected" param="solo"/>
+
+					<Toggle control="muteButtonSelected" param="mute" options="momentary"/>
+					<Value control="muteLEDSelected" param="mute"/>
+
+					<Toggle control="monitorButtonSelected" param="monitor"/>
+					<Value control="monitorLEDSelected" param="monitor"/>
 
 				</Strip>
 			</ScrollBank>

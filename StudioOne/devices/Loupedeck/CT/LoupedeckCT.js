@@ -1,6 +1,6 @@
 include_file("resource://com.presonus.musicdevices/sdk/controlsurfacecomponent.js");
 include_file("LoupedeckShared.js");
-const kLoupedeckCtMixerBanks = [
+const kLoupedeckCTMixerBanks = [
     PreSonus.MixerConsoleBankID.kAll,
     PreSonus.MixerConsoleBankID.kAudioInput,
     PreSonus.MixerConsoleBankID.kAudioTrack,
@@ -11,7 +11,7 @@ const kLoupedeckCtMixerBanks = [
     PreSonus.MixerConsoleBankID.kAudioVCA,
     PreSonus.MixerConsoleBankID.kUser
 ];
-class LoupedeckCtComponent extends LoupedeckSharedComponent {
+class LoupedeckCTComponent extends LoupedeckSharedComponent {
     onInit(hostComponent) {
         super.onInit(hostComponent);
         let paramList = hostComponent.paramList;
@@ -23,9 +23,9 @@ class LoupedeckCtComponent extends LoupedeckSharedComponent {
         this.panModeLED = paramList.addParam("panModeLED");
         this.updateModeParams();
         this.bankList = paramList.addList("bankList");
-        for (let i in kLoupedeckCtMixerBanks)
-            this.bankList.appendString(kLoupedeckCtMixerBanks[i]);
-        this.bankList.value = kLoupedeckCtMixerBanks.indexOf(PreSonus.MixerConsoleBankID.kUser);
+        for (let i in kLoupedeckCTMixerBanks)
+            this.bankList.appendString(kLoupedeckCTMixerBanks[i]);
+        this.bankList.value = kLoupedeckCTMixerBanks.indexOf(PreSonus.MixerConsoleBankID.kUser);
     }
     onPanButtonPressed(value) {
         if (!value)
@@ -82,6 +82,6 @@ class LoupedeckCtComponent extends LoupedeckSharedComponent {
         }
     }
 }
-function createLoupedeckCtInstance() {
-    return new LoupedeckCtComponent();
+function createLoupedeckCTInstance() {
+    return new LoupedeckCTComponent();
 }

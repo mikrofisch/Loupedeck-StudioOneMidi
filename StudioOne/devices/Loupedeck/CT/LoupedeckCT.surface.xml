@@ -182,6 +182,8 @@
 		<Control name="selectedTouch" type="trigger" options="receive"> <MidiMessage status="#90" address="#79"/> </Control>
 		<Control name="selectedDisplay" type="textdisplay" options="transmit public"/>
 
+		<Control name="selectedLabelText"  type="textdisplay" options="transmit"/>
+
 		<!-- ******************************************************************************************** -->
 		<!-- Displays -->
 		<!-- ******************************************************************************************** -->
@@ -425,7 +427,10 @@
 
 					<Value control="selectedFader" param="volume"/>
 					<Touch control="selectedTouch" param="volume"/>
-					<String control="selectedDisplay" param="title"/>
+					<String control="selectedDisplay" param="volume"/>
+
+					<String control="selectedLabelText" param="label"/>
+
 				</Strip>
 			</ScrollBank>
 

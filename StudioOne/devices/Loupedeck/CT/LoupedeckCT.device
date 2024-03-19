@@ -7,7 +7,10 @@
 	classID="{EF427900-E2B0-478a-B17D-4652F0F273A6}"
 	category="Surface"
 	
-	nativeCode="MackieControl"
+	nativeCode="JSControlSurfaceDevice"
+	classFile="LoupedeckMidiDevice.js"
+	classFile.functionName="createLoupedeckDeviceInstance"
+
 	surfaceFile="LoupedeckCT.surface.xml"
 	surfacePlacementSize="8"
 	

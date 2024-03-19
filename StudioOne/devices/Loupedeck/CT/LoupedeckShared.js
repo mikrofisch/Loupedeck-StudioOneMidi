@@ -1,8 +1,10 @@
 include_file("resource://com.presonus.musicdevices/sdk/controlsurfacecomponent.js");
 include_file("resource://com.presonus.musicdevices/presonus/pslsurfacecomponent.js");
+
 const kNumChannels = 8;
 const kSendSlotAll = 0;
 const kSendSlotFirst = 1;
+
 class ParamDescriptor {
     constructor(label, name, altname = "") {
         this.label = label;
@@ -133,6 +135,7 @@ class ChannelInfo {
 class LoupedeckSharedComponent extends FocusChannelPanComponent {
     onInit(hostComponent) {
         super.onInit(hostComponent);
+        this.channelLabel = "";
         this.assignment = new Assignment;
         this.channelBankElement = this.mixerMapping.find("ChannelBankElement");
         this.focusSendsBankElement = this.focusChannelElement.find("SendsBankElement");
@@ -334,7 +337,6 @@ class LoupedeckSharedComponent extends FocusChannelPanComponent {
         return this.assignment;
     }
     onSyncDevice(otherData) {
-        Host.Console.writeLine("onSyncDevice [LoupedeckShared]");
         this.assignment.sync(otherData);
         this.updateAll();
     }

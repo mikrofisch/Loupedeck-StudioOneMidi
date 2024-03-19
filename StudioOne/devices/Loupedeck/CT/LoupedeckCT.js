@@ -13,6 +13,7 @@ const kLoupedeckCTMixerBanks = [
 ];
 class LoupedeckCTComponent extends LoupedeckSharedComponent {
     onInit(hostComponent) {
+        // Host.Console.writeLine("Connecting Loupedeck CT...");
         super.onInit(hostComponent);
         let paramList = hostComponent.paramList;
         this.assignMode = paramList.addInteger(0, ChannelAssignmentMode.kLastMode, "assignMode");

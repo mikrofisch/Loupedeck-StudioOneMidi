@@ -176,7 +176,11 @@
 		<Control name="muteLEDSelected" options="transmit"> <MidiMessage status="#90" address="#76"/> </Control>
 		<Control name="monitorLEDSelected" options="transmit"> <MidiMessage status="#90" address="#77"/> </Control>
 
-		<Control name="selectedLabel" type="textdisplay" options="transmit public"/>
+		<Control name="selectedFader" title="Selected Fader" type="fader" options="transmit receive public">
+			<MidiMessage status="#E0" channel="9"/>
+		</Control>
+		<Control name="selectedTouch" type="trigger" options="receive"> <MidiMessage status="#90" address="#79"/> </Control>
+		<Control name="selectedDisplay" type="textdisplay" options="transmit public"/>
 
 		<!-- ******************************************************************************************** -->
 		<!-- Displays -->
@@ -245,6 +249,7 @@
 				<Strip name="F6"><Toggle control="F6" param="value" options="above"/></Strip>
 				<Strip name="F7"><Toggle control="F7" param="value" options="above"/></Strip>
 				<Strip name="F8"><Toggle control="F8" param="value" options="above"/></Strip>
+
 			</Bank>
 		</GenericMapping>
 
@@ -349,8 +354,6 @@
 
 			<include template="ChannelStripAliasMapping"/>
 
-            <Value control="selectedFader" param="volume"/>
-            <String control="selectedLabel" param="labelStringSelected"/>
 		</Global>
 
 		<!-- ******************************************************************************************** -->
@@ -420,6 +423,9 @@
 					<Toggle control="monitorButtonSelected" param="monitor"/>
 					<Value control="monitorLEDSelected" param="monitor"/>
 
+					<Value control="selectedFader" param="volume"/>
+					<Touch control="selectedTouch" param="volume"/>
+					<String control="selectedDisplay" param="title"/>
 				</Strip>
 			</ScrollBank>
 

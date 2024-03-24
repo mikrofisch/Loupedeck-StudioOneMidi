@@ -16,18 +16,23 @@
 
 		public MackieSelectedChannelBoolPropertyCommand()
 		{
-			this.Description = "Control for currently selected Mackie channel";
+			this.Description = "Control for currently selected channel";
 
-			for (int i = 0; i < StudioOneMidiPlugin.MackieChannelCount + 1; i++)
+			for (int i = 0; i <= StudioOneMidiPlugin.MackieChannelCount; i++)
 			{
 				string prefix = $"{i}:";
 				string chstr = i == StudioOneMidiPlugin.MackieChannelCount ? " (Selected channel)" : $" (CH {i + 1})";
 
-				AddParameter(prefix + ((int)ChannelProperty.BoolType.Mute).ToString(), "Mute" + chstr, "Mackie mute");
-				AddParameter(prefix + ((int)ChannelProperty.BoolType.Solo).ToString(), "Solo " + chstr, "Mackie solo");
-				AddParameter(prefix + ((int)ChannelProperty.BoolType.Arm).ToString(),  "Arm/rec" + chstr, "Mackie arm/rec");
-			}
-		}
+                if (i < StudioOneMidiPlugin.MackieChannelCount)
+                {
+                    AddParameter(prefix + ((int)ChannelProperty.BoolType.Select).ToString(), "Select" + chstr, "Select");
+                }
+                AddParameter(prefix + ((int)ChannelProperty.BoolType.Mute).ToString(), "Mute" + chstr, "Mute");
+				AddParameter(prefix + ((int)ChannelProperty.BoolType.Solo).ToString(), "Solo " + chstr, "Solo");
+                AddParameter(prefix + ((int)ChannelProperty.BoolType.Arm).ToString(), "Arm/Rec" + chstr, "Arm/Rec");
+                AddParameter(prefix + ((int)ChannelProperty.BoolType.Monitor).ToString(), "Monitor" + chstr, "Monitor");
+            }
+        }
 
 		protected override bool OnLoad()
 		{
@@ -73,7 +78,7 @@
 			MackieChannelData cd = pd.channelData;
 			int param = pd.param;
 
-			if (cd.IsMasterChannel) return;
+			// if (cd.IsMasterChannel) return;
 
 			cd.EmitBoolPropertyPress((ChannelProperty.BoolType)param);
 		}
@@ -84,8 +89,9 @@
 			return new ParamData
 			{
 				param = Int32.Parse(dt[1]),
-				channelData = (dt[0] == StudioOneMidiPlugin.MackieChannelCount.ToString()) ? plugin.MackieSelectedChannel : plugin.mackieChannelData[dt[0]]
-			};
+                channelData = plugin.mackieChannelData[dt[0]]
+//                channelData = (dt[0] == StudioOneMidiPlugin.MackieChannelCount.ToString()) ? plugin.MackieSelectedChannel : plugin.mackieChannelData[dt[0]]
+            };
 		}
 
 		private class ParamData

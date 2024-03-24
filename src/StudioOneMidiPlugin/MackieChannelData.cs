@@ -13,25 +13,36 @@ namespace Loupedeck.StudioOneMidiPlugin
 	{
 
 		public int ChannelID;
-		public float Volume = 0;
+		public float Value = 0;
 		public string TrackName = "";
+        public string TrackValue = "";
 
-		public bool[] BoolProperty = new bool[(int)ChannelProperty.BoolType.Count];
+		public bool[] BoolProperty = new bool[(int)Enum.GetNames(typeof(ChannelProperty.BoolType)).Length];
 
 		public bool IsMasterChannel = false;
 
 		private StudioOneMidiPlugin plugin;
 
-		public bool Muted
-		{
-			get => BoolProperty[(int)ChannelProperty.BoolType.Mute];
-			set
-			{
-				BoolProperty[(int)ChannelProperty.BoolType.Mute] = value;
-			}
-		}
 
-		public bool Armed
+        public bool Selected
+        {
+            get => BoolProperty[(int)ChannelProperty.BoolType.Select];
+            set
+            {
+                BoolProperty[(int)ChannelProperty.BoolType.Select] = value;
+            }
+        }
+
+        public bool Muted
+        {
+            get => BoolProperty[(int)ChannelProperty.BoolType.Mute];
+            set
+            {
+                BoolProperty[(int)ChannelProperty.BoolType.Mute] = value;
+            }
+        }
+
+        public bool Armed
 		{
 			get => BoolProperty[(int)ChannelProperty.BoolType.Arm];
 			set
@@ -49,23 +60,32 @@ namespace Loupedeck.StudioOneMidiPlugin
 			}
 		}
 
-		public MackieChannelData(StudioOneMidiPlugin plugin, int channelID)
+        public bool Monitor
+        {
+            get => BoolProperty[(int)ChannelProperty.BoolType.Monitor];
+            set
+            {
+                BoolProperty[(int)ChannelProperty.BoolType.Monitor] = value;
+            }
+        }
+        
+        public MackieChannelData(StudioOneMidiPlugin plugin, int channelID)
 		{
 			this.plugin = plugin;
 
 			ChannelID = channelID;
-			IsMasterChannel = channelID == StudioOneMidiPlugin.MackieChannelCount;
-
-			if (IsMasterChannel)
-				TrackName = "Master";
-			else
+//			IsMasterChannel = channelID == StudioOneMidiPlugin.MackieChannelCount;
+//
+//			if (IsMasterChannel)
+//				TrackName = "Master";
+//			else
 				TrackName = $"Channel {channelID + 1}";
 		}
 
 		public void EmitVolumeUpdate()
 		{
 			var e = new PitchBendEvent();
-			e.PitchValue = (ushort)(Volume * 16383);
+			e.PitchValue = (ushort)(Value * 16383);
 			e.Channel = (FourBitNumber)ChannelID;
 			plugin.mackieMidiOut.SendEvent(e);
 

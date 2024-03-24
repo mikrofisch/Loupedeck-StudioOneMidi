@@ -1,7 +1,7 @@
 include_file("resource://com.presonus.musicdevices/sdk/controlsurfacecomponent.js");
 include_file("resource://com.presonus.musicdevices/presonus/pslsurfacecomponent.js");
 
-const kNumChannels = 8;
+const kNumChannels = 6;
 const kSendSlotAll = 0;
 const kSendSlotFirst = 1;
 

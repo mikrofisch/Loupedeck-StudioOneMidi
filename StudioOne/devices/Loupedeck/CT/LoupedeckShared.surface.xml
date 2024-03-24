@@ -71,8 +71,6 @@
 		<Control name="recordButton[3]" type="trigger" options="receive"> <MidiMessage status="#90" address="#03"/> </Control>
 		<Control name="recordButton[4]" type="trigger" options="receive"> <MidiMessage status="#90" address="#04"/> </Control>
 		<Control name="recordButton[5]" type="trigger" options="receive"> <MidiMessage status="#90" address="#05"/> </Control>
-		<Control name="recordButton[6]" type="trigger" options="receive"> <MidiMessage status="#90" address="#06"/> </Control>
-		<Control name="recordButton[7]" type="trigger" options="receive"> <MidiMessage status="#90" address="#07"/> </Control>
 
 		<Control name="recordLED[0]" options="transmit"> <MidiMessage status="#90" address="#00"/> </Control>
 		<Control name="recordLED[1]" options="transmit"> <MidiMessage status="#90" address="#01"/> </Control>
@@ -80,8 +78,6 @@
 		<Control name="recordLED[3]" options="transmit"> <MidiMessage status="#90" address="#03"/> </Control>
 		<Control name="recordLED[4]" options="transmit"> <MidiMessage status="#90" address="#04"/> </Control>
 		<Control name="recordLED[5]" options="transmit"> <MidiMessage status="#90" address="#05"/> </Control>
-		<Control name="recordLED[6]" options="transmit"> <MidiMessage status="#90" address="#06"/> </Control>
-		<Control name="recordLED[7]" options="transmit"> <MidiMessage status="#90" address="#07"/> </Control>
 
 		<!-- Solo -->
 		<Control name="soloButton[0]" type="trigger" options="receive"> <MidiMessage status="#90" address="#08"/> </Control>
@@ -90,8 +86,6 @@
 		<Control name="soloButton[3]" type="trigger" options="receive"> <MidiMessage status="#90" address="#0B"/> </Control>
 		<Control name="soloButton[4]" type="trigger" options="receive"> <MidiMessage status="#90" address="#0C"/> </Control>
 		<Control name="soloButton[5]" type="trigger" options="receive"> <MidiMessage status="#90" address="#0D"/> </Control>
-		<Control name="soloButton[6]" type="trigger" options="receive"> <MidiMessage status="#90" address="#0E"/> </Control>
-		<Control name="soloButton[7]" type="trigger" options="receive"> <MidiMessage status="#90" address="#0F"/> </Control>
 
 		<Control name="soloLED[0]" options="transmit"> <MidiMessage status="#90" address="#08"/> </Control>
 		<Control name="soloLED[1]" options="transmit"> <MidiMessage status="#90" address="#09"/> </Control>
@@ -99,8 +93,6 @@
 		<Control name="soloLED[3]" options="transmit"> <MidiMessage status="#90" address="#0B"/> </Control>
 		<Control name="soloLED[4]" options="transmit"> <MidiMessage status="#90" address="#0C"/> </Control>
 		<Control name="soloLED[5]" options="transmit"> <MidiMessage status="#90" address="#0D"/> </Control>
-		<Control name="soloLED[6]" options="transmit"> <MidiMessage status="#90" address="#0E"/> </Control>
-		<Control name="soloLED[7]" options="transmit"> <MidiMessage status="#90" address="#0F"/> </Control>
 
 		<!-- Mute -->
 		<Control name="muteButton[0]" type="trigger" options="receive"> <MidiMessage status="#90" address="#10"/> </Control>
@@ -109,8 +101,6 @@
 		<Control name="muteButton[3]" type="trigger" options="receive"> <MidiMessage status="#90" address="#13"/> </Control>
 		<Control name="muteButton[4]" type="trigger" options="receive"> <MidiMessage status="#90" address="#14"/> </Control>
 		<Control name="muteButton[5]" type="trigger" options="receive"> <MidiMessage status="#90" address="#15"/> </Control>
-		<Control name="muteButton[6]" type="trigger" options="receive"> <MidiMessage status="#90" address="#16"/> </Control>
-		<Control name="muteButton[7]" type="trigger" options="receive"> <MidiMessage status="#90" address="#17"/> </Control>
 
 		<Control name="muteLED[0]" options="transmit"> <MidiMessage status="#90" address="#10"/> </Control>
 		<Control name="muteLED[1]" options="transmit"> <MidiMessage status="#90" address="#11"/> </Control>
@@ -118,8 +108,21 @@
 		<Control name="muteLED[3]" options="transmit"> <MidiMessage status="#90" address="#13"/> </Control>
 		<Control name="muteLED[4]" options="transmit"> <MidiMessage status="#90" address="#14"/> </Control>
 		<Control name="muteLED[5]" options="transmit"> <MidiMessage status="#90" address="#15"/> </Control>
-		<Control name="muteLED[6]" options="transmit"> <MidiMessage status="#90" address="#16"/> </Control>
-		<Control name="muteLED[7]" options="transmit"> <MidiMessage status="#90" address="#17"/> </Control>
+
+		<!-- Monitor (Studio One specific, not in MCU protocol) -->
+		<Control name="monitorButton[0]" options="transmit"> <MidiMessage status="#90" address="#78"/> </Control>
+		<Control name="monitorButton[1]" options="transmit"> <MidiMessage status="#90" address="#79"/> </Control>
+		<Control name="monitorButton[2]" options="transmit"> <MidiMessage status="#90" address="#7A"/> </Control>
+		<Control name="monitorButton[3]" options="transmit"> <MidiMessage status="#90" address="#7B"/> </Control>
+		<Control name="monitorButton[4]" options="transmit"> <MidiMessage status="#90" address="#7C"/> </Control>
+		<Control name="monitorButton[5]" options="transmit"> <MidiMessage status="#90" address="#7D"/> </Control>
+
+		<Control name="monitorLED[0]" options="transmit"> <MidiMessage status="#90" address="#78"/> </Control>
+		<Control name="monitorLED[1]" options="transmit"> <MidiMessage status="#90" address="#79"/> </Control>
+		<Control name="monitorLED[2]" options="transmit"> <MidiMessage status="#90" address="#7A"/> </Control>
+		<Control name="monitorLED[3]" options="transmit"> <MidiMessage status="#90" address="#7B"/> </Control>
+		<Control name="monitorLED[4]" options="transmit"> <MidiMessage status="#90" address="#7C"/> </Control>
+		<Control name="monitorLED[5]" options="transmit"> <MidiMessage status="#90" address="#7D"/> </Control>
 
 		<!-- Select -->
 		<Control name="selectButton[0]" type="trigger" options="receive"> <MidiMessage status="#90" address="#18"/> </Control>
@@ -128,8 +131,6 @@
 		<Control name="selectButton[3]" type="trigger" options="receive"> <MidiMessage status="#90" address="#1B"/> </Control>
 		<Control name="selectButton[4]" type="trigger" options="receive"> <MidiMessage status="#90" address="#1C"/> </Control>
 		<Control name="selectButton[5]" type="trigger" options="receive"> <MidiMessage status="#90" address="#1D"/> </Control>
-		<Control name="selectButton[6]" type="trigger" options="receive"> <MidiMessage status="#90" address="#1E"/> </Control>
-		<Control name="selectButton[7]" type="trigger" options="receive"> <MidiMessage status="#90" address="#1F"/> </Control>
 
 		<Control name="selectLED[0]" options="transmit"> <MidiMessage status="#90" address="#18"/> </Control>
 		<Control name="selectLED[1]" options="transmit"> <MidiMessage status="#90" address="#19"/> </Control>
@@ -137,30 +138,24 @@
 		<Control name="selectLED[3]" options="transmit"> <MidiMessage status="#90" address="#1B"/> </Control>
 		<Control name="selectLED[4]" options="transmit"> <MidiMessage status="#90" address="#1C"/> </Control>
 		<Control name="selectLED[5]" options="transmit"> <MidiMessage status="#90" address="#1D"/> </Control>
-		<Control name="selectLED[6]" options="transmit"> <MidiMessage status="#90" address="#1E"/> </Control>
-		<Control name="selectLED[7]" options="transmit"> <MidiMessage status="#90" address="#1F"/> </Control>
 
 		<!-- ******************************************************************************************** -->
 		<!-- Displays -->
 		<!-- ******************************************************************************************** -->
 
-		<Control name="textCell[0][0]" type="textdisplay" options="transmit public"/>
-		<Control name="textCell[0][1]" type="textdisplay" options="transmit public"/>
-		<Control name="textCell[0][2]" type="textdisplay" options="transmit public"/>
-		<Control name="textCell[0][3]" type="textdisplay" options="transmit public"/>
-		<Control name="textCell[0][4]" type="textdisplay" options="transmit public"/>
-		<Control name="textCell[0][5]" type="textdisplay" options="transmit public"/>
-		<Control name="textCell[0][6]" type="textdisplay" options="transmit public"/>
-		<Control name="textCell[0][7]" type="textdisplay" options="transmit public"/>
+		<Control name="labelText[0]" type="textdisplay" options="transmit public"/>
+		<Control name="labelText[1]" type="textdisplay" options="transmit public"/>
+		<Control name="labelText[2]" type="textdisplay" options="transmit public"/>
+		<Control name="labelText[3]" type="textdisplay" options="transmit public"/>
+		<Control name="labelText[4]" type="textdisplay" options="transmit public"/>
+		<Control name="labelText[5]" type="textdisplay" options="transmit public"/>
 		
-		<Control name="textCell[1][0]" type="textdisplay" options="transmit public"/>
-		<Control name="textCell[1][1]" type="textdisplay" options="transmit public"/>
-		<Control name="textCell[1][2]" type="textdisplay" options="transmit public"/>
-		<Control name="textCell[1][3]" type="textdisplay" options="transmit public"/>
-		<Control name="textCell[1][4]" type="textdisplay" options="transmit public"/>
-		<Control name="textCell[1][5]" type="textdisplay" options="transmit public"/>
-		<Control name="textCell[1][6]" type="textdisplay" options="transmit public"/>
-		<Control name="textCell[1][7]" type="textdisplay" options="transmit public"/>
+		<Control name="valueText[0]" type="textdisplay" options="transmit public"/>
+		<Control name="valueText[1]" type="textdisplay" options="transmit public"/>
+		<Control name="valueText[2]" type="textdisplay" options="transmit public"/>
+		<Control name="valueText[3]" type="textdisplay" options="transmit public"/>
+		<Control name="valueText[4]" type="textdisplay" options="transmit public"/>
+		<Control name="valueText[5]" type="textdisplay" options="transmit public"/>
 
 		<!-- ******************************************************************************************** -->
 		<!-- V-Pots -->
@@ -172,8 +167,6 @@
 		<Control name="vpot[3]" title="V-Pot 4" type="relative" options="receive public"/>
 		<Control name="vpot[4]" title="V-Pot 5" type="relative" options="receive public"/>
 		<Control name="vpot[5]" title="V-Pot 6" type="relative" options="receive public"/>
-		<Control name="vpot[6]" title="V-Pot 7" type="relative" options="receive public"/>
-		<Control name="vpot[7]" title="V-Pot 8" type="relative" options="receive public"/>
 
 		<Control name="ledRing[0]" options="transmit"/>
 		<Control name="ledRing[1]" options="transmit"/>
@@ -181,8 +174,6 @@
 		<Control name="ledRing[3]" options="transmit"/>
 		<Control name="ledRing[4]" options="transmit"/>
 		<Control name="ledRing[5]" options="transmit"/>
-		<Control name="ledRing[6]" options="transmit"/>
-		<Control name="ledRing[7]" options="transmit"/>
 
 		<!-- V-Select -->
 		<Control name="vpotSelect[0]" type="trigger" options="receive"> <MidiMessage status="#90" address="#20"/> </Control>
@@ -191,8 +182,6 @@
 		<Control name="vpotSelect[3]" type="trigger" options="receive"> <MidiMessage status="#90" address="#23"/> </Control>
 		<Control name="vpotSelect[4]" type="trigger" options="receive"> <MidiMessage status="#90" address="#24"/> </Control>
 		<Control name="vpotSelect[5]" type="trigger" options="receive"> <MidiMessage status="#90" address="#25"/> </Control>
-		<Control name="vpotSelect[6]" type="trigger" options="receive"> <MidiMessage status="#90" address="#26"/> </Control>
-		<Control name="vpotSelect[7]" type="trigger" options="receive"> <MidiMessage status="#90" address="#27"/> </Control>
 
 	</Controls>
 
@@ -207,7 +196,7 @@
 		<!-- ******************************************************************************************** -->
 
 		<Template name="PlugControlMapping">
-			<foreach variable="$ch" count="8">
+			<foreach variable="$ch" count="6">
 				<Strip name="vpot[$ch]" onConnect="onConnectPlugControl($ch)"/>
 			</foreach>
 		</Template>
@@ -217,9 +206,9 @@
 		<!-- ******************************************************************************************** -->
 
 		<Template name="ChannelStripAliasMapping">
-			<foreach variable="$ch" count="8">
-				<String control="textCell[0][$ch]" param="labelString$ch"/>
-				<String control="textCell[1][$ch]" param="valueString$ch"/>
+			<foreach variable="$ch" count="6">
+				<String control="labelText[$ch]" param="labelString$ch"/>
+				<String control="valueText[$ch]" param="valueString$ch"/>
 				<Value control="fader[$ch]" param="faderValue$ch"/>
 				<Touch control="faderTouch[$ch]" param="faderValue$ch"/>
 				<Relative control="vpot[$ch]" param="potValue$ch"/>
@@ -229,22 +218,22 @@
 		</Template>
 
 		<!-- ******************************************************************************************** -->
-		<!-- 8 Channel Strips -->
+		<!-- 6 Channel Strips -->
 		<!-- ******************************************************************************************** -->
 
 		<Template name="AllChannelStrips">
-			<foreach variable="$ch" count="8">
+			<foreach variable="$ch" count="6">
 				<Strip onConnect="onConnectChannel($ch)">
 					<!-- Inserts + Sends (used for script interaction) -->
 					<!--
 					<Bank target="Inserts" name="InsertsBankElement">
-						<foreach variable="$insertIndex" count="8">
+						<foreach variable="$insertIndex" count="6">
 							<Strip onConnect="onConnectChannelInsert($ch,$insertIndex)"/>
 						</foreach>
 					</Bank>
 					-->
 					<Bank target="Sends" name="SendsBankElement">
-						<foreach variable="$sendIndex" count="8">
+						<foreach variable="$sendIndex" count="6">
 							<Strip onConnect="onConnectChannelSend($ch,$sendIndex)"/>
 						</foreach>
 					</Bank>
@@ -277,12 +266,12 @@
 		<Template name="FocusChannelInsertsAndSends">
 			<!-- Inserts + Sends (used for script interaction) -->
 			<Bank target="Inserts" name="InsertsBankElement">
-				<foreach variable="$insertIndex" count="8">
+				<foreach variable="$insertIndex" count="6">
 					<Strip onConnect="onConnectFocusChannelInsert($insertIndex)"/>
 				</foreach>
 			</Bank>
 			<Bank target="Sends" name="SendsBankElement">
-				<foreach variable="$sendIndex" count="8">
+				<foreach variable="$sendIndex" count="6">
 					<Strip onConnect="onConnectFocusChannelSend($sendIndex)"/>
 				</foreach>
 			</Bank>

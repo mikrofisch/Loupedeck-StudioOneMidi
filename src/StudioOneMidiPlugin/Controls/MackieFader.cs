@@ -15,13 +15,13 @@
 
 		public MackieFader() : base(true)
 		{
-			this.Description = "Mackie Control compatible channel fader.\nButton press -> Mute\nScreen touch -> Select\nScreen double tap -> Arm/rec";
+			this.Description = "Channel fader.\nButton press -> Mute\nScreen touch -> Select\nScreen double tap -> Arm/rec";
 
 			for (int i = 0; i < StudioOneMidiPlugin.MackieChannelCount; i++)
 			{
-				AddParameter(i.ToString(), $"Fader (CH {i + 1})", "Mackie faders");
+				AddParameter(i.ToString(), $"Fader (CH {i + 1})", "Faders");
 			}
-			AddParameter(StudioOneMidiPlugin.MackieChannelCount.ToString(), $"Mackie master fader", "Mackie faders");
+			AddParameter(StudioOneMidiPlugin.MackieChannelCount.ToString(), $"Fader (Selected Channel)", "Faders");
 		}
 
 		protected override bool OnLoad()
@@ -46,16 +46,16 @@
 
 			MackieChannelData cd = GetChannel(actionParameter);
 
-			cd.Volume = Math.Min(1, Math.Max(0, (float)Math.Round(cd.Volume * 100 + diff) / 100));
+			cd.Value = Math.Min(1, Math.Max(0, (float)Math.Round(cd.Value * 100 + diff) / 100));
 			cd.EmitVolumeUpdate();
 
-			plugin.MackieSelectedChannel = cd;
+//			plugin.MackieSelectedChannel = cd;
 		}
 
 		protected override void RunCommand(string actionParameter)
 		{
 			MackieChannelData cd = GetChannel(actionParameter);
-			plugin.MackieSelectedChannel = cd;
+//			plugin.MackieSelectedChannel = cd;
 			cd.EmitBoolPropertyPress(ChannelProperty.BoolType.Mute);
 		}
 
@@ -67,21 +67,22 @@
 
 			var bb = new BitmapBuilder(imageSize);
 
-			if (!cd.IsMasterChannel && (cd.Muted || cd.Solo))
+			if (cd.Muted || cd.Solo)
 				bb.FillRectangle(
 					0, 0, bb.Width, bb.Height,
 					ChannelProperty.boolPropertyColor[cd.Muted ? (int)ChannelProperty.BoolType.Mute : (int)ChannelProperty.BoolType.Solo]
 					);
 
-			if (plugin.MackieSelectedChannel == cd)
+			if (cd.Selected && cd.ChannelID < StudioOneMidiPlugin.MackieChannelCount)
 				bb.FillRectangle(0, 0, 16, 4, ChannelProperty.selectionColor);
 
-			if (!cd.IsMasterChannel && cd.Armed)
+			if (cd.Armed)
 				bb.FillRectangle(bb.Width - 16, 0, 16, 4, ChannelProperty.boolPropertyColor[(int)ChannelProperty.BoolType.Arm]);
 
 			bb.DrawText(cd.TrackName, 0, 0, bb.Width, bb.Height / 2, null, imageSize == PluginImageSize.Width60 ? 12 : 1);
-			bb.DrawText($"{Math.Round(cd.Volume * 100.0f)} %", 0, bb.Height / 2, bb.Width, bb.Height / 2);
-			return bb.ToImage();
+//            bb.DrawText($"{Math.Round(cd.Value * 100.0f)} %", 0, bb.Height / 2, bb.Width, bb.Height / 2);
+            bb.DrawText(cd.TrackValue, 0, bb.Height / 2, bb.Width, bb.Height / 2);
+            return bb.ToImage();
 		}
 
 		private MackieChannelData GetChannel(string actionParameter)
@@ -92,7 +93,7 @@
 		protected override bool ProcessTouchEvent(string actionParameter, DeviceTouchEvent touchEvent)
 		{
 			MackieChannelData cd = GetChannel(actionParameter);
-			plugin.MackieSelectedChannel = cd;
+//			plugin.MackieSelectedChannel = cd;
 
 			if (touchEvent.EventType == DeviceTouchEventType.DoubleTap) cd.EmitBoolPropertyPress(ChannelProperty.BoolType.Arm);
 

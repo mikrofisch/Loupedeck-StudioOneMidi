@@ -166,23 +166,24 @@
 		<!-- ******************************************************************************************** -->
 		<!-- Selected Channel Controls -->
 		<!-- ******************************************************************************************** -->
-		<Control name="recordButtonSelected" type="trigger" options="receive"> <MidiMessage status="#90" address="#74"/> </Control>
-		<Control name="soloButtonSelected" type="trigger" options="receive"> <MidiMessage status="#90" address="#75"/> </Control>
-		<Control name="muteButtonSelected" type="trigger" options="receive"> <MidiMessage status="#90" address="#76"/> </Control>
-		<Control name="monitorButtonSelected" type="trigger" options="receive"> <MidiMessage status="#90" address="#77"/> </Control>
+		<Control name="recordButtonSelected" type="trigger" options="receive"> <MidiMessage status="#90" address="#06"/> </Control>
+		<Control name="soloButtonSelected" type="trigger" options="receive"> <MidiMessage status="#90" address="#0E"/> </Control>
+		<Control name="muteButtonSelected" type="trigger" options="receive"> <MidiMessage status="#90" address="#16"/> </Control>
+		<Control name="monitorButtonSelected" type="trigger" options="receive"> <MidiMessage status="#90" address="#7E"/> </Control>
 
-		<Control name="recordLEDSelected" options="transmit"> <MidiMessage status="#90" address="#74"/> </Control>
-		<Control name="soloLEDSelected" options="transmit"> <MidiMessage status="#90" address="#75"/> </Control>
-		<Control name="muteLEDSelected" options="transmit"> <MidiMessage status="#90" address="#76"/> </Control>
-		<Control name="monitorLEDSelected" options="transmit"> <MidiMessage status="#90" address="#77"/> </Control>
+		<Control name="recordLEDSelected" options="transmit"> <MidiMessage status="#90" address="#06"/> </Control>
+		<Control name="soloLEDSelected" options="transmit"> <MidiMessage status="#90" address="#0E"/> </Control>
+		<Control name="muteLEDSelected" options="transmit"> <MidiMessage status="#90" address="#16"/> </Control>
+		<Control name="monitorLEDSelected" options="transmit"> <MidiMessage status="#90" address="#7E"/> </Control>
 
 		<Control name="selectedFader" title="Selected Fader" type="fader" options="transmit receive public">
 			<MidiMessage status="#E0" channel="9"/>
 		</Control>
-		<Control name="selectedTouch" type="trigger" options="receive"> <MidiMessage status="#90" address="#79"/> </Control>
+		<Control name="selectedTouch" type="trigger" options="receive"> <MidiMessage status="#90" address="#74"/> </Control>
 		<Control name="selectedDisplay" type="textdisplay" options="transmit public"/>
 
 		<Control name="selectedLabelText"  type="textdisplay" options="transmit"/>
+		<Control name="selectedValueText"  type="textdisplay" options="transmit"/>
 
 		<!-- ******************************************************************************************** -->
 		<!-- Displays -->
@@ -363,8 +364,8 @@
 		<!-- ******************************************************************************************** -->
 
 		<DeviceMapping device="MixerConsole" name="MixerMapping">
-			<!-- 8 Channel Strips -->
-			<PlacementBank target="RemoteBank" pagesize="8" name="ChannelBankElement">
+			<!-- 6 Channel Strips -->
+			<PlacementBank target="RemoteBank" pagesize="6" name="ChannelBankElement">
 
 				<include template="AllChannelStrips"/>
 
@@ -430,6 +431,7 @@
 					<String control="selectedDisplay" param="volume"/>
 
 					<String control="selectedLabelText" param="label"/>
+					<String control="selectedValueText" param="volume"/>
 
 				</Strip>
 			</ScrollBank>

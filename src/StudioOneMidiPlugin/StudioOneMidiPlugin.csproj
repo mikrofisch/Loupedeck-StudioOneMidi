@@ -64,6 +64,7 @@
       <DependentUpon>ConfigWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\ConfigCommand.cs" />
+    <Compile Include="Controls\LoupeDeckVolPanFlip.cs" />
     <Compile Include="Controls\MackieBoolPropertyCommand.cs" />
     <Compile Include="Controls\MackieCommand.cs" />
     <Compile Include="Controls\MackieFader.cs" />
@@ -112,6 +113,17 @@
     <EmbeddedResource Include="Resources\rewind_52px.png" />
     <EmbeddedResource Include="Resources\stop_52px.png" />
     <EmbeddedResource Include="Resources\stop_on_52px.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\faderBankLeft_52px.png" />
+    <EmbeddedResource Include="Resources\faderBankRight_52px.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\faderChannelLeft_52px.png" />
+    <EmbeddedResource Include="Resources\faderChannelRight_52px.png" />
+    <EmbeddedResource Include="Resources\monitor_24px.png" />
+    <EmbeddedResource Include="Resources\monitor_52px.png" />
+    <EmbeddedResource Include="Resources\record_24px.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

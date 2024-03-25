@@ -5,7 +5,9 @@
 
     using System;
     using System.Collections.Generic;
-    
+    using System.Windows;
+    using System.Windows.Shapes;
+
     class MackieCommand : PluginDynamicCommand
 	{
 		StudioOneMidiPlugin plugin;
@@ -20,7 +22,7 @@
 			public bool Activated = false;
 
 			public BitmapColor OffColor = BitmapColor.Black;
-			public BitmapColor OnColor = new BitmapColor(64, 64, 64);
+			public BitmapColor OnColor  = BitmapColor.Black;
 			public BitmapImage Icon, IconOn;
 		}
 
@@ -62,16 +64,60 @@
 				IconName = "rewind"
 			});
 
-			this.AddButton(new ButtonData
-			{
-				Code = 86,
-				Name = "Loop",
-				IconName = "loop",
-				// OnColor = new BitmapColor(0, 57, 148),
-			});
-		}
+            this.AddButton(new ButtonData
+            {
+                Code = 86,
+                Name = "Loop",
+                IconName = "loop",
+                // OnColor = new BitmapColor(0, 57, 148),
+            });
+            this.AddButton(new ButtonData
+            {
+                Code = 0x2E,
+                Name = "Fader Bank Left",
+                IconName = "faderBankLeft",
+            });
+            this.AddButton(new ButtonData
+            {
+                Code = 0x2F,
+                Name = "Fader Bank Right",
+                IconName = "faderBankRight",
+            });
+            this.AddButton(new ButtonData
+            {
+                Code = 0x30,
+                Name = "Fader Channel Left",
+                IconName = "faderChannelLeft",
+            });
+            this.AddButton(new ButtonData
+            {
+                Code = 0x31,
+                Name = "Fader Channel Right",
+                IconName = "faderChannelRight",
+            });
+            this.AddButton(new ButtonData
+            {
+                Code = 0x28,
+                Name = "TRACK",
+            });
+            this.AddButton(new ButtonData
+            {
+                Code = 0x29,
+                Name = "SEND",
+            });
+            this.AddButton(new ButtonData
+            {
+                Code = 0x2A,
+                Name = "VOL/PAN",
+            });
+            this.AddButton(new ButtonData
+            {
+                Code = 0x32,
+                Name = "Flip Volume/Pan",
+            });
+        }
 
-		protected override bool OnLoad()
+        protected override bool OnLoad()
 		{
 			plugin = base.Plugin as StudioOneMidiPlugin;
 			plugin.MackieNoteReceived += this.OnMackieNoteReceived;
@@ -117,7 +163,7 @@
 			ButtonData bd = buttonData[actionParameter];
 
 			var bb = new BitmapBuilder(imageSize);
-			// bb.FillRectangle(0, 0, bb.Width, bb.Height, bd.Activated ? bd.OnColor : bd.OffColor);
+            bb.FillRectangle(0, 0, bb.Width, bb.Height, bd.Activated ? bd.OnColor : bd.OffColor);
 
             if (bd.Activated && bd.IconOn != null)
             {
@@ -126,6 +172,29 @@
             else if (bd.Icon != null)
             {
                 bb.DrawImage(bd.Icon);
+            }
+            else if (bd.Code == 0x32)  // Flip Pan/Vol
+            {
+                BitmapColor cRectOn  = BitmapColor.White;
+                BitmapColor cTextOn  = BitmapColor.Black;
+                BitmapColor cRectOff = new BitmapColor(50, 50, 50);
+                BitmapColor cTextOff = new BitmapColor(160, 160, 160);
+
+                int rY = 16;
+                int rS = 8;
+                int rW = bb.Width - 24;
+                int rH = (bb.Height - 2 * rY - rS) / 2;
+                int rX = (bb.Width - rW) / 2;
+
+                bb.FillRectangle(rX, rY, rW, rH, bd.Activated ? cRectOff : cRectOn);
+                bb.DrawText("VOL", rX, rY, rW, rH, bd.Activated ? cTextOff : cTextOn, rH - 6);
+
+                bb.FillRectangle(rX, rY + rH + rS, rW, rH, bd.Activated ? cRectOn : cRectOff);
+                bb.DrawText("PAN", rX, rY + rH + rS, rW, rH, bd.Activated ? cTextOn : cTextOff, rH - 6);
+            }
+            else
+            {
+                bb.DrawText(bd.Name, 0, 0, bb.Width, bb.Height, null, 32);
             }
 
             return bb.ToImage();
@@ -141,21 +210,24 @@
 
             if (!buttonData.ContainsKey(actionParameter)) return;
 
-            ButtonData bd = buttonData[actionParameter];
-            int param = (SevenBitNumber)(bd.Code);
-            if (bd.Activated && (bd.CodeOn > 0))
+            if (pressed)
             {
-                param = (SevenBitNumber)(bd.CodeOn);
+                ButtonData bd = buttonData[actionParameter];
+                int param = (SevenBitNumber)(bd.Code);
+                if (bd.Activated && (bd.CodeOn > 0))
+                {
+                    param = (SevenBitNumber)(bd.CodeOn);
+                }
+
+                // int param = Int32.Parse(actionParameter);
+
+                NoteOnEvent e = new NoteOnEvent();
+                e.Velocity = (SevenBitNumber)(127);
+                e.NoteNumber = (SevenBitNumber)(param);
+                plugin.mackieMidiOut.SendEvent(e);
+
+//                ActionImageChanged(actionParameter);
             }
-
-			// int param = Int32.Parse(actionParameter);
-
-			NoteOnEvent e = new NoteOnEvent();
-			e.Velocity = (SevenBitNumber)(pressed ? 127 : 0);
-			e.NoteNumber = (SevenBitNumber)(param);
-			plugin.mackieMidiOut.SendEvent(e);
-
-			ActionImageChanged(actionParameter);
 		}
 
 		private void AddButton(ButtonData bd)
@@ -171,7 +243,7 @@
             }
 
 			buttonData[bd.Code.ToString()] = bd;
-			AddParameter(bd.Code.ToString(), bd.Name, "Mackie control");
+			AddParameter(bd.Code.ToString(), bd.Name, "Control");
 		}
 
 	}

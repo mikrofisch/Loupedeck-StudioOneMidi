@@ -1,21 +1,14 @@
 ﻿namespace Loupedeck.StudioOneMidiPlugin.Controls
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using System.Threading;
-    using System.Threading.Tasks;
-    
-    class ConfigCommand : PluginDynamicCommand
+    class BankCommand : PluginDynamicCommand
 	{
-		public ConfigCommand() : base("Studio One MIDI Settings", "Open Studio One MIDI settings window", "Control")
+		public BankCommand() : base("Studio One MIDI Settings", "Change Fader Banks", "Control")
 		{
 
 		}
 		protected override void RunCommand(string actionParameter)
 		{
-			(base.Plugin as StudioOneMidiPlugin).OpenConfigWindow();
+
 		}
 	}
 }

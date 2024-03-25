@@ -110,12 +110,12 @@
 		<Control name="muteLED[5]" options="transmit"> <MidiMessage status="#90" address="#15"/> </Control>
 
 		<!-- Monitor (Studio One specific, not in MCU protocol) -->
-		<Control name="monitorButton[0]" options="transmit"> <MidiMessage status="#90" address="#78"/> </Control>
-		<Control name="monitorButton[1]" options="transmit"> <MidiMessage status="#90" address="#79"/> </Control>
-		<Control name="monitorButton[2]" options="transmit"> <MidiMessage status="#90" address="#7A"/> </Control>
-		<Control name="monitorButton[3]" options="transmit"> <MidiMessage status="#90" address="#7B"/> </Control>
-		<Control name="monitorButton[4]" options="transmit"> <MidiMessage status="#90" address="#7C"/> </Control>
-		<Control name="monitorButton[5]" options="transmit"> <MidiMessage status="#90" address="#7D"/> </Control>
+		<Control name="monitorButton[0]" options="trigger"> <MidiMessage status="#90" address="#78"/> </Control>
+		<Control name="monitorButton[1]" options="trigger"> <MidiMessage status="#90" address="#79"/> </Control>
+		<Control name="monitorButton[2]" options="trigger"> <MidiMessage status="#90" address="#7A"/> </Control>
+		<Control name="monitorButton[3]" options="trigger"> <MidiMessage status="#90" address="#7B"/> </Control>
+		<Control name="monitorButton[4]" options="trigger"> <MidiMessage status="#90" address="#7C"/> </Control>
+		<Control name="monitorButton[5]" options="trigger"> <MidiMessage status="#90" address="#7D"/> </Control>
 
 		<Control name="monitorLED[0]" options="transmit"> <MidiMessage status="#90" address="#78"/> </Control>
 		<Control name="monitorLED[1]" options="transmit"> <MidiMessage status="#90" address="#79"/> </Control>
@@ -248,6 +248,9 @@
 
 					<Toggle control="muteButton[$ch]" param="mute" options="momentary"/>
 					<Value control="muteLED[$ch]" param="mute"/>
+
+					<Toggle control="monitorButton[$ch]" param="monitor"/>
+					<Value control="monitorLED[$ch]" param="monitor"/>
 
 					<Toggle control="selectButton[$ch]" param="selected"/>
 					<Value control="selectLED[$ch]" param="selected"/>

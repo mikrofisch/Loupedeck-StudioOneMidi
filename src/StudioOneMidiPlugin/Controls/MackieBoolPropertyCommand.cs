@@ -1,6 +1,6 @@
 ﻿namespace Loupedeck.StudioOneMidiPlugin.Controls
 {
-     using System;
+    using System;
     using System.Collections.Generic;
 
     class MackieSelectedChannelBoolPropertyCommand : PluginDynamicCommand

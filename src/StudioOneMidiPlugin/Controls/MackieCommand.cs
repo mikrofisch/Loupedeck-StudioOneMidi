@@ -112,6 +112,37 @@
             });
             this.AddButton(new ButtonData
             {
+                Code = 0x33,
+                Name = "GLOBAL",
+                OnColor = new BitmapColor(60, 60, 20)
+            });
+            this.AddButton(new ButtonData
+            {
+                Code = 0x40,
+                Name = "AUDIO",
+            });
+            this.AddButton(new ButtonData
+            {
+                Code = 0x42,
+                Name = "FX",
+            });
+            this.AddButton(new ButtonData
+            {
+                Code = 0x43,
+                Name = "BUS",
+            });
+            this.AddButton(new ButtonData
+            {
+                Code = 0x44,
+                Name = "OUT",
+            });
+            this.AddButton(new ButtonData
+            {
+                Code = 0x2A,
+                Name = "VOL/PAN",
+            });
+            this.AddButton(new ButtonData
+            {
                 Code = 0x32,
                 Name = "Flip Volume/Pan",
             });
@@ -139,23 +170,28 @@
 			this.ActionImageChanged(param);
 		}
 
-		protected override bool ProcessTouchEvent(string actionParameter, DeviceTouchEvent touchEvent)
-		{
-			if (touchEvent.EventType == DeviceTouchEventType.Press)        HandlePress(actionParameter, true);
-			else if (touchEvent.EventType == DeviceTouchEventType.TouchUp) HandlePress(actionParameter, false);
 
-			return base.ProcessTouchEvent(actionParameter, touchEvent);
-		}
-
-		protected override bool ProcessButtonEvent2(string actionParameter, DeviceButtonEvent2 buttonEvent)
+        protected override void RunCommand(string actionParameter)
         {
-			if (buttonEvent.EventType.IsButtonPressed()) HandlePress(actionParameter, true);
-			else                                         HandlePress(actionParameter, false);
+            if (!buttonData.ContainsKey(actionParameter))
+                return;
 
-			return base.ProcessButtonEvent2(actionParameter, buttonEvent);
-		}
+            ButtonData bd = buttonData[actionParameter];
+            int param = (SevenBitNumber)(bd.Code);
+            if (bd.Activated && (bd.CodeOn > 0))
+            {
+                param = (SevenBitNumber)(bd.CodeOn);
+            }
 
-		protected override BitmapImage GetCommandImage(string actionParameter, PluginImageSize imageSize)
+            // int param = Int32.Parse(actionParameter);
+
+            NoteOnEvent e = new NoteOnEvent();
+            e.Velocity = (SevenBitNumber)(127);
+            e.NoteNumber = (SevenBitNumber)(param);
+            plugin.mackieMidiOut.SendEvent(e);
+        }
+
+ 		protected override BitmapImage GetCommandImage(string actionParameter, PluginImageSize imageSize)
         {
 			if (actionParameter == null) return null;
 			if (!buttonData.ContainsKey(actionParameter)) return null;
@@ -194,40 +230,10 @@
             }
             else
             {
-                bb.DrawText(bd.Name, 0, 0, bb.Width, bb.Height, null, 32);
+                bb.DrawText(bd.Name, 0, 0, bb.Width, bb.Height, null, 16);
             }
 
             return bb.ToImage();
-		}
-
-		private void HandlePress(string actionParameter, bool pressed)
-        {
-            //			if(plugin.mackieMidiOut == null)
-            //            {
-            //				plugin.OpenConfigWindow();
-            //				return;
-            //			}
-
-            if (!buttonData.ContainsKey(actionParameter)) return;
-
-            if (pressed)
-            {
-                ButtonData bd = buttonData[actionParameter];
-                int param = (SevenBitNumber)(bd.Code);
-                if (bd.Activated && (bd.CodeOn > 0))
-                {
-                    param = (SevenBitNumber)(bd.CodeOn);
-                }
-
-                // int param = Int32.Parse(actionParameter);
-
-                NoteOnEvent e = new NoteOnEvent();
-                e.Velocity = (SevenBitNumber)(127);
-                e.NoteNumber = (SevenBitNumber)(param);
-                plugin.mackieMidiOut.SendEvent(e);
-
-//                ActionImageChanged(actionParameter);
-            }
 		}
 
 		private void AddButton(ButtonData bd)

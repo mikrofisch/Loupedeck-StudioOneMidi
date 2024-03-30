@@ -14,6 +14,12 @@ LoupedeckControls.kValueText2 = new TextCell();
 LoupedeckControls.kValueText3 = new TextCell();
 LoupedeckControls.kValueText4 = new TextCell();
 LoupedeckControls.kValueText5 = new TextCell();
+LoupedeckControls.kDescText0 = new TextCell();
+LoupedeckControls.kDescText0 = new TextCell();
+LoupedeckControls.kDescText0 = new TextCell();
+LoupedeckControls.kDescText0 = new TextCell();
+LoupedeckControls.kDescText0 = new TextCell();
+LoupedeckControls.kDescText0 = new TextCell();
 LoupedeckControls.kSelectedLabelText = new TextCell();
 LoupedeckControls.kSelectedValueText = new TextCell();
 class LoupedeckProtocol {
@@ -32,7 +38,7 @@ class LoupedeckProtocol {
         sysexBuffer.begin(LoupedeckProtocol.kSysexHeader);
         sysexBuffer.push(0x14);
         sysexBuffer.push(0x12);
-        sysexBuffer.push(channelID * 2 + offset);
+        sysexBuffer.push(channelID * 3 + offset);
         sysexBuffer.appendAscii(text);
         sysexBuffer.end();
         return sysexBuffer;

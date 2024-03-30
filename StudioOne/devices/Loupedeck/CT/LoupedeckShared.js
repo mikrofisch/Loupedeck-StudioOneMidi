@@ -104,12 +104,20 @@ class ChannelInfo {
     setLabel(element, paramName) {
         return element.connectAliasParam(this.labelString, paramName);
     }
+    setDesc(element, paramName) {
+        return element.connectAliasParam(this.descString, paramName);
+    }
     setLabelDirect(param) {
         this.labelString.setOriginal(param);
     }
     setConstantLabel(text) {
         this.constantString.string = text;
         this.labelString.setOriginal(this.constantString);
+        return true;
+    }
+    setConstantDesc(text) {
+        this.constantString.string = text;
+        this.descString.setOriginal(this.constantString);
         return true;
     }
     setFader(element, paramName) {
@@ -130,6 +138,7 @@ class ChannelInfo {
     clearDisplay() {
         this.labelString.setOriginal(null);
         this.valueString.setOriginal(null);
+        this.descString.setOriginal(null);
     }
 }
 class LoupedeckSharedComponent extends FocusChannelPanComponent {
@@ -149,6 +158,7 @@ class LoupedeckSharedComponent extends FocusChannelPanComponent {
             channelInfo.potValue = paramList.addAlias("potValue" + i);
             channelInfo.labelString = paramList.addAlias("labelString" + i);
             channelInfo.valueString = paramList.addAlias("valueString" + i);
+            channelInfo.descString = paramList.addAlias("descString" + i);
             channelInfo.constantString = paramList.addString("constantString" + i);
             channelInfo.channelElement = this.channelBankElement.getElement(i);
             channelInfo.sendsBankElement = channelInfo.channelElement.find("SendsBankElement");
@@ -217,29 +227,22 @@ class LoupedeckSharedComponent extends FocusChannelPanComponent {
         }
         else if (mode == ChannelAssignmentMode.kSendMode) {
             let sendElement = null;
-            let useChannelName = false;
-            if (this.assignment.sendIndex == kSendSlotAll)
+            if (this.assignment.sendIndex == kSendSlotAll) {
                 sendElement = this.focusSendsBankElement.getElement(index);
-            else {
+                if (index == 0) {
+                    channelInfo.setDesc(this.focusChannelElement.getElement(), PreSonus.ParamID.kLabel);
+                } else {
+                    channelInfo.setConstantDesc("");
+                }
+            } else {
                 sendElement = channelInfo.sendsBankElement.getElement(this.assignment.sendIndex - 1);
-                useChannelName = this.assignment.nameValueMode == 1;
+                channelInfo.setDesc(channelElement, PreSonus.ParamID.kLabel);
             }
-            if (useChannelName) {
-                channelInfo.setLabel(channelElement, PreSonus.ParamID.kLabel);
-                channelInfo.setValue(sendElement, PreSonus.ParamID.kSendPort);
-            }
-            else {
-                channelInfo.setLabel(sendElement, PreSonus.ParamID.kSendPort);
-                channelInfo.setValue(sendElement, PreSonus.ParamID.kSendLevel);
-            }
-            if (flipped) {
-                channelInfo.setPot(channelElement, PreSonus.ParamID.kVolume);
-                channelInfo.setFader(sendElement, PreSonus.ParamID.kSendLevel);
-            }
-            else {
-                channelInfo.setPot(sendElement, PreSonus.ParamID.kSendLevel);
-                channelInfo.setFader(channelElement, PreSonus.ParamID.kVolume);
-            }
+            channelInfo.setLabel(sendElement, PreSonus.ParamID.kSendPort);
+            channelInfo.setValue(sendElement, PreSonus.ParamID.kSendLevel);
+
+            channelInfo.setPot(channelElement, PreSonus.ParamID.kVolume);
+            channelInfo.setFader(sendElement, PreSonus.ParamID.kSendLevel);
         }
         else if (mode == ChannelAssignmentMode.kTrackMode || mode == ChannelAssignmentMode.kFXMode) {
             let descriptor = mode == ChannelAssignmentMode.kTrackMode ? kTrackModeParams[index] : kFXModeParams[index];

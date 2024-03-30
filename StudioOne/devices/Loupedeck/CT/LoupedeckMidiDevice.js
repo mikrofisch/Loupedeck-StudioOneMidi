@@ -24,16 +24,22 @@ class LoupedeckMidiDevice extends PreSonus.ControlSurfaceDevice {
         this.debugLog = false;
         this.addHandler(new TextHandler("labelText[0]", 0, 0, LoupedeckControls.kLabelText0));
         this.addHandler(new TextHandler("valueText[0]", 0, 1, LoupedeckControls.kValueText0));
+        this.addHandler(new TextHandler("descText[0]",  0, 2, LoupedeckControls.kDescText0));
         this.addHandler(new TextHandler("labelText[1]", 1, 0, LoupedeckControls.kLabelText1));
         this.addHandler(new TextHandler("valueText[1]", 1, 1, LoupedeckControls.kValueText1));
+        this.addHandler(new TextHandler("descText[1]",  1, 2, LoupedeckControls.kDescText1));
         this.addHandler(new TextHandler("labelText[2]", 2, 0, LoupedeckControls.kLabelText2));
         this.addHandler(new TextHandler("valueText[2]", 2, 1, LoupedeckControls.kValueText2));
+        this.addHandler(new TextHandler("descText[2]",  2, 2, LoupedeckControls.kDescText2));
         this.addHandler(new TextHandler("labelText[3]", 3, 0, LoupedeckControls.kLabelText3));
         this.addHandler(new TextHandler("valueText[3]", 3, 1, LoupedeckControls.kValueText3));
+        this.addHandler(new TextHandler("descText[3]",  3, 2, LoupedeckControls.kDescText3));
         this.addHandler(new TextHandler("labelText[4]", 4, 0, LoupedeckControls.kLabelText4));
         this.addHandler(new TextHandler("valueText[4]", 4, 1, LoupedeckControls.kValueText4));
+        this.addHandler(new TextHandler("descText[4]",  4, 2, LoupedeckControls.kDescText4));
         this.addHandler(new TextHandler("labelText[5]", 5, 0, LoupedeckControls.kLabelText5));
         this.addHandler(new TextHandler("valueText[5]", 5, 1, LoupedeckControls.kValueText5));
+        this.addHandler(new TextHandler("descText[5]",  5, 2, LoupedeckControls.kDescText5));
         this.addHandler(new TextHandler("selectedLabelText", 6, 0, LoupedeckControls.kSelectedLabelText));
         this.addHandler(new TextHandler("selectedValueText", 6, 1, LoupedeckControls.kSelectedValueText));
     }

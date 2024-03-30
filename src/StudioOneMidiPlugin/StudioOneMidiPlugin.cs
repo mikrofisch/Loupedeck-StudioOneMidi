@@ -12,9 +12,7 @@ namespace Loupedeck.StudioOneMidiPlugin
 
     using Melanchall.DryWetMidi.Core;
     using Melanchall.DryWetMidi.Multimedia;
-    using Melanchall.DryWetMidi.MusicTheory;
-    using Melanchall.DryWetMidi.Tools;
-
+ 
     // This class contains the plugin-level logic of the Loupedeck plugin.
 
     public class StudioOneMidiPlugin : Plugin
@@ -31,19 +29,21 @@ namespace Loupedeck.StudioOneMidiPlugin
 		public const int MackieChannelCount = 6;
 
 		public IDictionary<string, MackieChannelData> mackieChannelData = new Dictionary<string, MackieChannelData>();
-//        MackieChannelData mackieSelectedChannel = null;
 
-        //		string mackieDisplayData = new string(' ', 56 * 2);
         string midiInName, midiOutName, mackieMidiInName, mackieMidiOutName;
 
-		public event EventHandler MackieDataChanged;
+        public MackieFader mackieFader;
+
+        public bool isConfigWindowOpen = false;
+        
+        public event EventHandler MackieDataChanged;
 		public event EventHandler<NoteOnEvent> MackieNoteReceived;
 
-		public MackieFader mackieFader;
+        public event EventHandler SelectButtonPressed;
+        public event EventHandler<bool> SendModeChanged;
 
-		public bool isConfigWindowOpen = false;
-
-		private System.Timers.Timer mackieDataChangeTimer;
+        private System.Timers.Timer mackieDataChangeTimer;
+        public bool sendMode;
 
 		public string MidiInName
         {
@@ -129,21 +129,6 @@ namespace Loupedeck.StudioOneMidiPlugin
 			}
 		}
 
-//		public MackieChannelData MackieSelectedChannel
-//        {
-//			get => mackieSelectedChannel;
-//			set {
-//				if (mackieSelectedChannel == value)
-//					return;
-//
-//				MackieChannelData old = mackieSelectedChannel;
-//				mackieSelectedChannel = value;
-//
-//				EmitMackieChannelDataChanged(old);
-//				EmitMackieChannelDataChanged(value);
-//			}
-//		}
-
         // Initializes a new instance of the plugin class.
         public StudioOneMidiPlugin()
         {
@@ -156,9 +141,6 @@ namespace Loupedeck.StudioOneMidiPlugin
             // Create the channel data objects (one object for each bank channel, plus one for the selected channel).
 			for (int i = 0; i <= MackieChannelCount; i++)
 				mackieChannelData[i.ToString()] = new MackieChannelData(this, i);
-
-
-//            mackieSelectedChannel = mackieChannelData["0"];
 
 			mackieDataChangeTimer = new System.Timers.Timer(10);
 			mackieDataChangeTimer.AutoReset = false;
@@ -203,10 +185,20 @@ namespace Loupedeck.StudioOneMidiPlugin
 
 		public void EmitMackieChannelDataChanged(MackieChannelData cd)
         {
-			mackieDataChangeTimer.Start();
+            mackieDataChangeTimer.Start();
 		}
 
-		public override void RunCommand(String commandName, String parameter)
+        public void EmitSelectedButtonPressed()
+        {
+            this.SelectButtonPressed?.Invoke(this, null);
+        }
+
+        public void EmitSendModeChanged(bool sm)
+        {
+            this.SendModeChanged?.Invoke(this, sm );
+        }
+        
+        public override void RunCommand(String commandName, String parameter)
         {
 		}
 
@@ -295,48 +287,26 @@ namespace Loupedeck.StudioOneMidiPlugin
 					byte offset = ce.Data[5];
 					byte[] str = ce.Data.SubArray(6, ce.Data.Length - 7);
 
-                    //					if (offset + str.Length > mackieDisplayData.Length)	return;
-                    //
-                    //					StringBuilder sb = new StringBuilder(mackieDisplayData);
-                    //                    for (int i = 0; i < str.Length; i++)
-                    //                    {
-                    //                        sb[i + offset] = (char)str[i];
-                    //                    }
-                    //
-                    //					mackieDisplayData = sb.ToString();
-
                     var receivedString = Encoding.UTF8.GetString(str, 0, str.Length); //.Replace("\0", "");
-                    var displayIndex = offset / 2;
+                    var displayIndex = offset / 3;
 
                     if (!mackieChannelData.TryGetValue(displayIndex.ToString(), out MackieChannelData cd))
                         return;
 
-                    if (offset % 2 == 0)
+                    switch (offset % 3)
                     {
-                        if (!cd.TrackName.Equals(receivedString))
-                        {
-                            cd.TrackName = receivedString;
-                        }
-                    }
-                    else
-                    {
-                        if (!cd.TrackValue.Equals(receivedString))
-                        {
-                            cd.TrackValue = receivedString;
-                        }
+                        case 0: // Label
+                            cd.Label = receivedString;
+                            break;
+                        case 1: // Value
+                            cd.ValueStr = receivedString;
+                            break;
+                        case 2: // Description
+                            cd.Description = receivedString;
+                            break;
                     }
 
-                    //for (int i = 0; i < MackieChannelCount; i++)
-                    //               {
-                    //	MackieChannelData cd = mackieChannelData[i.ToString()];
-                    //	string newTrackName = mackieDisplayData.Substring(7 * i, 7).Replace("\0", "");
-                    //                   if (!cd.TrackName.Equals(newTrackName))
-                    //                   {
-                    //                       cd.TrackName = newTrackName;
-                    //                   }
-                    //}
-
-                    EmitMackieChannelDataChanged(null);
+                    EmitMackieChannelDataChanged(cd);
 				}
 			}
 		}

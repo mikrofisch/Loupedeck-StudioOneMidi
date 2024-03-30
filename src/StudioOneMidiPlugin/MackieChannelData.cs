@@ -4,18 +4,16 @@ using Melanchall.DryWetMidi.Core;
 namespace Loupedeck.StudioOneMidiPlugin
 {
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
-    
-    public class MackieChannelData
+    using System.Reflection.Emit;
+
+    public class MackieChannelData : EventArgs
 	{
 
 		public int ChannelID;
 		public float Value = 0;
-		public string TrackName = "";
-        public string TrackValue = "";
+		public string Label = "";
+        public string ValueStr = "";
+        public string Description = "";
 
 		public bool[] BoolProperty = new bool[(int)Enum.GetNames(typeof(ChannelProperty.BoolType)).Length];
 
@@ -79,7 +77,7 @@ namespace Loupedeck.StudioOneMidiPlugin
 //			if (IsMasterChannel)
 //				TrackName = "Master";
 //			else
-				TrackName = $"Channel {channelID + 1}";
+				this.Label = $"Channel {channelID + 1}";
 		}
 
 		public void EmitVolumeUpdate()

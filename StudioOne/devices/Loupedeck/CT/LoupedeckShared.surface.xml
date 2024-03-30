@@ -157,6 +157,13 @@
 		<Control name="valueText[4]" type="textdisplay" options="transmit public"/>
 		<Control name="valueText[5]" type="textdisplay" options="transmit public"/>
 
+		<Control name="descText[0]" type="textdisplay" options="transmit public"/>
+		<Control name="descText[1]" type="textdisplay" options="transmit public"/>
+		<Control name="descText[2]" type="textdisplay" options="transmit public"/>
+		<Control name="descText[3]" type="textdisplay" options="transmit public"/>
+		<Control name="descText[4]" type="textdisplay" options="transmit public"/>
+		<Control name="descText[5]" type="textdisplay" options="transmit public"/>
+		
 		<!-- ******************************************************************************************** -->
 		<!-- V-Pots -->
 		<!-- ******************************************************************************************** -->
@@ -209,6 +216,7 @@
 			<foreach variable="$ch" count="6">
 				<String control="labelText[$ch]" param="labelString$ch"/>
 				<String control="valueText[$ch]" param="valueString$ch"/>
+				<String control="descText[$ch]" param="descString$ch"/>
 				<Value control="fader[$ch]" param="faderValue$ch"/>
 				<Touch control="faderTouch[$ch]" param="faderValue$ch"/>
 				<Relative control="vpot[$ch]" param="potValue$ch"/>

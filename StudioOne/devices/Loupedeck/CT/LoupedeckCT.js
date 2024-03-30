@@ -20,7 +20,6 @@ class LoupedeckCTComponent extends LoupedeckSharedComponent {
         this.assignString = paramList.addString("assignString");
         this.sendMode = paramList.addParam("sendMode");
         this.flipMode = paramList.addParam("flipMode");
-        this.nameValueMode = paramList.addParam("nameValueMode");
         this.panModeLED = paramList.addParam("panModeLED");
         this.updateModeParams();
         this.bankList = paramList.addList("bankList");
@@ -43,7 +42,6 @@ class LoupedeckCTComponent extends LoupedeckSharedComponent {
         this.assignMode.value = this.assignment.mode;
         this.assignString.string = this.assignment.getModeString();
         this.flipMode.value = this.assignment.flipActive;
-        this.nameValueMode.value = this.assignment.nameValueMode;
         this.panModeLED.value = this.assignment.isPanMode();
     }
     getMaxSendSlotCount() {
@@ -70,11 +68,6 @@ class LoupedeckCTComponent extends LoupedeckSharedComponent {
         }
         else if (param == this.flipMode) {
             this.assignment.flipActive = this.flipMode.value;
-            this.updateAll();
-            this.signalSyncDevice();
-        }
-        else if (param == this.nameValueMode) {
-            this.assignment.nameValueMode = this.nameValueMode.value;
             this.updateAll();
             this.signalSyncDevice();
         }

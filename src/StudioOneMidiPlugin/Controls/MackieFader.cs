@@ -12,6 +12,7 @@
     public class MackieFader : PluginDynamicAdjustment
 	{
 		private StudioOneMidiPlugin plugin = null;
+        private bool sendMode = false;
 
 		public MackieFader() : base(true)
 		{
@@ -33,7 +34,13 @@
 				ActionImageChanged();
 			};
 
-			return true;
+            plugin.SendModeChanged += (object sender, bool e) =>
+            {
+                this.sendMode = e;
+                ActionImageChanged();
+            };
+            
+            return true;
 		}
 
 		protected override void ApplyAdjustment(string actionParameter, int diff)
@@ -68,28 +75,31 @@
             int piW = (bb.Width - 2* sideBarW)/ 2;
             int piH = 8;
 
-            if (cd.Muted || cd.Solo)
+            if (!this.sendMode)
             {
-                bb.FillRectangle(
-                    0, 0, bb.Width, bb.Height,
-                    ChannelProperty.boolPropertyColor[cd.Muted ? (int)ChannelProperty.BoolType.Mute : (int)ChannelProperty.BoolType.Solo]
-                    );
-            }
-            if (cd.Selected && cd.ChannelID < StudioOneMidiPlugin.MackieChannelCount)
-            {
-                bb.FillRectangle(0, 0, sideBarW, bb.Height, ChannelProperty.boolPropertyColor[(int)ChannelProperty.BoolType.Select]);
-            }
-            if (cd.Armed)
-            {
-                bb.FillRectangle(sideBarW, bb.Height - piH, piW, piH, ChannelProperty.boolPropertyColor[(int)ChannelProperty.BoolType.Arm]);
-            }
-            if (cd.Monitor)
-            {
-                bb.FillRectangle(sideBarW+piW, bb.Height - piH, piW, piH, ChannelProperty.boolPropertyColor[(int)ChannelProperty.BoolType.Monitor]);
+                if (cd.Muted || cd.Solo)
+                {
+                    bb.FillRectangle(
+                        0, 0, bb.Width, bb.Height,
+                        ChannelProperty.boolPropertyColor[cd.Muted ? (int)ChannelProperty.BoolType.Mute : (int)ChannelProperty.BoolType.Solo]
+                        );
+                }
+                if (cd.Selected && cd.ChannelID < StudioOneMidiPlugin.MackieChannelCount)
+                {
+                    bb.FillRectangle(0, 0, sideBarW, bb.Height, ChannelProperty.boolPropertyColor[(int)ChannelProperty.BoolType.Select]);
+                }
+                if (cd.Armed)
+                {
+                    bb.FillRectangle(sideBarW, bb.Height - piH, piW, piH, ChannelProperty.boolPropertyColor[(int)ChannelProperty.BoolType.Arm]);
+                }
+                if (cd.Monitor)
+                {
+                    bb.FillRectangle(sideBarW + piW, bb.Height - piH, piW, piH, ChannelProperty.boolPropertyColor[(int)ChannelProperty.BoolType.Monitor]);
+                }
             }
             //			bb.DrawText(cd.TrackName, 0, 0, bb.Width, bb.Height / 2, null, imageSize == PluginImageSize.Width60 ? 12 : 1);
             //            bb.DrawText($"{Math.Round(cd.Value * 100.0f)} %", 0, bb.Height / 2, bb.Width, bb.Height / 2);
-            bb.DrawText(cd.TrackValue, 0, bb.Height / 4, bb.Width, bb.Height / 2);
+            bb.DrawText(cd.ValueStr, 0, bb.Height / 4, bb.Width, bb.Height / 2);
             return bb.ToImage();
 		}
 

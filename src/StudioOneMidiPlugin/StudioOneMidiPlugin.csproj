@@ -63,6 +63,7 @@
     <Compile Include="ConfigWindow.xaml.cs">
       <DependentUpon>ConfigWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\ButtonData.cs" />
     <Compile Include="Controls\ConfigCommand.cs" />
     <Compile Include="Controls\LoupedeckModes.cs" />
     <Compile Include="Controls\MackieBoolPropertyCommand.cs" />

@@ -23,7 +23,7 @@
 
                 this.AddButton(i, ChannelProperty.BoolType.Mute, "Mute");
                 this.AddButton(i, ChannelProperty.BoolType.Solo, "Solo");
-                this.AddButton(i, ChannelProperty.BoolType.Arm, "Arm/Rec", "record");
+                this.AddButton(i, ChannelProperty.BoolType.Arm, "Arm/Rec", "arm");
                 this.AddButton(i, ChannelProperty.BoolType.Monitor, "Monitor", "monitor");
             }
         }

@@ -6,9 +6,12 @@
     using System.Text;
     using System.Threading.Tasks;
     using System.Web.UI.WebControls;
+
     using Melanchall.DryWetMidi.Common;
 
     using Melanchall.DryWetMidi.Core;
+
+    using static Loupedeck.StudioOneMidiPlugin.Controls.PropertyButtonData;
 
     public abstract class ButtonData
     {
@@ -77,10 +80,12 @@
             {
                 int hPos = 0;
 
-                if (this.ShowTrackName == TrackNameMode.ShowLeftHalf)  hPos = bb.Width / 2 - 1;
-                if (this.ShowTrackName == TrackNameMode.ShowRightHalf) hPos = -bb.Width / 2 + 1;
+                if (this.ShowTrackName == TrackNameMode.ShowLeftHalf)
+                    hPos = 1;
+                if (this.ShowTrackName == TrackNameMode.ShowRightHalf)
+                    hPos = -bb.Width - 1;
 
-                bb.DrawText(cd.Label, hPos, 0, bb.Width, TrackNameH);
+                bb.DrawText(cd.Label, hPos, 0, bb.Width * 2, TrackNameH);
             }
 
             return bb.ToImage();
@@ -118,7 +123,7 @@
         {
             this.CurrentMode = sm;
         }
-        
+
         public void userButtonChanged(bool isActive)
         {
             this.UserButtonActive = isActive;
@@ -228,12 +233,6 @@
                     e.Velocity = (SevenBitNumber)127;
                     e.NoteNumber = (SevenBitNumber)(SelectButtonData.UserButtonMidiBase + this.ChannelIndex);
                     this.Plugin.mackieMidiOut.SendEvent(e);
-
-                    //var e2 = new NoteOffEvent();
-                    //e2.NoteNumber = e.NoteNumber;
-                    //e2.Velocity = e.Velocity;
-                    //this.Plugin.mackieMidiOut.SendEvent(e2);
-
                     break;
             }
         }
@@ -246,7 +245,7 @@
         public ModeButtonData(string name, string iconName = null)
         {
             this.Name = name;
- 
+
             if (iconName != null)
                 this.Icon = EmbeddedResources.ReadImage(EmbeddedResources.FindFile($"{iconName}_52px.png"));
         }
@@ -286,8 +285,8 @@
         public BitmapColor OnColor = BitmapColor.Black;
         public BitmapImage Icon, IconOn;
 
-        public static readonly BitmapColor cRectOn  = new BitmapColor(200, 200, 200);
-        public static readonly BitmapColor cTextOn  = BitmapColor.Black;
+        public static readonly BitmapColor cRectOn = new BitmapColor(200, 200, 200);
+        public static readonly BitmapColor cTextOn = BitmapColor.Black;
         public static readonly BitmapColor cRectOff = new BitmapColor(50, 50, 50);
         public static readonly BitmapColor cTextOff = new BitmapColor(160, 160, 160);
 
@@ -308,7 +307,7 @@
             this.Activated = isActivatedByDefault;
         }
 
-        private void init (int code, string name, string iconName)
+        private void init(int code, string name, string iconName)
         {
             this.Name = name;
             this.Code = code;
@@ -337,7 +336,7 @@
 
             return bb.ToImage();
         }
-        
+
         public override void runCommand()
         {
             int param = (SevenBitNumber)(this.Code);
@@ -457,7 +456,7 @@
             rY += rH;
             bb.FillRectangle(rX, rY, rW, rH, CommandButtonData.cRectOff);
 
-            int rW2 =  rW / 3;
+            int rW2 = rW / 3;
             int rW3 = rW - 2 * rW2;
             if (this.UserMode > 0)
             {
@@ -489,4 +488,55 @@
 
     }
 
+    public class ModeTopCommandButtonData : CommandButtonData
+    {
+        public enum Location
+        {
+            Left,
+            Right
+        }
+        Location ButtonLocation = Location.Left;
+        string TopDisplayText;
+
+
+        public ModeTopCommandButtonData(int code, string name, Location bl, string iconName) : base(code, name, iconName)
+        {
+            this.ButtonLocation = bl;
+        }
+
+        public void setTopDisplay(string text)
+        {
+            this.TopDisplayText = text;
+        }
+
+        public override BitmapImage getImage(PluginImageSize imageSize)
+        {
+            var bb = new BitmapBuilder(imageSize);
+
+            int dispTxtH = 24;
+
+            bb.FillRectangle(0, 0, bb.Width, bb.Height, this.Activated ? this.OnColor : this.OffColor);
+
+            if (this.Activated && this.IconOn != null)
+            {
+                bb.DrawImage(this.IconOn, (bb.Width - this.IconOn.Width) / 2, dispTxtH);
+            }
+            else if (this.Icon != null)
+            {
+                bb.DrawImage(this.Icon, (bb.Width - this.Icon.Width) / 2, dispTxtH);
+            }
+            else
+            {
+                bb.DrawText(this.Name, 0, dispTxtH, bb.Width, bb.Height - dispTxtH, null, 16);
+            }
+
+            int hPos = 0;
+            if (this.ButtonLocation == Location.Left) hPos =  1;
+            else                                      hPos = -bb.Width - 1;
+
+            bb.DrawText(this.TopDisplayText, hPos, 0, bb.Width * 2, dispTxtH);
+
+            return bb.ToImage();
+        }
+    }
 }

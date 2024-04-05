@@ -126,6 +126,11 @@
     <EmbeddedResource Include="Resources\monitor_52px.png" />
     <EmbeddedResource Include="Resources\record_24px.png" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\arm_52px.png" />
+    <EmbeddedResource Include="Resources\plugin_next_52px.png" />
+    <EmbeddedResource Include="Resources\plugin_prev_52px.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent Condition="$(OS) == 'Windows_NT'">call "$(ProjectDir)BuildEvents\postbuild.cmd" "$(ProjectDir)" "$(TargetDir)"</PostBuildEvent>

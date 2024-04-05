@@ -42,6 +42,8 @@ namespace Loupedeck.StudioOneMidiPlugin
         public event EventHandler SelectButtonPressed;
         public event EventHandler<SelectButtonData.Mode> SelectModeChanged;
 
+        public event EventHandler<string> FocusDeviceChanged;
+
         private System.Timers.Timer mackieDataChangeTimer;
         // public bool sendMode;
 
@@ -195,9 +197,14 @@ namespace Loupedeck.StudioOneMidiPlugin
 
         public void EmitSelectModeChanged(SelectButtonData.Mode sm)
         {
-            this.SelectModeChanged?.Invoke(this, sm );
+            this.SelectModeChanged?.Invoke(this, sm);
         }
         
+        public void EmitFocusDeviceChanged(string focusChannelName)
+        {
+            this.FocusDeviceChanged?.Invoke(this, focusChannelName);
+        }
+
         public override void RunCommand(String commandName, String parameter)
         {
 		}
@@ -211,37 +218,37 @@ namespace Loupedeck.StudioOneMidiPlugin
 			// Workaround - 
 			await Task.Delay(100);
 
-			if (TryGetPluginSetting("MidiIn", out midiInName))
-				MidiInName = midiInName;
-
+//			if (TryGetPluginSetting("MidiIn", out midiInName))
+//				MidiInName = midiInName;
+//
 //			if (TryGetPluginSetting("MackieMidiIn", out mackieMidiInName))
 //                MackieMidiInName = mackieMidiInName;
             MackieMidiInName = "Loupedeck S1 In";
 
-            if (TryGetPluginSetting("MidiOut", out midiOutName))
-				MidiOutName = midiOutName;
+//            if (TryGetPluginSetting("MidiOut", out midiOutName))
+//				MidiOutName = midiOutName;
 
 //			if (TryGetPluginSetting("MackieMidiOut", out mackieMidiOutName))
 //				MackieMidiOutName = mackieMidiOutName;
             MackieMidiOutName = "Loupedeck S1 Out";
         }
 
-		private void OnMackieMidiEvent(object sender, MidiEventReceivedEventArgs args)
+        private void OnMackieMidiEvent(object sender, MidiEventReceivedEventArgs args)
         {
-			MidiEvent e = args.Event;
-			// PitchBend -> volume
-			if (e is PitchBendEvent)
+            MidiEvent e = args.Event;
+            // PitchBend -> volume
+            if (e is PitchBendEvent)
             {
-				if (!mackieChannelData.TryGetValue(((int)(e as ChannelEvent).Channel).ToString(), out MackieChannelData cd))
-					return;
+                if (!mackieChannelData.TryGetValue(((int)(e as ChannelEvent).Channel).ToString(), out MackieChannelData cd))
+                    return;
 
-				var ce = e as PitchBendEvent;
-				cd.Value = ce.PitchValue / 16383.0f;
-				EmitMackieChannelDataChanged(cd);
-			}
+                var ce = e as PitchBendEvent;
+                cd.Value = ce.PitchValue / 16383.0f;
+                EmitMackieChannelDataChanged(cd);
+            }
 
-			// Note event -> solo/mute/...
-			else if (e is NoteOnEvent)
+            // Note event -> solo/mute/...
+            else if (e is NoteOnEvent)
             {
                 var ce = e as NoteOnEvent;
                 ChannelProperty.BoolType eventType = ChannelProperty.BoolType.Select;
@@ -249,7 +256,7 @@ namespace Loupedeck.StudioOneMidiPlugin
 
                 foreach (ChannelProperty.BoolType bt in Enum.GetValues(typeof(ChannelProperty.BoolType)))
                 {
-                    if (ce.NoteNumber >= ChannelProperty.boolPropertyMackieNote[(int)bt] && ce.NoteNumber < (ChannelProperty.boolPropertyMackieNote[(int)bt] + MackieChannelCount +1))
+                    if (ce.NoteNumber >= ChannelProperty.boolPropertyMackieNote[(int)bt] && ce.NoteNumber < (ChannelProperty.boolPropertyMackieNote[(int)bt] + MackieChannelCount + 1))
                     {
                         eventType = bt;
                         eventTypeFound = true;
@@ -274,20 +281,22 @@ namespace Loupedeck.StudioOneMidiPlugin
             }
             else if (e is NormalSysExEvent)
             {
-				var ce = e as NormalSysExEvent;
-				if (ce.Data.Length < 5) return;
+                var ce = e as NormalSysExEvent;
+                if (ce.Data.Length < 5)
+                    return;
 
-				// Check if this is mackie control command
-				byte[] mackieControlPrefix = { 0x00, 0x00, 0x66 };
-				if (!ce.Data.SubArray(0, mackieControlPrefix.Length).SequenceEqual(mackieControlPrefix)) return;
+                // Check if this is mackie control command
+                byte[] mackieControlPrefix = { 0x00, 0x00, 0x66 };
+                if (!ce.Data.SubArray(0, mackieControlPrefix.Length).SequenceEqual(mackieControlPrefix))
+                    return;
 
-				// LCD command
-				if (ce.Data.Length > 6 && ce.Data[4] == 0x12)
+                // LCD command
+                if (ce.Data.Length > 6 && ce.Data[4] == 0x12)
                 {
-					byte offset = ce.Data[5];
-					byte[] str = ce.Data.SubArray(6, ce.Data.Length - 7);
+                    byte offset = ce.Data[5];
+                    byte[] str = ce.Data.SubArray(6, ce.Data.Length - 7);
 
-                    var receivedString = Encoding.UTF8.GetString(str, 0, str.Length); //.Replace("\0", "");
+                    var receivedString = Encoding.UTF8.GetString(str, 0, str.Length);
                     var displayIndex = offset / 4;
 
                     if (!mackieChannelData.TryGetValue(displayIndex.ToString(), out MackieChannelData cd))
@@ -310,9 +319,17 @@ namespace Loupedeck.StudioOneMidiPlugin
                     }
 
                     EmitMackieChannelDataChanged(cd);
-				}
-			}
-		}
+                }
+                // Focus channel name
+                else if (ce.Data.Length > 5 && ce.Data[4] == 0x13)
+                {
+                    byte[] str = ce.Data.SubArray(5, ce.Data.Length - 6);
+                    var receivedString = Encoding.UTF8.GetString(str, 0, str.Length); //.Replace("\0", "");
+
+                    EmitFocusDeviceChanged(receivedString);
+                }
+            }
+        }
 
 		public override bool TryProcessTouchEvent(string actionName, string actionParameter, DeviceTouchEvent deviceTouchEvent)
         {

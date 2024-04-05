@@ -46,11 +46,19 @@ class LoupedeckProtocol {
     //        2 - Description
     //        3 - User button text
     //
-    static buildTextSysex(sysexBuffer, channelID, offset, text) {
+    static buildChannelTextSysex(sysexBuffer, channelID, offset, text) {
         sysexBuffer.begin(LoupedeckProtocol.kSysexHeader);
         sysexBuffer.push(0x14);
         sysexBuffer.push(0x12);
         sysexBuffer.push(channelID * 4 + offset);
+        sysexBuffer.appendAscii(text);
+        sysexBuffer.end();
+        return sysexBuffer;
+    }
+    static buildPlainTextSysex(sysexBuffer, text) {
+        sysexBuffer.begin(LoupedeckProtocol.kSysexHeader);
+        sysexBuffer.push(0x14);
+        sysexBuffer.push(0x13);
         sysexBuffer.appendAscii(text);
         sysexBuffer.end();
         return sysexBuffer;

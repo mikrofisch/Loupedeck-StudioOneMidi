@@ -54,7 +54,6 @@
 		<!-- Flip / Global View-->
 		<Control name="flipButton"       type="trigger" options="receive"> <MidiMessage status="#90" address="#32"/> </Control>
 		<Control name="globalviewButton" type="trigger" options="receive"> <MidiMessage status="#90" address="#33"/> </Control>
-
 		<Control name="flipLED"       options="transmit"> <MidiMessage status="#90" address="#32"/> </Control>
 		<Control name="globalviewLED" options="transmit"> <MidiMessage status="#90" address="#33"/> </Control>
 
@@ -99,13 +98,14 @@
 		<Control name="groupLED"   options="transmit"> <MidiMessage status="#90" address="#4F"/> </Control>
 
  		<!-- Utilities -->
-		<Control name="saveButton"   type="trigger" options="receive"> <MidiMessage status="#90" address="#50"/> </Control>
-		<Control name="undoButton"   type="trigger" options="receive"> <MidiMessage status="#90" address="#51"/> </Control>
-		<Control name="cancelButton" type="trigger" options="receive"> <MidiMessage status="#90" address="#52"/> </Control>
+		<Control name="channelEditorButton" type="trigger" options="receive"> <MidiMessage status="#90" address="#50"/> </Control>
+		<Control name="previousPluginButton"   type="trigger" options="receive"> <MidiMessage status="#90" address="#51"/> </Control>
+		<Control name="nextPluginButton" type="trigger" options="receive"> <MidiMessage status="#90" address="#52"/> </Control>
+
 		<Control name="enterButton"  type="trigger" options="receive"> <MidiMessage status="#90" address="#53"/> </Control>
 
-		<Control name="saveLED" options="transmit"> <MidiMessage status="#90" address="#50"/> </Control>
-		<Control name="undoLED" options="transmit"> <MidiMessage status="#90" address="#51"/> </Control>
+		<!-- <Control name="saveLED" options="transmit"> <MidiMessage status="#90" address="#50"/> </Control> -->
+		<!-- <Control name="undoLED" options="transmit"> <MidiMessage status="#90" address="#51"/> </Control> -->
 
 		<!-- Transport -->
 		<Control name="markerButton"  type="trigger" options="receive"> <MidiMessage status="#90" address="#54"/> </Control>
@@ -185,6 +185,8 @@
 		<Control name="wheel" type="relative" options="receive"> <MidiMessage status="#B0" address="#3C" options="reversed"/> </Control>
 		<Control name="externalControl" options="receive"> <MidiMessage status="#B0" address="#2E"/> </Control>
 
+		<Control name="focusDeviceText" type="textdisplay" options="transmit public"/>
+
 	</Controls>
 
 	<!-- ******************************************************************************************** -->
@@ -256,6 +258,9 @@
 			<!-- **************************************************************************************** -->
 
 			<Command control="instrumentButton" command.category="Console" command.name="Show Instrument Editor"/>
+			<Command control="channelEditorButton" command.category="Console" command.name="Show Channel Editor"/>
+			<Command control="previousPluginButton" command.category="Navigation" command.name="Page Up Skip"/>
+			<Command control="nextPluginButton" command.category="Navigation" command.name="Page Down Skip"/>
 
 			<Command control="F1" command.category="Console"   	command.name="Show Inputs"/>
 			<Command control="F2" command.category="Console"   	command.name="Show Track"/>
@@ -283,21 +288,21 @@
 				</Group>
 			</Variant>
 
-			<Variant control="shiftButton">
+			<!-- <Variant control="shiftButton"> -->
 				<!-- [Shift] not pressed -->
-				<Group>
-					<Command control="undoButton" command.category="Edit" command.name="Undo"/>
-					<Command control="saveButton" command.category="File" command.name="Save"/>
-				</Group>
+				<!-- <Group> -->
+					<!-- <Command control="undoButton" command.category="Edit" command.name="Undo"/> -->
+					<!-- <Command control="saveButton" command.category="File" command.name="Save"/> -->
+				<!-- </Group> -->
 				<!-- [Shift] pressed -->
-				<Group>
-					<Command control="undoButton" command.category="Edit" command.name="Redo"/>
-					<Command control="saveButton" command.category="File" command.name="Save As"/>
-				</Group>
-			</Variant>
+				<!-- <Group> -->
+					<!-- <Command control="undoButton" command.category="Edit" command.name="Redo"/> -->
+					<!-- <Command control="saveButton" command.category="File" command.name="Save As"/> -->
+				<!-- </Group> -->
+			<!-- </Variant> -->
 
-			<Command control="enterButton"  command.category="Navigation" command.name="Enter"/>
-			<Command control="cancelButton" command.category="Navigation" command.name="Cancel"/>
+			<!-- <Command control="enterButton"  command.category="Navigation" command.name="Enter"/> -->
+			<!-- <Command control="cancelButton" command.category="Navigation" command.name="Cancel"/> -->
 
 			<!-- **************************************************************************************** -->
 			<!-- Script interaction -->
@@ -343,8 +348,11 @@
 			<Radio control="miditracksButton" param="bankList" value="$BANK_AUDIO_VCA"/>
 			<Radio control="userButton" param="bankList" value="$BANK_USER"/>
 
-			<include template="ChannelStripAliasMapping"/>
+			<using device="Editor">
+				<String control="focusDeviceText" param="focusDeviceName" />
+			</using>
 
+			<include template="ChannelStripAliasMapping"/>
 		</Global>
 
 		<!-- ******************************************************************************************** -->

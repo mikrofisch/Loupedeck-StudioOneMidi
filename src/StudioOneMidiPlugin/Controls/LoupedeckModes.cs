@@ -52,7 +52,7 @@
             this.addButton(ButtonLayer.channelProperties, 2, new PropertyButtonData(StudioOneMidiPlugin.MackieChannelCount, 
                                                                                     ChannelProperty.BoolType.Arm, 
                                                                                     PropertyButtonData.TrackNameMode.None,
-                                                                                    "record"));
+                                                                                    "arm"));
             this.addButton(ButtonLayer.channelProperties, 3, new PropertyButtonData(StudioOneMidiPlugin.MackieChannelCount,
                                                                                     ChannelProperty.BoolType.Monitor, 
                                                                                     PropertyButtonData.TrackNameMode.None,
@@ -67,6 +67,9 @@
             this.addButton(ButtonLayer.faderModesAll, 4, new CommandButtonData(0x33, "ALL", new BitmapColor(60, 60, 20), true), true);
             this.addButton(ButtonLayer.faderModesAll, 5, new CommandButtonData(0x29, "USER\rSENDS"));
 
+            this.addButton(ButtonLayer.faderModesSend, 0, new ModeTopCommandButtonData(0x51, "Previous\rPlugin", ModeTopCommandButtonData.Location.Left, "plugin_prev"));
+            this.addButton(ButtonLayer.faderModesSend, 1, new ModeTopCommandButtonData(0x52, "Next\rPlugin", ModeTopCommandButtonData.Location.Right, "plugin_next"));
+            this.addButton(ButtonLayer.faderModesSend, 2, new CommandButtonData(0x50, "Channel Editor"));
             this.addButton(ButtonLayer.faderModesSend, 3, new UserModeButtonData());
             this.addButton(ButtonLayer.faderModesSend, 4, new CommandButtonData(0x2A, "VIEWS"));
             this.addButton(ButtonLayer.faderModesSend, 5, new SendsCommandButtonData(0x29), true);
@@ -94,8 +97,20 @@
                 ActionImageChanged();
             };
 
+            plugin.FocusDeviceChanged += (object sender, string e) =>
+            {
+                for (int i = 0; i < 2; i++)
+                {
+                    var mtcbd = this.buttonData[$"{(int)ButtonLayer.faderModesSend}:{i}"] as ModeTopCommandButtonData;
+                    mtcbd.setTopDisplay(e);
+                }
+                ActionImageChanged();
+            };
+            
             return true;
         }
+
+        private void Plugin_FocusDeviceChanged(Object sender, String e) => throw new NotImplementedException();
 
         protected void OnNoteReceived(object sender, NoteOnEvent e)
         {

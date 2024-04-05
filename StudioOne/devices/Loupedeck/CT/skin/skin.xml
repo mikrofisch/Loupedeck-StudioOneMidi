@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Skin>
+	<Externals>
+		<External name="PresonusUI"/>
+	</Externals>
+
+	<Resources>
+		<Image name="LoupedeckCtBg"   url="LoupedeckCT_bg.png"/>        
+		<Image name="LoupedeckButton" url="MackieButton.png" frames="normal pressed"/>
+		<Image name="BigButton"       url="BigButton.png"	tile="tile-xy"	margin="4,10,3,10"	frames="normal mouseover pressed normalOn mouseoverOn pressedOn disabled"/>
+	</Resources>
+	
+	<Styles>
+		<Style name="LDisplayText">
+            <Font name="textfont" themeid="PresonusUI" size="11" style="bold"/>
+            <Align name="textalign" align="hcenter"/>
+			<Color name="textcolor" color="#dbdbdb"/>
+        </Style>		
+		
+		<Style name="LDisplayTextSmall" inherit="LDisplayText">
+            <Font name="textfont" themeid="PresonusUI" size="10"/>
+        </Style>
+
+		<Style name="RadioGroup">
+			<Font name="textfont" 	themeid="PresonusUI" size="10"/>
+			<Color name="textcolor" color="white" />
+			<Image name="background"  image="BigButton"/>
+			<Metric name="buttonstyle" value="1"/>
+		</Style>
+		
+		<Style name="AssignModeGroupBGColor">
+			<Color name="backcolor"	color="hsl(0,0,20)"/>
+		</Style>
+
+	</Styles>
+	
+	<Forms>
+        <!-- ******************************************************************************************** -->
+	    <!-- LOUPEDECK EDITOR -->
+	    <!-- ******************************************************************************************** -->
+
+
+		<Form name="UserBox">
+				<Vertical margin="0" spacing="3" size="0,2,70,40">
+					<using controller="labelText[$index]">
+						<TextBox name="controlValue" width="70" height="16" options="transparent fittext composited nocontextmenu" style="LDisplayText"/>
+					</using>
+					<using controller="valueText[$index]">
+						<TextBox name="controlValue" width="70" height="16" options="transparent fittext composited nocontextmenu" style="LDisplayTextSmall"/>
+					</using>
+				</Vertical>
+				<using controller="Device">
+					<Variant name="assignMode">
+						<Label title="" size="0,40,70,32"/>
+						<Label title="" size="0,40,70,32"/>
+						<Label title="" size="0,40,70,32"/>
+						<using controller="Editor/userText[$index]">
+							<TextBox name="controlValue" size="0,40,70,32" options="transparent fittext composited nocontextmenu" style="LDisplayText"/>
+							<TextBox name="controlValue" size="0,40,70,32" options="transparent fittext composited nocontextmenu" style="LDisplayText"/>
+							<TextBox name="controlValue" size="0,40,70,32" options="transparent fittext composited nocontextmenu" style="LDisplayText"/>
+						</using>
+					</Variant>
+					<Variant name="assignMode">
+						<Label title="" size="0,0,70,38"/>
+						<Label title="" size="0,0,70,38"/>
+						<Label title="" size="0,0,70,38"/>
+						<using controller="Editor/vpot[0][$index]">
+							<Toggle name="controlValue" size="0,0,70,38" options="transparent"/>
+						</using>
+						<using controller="Editor/vpot[1][$index]">
+							<Toggle name="controlValue" size="0,0,70,38" options="transparent"/>
+						</using>
+						<using controller="Editor/vpot[2][$index]">
+							<Toggle name="controlValue" size="0,0,70,38" options="transparent"/>
+						</using>
+					</Variant>
+					<Variant name="assignMode">
+						<Label title="" size="0,40,70,32" style="LDisplayText"/>
+						<Label title="" size="0,40,70,32"/>
+						<Label title="" size="0,40,70,32"/>
+						<using controller="Editor/vbut[0][$index]">
+							<Toggle name="controlValue" size="0,40,70,32" options="transparent"/>
+						</using>
+						<using controller="Editor/vbut[1][$index]">
+							<Toggle name="controlValue" size="0,40,70,32" options="transparent"/>
+						</using>
+						<using controller="Editor/vbut[2][$index]">
+							<Toggle name="controlValue" size="0,40,70,32" options="transparent"/>
+						</using>
+					</Variant>
+				</using>
+		</Form>
+
+		<Form name="ChannelStripContainer">
+			<Horizontal margin="0" spacing="14" >
+				<Vertical margin="0" spacing="13" >
+					<foreach variable="$index" count="3">
+						<View size="0,0,72,72">
+							<View name="UserBox" />
+						</View>
+					</foreach>
+				</Vertical>
+				<Vertical margin="0" spacing="13" >
+					<foreach variable="$index" start="3" count="3">
+						<View size="0,0,72,72">
+							<View name="UserBox" />
+						</View>
+					</foreach>
+				</Vertical>
+			</Horizontal>
+		</Form>
+
+		<Form name="LoupedeckCt" width="780" height="400" image="LoupedeckCtBg" datatarget="ControlSurface/Editor/ControlList">
+			<using controller="ControlSurface/Editor">
+				<!-- FOCUS DEVICE -->
+				<TextBox name="focusDeviceName" 	size="95,31,136,20"  options="transparent fittext" style="LDisplayText"/>
+				<TextBox name="focusDeviceFolder" 	size="246,31,171,20" options="transparent fittext" style="LDisplayText"/>
+
+				<!-- ASSIGNMENT -->
+				<using controller="Device">
+					<ImageView style="AssignModeGroupBGColor" options="colorize" size="60,68">
+						<Horizontal margin="0" spacing="0">
+							<!-- <RadioButton name="assignMode" value="0" title="Track"	 size="0,0,61,24" style="RadioGroup"/> -->
+							<RadioButton name="assignMode" value="1" title="Sends"	 size="0,0,61,24" style="RadioGroup"/>
+							<RadioButton name="assignMode" value="2" title="Vol/Pan" size="0,0,61,24" style="RadioGroup"/>
+							<RadioButton name="assignMode" value="3" title="User 1"  size="0,0,61,24" style="RadioGroup"/>
+							<RadioButton name="assignMode" value="4" title="User 2"  size="0,0,61,24" style="RadioGroup"/>
+							<RadioButton name="assignMode" value="5" title="User 3"  size="0,0,61,24" style="RadioGroup"/>
+							<Space width="1"/>
+						</Horizontal>
+					</ImageView>
+				</using>
+
+				<!-- CHANNEL STRIPS -->
+				<View size="133, 116,165,250">
+					<View name="ChannelStripContainer"/>
+				</View>
+				
+				<Vertical size="408,138,330,250" spacing="8" margin="0">
+					<Horizontal size="0,0,330,80" spacing="13" margin="0">
+						<foreach variable="$i" count="4">
+							<using controller="F$i">
+								<View size="0,0,72,72">
+									<TextBox  name="paramTitle"	style="LDisplayText"	options="transparent fittext"	width="72"	height="18"/>
+									<Toggle name="controlValue" size="0,0,72,72" options="transparent"/>
+								</View>
+							</using>
+						</foreach>					
+					</Horizontal>
+					<Horizontal size="0,0,330,80" spacing="13" margin="0">
+						<foreach variable="$i" start="5" count="4">
+							<using controller="F$i">
+								<View size="0,0,72,72">
+									<TextBox  name="paramTitle"	style="LDisplayText"	options="transparent fittext"	width="72"	height="18"/>
+									<Toggle name="controlValue" size="0,0,72,72" options="transparent"/>
+								</View>
+							</using>
+						</foreach>					
+					</Horizontal>
+					<Horizontal size="0,0,330,80" spacing="13" margin="0">
+						<foreach variable="$i" start="9" count="4">
+							<using controller="F$i">
+								<View size="0,0,72,72">
+									<TextBox  name="paramTitle"	style="LDisplayText"	options="transparent fittext"	width="72"	height="18"/>
+									<Toggle name="controlValue" size="0,0,72,72" options="transparent"/>
+								</View>
+							</using>
+						</foreach>					
+					</Horizontal>
+				</Vertical>
+			</using>
+		</Form>
+		
+	</Forms>
+</Skin>

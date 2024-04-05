@@ -14,8 +14,9 @@ namespace Loupedeck.StudioOneMidiPlugin
 		public string Label = "";
         public string ValueStr = "";
         public string Description = "";
+        public string UserLabel = "";
 
-		public bool[] BoolProperty = new bool[(int)Enum.GetNames(typeof(ChannelProperty.BoolType)).Length];
+        public bool[] BoolProperty = new bool[(int)Enum.GetNames(typeof(ChannelProperty.BoolType)).Length];
 
 		public bool IsMasterChannel = false;
 

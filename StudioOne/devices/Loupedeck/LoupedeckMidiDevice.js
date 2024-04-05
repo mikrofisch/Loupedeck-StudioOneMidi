@@ -41,7 +41,7 @@ class LoupedeckMidiDevice extends PreSonus.ControlSurfaceDevice {
         this.addHandler(new TextHandler("labelText[4]", 4, 0, LoupedeckControls.kLabelText4));
         this.addHandler(new TextHandler("valueText[4]", 4, 1, LoupedeckControls.kValueText4));
         this.addHandler(new TextHandler("descText[4]",  4, 2, LoupedeckControls.kDescText4));
-        this.addHandler(new TextHandler("userText[4]",  4, 3, LoupedeckControls.kUserText4));
+        this.addHandler(new TextHandler("userText[5]",  4, 3, LoupedeckControls.kUserText4));
         this.addHandler(new TextHandler("labelText[5]", 5, 0, LoupedeckControls.kLabelText5));
         this.addHandler(new TextHandler("valueText[5]", 5, 1, LoupedeckControls.kValueText5));
         this.addHandler(new TextHandler("descText[5]",  5, 2, LoupedeckControls.kDescText5));

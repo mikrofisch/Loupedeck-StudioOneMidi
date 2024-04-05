@@ -40,10 +40,10 @@ namespace Loupedeck.StudioOneMidiPlugin
 		public event EventHandler<NoteOnEvent> MackieNoteReceived;
 
         public event EventHandler SelectButtonPressed;
-        public event EventHandler<bool> SendModeChanged;
+        public event EventHandler<SelectButtonData.Mode> SelectModeChanged;
 
         private System.Timers.Timer mackieDataChangeTimer;
-        public bool sendMode;
+        // public bool sendMode;
 
 		public string MidiInName
         {
@@ -193,9 +193,9 @@ namespace Loupedeck.StudioOneMidiPlugin
             this.SelectButtonPressed?.Invoke(this, null);
         }
 
-        public void EmitSendModeChanged(bool sm)
+        public void EmitSelectModeChanged(SelectButtonData.Mode sm)
         {
-            this.SendModeChanged?.Invoke(this, sm );
+            this.SelectModeChanged?.Invoke(this, sm );
         }
         
         public override void RunCommand(String commandName, String parameter)
@@ -288,12 +288,12 @@ namespace Loupedeck.StudioOneMidiPlugin
 					byte[] str = ce.Data.SubArray(6, ce.Data.Length - 7);
 
                     var receivedString = Encoding.UTF8.GetString(str, 0, str.Length); //.Replace("\0", "");
-                    var displayIndex = offset / 3;
+                    var displayIndex = offset / 4;
 
                     if (!mackieChannelData.TryGetValue(displayIndex.ToString(), out MackieChannelData cd))
                         return;
 
-                    switch (offset % 3)
+                    switch (offset % 4)
                     {
                         case 0: // Label
                             cd.Label = receivedString;
@@ -303,6 +303,9 @@ namespace Loupedeck.StudioOneMidiPlugin
                             break;
                         case 2: // Description
                             cd.Description = receivedString;
+                            break;
+                        case 3: // User Button Label
+                            cd.UserLabel = receivedString;
                             break;
                     }
 

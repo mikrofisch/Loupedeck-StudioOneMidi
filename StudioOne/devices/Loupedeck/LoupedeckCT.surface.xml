@@ -150,6 +150,15 @@
 		<Control name="F11" title="F11"	type="trigger" options="receive public"> <MidiMessage status="#90" address="#6A"/> </Control>
 		<Control name="F12" title="F12"	type="trigger" options="receive public"> <MidiMessage status="#90" address="#6B"/> </Control>
 
+		<!-- User Bank Buttons -->
+		<Control name="User1" title="User 1"	type="trigger" options="receive public"> <MidiMessage status="#90" address="#6C"/> </Control>
+		<Control name="User2" title="User 2"	type="trigger" options="receive public"> <MidiMessage status="#90" address="#6D"/> </Control>
+		<Control name="User3" title="User 3"	type="trigger" options="receive public"> <MidiMessage status="#90" address="#6E"/> </Control>
+		<Control name="User4" title="User 4"	type="trigger" options="receive public"> <MidiMessage status="#90" address="#6F"/> </Control>
+		<Control name="User5" title="User 5"	type="trigger" options="receive public"> <MidiMessage status="#90" address="#70"/> </Control>
+		<Control name="User6" title="User 6"	type="trigger" options="receive public"> <MidiMessage status="#90" address="#71"/> </Control>
+
+
 		<!-- ******************************************************************************************** -->
 		<!-- Selected Channel Controls -->
 		<!-- ******************************************************************************************** -->

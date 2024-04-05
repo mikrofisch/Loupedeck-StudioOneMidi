@@ -30,7 +30,7 @@
         private IDictionary<int, string> noteReceivers = new Dictionary<int, string>();
 
         ButtonLayer currentLayer = ButtonLayer.channelProperties;
-        bool sendMode = false;
+        SelectButtonData.Mode selectMode = SelectButtonData.Mode.Select;
 
         public LoupedeckModes()
         {
@@ -57,18 +57,19 @@
                                                                                     ChannelProperty.BoolType.Monitor, 
                                                                                     PropertyButtonData.TrackNameMode.None,
                                                                                     "monitor"));
-            this.addButton(ButtonLayer.channelProperties, 4, new ModeButtonData("MODES"));
-            this.addButton(ButtonLayer.channelProperties, 5, new FlipPanVolCommandButtonData(), true);
+            this.addButton(ButtonLayer.channelProperties, 4, new ModeButtonData("VIEWS"));
+            this.addButton(ButtonLayer.channelProperties, 5, new FlipPanVolCommandButtonData(0x32), true);
 
             this.addButton(ButtonLayer.faderModesAll, 0, new CommandButtonData(0x40, "AUDIO", new BitmapColor(0, 60, 80)));
             this.addButton(ButtonLayer.faderModesAll, 1, new CommandButtonData(0x42, "FX", new BitmapColor(0, 60, 80)));
             this.addButton(ButtonLayer.faderModesAll, 2, new CommandButtonData(0x43, "BUS", new BitmapColor(0, 60, 80)));
             this.addButton(ButtonLayer.faderModesAll, 3, new CommandButtonData(0x44, "OUT", new BitmapColor(0, 60, 80)));
             this.addButton(ButtonLayer.faderModesAll, 4, new CommandButtonData(0x33, "ALL", new BitmapColor(60, 60, 20), true), true);
-            this.addButton(ButtonLayer.faderModesAll, 5, new CommandButtonData(0x29, "SEND"));
+            this.addButton(ButtonLayer.faderModesAll, 5, new CommandButtonData(0x29, "USER\rSENDS"));
 
-            this.addButton(ButtonLayer.faderModesSend, 4, new CommandButtonData(0x2A, "BACK"));
-            this.addButton(ButtonLayer.faderModesSend, 5, new CommandButtonData(0x29, "SEND", new BitmapColor(60, 0, 70), true));
+            this.addButton(ButtonLayer.faderModesSend, 3, new UserModeButtonData());
+            this.addButton(ButtonLayer.faderModesSend, 4, new CommandButtonData(0x2A, "VIEWS"));
+            this.addButton(ButtonLayer.faderModesSend, 5, new SendsCommandButtonData(0x29), true);
         }
 
         // common
@@ -98,12 +99,18 @@
 
         protected void OnNoteReceived(object sender, NoteOnEvent e)
         {
-            if (this.noteReceivers.ContainsKey(e.NoteNumber))
+            if (e.NoteNumber >= 0x2B && e.NoteNumber <= 0x2D)
+            {
+                // User mode changed
+                var umbd = this.buttonData[$"{(int)ButtonLayer.faderModesSend}:3"] as UserModeButtonData;
+                umbd.setUserMode(e.NoteNumber, e.Velocity > 0);
+            }
+            else if (this.noteReceivers.ContainsKey(e.NoteNumber))
             {
                 var cbd = this.buttonData[this.noteReceivers[e.NoteNumber]] as CommandButtonData;
                 cbd.Activated = e.Velocity > 0;
-                this.ActionImageChanged();
             }
+            this.ActionImageChanged();
         }
 
         protected override BitmapImage GetCommandImage(string actionParameter, PluginImageSize imageSize)
@@ -136,7 +143,7 @@
                 case ButtonLayer.channelProperties:
                     switch (Int32.Parse(actionParameter))
                     {
-                        case 4: // MODES
+                        case 4: // VIEWS
                             this.currentLayer = ButtonLayer.faderModesAll;
                             ActionImageChanged();
                             break;
@@ -145,10 +152,10 @@
                 case ButtonLayer.faderModesAll:
                     switch (Int32.Parse(actionParameter))
                     {
-                        case 5: // SEND
+                        case 5: // SENDS
                             this.currentLayer = ButtonLayer.faderModesSend;
-                            this.sendMode = true;
-                            this.plugin.EmitSendModeChanged(this.sendMode);
+                            this.selectMode = SelectButtonData.Mode.Send;
+                            this.plugin.EmitSelectModeChanged(this.selectMode);
                             ActionImageChanged();
                             break;
                         default :
@@ -165,14 +172,19 @@
                 case ButtonLayer.faderModesSend:
                     switch (Int32.Parse(actionParameter))
                     {
-                        case 4: // BACK
+                        case 3: // USER 1 2 3
+                            this.selectMode = SelectButtonData.Mode.User;
+                            plugin.EmitSelectModeChanged(this.selectMode);
+                            break;
+                        case 4: // VIEWS (BACK)
                             this.currentLayer = ButtonLayer.faderModesAll;
-                            this.sendMode = false;
-                            this.plugin.EmitSendModeChanged(this.sendMode);
+                            this.selectMode = SelectButtonData.Mode.Select;
+                            this.plugin.EmitSelectModeChanged(this.selectMode);
                             ActionImageChanged();
                             break;
-                        case 5: // SEND
-                            plugin.EmitSendModeChanged(this.sendMode);
+                        case 5: // SENDS
+                            this.selectMode = SelectButtonData.Mode.Send;
+                            plugin.EmitSelectModeChanged(this.selectMode);
                             break;
                     }
                     break;

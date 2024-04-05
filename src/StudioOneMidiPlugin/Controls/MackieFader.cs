@@ -12,7 +12,7 @@
     public class MackieFader : PluginDynamicAdjustment
 	{
 		private StudioOneMidiPlugin plugin = null;
-        private bool sendMode = false;
+        private SelectButtonData.Mode selectMode = SelectButtonData.Mode.Select;
 
 		public MackieFader() : base(true)
 		{
@@ -34,9 +34,9 @@
 				ActionImageChanged();
 			};
 
-            plugin.SendModeChanged += (object sender, bool e) =>
+            plugin.SelectModeChanged += (object sender, SelectButtonData.Mode e) =>
             {
-                this.sendMode = e;
+                this.selectMode = e;
                 ActionImageChanged();
             };
             
@@ -75,7 +75,7 @@
             int piW = (bb.Width - 2* sideBarW)/ 2;
             int piH = 8;
 
-            if (!this.sendMode)
+            if (this.selectMode == SelectButtonData.Mode.Select)
             {
                 if (cd.Muted || cd.Solo)
                 {
@@ -100,6 +100,7 @@
             //			bb.DrawText(cd.TrackName, 0, 0, bb.Width, bb.Height / 2, null, imageSize == PluginImageSize.Width60 ? 12 : 1);
             //            bb.DrawText($"{Math.Round(cd.Value * 100.0f)} %", 0, bb.Height / 2, bb.Width, bb.Height / 2);
             bb.DrawText(cd.ValueStr, 0, bb.Height / 4, bb.Width, bb.Height / 2);
+//            bb.DrawText(cd.Value.ToString(), 0, bb.Height / 4, bb.Width, bb.Height / 2);
             return bb.ToImage();
 		}
 

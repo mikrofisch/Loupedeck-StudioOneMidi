@@ -17,25 +17,26 @@
 
 		public MackieCommand()
 		{
-            this.AddButton(new CommandButtonData(0x5e, 0x5d, "Play", "play"));   // 1st click - play, 2nd click - stop
-            this.AddButton(new CommandButtonData(0x5d, "Stop", "stop"));
-            this.AddButton(new CommandButtonData(0x5f, "Record", "record"));
-            this.AddButton(new CommandButtonData(0x5c, "Fast forward", "fast_forward"));
-            this.AddButton(new CommandButtonData(0x5b, "Rewind", "rewind"));
+            this.AddButton(new CommandButtonData(0x5E, 0x5D, "Play", "play"));   // 1st click - play, 2nd click - stop
+            this.AddButton(new CommandButtonData(0x5D, "Stop", "stop"));
+            this.AddButton(new CommandButtonData(0x5F, "Record", "record"));
+            this.AddButton(new CommandButtonData(0x5C, "Fast forward", "fast_forward"));
+            this.AddButton(new CommandButtonData(0x5B, "Rewind", "rewind"));
             this.AddButton(new CommandButtonData(0x56, "Loop", "loop"));
-            this.AddButton(new CommandButtonData(0x2e, "Fader Bank Left", "faderBankLeft"));
-            this.AddButton(new CommandButtonData(0x2f, "Fader Bank Right", "faderBankRight"));
+            this.AddButton(new CommandButtonData(0x2E, "Fader Bank Left", "faderBankLeft"));
+            this.AddButton(new CommandButtonData(0x2F, "Fader Bank Right", "faderBankRight"));
             this.AddButton(new CommandButtonData(0x30, "Fader Channel Left", "faderChannelLeft"));
             this.AddButton(new CommandButtonData(0x31, "Fader Channel Right", "faderChannelRight"));
             this.AddButton(new CommandButtonData(0x20, "TRACK"));
             this.AddButton(new CommandButtonData(0x29, "SEND"));
-            this.AddButton(new CommandButtonData(0x2a, "VOL/PAN"));
+            this.AddButton(new CommandButtonData(0x2A, "VOL/PAN"));
             this.AddButton(new CommandButtonData(0x33, "GLOBAL", new BitmapColor(60, 60, 20)));
             this.AddButton(new CommandButtonData(0x40, "AUDIO"));
             this.AddButton(new CommandButtonData(0x42, "FX"));
             this.AddButton(new CommandButtonData(0x43, "BUS"));
             this.AddButton(new CommandButtonData(0x44, "OUT"));
-            this.AddButton(new FlipPanVolCommandButtonData());
+            this.AddButton(new FlipPanVolCommandButtonData(0x32));
+            this.AddButton(new CommandButtonData(0x2B, "PLUGIN"));
         }
 
         protected override bool OnLoad()

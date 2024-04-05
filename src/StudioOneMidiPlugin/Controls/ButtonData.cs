@@ -42,10 +42,10 @@
         {
             this.ChannelIndex = channelIndex;
             this.Type = bt;
-            ShowTrackName = tm;
+            this.ShowTrackName = tm;
 
             if (iconName != null)
-                Icon = EmbeddedResources.ReadImage(EmbeddedResources.FindFile($"{iconName}_52px.png"));
+                this.Icon = EmbeddedResources.ReadImage(EmbeddedResources.FindFile($"{iconName}_52px.png"));
         }
 
         public override BitmapImage getImage(PluginImageSize imageSize)
@@ -96,8 +96,17 @@
 
     public class SelectButtonData : PropertyButtonData
     {
+        public const int UserButtonMidiBase = 0x6C;
         public BitmapImage IconSelMon, IconSelRec;
-        private bool sendMode = false;
+
+        public enum Mode
+        {
+            Select,
+            Send,
+            User
+        }
+        private Mode CurrentMode = Mode.Select;
+        private bool UserButtonActive = false;
 
         public SelectButtonData(int channelIndex, ChannelProperty.BoolType bt) : base(channelIndex, bt)
         {
@@ -105,10 +114,16 @@
             this.IconSelRec = EmbeddedResources.ReadImage(EmbeddedResources.FindFile("record_24px.png"));
         }
 
-        public void sendModeChanged(bool sm)
+        public void selectModeChanged(Mode sm)
         {
-            this.sendMode = sm;
+            this.CurrentMode = sm;
         }
+        
+        public void userButtonChanged(bool isActive)
+        {
+            this.UserButtonActive = isActive;
+        }
+
         public override BitmapImage getImage(PluginImageSize imageSize)
         {
             MackieChannelData cd = this.Plugin.mackieChannelData[this.ChannelIndex.ToString()];
@@ -117,13 +132,25 @@
 
             BitmapBuilder bb = new BitmapBuilder(imageSize);
 
-            if (!this.sendMode)
+            if (this.CurrentMode == Mode.Send)
+            {
+                //                bb.FillRectangle(0, 0, bb.Width, bb.Height, BitmapColor.Black);
+                bb.DrawText(cd.Description, 0, 0, bb.Width, TrackNameH, new BitmapColor(175, 175, 175));
+                bb.DrawText(cd.Label, 0, bb.Height / 2 - TrackNameH / 2, bb.Width, TrackNameH);
+            }
+            else if (this.CurrentMode == Mode.User)
+            {
+                bb.DrawText(cd.Description, 0, 0, bb.Width, TrackNameH, new BitmapColor(175, 175, 175));
+                bb.DrawText(cd.Label, 0, bb.Height / 2 - TrackNameH / 2, bb.Width, TrackNameH);
+                bb.FillRectangle(0, bb.Height * 2 / 3, bb.Width, bb.Height / 3, cd.UserLabel.Length > 0 ? new BitmapColor(100, 100, 100) : new BitmapColor(30, 30, 30));
+                bb.DrawText(cd.UserLabel, 0, bb.Height * 2 / 3, bb.Width, TrackNameH, this.UserButtonActive ? BitmapColor.White : BitmapColor.Black);
+            }
+            else
             {
                 if (cd.Selected)
                     bb.FillRectangle(0, 0, bb.Width, bb.Height, ChannelProperty.boolPropertyColor[(int)ChannelProperty.BoolType.Select]);
                 else
                     bb.FillRectangle(0, 0, bb.Width, bb.Height, new BitmapColor(20, 20, 20));
-
 
                 int rX = 8;
                 int rY = 4;
@@ -179,13 +206,6 @@
 
                 //bb.DrawText(cd.Label, 0, 0, bb.Width, TrackNameH);
             }
-            else
-            {
-//                bb.FillRectangle(0, 0, bb.Width, bb.Height, BitmapColor.Black);
-                bb.DrawText(cd.Description, 0, 0, bb.Width, TrackNameH, new BitmapColor(175,175,175));
-                bb.DrawText(cd.Label, 0, bb.Height / 2 - TrackNameH / 2, bb.Width, TrackNameH);
-            }
-
 
             return bb.ToImage();
         }
@@ -193,11 +213,29 @@
         public override void runCommand()
         {
             MackieChannelData cd = this.Plugin.mackieChannelData[this.ChannelIndex.ToString()];
-            if (!cd.Selected)
+
+            switch (this.CurrentMode)
             {
-                base.runCommand();
+                case Mode.Select:
+                    if (!cd.Selected)
+                    {
+                        base.runCommand();
+                    }
+                    Plugin.EmitSelectedButtonPressed();
+                    break;
+                case Mode.User:
+                    NoteOnEvent e = new NoteOnEvent();
+                    e.Velocity = (SevenBitNumber)127;
+                    e.NoteNumber = (SevenBitNumber)(SelectButtonData.UserButtonMidiBase + this.ChannelIndex);
+                    this.Plugin.mackieMidiOut.SendEvent(e);
+
+                    //var e2 = new NoteOffEvent();
+                    //e2.NoteNumber = e.NoteNumber;
+                    //e2.Velocity = e.Velocity;
+                    //this.Plugin.mackieMidiOut.SendEvent(e2);
+
+                    break;
             }
-            Plugin.EmitSelectedButtonPressed();
         }
     }
     public class ModeButtonData : ButtonData
@@ -248,6 +286,11 @@
         public BitmapColor OnColor = BitmapColor.Black;
         public BitmapImage Icon, IconOn;
 
+        public static readonly BitmapColor cRectOn  = new BitmapColor(200, 200, 200);
+        public static readonly BitmapColor cTextOn  = BitmapColor.Black;
+        public static readonly BitmapColor cRectOff = new BitmapColor(50, 50, 50);
+        public static readonly BitmapColor cTextOff = new BitmapColor(160, 160, 160);
+
         public CommandButtonData(int code, string name, string iconName = null)
         {
             this.init(code, name, iconName);
@@ -294,6 +337,7 @@
 
             return bb.ToImage();
         }
+        
         public override void runCommand()
         {
             int param = (SevenBitNumber)(this.Code);
@@ -311,7 +355,7 @@
 
     public class FlipPanVolCommandButtonData : CommandButtonData
     {
-        public FlipPanVolCommandButtonData() : base(0x32, "Flip Vol/Pan")
+        public FlipPanVolCommandButtonData(int code) : base(code, "Flip Vol/Pan")
         {
         }
 
@@ -320,26 +364,129 @@
             var bb = new BitmapBuilder(imageSize);
             bb.FillRectangle(0, 0, bb.Width, bb.Height, BitmapColor.Black);
 
-            BitmapColor cRectOn = BitmapColor.White;
-            BitmapColor cTextOn = BitmapColor.Black;
-            BitmapColor cRectOff = new BitmapColor(50, 50, 50);
-            BitmapColor cTextOff = new BitmapColor(160, 160, 160);
-
             int rY = 16;
             int rS = 8;
             int rW = bb.Width - 24;
             int rH = (bb.Height - 2 * rY - rS) / 2;
             int rX = (bb.Width - rW) / 2;
 
-            bb.FillRectangle(rX, rY, rW, rH, this.Activated ? cRectOff : cRectOn);
-            bb.DrawText("VOL", rX, rY, rW, rH, this.Activated ? cTextOff : cTextOn, rH - 6);
+            bb.FillRectangle(rX, rY, rW, rH, this.Activated ? CommandButtonData.cRectOff : CommandButtonData.cRectOn);
+            bb.DrawText("VOL", rX, rY, rW, rH, this.Activated ? CommandButtonData.cTextOff : CommandButtonData.cTextOn, rH - 6);
 
-            bb.FillRectangle(rX, rY + rH + rS, rW, rH, this.Activated ? cRectOn : cRectOff);
-            bb.DrawText("PAN", rX, rY + rH + rS, rW, rH, this.Activated ? cTextOn : cTextOff, rH - 6);
+            bb.FillRectangle(rX, rY + rH + rS, rW, rH, this.Activated ? CommandButtonData.cRectOn : CommandButtonData.cRectOff);
+            bb.DrawText("PAN", rX, rY + rH + rS, rW, rH, this.Activated ? CommandButtonData.cTextOn : CommandButtonData.cTextOff, rH - 6);
 
             return bb.ToImage();
 
         }
+    }
+
+    public class SendsCommandButtonData : CommandButtonData
+    {
+        public SendsCommandButtonData(int code) : base(code, "SENDS")
+        {
+            this.Activated = true;
+        }
+
+        public override BitmapImage getImage(PluginImageSize imageSize)
+        {
+            var bb = new BitmapBuilder(imageSize);
+
+            int rY = 12;
+            int rW = bb.Width - 2 * rY;
+            int rH = bb.Height - 2 * rY;
+            int rX = rY;
+
+            bb.FillRectangle(rX, rY, rW, rH, this.Activated ? CommandButtonData.cRectOn : CommandButtonData.cRectOff);
+
+            bb.DrawText(this.Name, rX, rY, rW, rH, this.Activated ? CommandButtonData.cTextOn : CommandButtonData.cTextOff, 16);
+
+            return bb.ToImage();
+        }
+
+    }
+
+    public class UserModeButtonData : ButtonData
+    {
+        private int UserMode = 0;
+        public bool UserMode1Activated = false;
+        public bool UserMode2Activated = false;
+        public bool UserMode3Activated = false;
+
+        public UserModeButtonData()
+        {
+        }
+
+        public void setUserMode(int userMode, bool activated)
+        {
+            switch (userMode)
+            {
+                case 0x2B:
+                    this.UserMode1Activated = activated;
+                    break;
+                case 0x2C:
+                    this.UserMode2Activated = activated;
+                    break;
+                case 0x2D:
+                    this.UserMode3Activated = activated;
+                    break;
+            }
+            if (this.UserMode1Activated)
+                this.UserMode = 1;
+            else if (this.UserMode2Activated)
+                this.UserMode = 2;
+            else if (this.UserMode3Activated)
+                this.UserMode = 3;
+            else
+                this.UserMode = 0;
+        }
+
+        public override BitmapImage getImage(PluginImageSize imageSize)
+        {
+            var bb = new BitmapBuilder(imageSize);
+            bb.FillRectangle(0, 0, bb.Width, bb.Height, BitmapColor.Black);
+
+            int rY = 12;
+            int rW = bb.Width - 2 * rY;
+            int rH = (bb.Height - 2 * rY) / 2;
+            int rX = (bb.Width - rW) / 2;
+
+            bb.FillRectangle(rX, rY, rW, rH, this.UserMode == 0 ? CommandButtonData.cRectOff : CommandButtonData.cRectOn);
+            bb.DrawText("USER", rX, rY, rW, rH, this.UserMode == 0 ? CommandButtonData.cTextOff : CommandButtonData.cTextOn, 16);
+
+            rY += rH;
+            bb.FillRectangle(rX, rY, rW, rH, CommandButtonData.cRectOff);
+
+            int rW2 =  rW / 3;
+            int rW3 = rW - 2 * rW2;
+            if (this.UserMode > 0)
+            {
+                bb.FillRectangle(rX + (this.UserMode - 1) * rW2, rY, this.UserMode == 3 ? rW3 : rW2, rH, CommandButtonData.cRectOn);
+            }
+            for (int i = 1; i <= 3; i++)
+            {
+                bb.DrawText(i.ToString(), rX + (i - 1) * rW2, rY, rW2, rH, this.UserMode == i ? CommandButtonData.cTextOn : CommandButtonData.cTextOff, 16);
+            }
+
+            return bb.ToImage();
+
+        }
+        public override void runCommand()
+        {
+            this.UserMode += 1;
+            if (this.UserMode > 3)
+            {
+                this.UserMode = 1;
+            }
+
+            int Code = 0x2A + this.UserMode;
+
+            NoteOnEvent e = new NoteOnEvent();
+            e.Velocity = (SevenBitNumber)(127);
+            e.NoteNumber = (SevenBitNumber)Code;
+            this.Plugin.mackieMidiOut.SendEvent(e);
+        }
+
     }
 
 }

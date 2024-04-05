@@ -59,13 +59,6 @@
 		<Control name="userButton[4]" type="trigger" options="receive"> <MidiMessage status="#90" address="#70"/> </Control>
 		<Control name="userButton[5]" type="trigger" options="receive"> <MidiMessage status="#90" address="#71"/> </Control>
 
-		<Control name="userLED[0]" options="transmit"> <MidiMessage status="#90" address="#6C"/> </Control>
-		<Control name="userLED[1]" options="transmit"> <MidiMessage status="#90" address="#6D"/> </Control>
-		<Control name="userLED[2]" options="transmit"> <MidiMessage status="#90" address="#6E"/> </Control>
-		<Control name="userLED[3]" options="transmit"> <MidiMessage status="#90" address="#6F"/> </Control>
-		<Control name="userLED[4]" options="transmit"> <MidiMessage status="#90" address="#70"/> </Control>
-		<Control name="userLED[5]" options="transmit"> <MidiMessage status="#90" address="#71"/> </Control>
-
 		<!-- ******************************************************************************************** -->
 		<!-- Buttons + LEDs -->
 		<!-- ******************************************************************************************** -->
@@ -271,8 +264,11 @@
 				<String control="descText[$ch]" param="descString$ch"/>
 				<String control="userText[$ch]" param="userString$ch"/>
 				<Value control="fader[$ch]" param="faderValue$ch"/>
-				<Toggle control="userButton[$ch]" param="buttonValue$ch"/>
-				<Value control="userLED[$ch]" param="buttonValue$ch"/>
+				<!-- <Toggle control="userButton[$ch]" param="buttonValue$ch"/> -->
+				<!-- <foreach variable="$ub" count="3"> -->
+					<!-- <Relative control="vpot[$ub][$ch]" param="potValue$ch"/> -->
+					<!-- <Toggle control="vbut[$ub][$ch]" param="buttonValue$ch"/> -->
+				<!-- </foreach> -->
 				<Value control="ledRing[$ch]" param="potValue$ch"/>
 				<DefaultValue control="vpotSelect[$ch]" param="potValue$ch"/>
 			</foreach>
@@ -300,6 +296,8 @@
 					</Bank>
 
 					<!-- Note: faders + vpots are connected to alias parameters -->
+					<Toggle control="userButton[$ch]" param="mute" options="momentary"/>
+
 					<Toggle control="recordButton[$ch]" param="recordArmed"/>
 					<Value control="recordLED[$ch]" param="recordArmed"/>
 

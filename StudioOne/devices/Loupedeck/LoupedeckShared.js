@@ -251,13 +251,16 @@ class LoupedeckSharedComponent extends FocusChannelPanComponent {
             let plugControlElement = channelInfo.plugControlElement;
             let plugButtonElement = channelInfo.plugButtonElement;
             
-            channelInfo.setLabel(plugControlElement, PreSonus.ParamID.kTitle);
+//            channelInfo.setLabel(plugControlElement, PreSonus.ParamID.kTitle);
+            channelInfo.setLabel(plugButtonElement, PreSonus.ParamID.kValue);
+            channelInfo.setConstantDesc("X " + channelInfo.buttonValue.value);
             channelInfo.setValue(plugControlElement, PreSonus.ParamID.kValue);
             channelInfo.setUser(plugButtonElement, PreSonus.ParamID.kTitle);
+            // channelInfo.setConstantUser("Murkli");
             if (index == 0) {
-                channelInfo.setDesc(this.focusChannelElement.getElement(), PreSonus.ParamID.kLabel);
+//                channelInfo.setDesc(this.focusChannelElement.getElement(), PreSonus.ParamID.kLabel);
             } else {
-                channelInfo.setConstantDesc("");
+//                channelInfo.setConstantDesc("");
             }
             channelInfo.setFader(plugControlElement, PreSonus.ParamID.kValue);
             channelInfo.setButton(plugButtonElement, PreSonus.ParamID.kValue);

@@ -1,10 +1,8 @@
 ﻿namespace Loupedeck.StudioOneMidiPlugin.Controls
 {
     using System;
-    using System.Collections;
     using System.Collections.Generic;
-    using System.Web.UI.WebControls;
-
+    using Melanchall.DryWetMidi.Core;
     class MackieSelectedChannelBoolPropertyCommand : PluginDynamicCommand
 	{
 
@@ -39,15 +37,26 @@
                 bd.OnLoad(plugin);
             }
 
+            plugin.MackieNoteReceived += (object sender, NoteOnEvent e) => {
+                if (e.NoteNumber >= SelectButtonData.UserButtonMidiBase &&
+                    e.NoteNumber <= SelectButtonData.UserButtonMidiBase + StudioOneMidiPlugin.MackieChannelCount)
+                {
+                    var bd = this.buttonData[$"{e.NoteNumber - SelectButtonData.UserButtonMidiBase}:{(int)ChannelProperty.BoolType.Select}"] as SelectButtonData;
+                    bd.userButtonChanged(e.Velocity > 0);
+                    ActionImageChanged();
+                }
+            };
+
             plugin.MackieDataChanged += (object sender, EventArgs e) => {
 				ActionImageChanged();
 			};
-            plugin.SendModeChanged += (object sender, bool e) =>
+
+            plugin.SelectModeChanged += (object sender, SelectButtonData.Mode e) =>
             {
                 for (int i = 0; i < StudioOneMidiPlugin.MackieChannelCount; i++)
                 {
                     var bd = this.buttonData[$"{i}:{(int)ChannelProperty.BoolType.Select}"] as SelectButtonData;
-                    bd.sendModeChanged(e);
+                    bd.selectModeChanged(e);
                 }
                 ActionImageChanged();
             };

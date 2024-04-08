@@ -187,6 +187,8 @@
 
 		<Control name="focusDeviceText" type="textdisplay" options="transmit public"/>
 
+		<Control name="commandControlSet" options="receive public"> <MidiMessage status="#B0" address="#00" options="plain"/> </Control>
+		<Control name="commandControlTrigger" type="trigger" options="receive"> <MidiMessage status="#90" address="#72"/> </Control>
 	</Controls>
 
 	<!-- ******************************************************************************************** -->
@@ -287,6 +289,46 @@
 					<Command control="rightButton" command.category="Zoom" command.name="Zoom In"/>
 				</Group>
 			</Variant>
+
+			<!-- <Command control="commandControlTrigger"  command.category="Console" command.name="Show Inputs"/> -->
+
+			<PlainValue control="commandControlSet" param="commandControlValue"/>
+			<ParamVariant param="commandControlValue" strict="true">
+				<Group value= "0"> <Command control="commandControlTrigger"  command.category="View"    command.name="Console"/> </Group>
+				<Group value= "1"> <Command control="commandControlTrigger"  command.category="View"    command.name="Browser"/> </Group>
+				<Group value= "2"> <Command control="commandControlTrigger"  command.category="View"    command.name="Editor"/> </Group>
+				<Group value= "3"> <Command control="commandControlTrigger"  command.category="View"    command.name="Fullscreen"/> </Group>
+				<Group value= "4"> <Command control="commandControlTrigger"  command.category="View"    command.name="Inspector"/> </Group>
+				<Group value= "5"> <Command control="commandControlTrigger"  command.category="View"    command.name="Record Panel"/> </Group>
+				<Group value= "6"> <Command control="commandControlTrigger"  command.category="View"    command.name="Track List"/> </Group>
+				<Group value= "7"> <Command control="commandControlTrigger"  command.category="View"    command.name="Previous Perspective"/> </Group>
+				<Group value= "8"> <Command control="commandControlTrigger"  command.category="View"    command.name="Next Perspective"/> </Group>
+				<Group value= "9"> <Command control="commandControlTrigger"  command.category="View"    command.name="Show Groups (Channel List)"/> </Group>
+				<Group value="10"> <Command control="commandControlTrigger"  command.category="View"    command.name="Toggle Floating Windows"/> </Group>
+				<Group value="11"> <Command control="commandControlTrigger"  command.category="Console" command.name="Show Inputs"/> </Group>
+				<Group value="12"> <Command control="commandControlTrigger"  command.category="Console" command.name="Show Track"/> </Group>
+				<Group value="13"> <Command control="commandControlTrigger"  command.category="Console" command.name="Show Channel Editor"/> </Group>
+				<Group value="14"> <Command control="commandControlTrigger"  command.category="Console" command.name="Show Instrument Editor"/> </Group>
+				<Group value="15"> <Command control="commandControlTrigger"  command.category="Console" command.name="Open Channel"/> </Group>
+				<Group value="16"> <Command control="commandControlTrigger"  command.category="Console" command.name="Add Insert"/> </Group>
+				<Group value="17"> <Command control="commandControlTrigger"  command.category="Console" command.name="Add Send"/> </Group>
+				<Group value="18"> <Command control="commandControlTrigger"  command.category="Console" command.name="Add Bus Channel"/> </Group>
+				<Group value="19"> <Command control="commandControlTrigger"  command.category="Console" command.name="Add FX Channel"/> </Group>
+				<Group value="20"> <Command control="commandControlTrigger"  command.category="Console" command.name="Global Mute"/> </Group>
+				<Group value="21"> <Command control="commandControlTrigger"  command.category="Console" command.name="Global Solo"/> </Group>
+				<Group value="22"> <Command control="commandControlTrigger"  command.category="Console" command.name="Next Channel"/> </Group>
+				<Group value="23"> <Command control="commandControlTrigger"  command.category="Console" command.name="Previous Channel"/> </Group>
+				<Group value="24"> <Command control="commandControlTrigger"  command.category="Group"   command.name="Suspend Group"/> </Group>
+				<Group value="25"> <Command control="commandControlTrigger"  command.category="Group"   command.name="Suspend All Groups"/> </Group>
+				<Group value="26"> <Command control="commandControlTrigger"  command.category="Group"   command.name="Suspend Group 1"/> </Group>
+				<Group value="27"> <Command control="commandControlTrigger"  command.category="Group"   command.name="Suspend Group 2"/> </Group>
+				<Group value="28"> <Command control="commandControlTrigger"  command.category="Group"   command.name="Suspend Group 3"/> </Group>
+				<Group value="29"> <Command control="commandControlTrigger"  command.category="Group"   command.name="Suspend Group 4"/> </Group>
+				<Group value="30"> <Command control="commandControlTrigger"  command.category="Group"   command.name="Suspend Group 5"/> </Group>
+				<Group value="31"> <Command control="commandControlTrigger"  command.category="Group"   command.name="Suspend Group 6"/> </Group>
+				<Group value="32"> <Command control="commandControlTrigger"  command.category="Group"   command.name="Suspend Group 7"/> </Group>
+				<Group value="33"> <Command control="commandControlTrigger"  command.category="Group"   command.name="Suspend Group 8"/> </Group>
+			</ParamVariant>
 
 			<!-- <Variant control="shiftButton"> -->
 				<!-- [Shift] not pressed -->

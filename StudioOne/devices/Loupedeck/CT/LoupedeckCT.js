@@ -16,12 +16,13 @@ class LoupedeckCTComponent extends LoupedeckSharedComponent {
         // Host.Console.writeLine("Connecting Loupedeck CT...");
         super.onInit(hostComponent);
         let paramList = hostComponent.paramList;
+        this.commandControlValue = paramList.addInteger(0, 33, "commandControlValue");
+        this.commandControlValue.setValue(1);
         this.assignMode = paramList.addInteger(0, ChannelAssignmentMode.kLastMode, "assignMode");
         this.assignString = paramList.addString("assignString");
         this.sendMode = paramList.addParam("sendMode");
         this.flipMode = paramList.addParam("flipMode");
         this.panModeLED = paramList.addParam("panModeLED");
-        
         this.updateModeParams();
         
         this.bankList = paramList.addList("bankList");
@@ -56,6 +57,7 @@ class LoupedeckCTComponent extends LoupedeckSharedComponent {
         this.updateModeParams();
     }
     paramChanged(param) {
+        Host.Console.writeLine("LoupedeckCTComponent.paramChanged commandControlValue: " + this.commandControlValue.value);
         // Host.Console.writeLine("LoupedeckCTComponent.paramChanged");
         if (param == this.sendMode) {
             this.assignment.navigateSends(this.getMaxSendSlotCount());

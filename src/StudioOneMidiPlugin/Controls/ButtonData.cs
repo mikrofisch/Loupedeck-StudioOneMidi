@@ -11,6 +11,7 @@
 
     using Melanchall.DryWetMidi.Core;
 
+    using static Loupedeck.StudioOneMidiPlugin.Controls.ModeTopCommandButtonData;
     using static Loupedeck.StudioOneMidiPlugin.Controls.PropertyButtonData;
 
     public abstract class ButtonData
@@ -283,6 +284,7 @@
 
         public BitmapColor OffColor = BitmapColor.Black;
         public BitmapColor OnColor = BitmapColor.Black;
+        public BitmapColor TextColor = BitmapColor.White;
         public BitmapImage Icon, IconOn;
 
         public static readonly BitmapColor cRectOn = new BitmapColor(200, 200, 200);
@@ -331,7 +333,7 @@
             }
             else
             {
-                bb.DrawText(this.Name, 0, 0, bb.Width, bb.Height, null, 16);
+                bb.DrawText(this.Name, 0, 0, bb.Width, bb.Height, this.TextColor, 16);
             }
 
             return bb.ToImage();
@@ -531,12 +533,48 @@
             }
 
             int hPos = 0;
-            if (this.ButtonLocation == Location.Left) hPos =  1;
-            else                                      hPos = -bb.Width - 1;
+            if (this.ButtonLocation == Location.Left)
+                hPos = 1;
+            else
+                hPos = -bb.Width - 1;
 
             bb.DrawText(this.TopDisplayText, hPos, 0, bb.Width * 2, dispTxtH);
 
             return bb.ToImage();
+        }
+    }
+
+    // Triggers a command from a list in LoupedeckCT.surface.xml on the Studio One side.
+    // These are one-shot commands that do not provide feedback.
+    //
+    public class OneWayCommandButtonData : CommandButtonData
+    {
+        private int CommandCode = 0;
+
+        public OneWayCommandButtonData(int commandCode, string name, string iconName=null) : base(0, name, iconName)
+        {
+            this.CommandCode = commandCode;
+            this.Code = 0xFF + commandCode;     // Create a code above the highest MIDI note as a dictionary hash
+        }
+        public OneWayCommandButtonData(int commandCode, string name, BitmapColor textColor) : base(0, name, null)
+        {
+            this.CommandCode = commandCode;
+            this.Code = 0xFF + commandCode;     // Create a code above the highest MIDI note as a dictionary hash
+            this.TextColor = textColor;
+        }
+        public override void runCommand()
+        {
+            // MIDI controller sets the command which is then triggered by a MIDI note
+            //
+            var ccSet = new ControlChangeEvent();
+            ccSet.ControlNumber = (SevenBitNumber)0x00;
+            ccSet.ControlValue = (SevenBitNumber)this.CommandCode;
+            this.Plugin.mackieMidiOut.SendEvent(ccSet);
+
+            var eTrigger = new NoteOnEvent();
+            eTrigger.Velocity = (SevenBitNumber)127;
+            eTrigger.NoteNumber = (SevenBitNumber)0x72;    // controlCommandTrigger
+            this.Plugin.mackieMidiOut.SendEvent(eTrigger);
         }
     }
 }

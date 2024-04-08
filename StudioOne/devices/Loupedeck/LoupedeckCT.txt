@@ -1,1 +1,0 @@
-Please install the Studio One MIDI plugin in Loupedeck and load the corresponding profile. Both are available in the Loupedeck Marketplace.

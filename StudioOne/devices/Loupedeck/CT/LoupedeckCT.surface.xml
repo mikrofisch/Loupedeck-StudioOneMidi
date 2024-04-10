@@ -137,18 +137,31 @@
 		<Control name="recordLED" options="transmit"> <MidiMessage status="#90" address="#5F"/> </Control>
 
 		<!-- F1 - F12 -->
-		<Control name="F1" title="F1"	type="trigger" options="receive public"> <MidiMessage status="#90" address="#60"/> </Control>
-		<Control name="F2" title="F2"	type="trigger" options="receive public"> <MidiMessage status="#90" address="#61"/> </Control>
-		<Control name="F3" title="F3"	type="trigger" options="receive public"> <MidiMessage status="#90" address="#62"/> </Control>
-		<Control name="F4" title="F4"	type="trigger" options="receive public"> <MidiMessage status="#90" address="#63"/> </Control>
-		<Control name="F5" title="F5"	type="trigger" options="receive public"> <MidiMessage status="#90" address="#64"/> </Control>
-		<Control name="F6" title="F6"	type="trigger" options="receive public"> <MidiMessage status="#90" address="#65"/> </Control>
-		<Control name="F7" title="F7"	type="trigger" options="receive public"> <MidiMessage status="#90" address="#66"/> </Control>
-		<Control name="F8" title="F8"	type="trigger" options="receive public"> <MidiMessage status="#90" address="#67"/> </Control>
-		<Control name="F9" title="F9"	type="trigger" options="receive public"> <MidiMessage status="#90" address="#68"/> </Control>
-		<Control name="F10" title="F10"	type="trigger" options="receive public"> <MidiMessage status="#90" address="#69"/> </Control>
-		<Control name="F11" title="F11"	type="trigger" options="receive public"> <MidiMessage status="#90" address="#6A"/> </Control>
-		<Control name="F12" title="F12"	type="trigger" options="receive public"> <MidiMessage status="#90" address="#6B"/> </Control>
+		<Control name="F1" title="F1"	type="trigger" options="transmit receive public"> <MidiMessage status="#90" address="#60"/> </Control>
+		<Control name="F2" title="F2"	type="trigger" options="transmit receive public"> <MidiMessage status="#90" address="#61"/> </Control>
+		<Control name="F3" title="F3"	type="trigger" options="transmit receive public"> <MidiMessage status="#90" address="#62"/> </Control>
+		<Control name="F4" title="F4"	type="trigger" options="transmit receive public"> <MidiMessage status="#90" address="#63"/> </Control>
+		<Control name="F5" title="F5"	type="trigger" options="transmit receive public"> <MidiMessage status="#90" address="#64"/> </Control>
+		<Control name="F6" title="F6"	type="trigger" options="transmit receive public"> <MidiMessage status="#90" address="#65"/> </Control>
+		<Control name="F7" title="F7"	type="trigger" options="transmit receive public"> <MidiMessage status="#90" address="#66"/> </Control>
+		<Control name="F8" title="F8"	type="trigger" options="transmit receive public"> <MidiMessage status="#90" address="#67"/> </Control>
+		<Control name="F9" title="F9"	type="trigger" options="transmit receive public"> <MidiMessage status="#90" address="#68"/> </Control>
+		<Control name="F10" title="F10"	type="trigger" options="transmit receive public"> <MidiMessage status="#90" address="#69"/> </Control>
+		<Control name="F11" title="F11"	type="trigger" options="transmit receive public"> <MidiMessage status="#90" address="#6A"/> </Control>
+		<Control name="F12" title="F12"	type="trigger" options="transmit receive public"> <MidiMessage status="#90" address="#6B"/> </Control>
+
+		<Control name="F1Text"  type="textdisplay" options="transmit"/>
+		<Control name="F2Text"  type="textdisplay" options="transmit"/>
+		<Control name="F3Text"  type="textdisplay" options="transmit"/>
+		<Control name="F4Text"  type="textdisplay" options="transmit"/>
+		<Control name="F5Text"  type="textdisplay" options="transmit"/>
+		<Control name="F6Text"  type="textdisplay" options="transmit"/>
+		<Control name="F7Text"  type="textdisplay" options="transmit"/>
+		<Control name="F8Text"  type="textdisplay" options="transmit"/>
+		<Control name="F9Text"  type="textdisplay" options="transmit"/>
+		<Control name="F10Text" type="textdisplay" options="transmit"/>
+		<Control name="F11Text" type="textdisplay" options="transmit"/>
+		<Control name="F12Text" type="textdisplay" options="transmit"/>
 
 		<!-- ******************************************************************************************** -->
 		<!-- Selected Channel Controls -->
@@ -234,18 +247,18 @@
 					<String control="masterDisplay" param="value" options="above"/>
 				</Strip>
 
-				<Strip name= "F1"><Toggle control= "F1" param="value" options="above"/></Strip>
-				<Strip name= "F2"><Toggle control= "F2" param="value" options="above"/></Strip>
-				<Strip name= "F3"><Toggle control= "F3" param="value" options="above"/></Strip>
-				<Strip name= "F4"><Toggle control= "F4" param="value" options="above"/></Strip>
-				<Strip name= "F5"><Toggle control= "F5" param="value" options="above"/></Strip>
-				<Strip name= "F6"><Toggle control= "F6" param="value" options="above"/></Strip>
-				<Strip name= "F7"><Toggle control= "F7" param="value" options="above"/></Strip>
-				<Strip name= "F8"><Toggle control= "F8" param="value" options="above"/></Strip>
-				<Strip name= "F9"><Toggle control= "F9" param="value" options="above"/></Strip>
-				<Strip name="F10"><Toggle control="F10" param="value" options="above"/></Strip>
-				<Strip name="F11"><Toggle control="F11" param="value" options="above"/></Strip>
-				<Strip name="F12"><Toggle control="F12" param="value" options="above"/></Strip>
+				<Strip name= "F1"><Toggle control= "F1" param="value" options="above"/><String control="F1Text" param="title"/></Strip>
+				<Strip name= "F2"><Toggle control= "F2" param="value" options="above"/><String control="F2Text" param="title"/></Strip>
+				<Strip name= "F3"><Toggle control= "F3" param="value" options="above"/><String control="F3Text" param="label"/></Strip>
+				<Strip name= "F4"><Toggle control= "F4" param="value" options="above"/><String control="F4Text" param="label"/></Strip>
+				<Strip name= "F5"><Toggle control= "F5" param="value" options="above"/><String control="F5Text" param="label"/></Strip>
+				<Strip name= "F6"><Toggle control= "F6" param="value" options="above"/><String control="F6Text" param="label"/></Strip>
+				<Strip name= "F7"><Toggle control= "F7" param="value" options="above"/><String control="F7Text" param="label"/></Strip>
+				<Strip name= "F8"><Toggle control= "F8" param="value" options="above"/><String control="F8Text" param="label"/></Strip>
+				<Strip name= "F9"><Toggle control= "F9" param="value" options="above"/><String control="F9Text" param="label"/></Strip>
+				<Strip name="F10"><Toggle control="F10" param="value" options="above"/><String control="F10Text" param="label"/></Strip>
+				<Strip name="F11"><Toggle control="F11" param="value" options="above"/><String control="F11Text" param="label"/></Strip>
+				<Strip name="F12"><Toggle control="F12" param="value" options="above"/><String control="F12Text" param="label"/></Strip>
 			</Bank>
 		</GenericMapping>
 
@@ -391,7 +404,7 @@
 			<Radio control="userButton" param="bankList" value="$BANK_USER"/>
 
 			<using device="Editor">
-				<String control="focusDeviceText" param="focusDeviceName" />
+				<String control="focusDeviceText" param="focusDeviceName"/>
 			</using>
 
 			<include template="ChannelStripAliasMapping"/>

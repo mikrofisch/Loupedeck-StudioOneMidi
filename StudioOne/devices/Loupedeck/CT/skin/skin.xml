@@ -6,7 +6,6 @@
 
 	<Resources>
 		<Image name="LoupedeckCtBg"   url="LoupedeckCT_bg.png"/>        
-		<Image name="LoupedeckButton" url="MackieButton.png" frames="normal pressed"/>
 		<Image name="BigButton"       url="BigButton.png"	tile="tile-xy"	margin="4,10,3,10"	frames="normal mouseover pressed normalOn mouseoverOn pressedOn disabled"/>
 	</Resources>
 	

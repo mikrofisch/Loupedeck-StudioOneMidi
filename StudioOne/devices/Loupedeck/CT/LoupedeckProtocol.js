@@ -63,5 +63,14 @@ class LoupedeckProtocol {
         sysexBuffer.end();
         return sysexBuffer;
     }
+    static buildFunctionTextSysex(sysexBuffer, index, text) {
+        sysexBuffer.begin(LoupedeckProtocol.kSysexHeader);
+        sysexBuffer.push(0x14);
+        sysexBuffer.push(0x14);
+        sysexBuffer.push(index);
+        sysexBuffer.appendAscii(text);
+        sysexBuffer.end();
+        return sysexBuffer;
+    }
 }
 LoupedeckProtocol.kSysexHeader = [0x00, 0x00, 0x66];

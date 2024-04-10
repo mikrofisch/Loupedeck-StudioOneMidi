@@ -24,6 +24,17 @@ class PlainTextHandler extends PreSonus.ControlHandler {
     }
 }
 
+class FunctionTextHandler extends PreSonus.ControlHandler {
+    constructor(name, index) {
+        super();
+        this.name = name;
+        this.index = index;
+    }
+    sendValue(value, flags) {
+        this.device.sendFunctionText(index, value);
+    }
+}
+
 class LoupedeckMidiDevice extends PreSonus.ControlSurfaceDevice {
     constructor() {
         super();
@@ -32,32 +43,17 @@ class LoupedeckMidiDevice extends PreSonus.ControlSurfaceDevice {
     onInit(hostDevice) {
         super.onInit(hostDevice);
         this.debugLog = false;
-        this.addHandler(new ChannelTextHandler("labelText[0]", 0, 0));
-        this.addHandler(new ChannelTextHandler("valueText[0]", 0, 1));
-        this.addHandler(new ChannelTextHandler("descText[0]",  0, 2));
-        this.addHandler(new ChannelTextHandler("userText[0]",  0, 3));
-        this.addHandler(new ChannelTextHandler("labelText[1]", 1, 0));
-        this.addHandler(new ChannelTextHandler("valueText[1]", 1, 1));
-        this.addHandler(new ChannelTextHandler("descText[1]",  1, 2));
-        this.addHandler(new ChannelTextHandler("userText[1]",  1, 3));
-        this.addHandler(new ChannelTextHandler("labelText[2]", 2, 0));
-        this.addHandler(new ChannelTextHandler("valueText[2]", 2, 1));
-        this.addHandler(new ChannelTextHandler("descText[2]",  2, 2));
-        this.addHandler(new ChannelTextHandler("userText[2]",  2, 3));
-        this.addHandler(new ChannelTextHandler("labelText[3]", 3, 0));
-        this.addHandler(new ChannelTextHandler("valueText[3]", 3, 1));
-        this.addHandler(new ChannelTextHandler("descText[3]",  3, 2));
-        this.addHandler(new ChannelTextHandler("userText[3]",  3, 3));
-        this.addHandler(new ChannelTextHandler("labelText[4]", 4, 0));
-        this.addHandler(new ChannelTextHandler("valueText[4]", 4, 1));
-        this.addHandler(new ChannelTextHandler("descText[4]",  4, 2));
-        this.addHandler(new ChannelTextHandler("userText[4]",  4, 3));
-        this.addHandler(new ChannelTextHandler("labelText[5]", 5, 0));
-        this.addHandler(new ChannelTextHandler("valueText[5]", 5, 1));
-        this.addHandler(new ChannelTextHandler("descText[5]",  5, 2));
-        this.addHandler(new ChannelTextHandler("userText[5]",  5, 3));
+        for (let i = 0; i < 6; i++) {
+            this.addHandler(new ChannelTextHandler("labelText["+i+"]", i, 0));
+            this.addHandler(new ChannelTextHandler("valueText["+i+"]", i, 1));
+            this.addHandler(new ChannelTextHandler("descText["+i+"]",  i, 2));
+            this.addHandler(new ChannelTextHandler("userText["+i+"]",  i, 3));
+        }
         this.addHandler(new ChannelTextHandler("selectedLabelText", 6, 0));
         this.addHandler(new ChannelTextHandler("selectedValueText", 6, 1));
+        for (let i = 0; i < 12; i++) {
+            this.addHandler(new FunctionTextHandler("F"+i, i));
+        }
         this.addHandler(new PlainTextHandler("focusDeviceText"));
     }
     onMidiOutConnected(state) {
@@ -77,6 +73,9 @@ class LoupedeckMidiDevice extends PreSonus.ControlSurfaceDevice {
     } 
     sendPlainText(text) {
         this.sendSysex(LoupedeckProtocol.buildPlainTextSysex(this.sysexSendBuffer, text)); 
+    } 
+    sendFunctionText(index, text) {
+        this.sendSysex(LoupedeckProtocol.buildFunctionTextSysex(this.sysexSendBuffer, index, text)); 
     } 
 }
 

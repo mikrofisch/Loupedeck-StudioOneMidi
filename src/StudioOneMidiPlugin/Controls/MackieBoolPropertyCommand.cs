@@ -3,12 +3,8 @@
     using System;
     using System.Collections.Generic;
     using Melanchall.DryWetMidi.Core;
-    class MackieSelectedChannelBoolPropertyCommand : PluginDynamicCommand
+    class MackieSelectedChannelBoolPropertyCommand : LoupedeckButton<PropertyButtonData>
 	{
-
-		StudioOneMidiPlugin plugin;
-
-        private IDictionary<string, PropertyButtonData> buttonData = new Dictionary<string, PropertyButtonData>();
 
         public MackieSelectedChannelBoolPropertyCommand()
 		{
@@ -30,14 +26,9 @@
 
 		protected override bool OnLoad()
 		{
-			plugin = base.Plugin as StudioOneMidiPlugin;
+            base.OnLoad();
 
-            foreach (var bd in this.buttonData.Values)
-            {
-                bd.OnLoad(plugin);
-            }
-
-            plugin.MackieNoteReceived += (object sender, NoteOnEvent e) => {
+            this.plugin.MackieNoteReceived += (object sender, NoteOnEvent e) => {
                 if (e.NoteNumber >= SelectButtonData.UserButtonMidiBase &&
                     e.NoteNumber <= SelectButtonData.UserButtonMidiBase + StudioOneMidiPlugin.MackieChannelCount)
                 {
@@ -47,11 +38,11 @@
                 }
             };
 
-            plugin.MackieDataChanged += (object sender, EventArgs e) => {
+            this.plugin.MackieDataChanged += (object sender, EventArgs e) => {
 				ActionImageChanged();
 			};
 
-            plugin.SelectModeChanged += (object sender, SelectButtonData.Mode e) =>
+            this.plugin.SelectModeChanged += (object sender, SelectButtonData.Mode e) =>
             {
                 for (int i = 0; i < StudioOneMidiPlugin.MackieChannelCount; i++)
                 {
@@ -62,24 +53,6 @@
             };
 
 			return true;
-		}
-
-        protected override BitmapImage GetCommandImage(string actionParameter, PluginImageSize imageSize)
-        {
-            if (actionParameter == null) return null;
-
-            return this.buttonData[actionParameter].getImage(imageSize);
-		}
-
-		protected override void RunCommand(string actionParameter)
-		{
-            //			if (plugin.mackieMidiOut == null)
-            //			{
-            //				plugin.OpenConfigWindow();
-            //				return;
-            //			}
-
-            this.buttonData[actionParameter].runCommand();
 		}
 
         private void AddButton(int i, ChannelProperty.BoolType bt, string name, string iconName = null)
@@ -98,10 +71,8 @@
             }
 
             var idx = $"{i}:{(int)bd.Type}";
-            buttonData[idx] = bd;
+            this.buttonData[idx] = bd;
             AddParameter(idx, name + chstr, name);
         }
-
-
     }
 }

@@ -1,18 +1,7 @@
 ﻿namespace Loupedeck.StudioOneMidiPlugin.Controls
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
-    using System.Web.UI.WebControls;
-
     using Melanchall.DryWetMidi.Common;
-
     using Melanchall.DryWetMidi.Core;
-
-    using static Loupedeck.StudioOneMidiPlugin.Controls.ModeTopCommandButtonData;
-    using static Loupedeck.StudioOneMidiPlugin.Controls.PropertyButtonData;
 
     public abstract class ButtonData
     {
@@ -285,6 +274,7 @@
         public BitmapColor OffColor = BitmapColor.Black;
         public BitmapColor OnColor = BitmapColor.Black;
         public BitmapColor TextColor = BitmapColor.White;
+        public BitmapColor TextOnColor = BitmapColor.White;
         public BitmapImage Icon, IconOn;
 
         public static readonly BitmapColor cRectOn = new BitmapColor(200, 200, 200);
@@ -302,10 +292,11 @@
             this.init(code, name, iconName);
             this.CodeOn = codeOn;
         }
-        public CommandButtonData(int code, string name, BitmapColor onColor, bool isActivatedByDefault = false)
+        public CommandButtonData(int code, string name, BitmapColor onColor, BitmapColor textOnColor, bool isActivatedByDefault = false)
         {
             this.init(code, name, null);
             this.OnColor = onColor;
+            this.TextOnColor = textOnColor;
             this.Activated = isActivatedByDefault;
         }
 
@@ -333,7 +324,7 @@
             }
             else
             {
-                bb.DrawText(this.Name, 0, 0, bb.Width, bb.Height, this.TextColor, 16);
+                bb.DrawText(this.Name, 0, 0, bb.Width, bb.Height, this.Activated ? this.TextOnColor : this.TextColor, 16);
             }
 
             return bb.ToImage();

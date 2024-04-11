@@ -3,6 +3,7 @@ namespace Loupedeck.StudioOneMidiPlugin
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Runtime.InteropServices;
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
@@ -41,8 +42,14 @@ namespace Loupedeck.StudioOneMidiPlugin
 
         public event EventHandler SelectButtonPressed;
         public event EventHandler<SelectButtonData.Mode> SelectModeChanged;
-
         public event EventHandler<string> FocusDeviceChanged;
+
+        public class FunctionKeyArgs : EventArgs
+        {
+            public int KeyID { get; set; }
+            public string FunctionName { get; set; }
+        }
+        public event EventHandler<FunctionKeyArgs> FunctionKeyChanged;
 
         private System.Timers.Timer mackieDataChangeTimer;
         // public bool sendMode;
@@ -205,6 +212,14 @@ namespace Loupedeck.StudioOneMidiPlugin
             this.FocusDeviceChanged?.Invoke(this, focusChannelName);
         }
 
+        public void EmitFunctionKeyChanged(int keyID, string functionName)
+        {
+            var args = new FunctionKeyArgs();
+            args.KeyID = keyID;
+            args.FunctionName = functionName;
+            this.FunctionKeyChanged?.Invoke(this, args);
+        }
+
         public override void RunCommand(String commandName, String parameter)
         {
 		}
@@ -327,6 +342,15 @@ namespace Loupedeck.StudioOneMidiPlugin
                     var receivedString = Encoding.UTF8.GetString(str, 0, str.Length); //.Replace("\0", "");
 
                     EmitFocusDeviceChanged(receivedString);
+                }
+                // Function key name
+                else if (ce.Data.Length > 5 && ce.Data[4] == 0x14)
+                {
+                    byte keyID = ce.Data[5];
+                    byte[] str = ce.Data.SubArray(6, ce.Data.Length - 7);
+                    var receivedString = Encoding.UTF8.GetString(str, 0, str.Length);
+
+                    EmitFunctionKeyChanged(keyID, receivedString);
                 }
             }
         }

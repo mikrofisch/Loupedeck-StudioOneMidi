@@ -60,11 +60,11 @@
             this.addButton(ButtonLayer.channelProperties, 4, new ModeButtonData("VIEWS"));
             this.addButton(ButtonLayer.channelProperties, 5, new FlipPanVolCommandButtonData(0x32), true);
 
-            this.addButton(ButtonLayer.faderModesAll, 0, new CommandButtonData(0x40, "AUDIO", new BitmapColor(0, 60, 80)));
-            this.addButton(ButtonLayer.faderModesAll, 1, new CommandButtonData(0x42, "FX", new BitmapColor(0, 60, 80)));
-            this.addButton(ButtonLayer.faderModesAll, 2, new CommandButtonData(0x43, "BUS", new BitmapColor(0, 60, 80)));
-            this.addButton(ButtonLayer.faderModesAll, 3, new CommandButtonData(0x44, "OUT", new BitmapColor(0, 60, 80)));
-            this.addButton(ButtonLayer.faderModesAll, 4, new CommandButtonData(0x33, "ALL", new BitmapColor(60, 60, 20), true), true);
+            this.addButton(ButtonLayer.faderModesAll, 0, new CommandButtonData(0x40, "AUDIO", new BitmapColor(0, 60, 80), BitmapColor.White));
+            this.addButton(ButtonLayer.faderModesAll, 1, new CommandButtonData(0x42, "FX", new BitmapColor(0, 60, 80), BitmapColor.White));
+            this.addButton(ButtonLayer.faderModesAll, 2, new CommandButtonData(0x43, "BUS", new BitmapColor(0, 60, 80), BitmapColor.White));
+            this.addButton(ButtonLayer.faderModesAll, 3, new CommandButtonData(0x44, "OUT", new BitmapColor(0, 60, 80), BitmapColor.White));
+            this.addButton(ButtonLayer.faderModesAll, 4, new CommandButtonData(0x33, "ALL", new BitmapColor(60, 60, 20), BitmapColor.White, true), true);
             this.addButton(ButtonLayer.faderModesAll, 5, new CommandButtonData(0x29, "USER\rSENDS"));
 
             this.addButton(ButtonLayer.faderModesSend, 0, new ModeTopCommandButtonData(0x51, "Previous\rPlugin", ModeTopCommandButtonData.Location.Left, "plugin_prev"));

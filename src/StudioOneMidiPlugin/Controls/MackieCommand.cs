@@ -9,12 +9,8 @@
     using System.Windows.Media;
     using System.Windows.Shapes;
 
-    class MackieCommand : PluginDynamicCommand
+    class MackieCommand : LoupedeckButton<CommandButtonData>
 	{
-		StudioOneMidiPlugin plugin;
-
-		private IDictionary<string, CommandButtonData> buttonData = new Dictionary<string, CommandButtonData>();
-
 		public MackieCommand()
 		{
             this.AddButton(new CommandButtonData(0x5E, 0x5D, "Play", "play"), "Transport");   // 1st click - play, 2nd click - stop
@@ -30,7 +26,7 @@
             this.AddButton(new CommandButtonData(0x20, "TRACK"));
             this.AddButton(new CommandButtonData(0x29, "SEND"));
             this.AddButton(new CommandButtonData(0x2A, "VOL/PAN"));
-            this.AddButton(new CommandButtonData(0x33, "GLOBAL", new BitmapColor(60, 60, 20)));
+            this.AddButton(new CommandButtonData(0x33, "GLOBAL", new BitmapColor(60, 60, 20), BitmapColor.White));
             this.AddButton(new CommandButtonData(0x40, "AUDIO"));
             this.AddButton(new CommandButtonData(0x42, "FX"));
             this.AddButton(new CommandButtonData(0x43, "BUS"));
@@ -75,49 +71,23 @@
 
         protected override bool OnLoad()
 		{
-			plugin = base.Plugin as StudioOneMidiPlugin;
-			plugin.MackieNoteReceived += this.OnNoteReceived;
+            base.OnLoad();
 
-            foreach (var bd in this.buttonData.Values)
+            this.plugin.MackieNoteReceived += (object sender, NoteOnEvent e) =>
             {
-                bd.OnLoad(plugin);
-            }
+                string param = e.NoteNumber.ToString();
 
-            return base.OnLoad();
+                if (!this.buttonData.ContainsKey(param)) return;
+
+                var bd = this.buttonData[param];
+                bd.Activated = e.Velocity > 0;
+                this.ActionImageChanged(param);
+            };
+
+            return true;
 		}
 
-		protected void OnNoteReceived(object sender, NoteOnEvent e)
-		{
-			string param = e.NoteNumber.ToString();
-
-            if (!this.buttonData.ContainsKey(param))
-            {
-                return;
-            }
-
-			CommandButtonData bd = this.buttonData[param];
-			bd.Activated = e.Velocity > 0;
-			this.ActionImageChanged(param);
-		}
-
-
-        protected override void RunCommand(string actionParameter)
-        {
-            if (!buttonData.ContainsKey(actionParameter))
-                return;
-
-            buttonData[actionParameter].runCommand();
-        }
-
- 		protected override BitmapImage GetCommandImage(string actionParameter, PluginImageSize imageSize)
-        {
-			if (actionParameter == null) return null;
-			if (!buttonData.ContainsKey(actionParameter)) return null;
-
-			return buttonData[actionParameter].getImage(imageSize);
-		}
-
-		private void AddButton(CommandButtonData bd, string parameterGroup = "Control")
+        private void AddButton(CommandButtonData bd, string parameterGroup = "Control")
         {
             if (bd.IconName != null)
             {
@@ -132,6 +102,5 @@
 			buttonData[bd.Code.ToString()] = bd;
 			AddParameter(bd.Code.ToString(), bd.Name, parameterGroup);
 		}
-
 	}
 }

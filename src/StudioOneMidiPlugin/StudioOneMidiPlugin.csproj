@@ -65,6 +65,8 @@
     </Compile>
     <Compile Include="Controls\ButtonData.cs" />
     <Compile Include="Controls\ConfigCommand.cs" />
+    <Compile Include="Controls\LoupedeckButton.cs" />
+    <Compile Include="Controls\LoupedeckFunctionKey.cs" />
     <Compile Include="Controls\LoupedeckModes.cs" />
     <Compile Include="Controls\MackieBoolPropertyCommand.cs" />
     <Compile Include="Controls\MackieCommand.cs" />

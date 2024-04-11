@@ -137,7 +137,7 @@
 				
 				<Vertical size="408,138,330,250" spacing="8" margin="0">
 					<Horizontal size="0,0,330,80" spacing="13" margin="0">
-						<foreach variable="$i" count="4">
+						<foreach variable="$i" start="1" count="4">
 							<using controller="F$i">
 								<View size="0,0,72,72">
 									<TextBox  name="paramTitle"	style="LDisplayText"	options="transparent fittext"	width="72"	height="18"/>

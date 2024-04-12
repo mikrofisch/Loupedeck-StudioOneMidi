@@ -52,7 +52,7 @@ class LoupedeckMidiDevice extends PreSonus.ControlSurfaceDevice {
         this.addHandler(new ChannelTextHandler("selectedLabelText", 6, 0));
         this.addHandler(new ChannelTextHandler("selectedValueText", 6, 1));
         for (let i = 0; i < 12; i++) {
-            this.addHandler(new FunctionTextHandler("F"+i+"Text", i));
+            this.addHandler(new FunctionTextHandler("F"+(i+1) +"Text", i));
         }
         this.addHandler(new PlainTextHandler("focusDeviceText"));
     }

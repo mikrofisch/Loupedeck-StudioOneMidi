@@ -9,9 +9,9 @@
     using System.Windows.Media;
     using System.Windows.Shapes;
 
-    class MackieCommand : LoupedeckButton<CommandButtonData>
+    class CommandButton : StudioOneButton<CommandButtonData>
 	{
-		public MackieCommand()
+		public CommandButton()
 		{
             this.AddButton(new CommandButtonData(0x5E, 0x5D, "Play", "play"), "Transport");   // 1st click - play, 2nd click - stop
             this.AddButton(new CommandButtonData(0x5D, "Stop", "stop"), "Transport");

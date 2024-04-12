@@ -14,7 +14,7 @@
     // This is a special button class that creates 6 buttons which are then
     // placed in the central area of the button field on the Loupedeck.
     // The functionality of the buttons changes dynamically.
-    internal class LoupedeckModes : PluginDynamicCommand
+    internal class ModesKeypad : PluginDynamicCommand
     {
         // common
         StudioOneMidiPlugin plugin;
@@ -32,7 +32,7 @@
         ButtonLayer currentLayer = ButtonLayer.channelProperties;
         SelectButtonData.Mode selectMode = SelectButtonData.Mode.Select;
 
-        public LoupedeckModes()
+        public ModesKeypad()
         {
             this.Description = "Special button for controlling Loupedeck fader modes";
 
@@ -43,17 +43,17 @@
             }
 
             // Create button data for each layer
-            this.addButton(ButtonLayer.channelProperties, 0, new PropertyButtonData(StudioOneMidiPlugin.MackieChannelCount, 
+            this.addButton(ButtonLayer.channelProperties, 0, new PropertyButtonData(StudioOneMidiPlugin.ChannelCount, 
                                                                                     ChannelProperty.BoolType.Mute, 
                                                                                     PropertyButtonData.TrackNameMode.ShowLeftHalf));
-            this.addButton(ButtonLayer.channelProperties, 1, new PropertyButtonData(StudioOneMidiPlugin.MackieChannelCount, 
+            this.addButton(ButtonLayer.channelProperties, 1, new PropertyButtonData(StudioOneMidiPlugin.ChannelCount, 
                                                                                     ChannelProperty.BoolType.Solo,
                                                                                     PropertyButtonData.TrackNameMode.ShowRightHalf));
-            this.addButton(ButtonLayer.channelProperties, 2, new PropertyButtonData(StudioOneMidiPlugin.MackieChannelCount, 
+            this.addButton(ButtonLayer.channelProperties, 2, new PropertyButtonData(StudioOneMidiPlugin.ChannelCount, 
                                                                                     ChannelProperty.BoolType.Arm, 
                                                                                     PropertyButtonData.TrackNameMode.None,
                                                                                     "arm"));
-            this.addButton(ButtonLayer.channelProperties, 3, new PropertyButtonData(StudioOneMidiPlugin.MackieChannelCount,
+            this.addButton(ButtonLayer.channelProperties, 3, new PropertyButtonData(StudioOneMidiPlugin.ChannelCount,
                                                                                     ChannelProperty.BoolType.Monitor, 
                                                                                     PropertyButtonData.TrackNameMode.None,
                                                                                     "monitor"));
@@ -87,7 +87,7 @@
                 bd.OnLoad(plugin);
             }
 
-            plugin.MackieDataChanged += (object sender, EventArgs e) => {
+            plugin.ChannelDataChanged += (object sender, EventArgs e) => {
                 ActionImageChanged();
             };
 

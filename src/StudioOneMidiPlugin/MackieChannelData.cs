@@ -88,7 +88,7 @@ namespace Loupedeck.StudioOneMidiPlugin
 			e.Channel = (FourBitNumber)ChannelID;
 			plugin.mackieMidiOut.SendEvent(e);
 
-			plugin.EmitMackieChannelDataChanged(this);
+			this.plugin.EmitChannelDataChanged();
 		}
 
 		public void EmitBoolPropertyPress(ChannelProperty.BoolType type)
@@ -101,7 +101,7 @@ namespace Loupedeck.StudioOneMidiPlugin
 			var e2 = new NoteOffEvent();
 			e2.NoteNumber = e.NoteNumber;
 			e2.Velocity = e.Velocity;
-			plugin.mackieMidiOut.SendEvent(e2);
+			this.plugin.mackieMidiOut.SendEvent(e2);
 		}
 
 	}

@@ -1,18 +1,18 @@
 ﻿namespace Loupedeck.StudioOneMidiPlugin.Controls
 {
     using System;
-    using System.Collections.Generic;
     using Melanchall.DryWetMidi.Core;
-    class MackieSelectedChannelBoolPropertyCommand : LoupedeckButton<PropertyButtonData>
+
+    class PropertyCommandButton : StudioOneButton<PropertyButtonData>
 	{
 
-        public MackieSelectedChannelBoolPropertyCommand()
+        public PropertyCommandButton()
 		{
 			this.Description = "Control for currently selected channel";
 
-			for (int i = 0; i <= StudioOneMidiPlugin.MackieChannelCount; i++)
+			for (int i = 0; i <= StudioOneMidiPlugin.ChannelCount; i++)
 			{
-                if (i < StudioOneMidiPlugin.MackieChannelCount)
+                if (i < StudioOneMidiPlugin.ChannelCount)
                 {
                     this.AddButton(i, ChannelProperty.BoolType.Select, "Select");
                 }
@@ -30,7 +30,7 @@
 
             this.plugin.MackieNoteReceived += (object sender, NoteOnEvent e) => {
                 if (e.NoteNumber >= SelectButtonData.UserButtonMidiBase &&
-                    e.NoteNumber <= SelectButtonData.UserButtonMidiBase + StudioOneMidiPlugin.MackieChannelCount)
+                    e.NoteNumber <= SelectButtonData.UserButtonMidiBase + StudioOneMidiPlugin.ChannelCount)
                 {
                     var bd = this.buttonData[$"{e.NoteNumber - SelectButtonData.UserButtonMidiBase}:{(int)ChannelProperty.BoolType.Select}"] as SelectButtonData;
                     bd.userButtonChanged(e.Velocity > 0);
@@ -38,13 +38,13 @@
                 }
             };
 
-            this.plugin.MackieDataChanged += (object sender, EventArgs e) => {
+            this.plugin.ChannelDataChanged += (object sender, EventArgs e) => {
 				ActionImageChanged();
 			};
 
             this.plugin.SelectModeChanged += (object sender, SelectButtonData.Mode e) =>
             {
-                for (int i = 0; i < StudioOneMidiPlugin.MackieChannelCount; i++)
+                for (int i = 0; i < StudioOneMidiPlugin.ChannelCount; i++)
                 {
                     var bd = this.buttonData[$"{i}:{(int)ChannelProperty.BoolType.Select}"] as SelectButtonData;
                     bd.selectModeChanged(e);
@@ -57,7 +57,7 @@
 
         private void AddButton(int i, ChannelProperty.BoolType bt, string name, string iconName = null)
         {
-            string chstr = i == StudioOneMidiPlugin.MackieChannelCount ? " (Selected channel)" : $" (CH {i + 1})";
+            string chstr = i == StudioOneMidiPlugin.ChannelCount ? " (Selected channel)" : $" (CH {i + 1})";
 
             PropertyButtonData bd;
 

@@ -18,11 +18,11 @@
 		{
 			this.Description = "Channel fader.\nButton press -> Mute\nScreen touch -> Select\nScreen double tap -> Arm/rec";
 
-			for (int i = 0; i < StudioOneMidiPlugin.MackieChannelCount; i++)
+			for (int i = 0; i < StudioOneMidiPlugin.ChannelCount; i++)
 			{
 				AddParameter(i.ToString(), $"Fader (CH {i + 1})", "Faders");
 			}
-			AddParameter(StudioOneMidiPlugin.MackieChannelCount.ToString(), $"Fader (Selected Channel)", "Faders");
+			AddParameter(StudioOneMidiPlugin.ChannelCount.ToString(), $"Fader (Selected Channel)", "Faders");
 		}
 
 		protected override bool OnLoad()
@@ -30,7 +30,7 @@
 			plugin = base.Plugin as StudioOneMidiPlugin;
 			plugin.mackieFader = this;
 
-			plugin.MackieDataChanged += (object sender, EventArgs e) => {
+			plugin.ChannelDataChanged += (object sender, EventArgs e) => {
 				ActionImageChanged();
 			};
 
@@ -84,7 +84,7 @@
                         ChannelProperty.boolPropertyColor[cd.Muted ? (int)ChannelProperty.BoolType.Mute : (int)ChannelProperty.BoolType.Solo]
                         );
                 }
-                if (cd.Selected && cd.ChannelID < StudioOneMidiPlugin.MackieChannelCount)
+                if (cd.Selected && cd.ChannelID < StudioOneMidiPlugin.ChannelCount)
                 {
                     bb.FillRectangle(0, 0, sideBarW, bb.Height, ChannelProperty.boolPropertyColor[(int)ChannelProperty.BoolType.Select]);
                 }

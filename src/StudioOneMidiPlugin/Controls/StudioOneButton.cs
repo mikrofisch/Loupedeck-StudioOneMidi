@@ -2,11 +2,12 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
 
-    internal class LoupedeckButton<B> : PluginDynamicCommand where B : ButtonData
+    internal class StudioOneButton<B> : PluginDynamicCommand where B : ButtonData
     {
         protected StudioOneMidiPlugin plugin;
 
@@ -27,6 +28,8 @@
         {
             if (actionParameter == null) return null;
             if (!this.buttonData.ContainsKey(actionParameter)) return null;
+
+            Debug.WriteLine("StudioOneButton.GetCommandImage: " + actionParameter);
 
             return this.buttonData[actionParameter].getImage(imageSize);
         }

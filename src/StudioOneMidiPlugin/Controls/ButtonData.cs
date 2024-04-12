@@ -1,5 +1,7 @@
 ﻿namespace Loupedeck.StudioOneMidiPlugin.Controls
 {
+    using System.Diagnostics;
+
     using Melanchall.DryWetMidi.Common;
     using Melanchall.DryWetMidi.Core;
 
@@ -311,6 +313,8 @@
 
         public override BitmapImage getImage(PluginImageSize imageSize)
         {
+            Debug.WriteLine(this.Code.ToString() + " " + this.Name);
+
             var bb = new BitmapBuilder(imageSize);
             bb.FillRectangle(0, 0, bb.Width, bb.Height, this.Activated ? this.OnColor : this.OffColor);
 

@@ -27,7 +27,7 @@ namespace Loupedeck.StudioOneMidiPlugin
 		public InputDevice midiIn = null, mackieMidiIn = null;
 		public OutputDevice midiOut = null, mackieMidiOut = null;
 
-		public const int MackieChannelCount = 6;
+		public const int ChannelCount = 6;
 
 		public IDictionary<string, MackieChannelData> mackieChannelData = new Dictionary<string, MackieChannelData>();
 
@@ -37,24 +37,24 @@ namespace Loupedeck.StudioOneMidiPlugin
 
         public bool isConfigWindowOpen = false;
         
-        public event EventHandler MackieDataChanged;
+        public event EventHandler ChannelDataChanged;
 		public event EventHandler<NoteOnEvent> MackieNoteReceived;
-
         public event EventHandler SelectButtonPressed;
         public event EventHandler<SelectButtonData.Mode> SelectModeChanged;
         public event EventHandler<string> FocusDeviceChanged;
 
-        public class FunctionKeyArgs : EventArgs
+        public class FunctionKeyParams
         {
             public int KeyID { get; set; }
             public string FunctionName { get; set; }
         }
-        public event EventHandler<FunctionKeyArgs> FunctionKeyChanged;
+        public Queue<FunctionKeyParams> FunctionKeyEvents = new Queue<FunctionKeyParams>();
+        public event EventHandler FunctionKeyChanged;
 
-        private System.Timers.Timer mackieDataChangeTimer;
-        // public bool sendMode;
+        private System.Timers.Timer ChannelDataChangeTimer;
+        private System.Timers.Timer FunctionKeyChangeTimer;
 
-		public string MidiInName
+        public string MidiInName
         {
 			get => midiInName;
 			set {
@@ -148,14 +148,22 @@ namespace Loupedeck.StudioOneMidiPlugin
             PluginResources.Init(this.Assembly);
 
             // Create the channel data objects (one object for each bank channel, plus one for the selected channel).
-			for (int i = 0; i <= MackieChannelCount; i++)
+			for (int i = 0; i <= ChannelCount; i++)
 				mackieChannelData[i.ToString()] = new MackieChannelData(this, i);
 
-			mackieDataChangeTimer = new System.Timers.Timer(10);
-			mackieDataChangeTimer.AutoReset = false;
-			mackieDataChangeTimer.Elapsed += (object sender, System.Timers.ElapsedEventArgs e) => {
-				MackieDataChanged.Invoke(this, null);
-			};
+			this.ChannelDataChangeTimer = new System.Timers.Timer(10);
+			this.ChannelDataChangeTimer.AutoReset = false;
+            this.ChannelDataChangeTimer.Elapsed += (object sender, System.Timers.ElapsedEventArgs e) =>
+            {
+                ChannelDataChanged.Invoke(this, null);
+            };
+
+            this.FunctionKeyChangeTimer = new System.Timers.Timer(10);
+            this.FunctionKeyChangeTimer.AutoReset = false;
+            this.FunctionKeyChangeTimer.Elapsed += (object sender, System.Timers.ElapsedEventArgs e) =>
+            {
+                FunctionKeyChanged.Invoke(this, null);
+            };
         }
 
         // This method is called when the plugin is loaded during the Loupedeck service start-up.
@@ -192,9 +200,9 @@ namespace Loupedeck.StudioOneMidiPlugin
 			isConfigWindowOpen = true;
 		}
 
-		public void EmitMackieChannelDataChanged(MackieChannelData cd)
+		public void EmitChannelDataChanged()
         {
-            mackieDataChangeTimer.Start();
+            ChannelDataChangeTimer.Start();
 		}
 
         public void EmitSelectedButtonPressed()
@@ -207,19 +215,6 @@ namespace Loupedeck.StudioOneMidiPlugin
             this.SelectModeChanged?.Invoke(this, sm);
         }
         
-        public void EmitFocusDeviceChanged(string focusChannelName)
-        {
-            this.FocusDeviceChanged?.Invoke(this, focusChannelName);
-        }
-
-        public void EmitFunctionKeyChanged(int keyID, string functionName)
-        {
-            var args = new FunctionKeyArgs();
-            args.KeyID = keyID;
-            args.FunctionName = functionName;
-            this.FunctionKeyChanged?.Invoke(this, args);
-        }
-
         public override void RunCommand(String commandName, String parameter)
         {
 		}
@@ -259,9 +254,8 @@ namespace Loupedeck.StudioOneMidiPlugin
 
                 var ce = e as PitchBendEvent;
                 cd.Value = ce.PitchValue / 16383.0f;
-                EmitMackieChannelDataChanged(cd);
+                this.EmitChannelDataChanged();
             }
-
             // Note event -> solo/mute/...
             else if (e is NoteOnEvent)
             {
@@ -271,7 +265,7 @@ namespace Loupedeck.StudioOneMidiPlugin
 
                 foreach (ChannelProperty.BoolType bt in Enum.GetValues(typeof(ChannelProperty.BoolType)))
                 {
-                    if (ce.NoteNumber >= ChannelProperty.boolPropertyMackieNote[(int)bt] && ce.NoteNumber < (ChannelProperty.boolPropertyMackieNote[(int)bt] + MackieChannelCount + 1))
+                    if (ce.NoteNumber >= ChannelProperty.boolPropertyMackieNote[(int)bt] && ce.NoteNumber < (ChannelProperty.boolPropertyMackieNote[(int)bt] + ChannelCount + 1))
                     {
                         eventType = bt;
                         eventTypeFound = true;
@@ -287,7 +281,7 @@ namespace Loupedeck.StudioOneMidiPlugin
                         return;
 
                     cd.BoolProperty[(int)eventType] = ce.Velocity > 0;
-                    EmitMackieChannelDataChanged(cd);
+                    this.EmitChannelDataChanged();
                 }
                 else
                 {
@@ -333,7 +327,7 @@ namespace Loupedeck.StudioOneMidiPlugin
                             break;
                     }
 
-                    EmitMackieChannelDataChanged(cd);
+                    this.EmitChannelDataChanged();
                 }
                 // Focus channel name
                 else if (ce.Data.Length > 5 && ce.Data[4] == 0x13)
@@ -341,7 +335,7 @@ namespace Loupedeck.StudioOneMidiPlugin
                     byte[] str = ce.Data.SubArray(5, ce.Data.Length - 6);
                     var receivedString = Encoding.UTF8.GetString(str, 0, str.Length); //.Replace("\0", "");
 
-                    EmitFocusDeviceChanged(receivedString);
+                    this.FocusDeviceChanged?.Invoke(this, receivedString);
                 }
                 // Function key name
                 else if (ce.Data.Length > 5 && ce.Data[4] == 0x14)
@@ -350,7 +344,12 @@ namespace Loupedeck.StudioOneMidiPlugin
                     byte[] str = ce.Data.SubArray(6, ce.Data.Length - 7);
                     var receivedString = Encoding.UTF8.GetString(str, 0, str.Length);
 
-                    EmitFunctionKeyChanged(keyID, receivedString);
+                    var fke = new FunctionKeyParams();
+                    fke.KeyID = keyID;
+                    fke.FunctionName = receivedString;
+                    this.FunctionKeyEvents.Enqueue(fke);
+
+                    this.FunctionKeyChangeTimer.Start();
                 }
             }
         }
@@ -364,6 +363,5 @@ namespace Loupedeck.StudioOneMidiPlugin
 
 			return base.TryProcessTouchEvent(actionName, actionParameter, deviceTouchEvent);
 		}
-
     }
 }

@@ -65,11 +65,11 @@
     </Compile>
     <Compile Include="Controls\ButtonData.cs" />
     <Compile Include="Controls\ConfigCommand.cs" />
-    <Compile Include="Controls\LoupedeckButton.cs" />
-    <Compile Include="Controls\LoupedeckFunctionKey.cs" />
-    <Compile Include="Controls\LoupedeckModes.cs" />
-    <Compile Include="Controls\MackieBoolPropertyCommand.cs" />
-    <Compile Include="Controls\MackieCommand.cs" />
+    <Compile Include="Controls\StudioOneButton.cs" />
+    <Compile Include="Controls\FunctionKey.cs" />
+    <Compile Include="Controls\ModesKeypad.cs" />
+    <Compile Include="Controls\PropertyCommandButton.cs" />
+    <Compile Include="Controls\CommandButton.cs" />
     <Compile Include="Controls\MackieFader.cs" />
     <Compile Include="Controls\MidiPadFolder.cs" />
     <Compile Include="MackieChannelData.cs" />

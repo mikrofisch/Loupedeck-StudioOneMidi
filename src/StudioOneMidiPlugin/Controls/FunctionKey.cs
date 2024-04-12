@@ -2,15 +2,16 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
     using Melanchall.DryWetMidi.Core;
     using static Loupedeck.StudioOneMidiPlugin.StudioOneMidiPlugin;
 
-    internal class LoupedeckFunctionKey : LoupedeckButton<CommandButtonData>
+    internal class FunctionKey : StudioOneButton<CommandButtonData>
     {
-        public LoupedeckFunctionKey()
+        public FunctionKey()
         {
             for (int i = 0; i < 12; i++)
             {
@@ -29,17 +30,22 @@
 
                 var bd = this.buttonData[param];
                 bd.Activated = e.Velocity > 0;
+                Debug.WriteLine("FunctionKeys.MackieNoteReceived - ActionImageChanged");
                 this.ActionImageChanged(param);
             };
 
-            this.plugin.FunctionKeyChanged += (object sender, FunctionKeyArgs e) =>
+            this.plugin.FunctionKeyChanged += (object sender, EventArgs e) =>
             {
-                string param = (e.KeyID + 0x5F).ToString();
-                if (!this.buttonData.ContainsKey(param)) return;
-
-                var bd = this.buttonData[param];
-                bd.Name = e.FunctionName;
-                this.ActionImageChanged(param);
+                while (this.plugin.FunctionKeyEvents.Count > 0)
+                {
+                    var fke = this.plugin.FunctionKeyEvents.Dequeue();
+                    string param = (fke.KeyID + 0x60).ToString();
+                    var bd = this.buttonData[param];
+                    bd.Name = fke.FunctionName;
+                    Debug.WriteLine("FunctionKeyChanged: " + fke.KeyID + ", " + bd.Name);
+                }
+                Debug.WriteLine("FunctionKeyChanged - ActionImageChanged");
+                this.ActionImageChanged();
             };
 
             return true;

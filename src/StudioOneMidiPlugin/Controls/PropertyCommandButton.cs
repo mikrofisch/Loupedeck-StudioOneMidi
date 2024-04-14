@@ -34,12 +34,12 @@
                 {
                     var bd = this.buttonData[$"{e.NoteNumber - SelectButtonData.UserButtonMidiBase}:{(int)ChannelProperty.BoolType.Select}"] as SelectButtonData;
                     bd.userButtonChanged(e.Velocity > 0);
-                    ActionImageChanged();
+                    this.EmitActionImageChanged();
                 }
             };
 
             this.plugin.ChannelDataChanged += (object sender, EventArgs e) => {
-				ActionImageChanged();
+				this.EmitActionImageChanged();
 			};
 
             this.plugin.SelectModeChanged += (object sender, SelectButtonData.Mode e) =>
@@ -49,7 +49,7 @@
                     var bd = this.buttonData[$"{i}:{(int)ChannelProperty.BoolType.Select}"] as SelectButtonData;
                     bd.selectModeChanged(e);
                 }
-                ActionImageChanged();
+                this.EmitActionImageChanged();
             };
 
 			return true;

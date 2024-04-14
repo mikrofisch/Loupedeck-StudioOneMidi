@@ -11,7 +11,7 @@
 
     internal class FunctionKey : StudioOneButton<CommandButtonData>
     {
-        public FunctionKey()
+        public FunctionKey() : base()
         {
             for (int i = 0; i < 12; i++)
             {
@@ -31,21 +31,17 @@
                 var bd = this.buttonData[param];
                 bd.Activated = e.Velocity > 0;
                 Debug.WriteLine("FunctionKeys.MackieNoteReceived - ActionImageChanged");
-                this.ActionImageChanged(param);
+                this.EmitActionImageChanged();
             };
 
-            this.plugin.FunctionKeyChanged += (object sender, EventArgs e) =>
+            this.plugin.FunctionKeyChanged += (object sender, FunctionKeyParams fke) =>
             {
-                while (this.plugin.FunctionKeyEvents.Count > 0)
-                {
-                    var fke = this.plugin.FunctionKeyEvents.Dequeue();
-                    string param = (fke.KeyID + 0x60).ToString();
-                    var bd = this.buttonData[param];
-                    bd.Name = fke.FunctionName;
-                    Debug.WriteLine("FunctionKeyChanged: " + fke.KeyID + ", " + bd.Name);
-                }
+                var bd = this.buttonData[(fke.KeyID + 0x60).ToString()];
+                bd.Name = fke.FunctionName;
+                Debug.WriteLine("FunctionKeyChanged: " + fke.KeyID + ", " + bd.Name);
+
                 Debug.WriteLine("FunctionKeyChanged - ActionImageChanged");
-                this.ActionImageChanged();
+                this.EmitActionImageChanged();
             };
 
             return true;

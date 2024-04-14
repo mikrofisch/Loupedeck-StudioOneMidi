@@ -48,11 +48,9 @@ namespace Loupedeck.StudioOneMidiPlugin
             public int KeyID { get; set; }
             public string FunctionName { get; set; }
         }
-        public Queue<FunctionKeyParams> FunctionKeyEvents = new Queue<FunctionKeyParams>();
-        public event EventHandler FunctionKeyChanged;
+        public event EventHandler<FunctionKeyParams> FunctionKeyChanged;
 
         private System.Timers.Timer ChannelDataChangeTimer;
-        private System.Timers.Timer FunctionKeyChangeTimer;
 
         public string MidiInName
         {
@@ -156,13 +154,6 @@ namespace Loupedeck.StudioOneMidiPlugin
             this.ChannelDataChangeTimer.Elapsed += (object sender, System.Timers.ElapsedEventArgs e) =>
             {
                 ChannelDataChanged.Invoke(this, null);
-            };
-
-            this.FunctionKeyChangeTimer = new System.Timers.Timer(10);
-            this.FunctionKeyChangeTimer.AutoReset = false;
-            this.FunctionKeyChangeTimer.Elapsed += (object sender, System.Timers.ElapsedEventArgs e) =>
-            {
-                FunctionKeyChanged.Invoke(this, null);
             };
         }
 
@@ -347,9 +338,7 @@ namespace Loupedeck.StudioOneMidiPlugin
                     var fke = new FunctionKeyParams();
                     fke.KeyID = keyID;
                     fke.FunctionName = receivedString;
-                    this.FunctionKeyEvents.Enqueue(fke);
-
-                    this.FunctionKeyChangeTimer.Start();
+                    FunctionKeyChanged.Invoke(this, fke);
                 }
             }
         }

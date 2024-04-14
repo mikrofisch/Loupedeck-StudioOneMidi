@@ -33,7 +33,10 @@
 
         protected const int TrackNameH = 24;
 
-        public PropertyButtonData(int channelIndex, ChannelProperty.BoolType bt, TrackNameMode tm = TrackNameMode.ShowFull, string iconName = null)
+        public PropertyButtonData(int channelIndex, 
+                                  ChannelProperty.BoolType bt, 
+                                  TrackNameMode tm = TrackNameMode.ShowFull, 
+                                  string iconName = null)
         {
             this.ChannelIndex = channelIndex;
             this.Type = bt;

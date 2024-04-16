@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ControlSurface>
+<!-- ******************************************************************************************** -->
+	<!-- CONTROL DEFINITIONS -->
+	<!-- ******************************************************************************************** -->
+
+	<Controls>
+		<!-- Assignment Buttons -->
+		<Control name="viewConsoleCmd"              type="trigger" options="receive"> <MidiMessage status="#90" address="#00" channel="1"/> </Control>
+		<Control name="viewBrowserCmd"              type="trigger" options="receive"> <MidiMessage status="#90" address="#01" channel="1"/> </Control>
+		<Control name="viewEditorCmd"               type="trigger" options="receive"> <MidiMessage status="#90" address="#02" channel="1"/> </Control>
+		<Control name="viewFullscreenCmd"           type="trigger" options="receive"> <MidiMessage status="#90" address="#03" channel="1"/> </Control>
+		<Control name="viewInspectorCmd"            type="trigger" options="receive"> <MidiMessage status="#90" address="#04" channel="1"/> </Control>
+		<Control name="viewRecordPanelCmd"          type="trigger" options="receive"> <MidiMessage status="#90" address="#05" channel="1"/> </Control>
+		<Control name="viewTrackListCmd"            type="trigger" options="receive"> <MidiMessage status="#90" address="#06" channel="1"/> </Control>
+		<Control name="viewPrevPerspectiveCmd"      type="trigger" options="receive"> <MidiMessage status="#90" address="#07" channel="1"/> </Control>
+		<Control name="viewNextPerspectiveCmd"      type="trigger" options="receive"> <MidiMessage status="#90" address="#08" channel="1"/> </Control>
+		<Control name="viewShowGroupsCmd"           type="trigger" options="receive"> <MidiMessage status="#90" address="#09" channel="1"/> </Control>
+		<Control name="viewToggleFloatWinsCmd"      type="trigger" options="receive"> <MidiMessage status="#90" address="#0A" channel="1"/> </Control>
+		<Control name="consoleShowInputsCmd"        type="trigger" options="receive"> <MidiMessage status="#90" address="#0B" channel="1"/> </Control>
+		<Control name="consoleShowTrackCmd"         type="trigger" options="receive"> <MidiMessage status="#90" address="#0C" channel="1"/> </Control>
+		<Control name="consoleShowChannelEditorCmd" type="trigger" options="receive"> <MidiMessage status="#90" address="#0D" channel="1"/> </Control>
+		<Control name="consoleInstrEditorCmd"       type="trigger" options="receive"> <MidiMessage status="#90" address="#0E" channel="1"/> </Control>
+		<Control name="consoleOpenChannelCmd"       type="trigger" options="receive"> <MidiMessage status="#90" address="#0F" channel="1"/> </Control>
+		<Control name="consoleAddInsertCmd"         type="trigger" options="receive"> <MidiMessage status="#90" address="#10" channel="1"/> </Control>
+		<Control name="consoleAddSendCmd"           type="trigger" options="receive"> <MidiMessage status="#90" address="#11" channel="1"/> </Control>
+		<Control name="consoleAddBusChannelCmd"     type="trigger" options="receive"> <MidiMessage status="#90" address="#12" channel="1"/> </Control>
+		<Control name="consoleAddFXChannelCmd"      type="trigger" options="receive"> <MidiMessage status="#90" address="#13" channel="1"/> </Control>
+		<Control name="consoleGlobalMuteCmd"        type="trigger" options="receive"> <MidiMessage status="#90" address="#14" channel="1"/> </Control>
+		<Control name="consoleGlobalSoloCmd"        type="trigger" options="receive"> <MidiMessage status="#90" address="#15" channel="1"/> </Control>
+		<Control name="consoleNextChannelCmd"       type="trigger" options="receive"> <MidiMessage status="#90" address="#16" channel="1"/> </Control>
+		<Control name="consolePrevChannelCmd"       type="trigger" options="receive"> <MidiMessage status="#90" address="#17" channel="1"/> </Control>
+		<Control name="groupSuspendCmd"             type="trigger" options="receive"> <MidiMessage status="#90" address="#18" channel="1"/> </Control>
+		<Control name="groupSuspendAllCmd"          type="trigger" options="receive"> <MidiMessage status="#90" address="#19" channel="1"/> </Control>
+		<Control name="groupSuspend1Cmd"            type="trigger" options="receive"> <MidiMessage status="#90" address="#1A" channel="1"/> </Control>
+		<Control name="groupSuspend2Cmd"            type="trigger" options="receive"> <MidiMessage status="#90" address="#1B" channel="1"/> </Control>
+		<Control name="groupSuspend3Cmd"            type="trigger" options="receive"> <MidiMessage status="#90" address="#1C" channel="1"/> </Control>
+		<Control name="groupSuspend4Cmd"            type="trigger" options="receive"> <MidiMessage status="#90" address="#1D" channel="1"/> </Control>
+		<Control name="groupSuspend5Cmd"            type="trigger" options="receive"> <MidiMessage status="#90" address="#1E" channel="1"/> </Control>
+		<Control name="groupSuspend6Cmd"            type="trigger" options="receive"> <MidiMessage status="#90" address="#1F" channel="1"/> </Control>
+		<Control name="groupSuspend7Cmd"            type="trigger" options="receive"> <MidiMessage status="#90" address="#20" channel="1"/> </Control>
+		<Control name="groupSuspend8Cmd"            type="trigger" options="receive"> <MidiMessage status="#90" address="#21" channel="1"/> </Control>
+	</Controls>
+
+	<Templates>
+		<Template name="S1CommandMapping">
+
+			<!-- **************************************************************************************** -->
+			<!-- Command Mapping -->
+			<!-- **************************************************************************************** -->
+
+			<Command control="viewConsoleCmd"                command.category="View"    command.name="Console"/>
+			<Command control="viewBrowserCmd"                command.category="View"    command.name="Browser"/>
+			<Command control="viewEditorCmd"                 command.category="View"    command.name="Editor"/>
+			<Command control="viewFullscreenCmd"             command.category="View"    command.name="Fullscreen"/>
+			<Command control="viewInspectorCmd"              command.category="View"    command.name="Inspector"/>
+			<Command control="viewRecordPanelCmd"            command.category="View"    command.name="Record Panel"/>
+			<Command control="viewTrackListCmd"              command.category="View"    command.name="Track List"/>
+			<Command control="viewPrevPerspectiveCmd"        command.category="View"    command.name="Previous Perspective"/>
+			<Command control="viewNextPerspectiveCmd"        command.category="View"    command.name="Next Perspective"/>
+			<Command control="viewShowGroupsCmd"             command.category="View"    command.name="Show Groups (Channel List)"/>
+			<Command control="viewToggleFloatWinsCmd"        command.category="View"    command.name="Toggle Floating Windows"/>
+			<Command control="consoleShowInputsCmd"          command.category="Console" command.name="Show Inputs"/>
+			<Command control="consoleShowTrackCmd"           command.category="Console" command.name="Show Track"/>
+			<Command control="consoleShowChannelEditorCmd"   command.category="Console" command.name="Show Channel Editor"/>
+			<Command control="consoleInstrEditorCmd"         command.category="Console" command.name="Show Instrument Editor"/>
+			<Command control="consoleOpenChannelCmd"         command.category="Console" command.name="Open Channel"/>
+			<Command control="consoleAddInsertCmd"           command.category="Console" command.name="Add Insert"/>
+			<Command control="consoleAddSendCmd"             command.category="Console" command.name="Add Send"/>
+			<Command control="consoleAddBusChannelCmd"       command.category="Console" command.name="Add Bus Channel"/>
+			<Command control="consoleAddFXChannelCmd"        command.category="Console" command.name="Add FX Channel"/>
+			<Command control="consoleGlobalMuteCmd"          command.category="Console" command.name="Global Mute"/>
+			<Command control="consoleGlobalSoloCmd"          command.category="Console" command.name="Global Solo"/>
+			<Command control="consoleNextChannelCmd"         command.category="Console" command.name="Next Channel"/>
+			<Command control="consolePrevChannelCmd"         command.category="Console" command.name="Previous Channel"/>
+			<Command control="groupSuspendCmd"               command.category="Group"   command.name="Suspend Group"/>
+			<Command control="groupSuspendAllCmd"            command.category="Group"   command.name="Suspend All Groups"/>
+			<Command control="groupSuspend1Cmd"              command.category="Group"   command.name="Suspend Group 1"/>
+			<Command control="groupSuspend2Cmd"              command.category="Group"   command.name="Suspend Group 2"/>
+			<Command control="groupSuspend3Cmd"              command.category="Group"   command.name="Suspend Group 3"/>
+			<Command control="groupSuspend4Cmd"              command.category="Group"   command.name="Suspend Group 4"/>
+			<Command control="groupSuspend5Cmd"              command.category="Group"   command.name="Suspend Group 5"/>
+			<Command control="groupSuspend6Cmd"              command.category="Group"   command.name="Suspend Group 6"/>
+			<Command control="groupSuspend7Cmd"              command.category="Group"   command.name="Suspend Group 7"/>
+			<Command control="groupSuspend8Cmd"              command.category="Group"   command.name="Suspend Group 8"/>
+		</Template>
+    </Templates>
+
+</ControlSurface>

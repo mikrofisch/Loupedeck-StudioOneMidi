@@ -27,7 +27,7 @@ namespace Loupedeck.StudioOneMidiPlugin
 			 new BitmapColor(101, 183, 205), // Monitor
 		};
 
-		public static int[] boolPropertyMackieNote = { 24, 16, 8, 0, 120};
+		public static int[] boolPropertyBaseNote = { 24, 16, 8, 0, 120};
 
 		public static string[] boolPropertyName = { "Select", "Mute", "Solo", "Rec", "Mon" };
 		public static string[] boolPropertyLetter = { "-", "M", "S", "R", "M" };

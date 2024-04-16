@@ -14,11 +14,8 @@
     // This is a special button class that creates 6 buttons which are then
     // placed in the central area of the button field on the Loupedeck.
     // The functionality of the buttons changes dynamically.
-    internal class ModesKeypad : PluginDynamicCommand
+    internal class ModesKeypad : StudioOneButton<ButtonData>
     {
-        // common
-        StudioOneMidiPlugin plugin;
-
         private enum ButtonLayer
         {
             channelProperties,
@@ -26,13 +23,12 @@
             faderModesSend
         }
 
-        private IDictionary<string, ButtonData> buttonData = new Dictionary<string, ButtonData>();
         private IDictionary<int, string> noteReceivers = new Dictionary<int, string>();
 
         ButtonLayer currentLayer = ButtonLayer.channelProperties;
         SelectButtonData.Mode selectMode = SelectButtonData.Mode.Select;
 
-        public ModesKeypad()
+        public ModesKeypad() : base()
         {
             this.Description = "Special button for controlling Loupedeck fader modes";
 
@@ -78,39 +74,34 @@
         // common
         protected override bool OnLoad()
         {
-            this.plugin = base.Plugin as StudioOneMidiPlugin;
+            base.OnLoad();
 
-            plugin.MackieNoteReceived += this.OnNoteReceived;
+            plugin.Ch0NoteReceived += this.OnNoteReceived;
 
-            foreach (var bd in this.buttonData.Values)
-            {
-                bd.OnLoad(plugin);
-            }
-
-            plugin.ChannelDataChanged += (object sender, EventArgs e) => {
+            this.plugin.ChannelDataChanged += (object sender, EventArgs e) => {
                 ActionImageChanged();
             };
 
-            plugin.SelectButtonPressed += (object sender, EventArgs e) =>
+            this.plugin.SelectButtonPressed += (object sender, EventArgs e) =>
             {
                 this.currentLayer = ButtonLayer.channelProperties;
-                ActionImageChanged();
+                this.EmitActionImageChanged();
             };
 
-            plugin.FocusDeviceChanged += (object sender, string e) =>
+            this.plugin.FocusDeviceChanged += (object sender, string e) =>
             {
                 for (int i = 0; i < 2; i++)
                 {
                     var mtcbd = this.buttonData[$"{(int)ButtonLayer.faderModesSend}:{i}"] as ModeTopCommandButtonData;
                     mtcbd.setTopDisplay(e);
                 }
-                ActionImageChanged();
+                this.EmitActionImageChanged();
             };
             
             return true;
         }
 
-        private void Plugin_FocusDeviceChanged(Object sender, String e) => throw new NotImplementedException();
+        // private void Plugin_FocusDeviceChanged(Object sender, String e) => throw new NotImplementedException();
 
         protected void OnNoteReceived(object sender, NoteOnEvent e)
         {
@@ -125,7 +116,7 @@
                 var cbd = this.buttonData[this.noteReceivers[e.NoteNumber]] as CommandButtonData;
                 cbd.Activated = e.Velocity > 0;
             }
-            this.ActionImageChanged();
+            this.EmitActionImageChanged();
         }
 
         protected override BitmapImage GetCommandImage(string actionParameter, PluginImageSize imageSize)
@@ -160,7 +151,7 @@
                     {
                         case 4: // VIEWS
                             this.currentLayer = ButtonLayer.faderModesAll;
-                            ActionImageChanged();
+                            this.EmitActionImageChanged();
                             break;
                     }
                     break;
@@ -171,7 +162,7 @@
                             this.currentLayer = ButtonLayer.faderModesSend;
                             this.selectMode = SelectButtonData.Mode.Send;
                             this.plugin.EmitSelectModeChanged(this.selectMode);
-                            ActionImageChanged();
+                            this.EmitActionImageChanged();
                             break;
                         default :
                             for (int i = 0; i <= 5; i++)
@@ -180,7 +171,7 @@
                             }
                             var cbd = this.buttonData[idx] as CommandButtonData;
                             cbd.Activated = !cbd.Activated;
-                            ActionImageChanged();
+                            this.EmitActionImageChanged();
                             break;
                     }
                     break;
@@ -195,7 +186,7 @@
                             this.currentLayer = ButtonLayer.faderModesAll;
                             this.selectMode = SelectButtonData.Mode.Select;
                             this.plugin.EmitSelectModeChanged(this.selectMode);
-                            ActionImageChanged();
+                            this.EmitActionImageChanged();
                             break;
                         case 5: // SENDS
                             this.selectMode = SelectButtonData.Mode.Send;

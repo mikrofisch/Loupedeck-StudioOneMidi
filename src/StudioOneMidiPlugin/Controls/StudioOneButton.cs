@@ -1,11 +1,7 @@
 ﻿namespace Loupedeck.StudioOneMidiPlugin.Controls
 {
-    using System;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
 
     internal class StudioOneButton<B> : PluginDynamicCommand where B : ButtonData
     {
@@ -20,6 +16,7 @@
             this.ActionImageChangedTimer.AutoReset = false;
             this.ActionImageChangedTimer.Elapsed += (object sender, System.Timers.ElapsedEventArgs e) =>
             {
+                Debug.WriteLine("ActionImageChangeTimer.Elapsed " + this.Name);
                 ActionImageChanged();
             };
 
@@ -45,8 +42,6 @@
         {
             if (actionParameter == null) return null;
             if (!this.buttonData.ContainsKey(actionParameter)) return null;
-
-            Debug.WriteLine("StudioOneButton.GetCommandImage: " + actionParameter);
 
             return this.buttonData[actionParameter].getImage(imageSize);
         }

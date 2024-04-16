@@ -94,7 +94,7 @@ namespace Loupedeck.StudioOneMidiPlugin
 		public void EmitBoolPropertyPress(ChannelProperty.BoolType type)
 		{
 			var e = new NoteOnEvent();
-			e.NoteNumber = (SevenBitNumber)(ChannelProperty.boolPropertyMackieNote[(int)type] + ChannelID);
+			e.NoteNumber = (SevenBitNumber)(ChannelProperty.boolPropertyBaseNote[(int)type] + ChannelID);
 			e.Velocity = (SevenBitNumber)(127);
 			plugin.mackieMidiOut.SendEvent(e);
 

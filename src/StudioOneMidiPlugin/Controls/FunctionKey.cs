@@ -23,14 +23,13 @@
         {
             base.OnLoad();
 
-            this.plugin.MackieNoteReceived += (object sender, NoteOnEvent e) =>
+            this.plugin.Ch0NoteReceived += (object sender, NoteOnEvent e) =>
             {
                 string param = e.NoteNumber.ToString();
                 if (!this.buttonData.ContainsKey(param))  return;
 
                 var bd = this.buttonData[param];
                 bd.Activated = e.Velocity > 0;
-                Debug.WriteLine("FunctionKeys.MackieNoteReceived - ActionImageChanged");
                 this.EmitActionImageChanged();
             };
 
@@ -38,9 +37,7 @@
             {
                 var bd = this.buttonData[(fke.KeyID + 0x60).ToString()];
                 bd.Name = fke.FunctionName;
-                Debug.WriteLine("FunctionKeyChanged: " + fke.KeyID + ", " + bd.Name);
 
-                Debug.WriteLine("FunctionKeyChanged - ActionImageChanged");
                 this.EmitActionImageChanged();
             };
 

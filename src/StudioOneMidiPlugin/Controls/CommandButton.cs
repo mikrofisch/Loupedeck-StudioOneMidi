@@ -33,55 +33,55 @@
             this.AddButton(new CommandButtonData(0x44, "OUT"));
             this.AddButton(new FlipPanVolCommandButtonData(0x32));
             this.AddButton(new CommandButtonData(0x2B, "PLUGIN"));
-            this.AddButton(new OneWayCommandButtonData( 0, "Console"), "View");
-            this.AddButton(new OneWayCommandButtonData( 1, "Browser"), "View");
-            this.AddButton(new OneWayCommandButtonData( 2, "Editor"), "View");
-            this.AddButton(new OneWayCommandButtonData( 3, "Fullscreen"), "View");
-            this.AddButton(new OneWayCommandButtonData( 4, "Inspector"), "View");
-            this.AddButton(new OneWayCommandButtonData( 5, "Record Panel"), "View");
-            this.AddButton(new OneWayCommandButtonData( 6, "Track List"), "View");
-            this.AddButton(new OneWayCommandButtonData( 7, "Previous Perspective"), "View");
-            this.AddButton(new OneWayCommandButtonData( 8, "Next Perspective"), "View");
-            this.AddButton(new OneWayCommandButtonData( 9, "Show Groups"), "View");
-            this.AddButton(new OneWayCommandButtonData(10, "Floating Window"), "View");
-            this.AddButton(new OneWayCommandButtonData(11, "Show Inputs"), "Console");
-            this.AddButton(new OneWayCommandButtonData(12, "Show Track"), "Console");
-            this.AddButton(new OneWayCommandButtonData(13, "Channel Editor"), "Console");
-            this.AddButton(new OneWayCommandButtonData(14, "Instrument Editor"), "Console");
-            this.AddButton(new OneWayCommandButtonData(15, "Open Channel"), "Console");
-            this.AddButton(new OneWayCommandButtonData(16, "Add Insert"), "Console");
-            this.AddButton(new OneWayCommandButtonData(17, "Add Send"), "Console");
-            this.AddButton(new OneWayCommandButtonData(18, "Add Bus Channel"), "Console");
-            this.AddButton(new OneWayCommandButtonData(19, "Add FX Channel"), "Console");
-            this.AddButton(new OneWayCommandButtonData(20, "Global Mute"), "Console");
-            this.AddButton(new OneWayCommandButtonData(21, "Global Solo"), "Console");
-            this.AddButton(new OneWayCommandButtonData(22, "Next Channel"), "Console");
-            this.AddButton(new OneWayCommandButtonData(23, "Prevous Channel"), "Console");
-            this.AddButton(new OneWayCommandButtonData(24, "Suspend Group"), "Group");
-            this.AddButton(new OneWayCommandButtonData(25, "Suspend All Groups"), "Group");
-            this.AddButton(new OneWayCommandButtonData(26, "Group 1"), "Group");
-            this.AddButton(new OneWayCommandButtonData(27, "Group 2"), "Group");
-            this.AddButton(new OneWayCommandButtonData(28, "Group 3"), "Group");
-            this.AddButton(new OneWayCommandButtonData(29, "Group 4"), "Group");
-            this.AddButton(new OneWayCommandButtonData(30, "Group 5"), "Group");
-            this.AddButton(new OneWayCommandButtonData(31, "Group 6"), "Group");
-            this.AddButton(new OneWayCommandButtonData(32, "Group 7"), "Group");
-            this.AddButton(new OneWayCommandButtonData(33, "Group 8"), "Group");
+            this.AddButton(new OneWayCommandButtonData(0x00, "Console"), "View");
+            this.AddButton(new OneWayCommandButtonData(0x01, "Browser"), "View");
+            this.AddButton(new OneWayCommandButtonData(0x02, "Editor"), "View");
+            this.AddButton(new OneWayCommandButtonData(0x03, "Fullscreen"), "View");
+            this.AddButton(new OneWayCommandButtonData(0x04, "Inspector"), "View");
+            this.AddButton(new OneWayCommandButtonData(0x05, "Record Panel"), "View");
+            this.AddButton(new OneWayCommandButtonData(0x06, "Track List"), "View");
+            this.AddButton(new OneWayCommandButtonData(0x07, "Previous Perspective"), "View");
+            this.AddButton(new OneWayCommandButtonData(0x08, "Next Perspective"), "View");
+            this.AddButton(new OneWayCommandButtonData(0x09, "Show Groups"), "View");
+            this.AddButton(new OneWayCommandButtonData(0x0A, "Floating Window"), "View");
+            this.AddButton(new OneWayCommandButtonData(0x0B, "Show Inputs"), "Console");
+            this.AddButton(new OneWayCommandButtonData(0x0C, "Show Track"), "Console");
+            this.AddButton(new OneWayCommandButtonData(0x0D, "Channel Editor"), "Console");
+            this.AddButton(new OneWayCommandButtonData(0x0E, "Instrument Editor"), "Console");
+            this.AddButton(new OneWayCommandButtonData(0x0F, "Open Channel"), "Console");
+            this.AddButton(new OneWayCommandButtonData(0x10, "Add Insert"), "Console");
+            this.AddButton(new OneWayCommandButtonData(0x11, "Add Send"), "Console");
+            this.AddButton(new OneWayCommandButtonData(0x12, "Add Bus Channel"), "Console");
+            this.AddButton(new OneWayCommandButtonData(0x13, "Add FX Channel"), "Console");
+            this.AddButton(new OneWayCommandButtonData(0x14, "Global Mute"), "Console");
+            this.AddButton(new OneWayCommandButtonData(0x15, "Global Solo"), "Console");
+            this.AddButton(new OneWayCommandButtonData(0x16, "Next Channel"), "Console");
+            this.AddButton(new OneWayCommandButtonData(0x17, "Prevous Channel"), "Console");
+            this.AddButton(new OneWayCommandButtonData(0x18, "Suspend Group"), "Group");
+            this.AddButton(new OneWayCommandButtonData(0x19, "Suspend All Groups"), "Group");
+            this.AddButton(new OneWayCommandButtonData(0x1A, "Group 1"), "Group");
+            this.AddButton(new OneWayCommandButtonData(0x1B, "Group 2"), "Group");
+            this.AddButton(new OneWayCommandButtonData(0x1C, "Group 3"), "Group");
+            this.AddButton(new OneWayCommandButtonData(0x1D, "Group 4"), "Group");
+            this.AddButton(new OneWayCommandButtonData(0x1E, "Group 5"), "Group");
+            this.AddButton(new OneWayCommandButtonData(0x1F, "Group 6"), "Group");
+            this.AddButton(new OneWayCommandButtonData(0x20, "Group 7"), "Group");
+            this.AddButton(new OneWayCommandButtonData(0x21, "Group 8"), "Group");
         }
 
         protected override bool OnLoad()
 		{
             base.OnLoad();
 
-            this.plugin.MackieNoteReceived += (object sender, NoteOnEvent e) =>
+            this.plugin.Ch0NoteReceived += (object sender, NoteOnEvent e) =>
             {
-                string param = e.NoteNumber.ToString();
+                string idx = $"{e.Channel}:{e.NoteNumber}";
 
-                if (!this.buttonData.ContainsKey(param)) return;
+                if (!this.buttonData.ContainsKey(idx)) return;
 
-                var bd = this.buttonData[param];
+                var bd = this.buttonData[idx];
                 bd.Activated = e.Velocity > 0;
-                this.ActionImageChanged(param);
+                this.ActionImageChanged(idx);
             };
 
             return true;
@@ -89,18 +89,10 @@
 
         private void AddButton(CommandButtonData bd, string parameterGroup = "Control")
         {
-            if (bd.IconName != null)
-            {
-                bd.Icon = EmbeddedResources.ReadImage(EmbeddedResources.FindFile($"{bd.IconName}_52px.png"));
-                string iconResOn = EmbeddedResources.FindFile($"{bd.IconName}_on_52px.png");
-                if (iconResOn != null)
-                {
-                    bd.IconOn = EmbeddedResources.ReadImage(iconResOn);
-                }
-            }
+            string idx = $"{bd.midiChannel}:{bd.Code}"; 
 
-			buttonData[bd.Code.ToString()] = bd;
-			AddParameter(bd.Code.ToString(), bd.Name, parameterGroup);
+			buttonData[idx] = bd;
+			AddParameter(idx, bd.Name, parameterGroup);
 		}
 	}
 }

@@ -38,7 +38,8 @@ namespace Loupedeck.StudioOneMidiPlugin
         public bool isConfigWindowOpen = false;
         
         public event EventHandler ChannelDataChanged;
-		public event EventHandler<NoteOnEvent> MackieNoteReceived;
+        public event EventHandler<NoteOnEvent> Ch0NoteReceived;
+        public event EventHandler<NoteOnEvent> Ch1NoteReceived;
         public event EventHandler SelectButtonPressed;
         public event EventHandler<SelectButtonData.Mode> SelectModeChanged;
         public event EventHandler<string> FocusDeviceChanged;
@@ -256,7 +257,7 @@ namespace Loupedeck.StudioOneMidiPlugin
 
                 foreach (ChannelProperty.BoolType bt in Enum.GetValues(typeof(ChannelProperty.BoolType)))
                 {
-                    if (ce.NoteNumber >= ChannelProperty.boolPropertyMackieNote[(int)bt] && ce.NoteNumber < (ChannelProperty.boolPropertyMackieNote[(int)bt] + ChannelCount + 1))
+                    if (ce.NoteNumber >= ChannelProperty.boolPropertyBaseNote[(int)bt] && ce.NoteNumber < (ChannelProperty.boolPropertyBaseNote[(int)bt] + ChannelCount + 1))
                     {
                         eventType = bt;
                         eventTypeFound = true;
@@ -266,7 +267,7 @@ namespace Loupedeck.StudioOneMidiPlugin
 
                 if (eventTypeFound)
                 {
-                    var channelIndex = ce.NoteNumber - ChannelProperty.boolPropertyMackieNote[(int)eventType];
+                    var channelIndex = ce.NoteNumber - ChannelProperty.boolPropertyBaseNote[(int)eventType];
 
                     if (!mackieChannelData.TryGetValue(channelIndex.ToString(), out MackieChannelData cd))
                         return;
@@ -274,9 +275,13 @@ namespace Loupedeck.StudioOneMidiPlugin
                     cd.BoolProperty[(int)eventType] = ce.Velocity > 0;
                     this.EmitChannelDataChanged();
                 }
-                else
+                else if (ce.Channel == 0)
                 {
-                    MackieNoteReceived.Invoke(this, ce);
+                    Ch0NoteReceived.Invoke(this, ce);
+                }
+                else if (ce.Channel == 1)
+                {
+                    Ch1NoteReceived.Invoke(this, ce);
                 }
             }
             else if (e is NormalSysExEvent)

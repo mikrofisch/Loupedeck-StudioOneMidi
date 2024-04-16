@@ -272,7 +272,6 @@
         public int Code;
         public int CodeOn = 0;              // alternative code to send when activated
         public string Name;
-        public string IconName;
 
         public bool Activated = false;
 
@@ -286,6 +285,13 @@
         public static readonly BitmapColor cTextOn = BitmapColor.Black;
         public static readonly BitmapColor cRectOff = new BitmapColor(50, 50, 50);
         public static readonly BitmapColor cTextOff = new BitmapColor(160, 160, 160);
+
+        protected int MidiChannel = 0;
+        public int midiChannel
+        {
+            get => this.MidiChannel;
+        }
+
 
         public CommandButtonData(int code, string name, string iconName = null)
         {
@@ -311,12 +317,19 @@
             this.Code = code;
 
             if (iconName != null)
+            {
                 this.Icon = EmbeddedResources.ReadImage(EmbeddedResources.FindFile($"{iconName}_52px.png"));
+                var iconResOn = EmbeddedResources.FindFile($"{iconName}_on_52px.png");
+                if (iconResOn != null)
+                {
+                    this.IconOn = EmbeddedResources.ReadImage(iconResOn);
+                }
+            }
         }
 
         public override BitmapImage getImage(PluginImageSize imageSize)
         {
-            Debug.WriteLine(this.Code.ToString() + " " + this.Name);
+            // Debug.WriteLine("CommandButtonData.getImage " + this.Code.ToString() + ", name: " + this.Name);
 
             var bb = new BitmapBuilder(imageSize);
             bb.FillRectangle(0, 0, bb.Width, bb.Height, this.Activated ? this.OnColor : this.OffColor);
@@ -346,6 +359,7 @@
             }
 
             NoteOnEvent e = new NoteOnEvent();
+            e.Channel = (FourBitNumber)this.MidiChannel;
             e.Velocity = (SevenBitNumber)(127);
             e.NoteNumber = (SevenBitNumber)(param);
             this.Plugin.mackieMidiOut.SendEvent(e);
@@ -547,32 +561,35 @@
     //
     public class OneWayCommandButtonData : CommandButtonData
     {
-        private int CommandCode = 0;
-
-        public OneWayCommandButtonData(int commandCode, string name, string iconName=null) : base(0, name, iconName)
+        public OneWayCommandButtonData(int code, string name, string iconName=null) : base(0, name, iconName)
         {
-            this.CommandCode = commandCode;
-            this.Code = 0xFF + commandCode;     // Create a code above the highest MIDI note as a dictionary hash
+            this.MidiChannel = 1;
+            this.Code = code;
         }
-        public OneWayCommandButtonData(int commandCode, string name, BitmapColor textColor) : base(0, name, null)
+        public OneWayCommandButtonData(int code, string name, BitmapColor textColor) : base(0, name, null)
         {
-            this.CommandCode = commandCode;
-            this.Code = 0xFF + commandCode;     // Create a code above the highest MIDI note as a dictionary hash
+            this.MidiChannel = 1;
+            this.Code = code;
             this.TextColor = textColor;
         }
-        public override void runCommand()
-        {
-            // MIDI controller sets the command which is then triggered by a MIDI note
-            //
-            var ccSet = new ControlChangeEvent();
-            ccSet.ControlNumber = (SevenBitNumber)0x00;
-            ccSet.ControlValue = (SevenBitNumber)this.CommandCode;
-            this.Plugin.mackieMidiOut.SendEvent(ccSet);
 
-            var eTrigger = new NoteOnEvent();
-            eTrigger.Velocity = (SevenBitNumber)127;
-            eTrigger.NoteNumber = (SevenBitNumber)0x72;    // controlCommandTrigger
-            this.Plugin.mackieMidiOut.SendEvent(eTrigger);
-        }
+        // The code below is an alternative method for invoking commands by setting
+        // a command parameter via a MIDI controller and then triggering it by a MIDI note.
+        // This provides 127 addresses for command triggering per MIDI controller, but it requires
+        // two separate MIDI messages to be sent which is not ideal.
+        //
+        // public override void runCommand()
+        // {
+        //
+        //    var ccSet = new ControlChangeEvent();
+        //    ccSet.ControlNumber = (SevenBitNumber)0x00;
+        //    ccSet.ControlValue = (SevenBitNumber)this.CommandCode;
+        //    this.Plugin.mackieMidiOut.SendEvent(ccSet);
+        //
+        //    var eTrigger = new NoteOnEvent();
+        //    eTrigger.Velocity = (SevenBitNumber)127;
+        //    eTrigger.NoteNumber = (SevenBitNumber)0x72;    // controlCommandTrigger
+        //    this.Plugin.mackieMidiOut.SendEvent(eTrigger);
+        // }
     }
 }

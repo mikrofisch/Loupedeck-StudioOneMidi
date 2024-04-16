@@ -28,7 +28,7 @@
 		{
             base.OnLoad();
 
-            this.plugin.MackieNoteReceived += (object sender, NoteOnEvent e) => {
+            this.plugin.Ch0NoteReceived += (object sender, NoteOnEvent e) => {
                 if (e.NoteNumber >= SelectButtonData.UserButtonMidiBase &&
                     e.NoteNumber <= SelectButtonData.UserButtonMidiBase + StudioOneMidiPlugin.ChannelCount)
                 {

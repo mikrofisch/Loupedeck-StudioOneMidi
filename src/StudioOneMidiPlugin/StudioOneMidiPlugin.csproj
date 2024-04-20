@@ -65,6 +65,7 @@
     </Compile>
     <Compile Include="Controls\ButtonData.cs" />
     <Compile Include="Controls\ConfigCommand.cs" />
+    <Compile Include="Controls\ConfigurableButton.cs" />
     <Compile Include="Controls\StudioOneButton.cs" />
     <Compile Include="Controls\FunctionKey.cs" />
     <Compile Include="Controls\ModesKeypad.cs" />
@@ -105,10 +106,6 @@
     <EmbeddedResource Include="Resources\fast_forward_52px.png" />
     <EmbeddedResource Include="Resources\loop_52px.png" />
     <EmbeddedResource Include="Resources\loop_on_52px.png" />
-    <EmbeddedResource Include="Resources\midi_connector_male_16px.png" />
-    <EmbeddedResource Include="Resources\midi_connector_male_32px.png" />
-    <EmbeddedResource Include="Resources\midi_connector_male_48px.png" />
-    <EmbeddedResource Include="Resources\midi_connector_male_96px.png" />
     <EmbeddedResource Include="Resources\play_52px.png" />
     <EmbeddedResource Include="Resources\play_on_52px.png" />
     <EmbeddedResource Include="Resources\record_52px.png" />
@@ -132,6 +129,12 @@
     <EmbeddedResource Include="Resources\arm_52px.png" />
     <EmbeddedResource Include="Resources\plugin_next_52px.png" />
     <EmbeddedResource Include="Resources\plugin_prev_52px.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\plugin_icon_s1_16px.png" />
+    <EmbeddedResource Include="Resources\plugin_icon_s1_32px.png" />
+    <EmbeddedResource Include="Resources\plugin_icon_s1_48px.png" />
+    <EmbeddedResource Include="Resources\plugin_icon_s1_96px.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

@@ -73,12 +73,7 @@ namespace Loupedeck.StudioOneMidiPlugin
 			this.plugin = plugin;
 
 			ChannelID = channelID;
-//			IsMasterChannel = channelID == StudioOneMidiPlugin.MackieChannelCount;
-//
-//			if (IsMasterChannel)
-//				TrackName = "Master";
-//			else
-				this.Label = $"Channel {channelID + 1}";
+    		this.Label = $"Channel {channelID + 1}";
 		}
 
 		public void EmitVolumeUpdate()
@@ -91,7 +86,7 @@ namespace Loupedeck.StudioOneMidiPlugin
 			this.plugin.EmitChannelDataChanged();
 		}
 
-		public void EmitBoolPropertyPress(ChannelProperty.PropertyType type)
+		public void EmitChannelPropertyPress(ChannelProperty.PropertyType type)
 		{
 			var e = new NoteOnEvent();
 			e.NoteNumber = (SevenBitNumber)(ChannelProperty.MidiBaseNote[(int)type] + ChannelID);

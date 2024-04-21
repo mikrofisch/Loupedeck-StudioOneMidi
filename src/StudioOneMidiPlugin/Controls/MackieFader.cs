@@ -8,11 +8,12 @@
     using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
-    
+    using static Loupedeck.StudioOneMidiPlugin.StudioOneMidiPlugin;
+
     public class MackieFader : PluginDynamicAdjustment
 	{
 		private StudioOneMidiPlugin plugin = null;
-        private SelectButtonData.Mode selectMode = SelectButtonData.Mode.Select;
+        private SelectButtonMode selectMode = SelectButtonMode.Select;
 
 		public MackieFader() : base(true)
 		{
@@ -34,7 +35,7 @@
 				ActionImageChanged();
 			};
 
-            plugin.SelectModeChanged += (object sender, SelectButtonData.Mode e) =>
+            plugin.SelectModeChanged += (object sender, SelectButtonMode e) =>
             {
                 this.selectMode = e;
                 ActionImageChanged();
@@ -60,7 +61,7 @@
 		protected override void RunCommand(string actionParameter)
 		{
 			MackieChannelData cd = GetChannel(actionParameter);
-			cd.EmitBoolPropertyPress(ChannelProperty.PropertyType.Mute);
+			cd.EmitChannelPropertyPress(ChannelProperty.PropertyType.Mute);
 		}
 
 		protected override BitmapImage GetCommandImage(string actionParameter, PluginImageSize imageSize)
@@ -75,7 +76,7 @@
             int piW = (bb.Width - 2* sideBarW)/ 2;
             int piH = 8;
 
-            if (this.selectMode == SelectButtonData.Mode.Select)
+            if (this.selectMode == SelectButtonMode.Select)
             {
                 if (cd.Muted || cd.Solo)
                 {

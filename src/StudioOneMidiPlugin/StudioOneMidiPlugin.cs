@@ -2,6 +2,7 @@ namespace Loupedeck.StudioOneMidiPlugin
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.Eventing.Reader;
     using System.Linq;
     using System.Runtime.InteropServices;
     using System.Text;
@@ -36,12 +37,18 @@ namespace Loupedeck.StudioOneMidiPlugin
         public MackieFader mackieFader;
 
         public bool isConfigWindowOpen = false;
-        
+
         public event EventHandler ChannelDataChanged;
         public event EventHandler<NoteOnEvent> Ch0NoteReceived;
         public event EventHandler<NoteOnEvent> Ch1NoteReceived;
         public event EventHandler SelectButtonPressed;
-        public event EventHandler<SelectButtonData.Mode> SelectModeChanged;
+        public enum SelectButtonMode
+        {
+            Select,
+            Send,
+            User
+        }
+        public event EventHandler<SelectButtonMode> SelectModeChanged;
         public event EventHandler<string> FocusDeviceChanged;
 
         public class FunctionKeyParams
@@ -50,6 +57,14 @@ namespace Loupedeck.StudioOneMidiPlugin
             public string FunctionName { get; set; }
         }
         public event EventHandler<FunctionKeyParams> FunctionKeyChanged;
+
+        public const int UserButtonMidiBase = 0x6C;
+        public class UserButtonParams
+        {
+            public int channelIndex { get; set; }
+            public bool isActive { get; set; }
+        }
+        public event EventHandler<UserButtonParams> UserButtonChanged;
 
         private System.Timers.Timer ChannelDataChangeTimer;
 
@@ -202,7 +217,7 @@ namespace Loupedeck.StudioOneMidiPlugin
             this.SelectButtonPressed?.Invoke(this, null);
         }
 
-        public void EmitSelectModeChanged(SelectButtonData.Mode sm)
+        public void EmitSelectModeChanged(SelectButtonMode sm)
         {
             this.SelectModeChanged?.Invoke(this, sm);
         }
@@ -277,7 +292,17 @@ namespace Loupedeck.StudioOneMidiPlugin
                 }
                 else if (ce.Channel == 0)
                 {
-                    Ch0NoteReceived.Invoke(this, ce);
+                    if (ce.NoteNumber >= UserButtonMidiBase && ce.NoteNumber < (UserButtonMidiBase + ChannelCount))
+                    {
+                        var ubp = new UserButtonParams();
+                        ubp.channelIndex = ce.NoteNumber - UserButtonMidiBase;
+                        ubp.isActive = ce.Velocity > 0;
+                        UserButtonChanged.Invoke(this, ubp);
+                    }
+                    else
+                    {
+                        Ch0NoteReceived.Invoke(this, ce);
+                    }
                 }
                 else if (ce.Channel == 1)
                 {
@@ -290,12 +315,11 @@ namespace Loupedeck.StudioOneMidiPlugin
                 if (ce.Data.Length < 5)
                     return;
 
-                // Check if this is mackie control command
+                // Check if this is a Mackie style SysEx command
                 byte[] mackieControlPrefix = { 0x00, 0x00, 0x66 };
                 if (!ce.Data.SubArray(0, mackieControlPrefix.Length).SequenceEqual(mackieControlPrefix))
                     return;
 
-                // LCD command
                 if (ce.Data.Length > 6 && ce.Data[4] == 0x12)
                 {
                     byte offset = ce.Data[5];

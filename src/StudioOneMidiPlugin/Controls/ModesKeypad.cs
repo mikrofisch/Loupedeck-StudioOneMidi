@@ -2,14 +2,10 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
-    using System.Web.Management;
-    using System.Windows.Navigation;
-    using System.Xml.Linq;
 
     using Melanchall.DryWetMidi.Core;
+
+    using static Loupedeck.StudioOneMidiPlugin.StudioOneMidiPlugin;
 
     // This is a special button class that creates 6 buttons which are then
     // placed in the central area of the button field on the Loupedeck.
@@ -25,8 +21,8 @@
 
         private IDictionary<int, string> noteReceivers = new Dictionary<int, string>();
 
-        ButtonLayer currentLayer = ButtonLayer.channelProperties;
-        SelectButtonData.Mode selectMode = SelectButtonData.Mode.Select;
+        ButtonLayer CurrentLayer = ButtonLayer.channelProperties;
+        SelectButtonMode SelectMode = SelectButtonMode.Select;
 
         public ModesKeypad() : base()
         {
@@ -84,7 +80,7 @@
 
             this.plugin.SelectButtonPressed += (object sender, EventArgs e) =>
             {
-                this.currentLayer = ButtonLayer.channelProperties;
+                this.CurrentLayer = ButtonLayer.channelProperties;
                 this.EmitActionImageChanged();
             };
 
@@ -124,7 +120,7 @@
             if (actionParameter == null)
                 return null;
 
-            string idx = $"{(int)this.currentLayer}:" + actionParameter;
+            string idx = $"{(int)this.CurrentLayer}:" + actionParameter;
 
             if (this.buttonData.TryGetValue(idx, out var bd))
             {
@@ -138,19 +134,19 @@
 
         protected override void RunCommand(string actionParameter)
         {
-            var idx = $"{(int)this.currentLayer}:{actionParameter}";
+            var idx = $"{(int)this.CurrentLayer}:{actionParameter}";
             if (this.buttonData.TryGetValue(idx, out var bd))
             {
                 bd.runCommand();
             }
 
-            switch (this.currentLayer)
+            switch (this.CurrentLayer)
             {
                 case ButtonLayer.channelProperties:
                     switch (Int32.Parse(actionParameter))
                     {
                         case 4: // VIEWS
-                            this.currentLayer = ButtonLayer.faderModesAll;
+                            this.CurrentLayer = ButtonLayer.faderModesAll;
                             this.EmitActionImageChanged();
                             break;
                     }
@@ -159,9 +155,9 @@
                     switch (Int32.Parse(actionParameter))
                     {
                         case 5: // SENDS
-                            this.currentLayer = ButtonLayer.faderModesSend;
-                            this.selectMode = SelectButtonData.Mode.Send;
-                            this.plugin.EmitSelectModeChanged(this.selectMode);
+                            this.CurrentLayer = ButtonLayer.faderModesSend;
+                            this.SelectMode = SelectButtonMode.Send;
+                            this.plugin.EmitSelectModeChanged(this.SelectMode);
                             this.EmitActionImageChanged();
                             break;
                         default :
@@ -179,18 +175,18 @@
                     switch (Int32.Parse(actionParameter))
                     {
                         case 3: // USER 1 2 3
-                            this.selectMode = SelectButtonData.Mode.User;
-                            plugin.EmitSelectModeChanged(this.selectMode);
+                            this.SelectMode = SelectButtonMode.User;
+                            plugin.EmitSelectModeChanged(this.SelectMode);
                             break;
                         case 4: // VIEWS (BACK)
-                            this.currentLayer = ButtonLayer.faderModesAll;
-                            this.selectMode = SelectButtonData.Mode.Select;
-                            this.plugin.EmitSelectModeChanged(this.selectMode);
+                            this.CurrentLayer = ButtonLayer.faderModesAll;
+                            this.SelectMode = SelectButtonMode.Select;
+                            this.plugin.EmitSelectModeChanged(this.SelectMode);
                             this.EmitActionImageChanged();
                             break;
                         case 5: // SENDS
-                            this.selectMode = SelectButtonData.Mode.Send;
-                            plugin.EmitSelectModeChanged(this.selectMode);
+                            this.SelectMode = SelectButtonMode.Send;
+                            plugin.EmitSelectModeChanged(this.SelectMode);
                             break;
                     }
                     break;

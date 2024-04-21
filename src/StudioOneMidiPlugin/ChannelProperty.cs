@@ -9,7 +9,7 @@ namespace Loupedeck.StudioOneMidiPlugin
 	public class ChannelProperty
 	{
 
-		public enum BoolType
+		public enum PropertyType
 		{
 			Select,
             Mute,
@@ -18,7 +18,7 @@ namespace Loupedeck.StudioOneMidiPlugin
             Monitor
 		}
 
-		public static BitmapColor[] boolPropertyColor =
+		public static BitmapColor[] PropertyColor =
 		{
              new BitmapColor(60, 60, 60), // Select
 			 new BitmapColor(166, 42, 40), // Mute
@@ -27,10 +27,10 @@ namespace Loupedeck.StudioOneMidiPlugin
 			 new BitmapColor(101, 183, 205), // Monitor
 		};
 
-		public static int[] boolPropertyBaseNote = { 24, 16, 8, 0, 120};
+		public static int[] MidiBaseNote = { 24, 16, 8, 0, 120};
 
-		public static string[] boolPropertyName = { "Select", "Mute", "Solo", "Rec", "Mon" };
-		public static string[] boolPropertyLetter = { "-", "M", "S", "R", "M" };
+		public static string[] PropertyName = { "Select", "Mute", "Solo", "Rec", "Mon" };
+		public static string[] PropertyLetter = { "-", "M", "S", "R", "M" };
 
 	}
 }

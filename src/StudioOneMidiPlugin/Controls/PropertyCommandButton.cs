@@ -14,13 +14,13 @@
 			{
                 if (i < StudioOneMidiPlugin.ChannelCount)
                 {
-                    this.AddButton(i, ChannelProperty.BoolType.Select, "Select");
+                    this.AddButton(i, ChannelProperty.PropertyType.Select, "Select");
                 }
 
-                this.AddButton(i, ChannelProperty.BoolType.Mute, "Mute");
-                this.AddButton(i, ChannelProperty.BoolType.Solo, "Solo");
-                this.AddButton(i, ChannelProperty.BoolType.Arm, "Arm/Rec", "arm");
-                this.AddButton(i, ChannelProperty.BoolType.Monitor, "Monitor", "monitor");
+                this.AddButton(i, ChannelProperty.PropertyType.Mute, "Mute");
+                this.AddButton(i, ChannelProperty.PropertyType.Solo, "Solo");
+                this.AddButton(i, ChannelProperty.PropertyType.Arm, "Arm/Rec", "arm");
+                this.AddButton(i, ChannelProperty.PropertyType.Monitor, "Monitor", "monitor");
             }
         }
 
@@ -32,7 +32,7 @@
                 if (e.NoteNumber >= SelectButtonData.UserButtonMidiBase &&
                     e.NoteNumber <= SelectButtonData.UserButtonMidiBase + StudioOneMidiPlugin.ChannelCount)
                 {
-                    var bd = this.buttonData[$"{e.NoteNumber - SelectButtonData.UserButtonMidiBase}:{(int)ChannelProperty.BoolType.Select}"] as SelectButtonData;
+                    var bd = this.buttonData[$"{e.NoteNumber - SelectButtonData.UserButtonMidiBase}:{(int)ChannelProperty.PropertyType.Select}"] as SelectButtonData;
                     bd.userButtonChanged(e.Velocity > 0);
                     this.EmitActionImageChanged();
                 }
@@ -46,7 +46,7 @@
             {
                 for (int i = 0; i < StudioOneMidiPlugin.ChannelCount; i++)
                 {
-                    var bd = this.buttonData[$"{i}:{(int)ChannelProperty.BoolType.Select}"] as SelectButtonData;
+                    var bd = this.buttonData[$"{i}:{(int)ChannelProperty.PropertyType.Select}"] as SelectButtonData;
                     bd.selectModeChanged(e);
                 }
                 this.EmitActionImageChanged();
@@ -55,13 +55,13 @@
 			return true;
 		}
 
-        private void AddButton(int i, ChannelProperty.BoolType bt, string name, string iconName = null)
+        private void AddButton(int i, ChannelProperty.PropertyType bt, string name, string iconName = null)
         {
             string chstr = i == StudioOneMidiPlugin.ChannelCount ? " (Selected channel)" : $" (CH {i + 1})";
 
             PropertyButtonData bd;
 
-            if (bt == ChannelProperty.BoolType.Select)
+            if (bt == ChannelProperty.PropertyType.Select)
             {
                 bd = new SelectButtonData(i, bt);
             }

@@ -16,7 +16,7 @@ namespace Loupedeck.StudioOneMidiPlugin
         public string Description = "";
         public string UserLabel = "";
 
-        public bool[] BoolProperty = new bool[(int)Enum.GetNames(typeof(ChannelProperty.BoolType)).Length];
+        public bool[] BoolProperty = new bool[(int)Enum.GetNames(typeof(ChannelProperty.PropertyType)).Length];
 
 		public bool IsMasterChannel = false;
 
@@ -25,46 +25,46 @@ namespace Loupedeck.StudioOneMidiPlugin
 
         public bool Selected
         {
-            get => BoolProperty[(int)ChannelProperty.BoolType.Select];
+            get => BoolProperty[(int)ChannelProperty.PropertyType.Select];
             set
             {
-                BoolProperty[(int)ChannelProperty.BoolType.Select] = value;
+                BoolProperty[(int)ChannelProperty.PropertyType.Select] = value;
             }
         }
 
         public bool Muted
         {
-            get => BoolProperty[(int)ChannelProperty.BoolType.Mute];
+            get => BoolProperty[(int)ChannelProperty.PropertyType.Mute];
             set
             {
-                BoolProperty[(int)ChannelProperty.BoolType.Mute] = value;
+                BoolProperty[(int)ChannelProperty.PropertyType.Mute] = value;
             }
         }
 
         public bool Armed
 		{
-			get => BoolProperty[(int)ChannelProperty.BoolType.Arm];
+			get => BoolProperty[(int)ChannelProperty.PropertyType.Arm];
 			set
 			{
-				BoolProperty[(int)ChannelProperty.BoolType.Arm] = value;
+				BoolProperty[(int)ChannelProperty.PropertyType.Arm] = value;
 			}
 		}
 
 		public bool Solo
 		{
-			get => BoolProperty[(int)ChannelProperty.BoolType.Solo];
+			get => BoolProperty[(int)ChannelProperty.PropertyType.Solo];
 			set
 			{
-				BoolProperty[(int)ChannelProperty.BoolType.Solo] = value;
+				BoolProperty[(int)ChannelProperty.PropertyType.Solo] = value;
 			}
 		}
 
         public bool Monitor
         {
-            get => BoolProperty[(int)ChannelProperty.BoolType.Monitor];
+            get => BoolProperty[(int)ChannelProperty.PropertyType.Monitor];
             set
             {
-                BoolProperty[(int)ChannelProperty.BoolType.Monitor] = value;
+                BoolProperty[(int)ChannelProperty.PropertyType.Monitor] = value;
             }
         }
         
@@ -91,10 +91,10 @@ namespace Loupedeck.StudioOneMidiPlugin
 			this.plugin.EmitChannelDataChanged();
 		}
 
-		public void EmitBoolPropertyPress(ChannelProperty.BoolType type)
+		public void EmitBoolPropertyPress(ChannelProperty.PropertyType type)
 		{
 			var e = new NoteOnEvent();
-			e.NoteNumber = (SevenBitNumber)(ChannelProperty.boolPropertyBaseNote[(int)type] + ChannelID);
+			e.NoteNumber = (SevenBitNumber)(ChannelProperty.MidiBaseNote[(int)type] + ChannelID);
 			e.Velocity = (SevenBitNumber)(127);
 			plugin.mackieMidiOut.SendEvent(e);
 

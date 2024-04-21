@@ -27,14 +27,14 @@
         }
 
         public int ChannelIndex;
-        public ChannelProperty.BoolType Type;
+        public ChannelProperty.PropertyType Type;
         public TrackNameMode ShowTrackName;
         public BitmapImage Icon;
 
         protected const int TrackNameH = 24;
 
         public PropertyButtonData(int channelIndex, 
-                                  ChannelProperty.BoolType bt, 
+                                  ChannelProperty.PropertyType bt, 
                                   TrackNameMode tm = TrackNameMode.ShowFull, 
                                   string iconName = null)
         {
@@ -56,7 +56,7 @@
             BitmapBuilder bb = new BitmapBuilder(imageSize);
 
             if (cd.BoolProperty[(int)this.Type])
-                bb.FillRectangle(0, 0, bb.Width, bb.Height, ChannelProperty.boolPropertyColor[(int)this.Type]);
+                bb.FillRectangle(0, 0, bb.Width, bb.Height, ChannelProperty.PropertyColor[(int)this.Type]);
             else
                 bb.FillRectangle(0, 0, bb.Width, bb.Height, new BitmapColor(20, 20, 20));
 
@@ -68,7 +68,7 @@
             }
             else
             {
-                bb.DrawText(ChannelProperty.boolPropertyLetter[(int)this.Type], 0, yOff, bb.Width, bb.Height - yOff, null, 32);
+                bb.DrawText(ChannelProperty.PropertyLetter[(int)this.Type], 0, yOff, bb.Width, bb.Height - yOff, null, 32);
             }
 
             if (this.ShowTrackName != TrackNameMode.None)
@@ -108,7 +108,7 @@
         private Mode CurrentMode = Mode.Select;
         private bool UserButtonActive = false;
 
-        public SelectButtonData(int channelIndex, ChannelProperty.BoolType bt) : base(channelIndex, bt)
+        public SelectButtonData(int channelIndex, ChannelProperty.PropertyType bt) : base(channelIndex, bt)
         {
             this.IconSelMon = EmbeddedResources.ReadImage(EmbeddedResources.FindFile("monitor_24px.png"));
             this.IconSelRec = EmbeddedResources.ReadImage(EmbeddedResources.FindFile("record_24px.png"));
@@ -148,7 +148,7 @@
             else
             {
                 if (cd.Selected)
-                    bb.FillRectangle(0, 0, bb.Width, bb.Height, ChannelProperty.boolPropertyColor[(int)ChannelProperty.BoolType.Select]);
+                    bb.FillRectangle(0, 0, bb.Width, bb.Height, ChannelProperty.PropertyColor[(int)ChannelProperty.PropertyType.Select]);
                 else
                     bb.FillRectangle(0, 0, bb.Width, bb.Height, new BitmapColor(20, 20, 20));
 
@@ -164,16 +164,16 @@
                 bb.FillRectangle(rX2 - 6, rY2, 2, rH, new BitmapColor(40, 40, 40));
 
                 if (cd.Muted)
-                    bb.FillRectangle(rX - 2, rY - 2, rW + 4, rH + 4, ChannelProperty.boolPropertyColor[(int)ChannelProperty.BoolType.Mute]);
+                    bb.FillRectangle(rX - 2, rY - 2, rW + 4, rH + 4, ChannelProperty.PropertyColor[(int)ChannelProperty.PropertyType.Mute]);
                 if (cd.Solo)
-                    bb.FillRectangle(rX2 - 2, rY - 2, rW + 4, rH + 4, ChannelProperty.boolPropertyColor[(int)ChannelProperty.BoolType.Solo]);
+                    bb.FillRectangle(rX2 - 2, rY - 2, rW + 4, rH + 4, ChannelProperty.PropertyColor[(int)ChannelProperty.PropertyType.Solo]);
                 if (cd.Armed)
-                    bb.FillRectangle(rX - 2, rY2 - 2, rW + 4, rH + 4, ChannelProperty.boolPropertyColor[(int)ChannelProperty.BoolType.Arm]);
+                    bb.FillRectangle(rX - 2, rY2 - 2, rW + 4, rH + 4, ChannelProperty.PropertyColor[(int)ChannelProperty.PropertyType.Arm]);
                 if (cd.Monitor)
-                    bb.FillRectangle(rX2 - 2, rY2 - 2, rW + 4, rH + 4, ChannelProperty.boolPropertyColor[(int)ChannelProperty.BoolType.Monitor]);
+                    bb.FillRectangle(rX2 - 2, rY2 - 2, rW + 4, rH + 4, ChannelProperty.PropertyColor[(int)ChannelProperty.PropertyType.Monitor]);
 
-                bb.DrawText(ChannelProperty.boolPropertyLetter[(int)ChannelProperty.BoolType.Mute], rX, rY, rW, rH, new BitmapColor(175, 175, 175), rH - 4);
-                bb.DrawText(ChannelProperty.boolPropertyLetter[(int)ChannelProperty.BoolType.Solo], rX2, rY, rW, rH, new BitmapColor(175, 175, 175), rH - 4);
+                bb.DrawText(ChannelProperty.PropertyLetter[(int)ChannelProperty.PropertyType.Mute], rX, rY, rW, rH, new BitmapColor(175, 175, 175), rH - 4);
+                bb.DrawText(ChannelProperty.PropertyLetter[(int)ChannelProperty.PropertyType.Solo], rX2, rY, rW, rH, new BitmapColor(175, 175, 175), rH - 4);
                 bb.DrawImage(this.IconSelRec, rX + rW / 2 - this.IconSelRec.Width / 2, rY2 + rH / 2 - this.IconSelRec.Height / 2);
                 bb.DrawImage(this.IconSelMon, rX2 + rW / 2 - this.IconSelMon.Width / 2, rY2 + rH / 2 - this.IconSelRec.Height / 2);
 

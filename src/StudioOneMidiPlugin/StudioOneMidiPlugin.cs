@@ -252,12 +252,12 @@ namespace Loupedeck.StudioOneMidiPlugin
             else if (e is NoteOnEvent)
             {
                 var ce = e as NoteOnEvent;
-                ChannelProperty.BoolType eventType = ChannelProperty.BoolType.Select;
+                ChannelProperty.PropertyType eventType = ChannelProperty.PropertyType.Select;
                 bool eventTypeFound = false;
 
-                foreach (ChannelProperty.BoolType bt in Enum.GetValues(typeof(ChannelProperty.BoolType)))
+                foreach (ChannelProperty.PropertyType bt in Enum.GetValues(typeof(ChannelProperty.PropertyType)))
                 {
-                    if (ce.NoteNumber >= ChannelProperty.boolPropertyBaseNote[(int)bt] && ce.NoteNumber < (ChannelProperty.boolPropertyBaseNote[(int)bt] + ChannelCount + 1))
+                    if (ce.NoteNumber >= ChannelProperty.MidiBaseNote[(int)bt] && ce.NoteNumber < (ChannelProperty.MidiBaseNote[(int)bt] + ChannelCount + 1))
                     {
                         eventType = bt;
                         eventTypeFound = true;
@@ -267,7 +267,7 @@ namespace Loupedeck.StudioOneMidiPlugin
 
                 if (eventTypeFound)
                 {
-                    var channelIndex = ce.NoteNumber - ChannelProperty.boolPropertyBaseNote[(int)eventType];
+                    var channelIndex = ce.NoteNumber - ChannelProperty.MidiBaseNote[(int)eventType];
 
                     if (!mackieChannelData.TryGetValue(channelIndex.ToString(), out MackieChannelData cd))
                         return;

@@ -40,17 +40,17 @@
 
             // Create button data for each layer
             this.addButton(ButtonLayer.channelProperties, 0, new PropertyButtonData(StudioOneMidiPlugin.ChannelCount, 
-                                                                                    ChannelProperty.BoolType.Mute, 
+                                                                                    ChannelProperty.PropertyType.Mute, 
                                                                                     PropertyButtonData.TrackNameMode.ShowLeftHalf));
             this.addButton(ButtonLayer.channelProperties, 1, new PropertyButtonData(StudioOneMidiPlugin.ChannelCount, 
-                                                                                    ChannelProperty.BoolType.Solo,
+                                                                                    ChannelProperty.PropertyType.Solo,
                                                                                     PropertyButtonData.TrackNameMode.ShowRightHalf));
             this.addButton(ButtonLayer.channelProperties, 2, new PropertyButtonData(StudioOneMidiPlugin.ChannelCount, 
-                                                                                    ChannelProperty.BoolType.Arm, 
+                                                                                    ChannelProperty.PropertyType.Arm, 
                                                                                     PropertyButtonData.TrackNameMode.None,
                                                                                     "arm"));
             this.addButton(ButtonLayer.channelProperties, 3, new PropertyButtonData(StudioOneMidiPlugin.ChannelCount,
-                                                                                    ChannelProperty.BoolType.Monitor, 
+                                                                                    ChannelProperty.PropertyType.Monitor, 
                                                                                     PropertyButtonData.TrackNameMode.None,
                                                                                     "monitor"));
             this.addButton(ButtonLayer.channelProperties, 4, new ModeButtonData("VIEWS"));

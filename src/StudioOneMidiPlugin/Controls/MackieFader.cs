@@ -60,7 +60,7 @@
 		protected override void RunCommand(string actionParameter)
 		{
 			MackieChannelData cd = GetChannel(actionParameter);
-			cd.EmitBoolPropertyPress(ChannelProperty.BoolType.Mute);
+			cd.EmitBoolPropertyPress(ChannelProperty.PropertyType.Mute);
 		}
 
 		protected override BitmapImage GetCommandImage(string actionParameter, PluginImageSize imageSize)
@@ -81,20 +81,20 @@
                 {
                     bb.FillRectangle(
                         0, 0, bb.Width, bb.Height,
-                        ChannelProperty.boolPropertyColor[cd.Muted ? (int)ChannelProperty.BoolType.Mute : (int)ChannelProperty.BoolType.Solo]
+                        ChannelProperty.PropertyColor[cd.Muted ? (int)ChannelProperty.PropertyType.Mute : (int)ChannelProperty.PropertyType.Solo]
                         );
                 }
                 if (cd.Selected && cd.ChannelID < StudioOneMidiPlugin.ChannelCount)
                 {
-                    bb.FillRectangle(0, 0, sideBarW, bb.Height, ChannelProperty.boolPropertyColor[(int)ChannelProperty.BoolType.Select]);
+                    bb.FillRectangle(0, 0, sideBarW, bb.Height, ChannelProperty.PropertyColor[(int)ChannelProperty.PropertyType.Select]);
                 }
                 if (cd.Armed)
                 {
-                    bb.FillRectangle(sideBarW, bb.Height - piH, piW, piH, ChannelProperty.boolPropertyColor[(int)ChannelProperty.BoolType.Arm]);
+                    bb.FillRectangle(sideBarW, bb.Height - piH, piW, piH, ChannelProperty.PropertyColor[(int)ChannelProperty.PropertyType.Arm]);
                 }
                 if (cd.Monitor)
                 {
-                    bb.FillRectangle(sideBarW + piW, bb.Height - piH, piW, piH, ChannelProperty.boolPropertyColor[(int)ChannelProperty.BoolType.Monitor]);
+                    bb.FillRectangle(sideBarW + piW, bb.Height - piH, piW, piH, ChannelProperty.PropertyColor[(int)ChannelProperty.PropertyType.Monitor]);
                 }
             }
             //			bb.DrawText(cd.TrackName, 0, 0, bb.Width, bb.Height / 2, null, imageSize == PluginImageSize.Width60 ? 12 : 1);

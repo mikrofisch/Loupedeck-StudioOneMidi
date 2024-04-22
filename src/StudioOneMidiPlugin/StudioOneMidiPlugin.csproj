@@ -71,7 +71,7 @@
     <Compile Include="Controls\FunctionKey.cs" />
     <Compile Include="Controls\ModesKeypad.cs" />
     <Compile Include="Controls\CommandButton.cs" />
-    <Compile Include="Controls\MackieFader.cs" />
+    <Compile Include="Controls\ChannelFader.cs" />
     <Compile Include="Controls\MidiPadFolder.cs" />
     <Compile Include="MackieChannelData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

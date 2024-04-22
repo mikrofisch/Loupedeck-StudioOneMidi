@@ -94,10 +94,10 @@
 
         protected override BitmapImage GetCommandImage(ActionEditorActionParameters actionParameters, Int32 imageWidth, Int32 imageHeight)
         {
-            if (!actionParameters.TryGetInt32(ChannelSelector, out var channelIndex)) return null;
-            this.ChannelIndex = channelIndex;
+            if (!actionParameters.TryGetString(ChannelSelector, out var channelIndex)) return null;
+            this.ChannelIndex = (int)channelIndex.ParseInt32();
 
-            MackieChannelData cd = this.plugin.mackieChannelData[channelIndex.ToString()];
+            MackieChannelData cd = this.plugin.mackieChannelData[channelIndex];
             //if (!this.Plugin.mackieChannelData.TryGetValue(this.ChannelIndex.ToString(), out MackieChannelData cd))
             //    return;
 
@@ -159,10 +159,9 @@
         }
         protected override Boolean RunCommand(ActionEditorActionParameters actionParameters)
         {
-            if (!actionParameters.TryGetInt32(ChannelSelector, out var channelIndex))
-                return false;
+            if (!actionParameters.TryGetString(ChannelSelector, out var channelIndex)) return false;
 
-            MackieChannelData cd = this.plugin.mackieChannelData[channelIndex.ToString()];
+            MackieChannelData cd = this.plugin.mackieChannelData[channelIndex];
 
             switch (this.CurrentMode)
             {

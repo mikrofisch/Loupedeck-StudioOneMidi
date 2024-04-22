@@ -34,7 +34,7 @@ namespace Loupedeck.StudioOneMidiPlugin
 
         string midiInName, midiOutName, mackieMidiInName, mackieMidiOutName;
 
-        public MackieFader mackieFader;
+        public ChannelFader channelFader;
 
         public bool isConfigWindowOpen = false;
 
@@ -374,9 +374,9 @@ namespace Loupedeck.StudioOneMidiPlugin
 
 		public override bool TryProcessTouchEvent(string actionName, string actionParameter, DeviceTouchEvent deviceTouchEvent)
         {
-            if (actionName == mackieFader.GetResetActionName())
+            if (actionName == channelFader.GetResetActionName())
             {
-                return mackieFader.TryProcessTouchEvent(actionParameter, deviceTouchEvent);
+                // return channelFader.TryProcessTouchEvent(actionParameter, deviceTouchEvent);
             }
 
 			return base.TryProcessTouchEvent(actionName, actionParameter, deviceTouchEvent);

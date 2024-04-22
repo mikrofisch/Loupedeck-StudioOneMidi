@@ -16,7 +16,6 @@
         private const String PropertySelector = "propertySelector";
         private const String ChannelSelector = "channelSelector";
         private const String ButtonTitleSelector = "buttonTitleSelector";
-        private const int TrackNameH = 24;
 
         private BitmapImage IconArm, IconMonitor;
 
@@ -31,7 +30,7 @@
                     .SetRequired()
                 );
             this.ActionEditor.AddControlEx(parameterControl:
-                new ActionEditorListbox(name: ChannelSelector, labelText: "Channel:"/*,"Select the property to control"*/)
+                new ActionEditorListbox(name: ChannelSelector, labelText: "Channel:"/*,"Select the fader bank channel"*/)
                     .SetRequired()
                 );
             this.ActionEditor.AddControlEx(parameterControl:
@@ -54,11 +53,6 @@
                 this.ActionImageChanged();
             };
 
-            return true;
-        }
-
-        protected override Boolean OnUnload()
-        {
             return true;
         }
 
@@ -106,14 +100,14 @@
         {
             if (!actionParameters.TryGetInt32(PropertySelector, out var cp)) return null;
             if (!actionParameters.TryGetInt32(ButtonTitleSelector, out var tm)) return null;
-            if (!actionParameters.TryGetInt32(ChannelSelector, out var channelIndex)) return null;
+            if (!actionParameters.TryGetString(ChannelSelector, out var channelIndex)) return null;
 
             BitmapImage icon = null;
             if ((ChannelProperty.PropertyType)cp == ChannelProperty.PropertyType.Arm) icon = this.IconArm;
             if ((ChannelProperty.PropertyType)cp == ChannelProperty.PropertyType.Monitor) icon = this.IconMonitor;
 
             return PropertyButtonData.getImage(new BitmapBuilder(imageWidth, imageHeight),
-                                               this.plugin.mackieChannelData[channelIndex.ToString()],
+                                               this.plugin.mackieChannelData[channelIndex],
                                                (ChannelProperty.PropertyType)cp,
                                                (PropertyButtonData.TrackNameMode)tm,
                                                icon);
@@ -122,9 +116,9 @@
         protected override Boolean RunCommand(ActionEditorActionParameters actionParameters)
         {
             if (!actionParameters.TryGetInt32(PropertySelector, out var controlProperty)) return false;
-            if (!actionParameters.TryGetInt32(ChannelSelector, out var channelIndex)) return false;
+            if (!actionParameters.TryGetString(ChannelSelector, out var channelIndex)) return false;
 
-            MackieChannelData cd = this.plugin.mackieChannelData[channelIndex.ToString()];
+            MackieChannelData cd = this.plugin.mackieChannelData[channelIndex];
 
             cd.EmitChannelPropertyPress((ChannelProperty.PropertyType)controlProperty);
             return true;

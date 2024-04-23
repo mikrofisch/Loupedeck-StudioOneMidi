@@ -95,14 +95,24 @@
 		protected override BitmapImage GetCommandImage(ActionEditorActionParameters actionParameters, Int32 imageWidth, Int32 imageHeight)
         {
             if (!actionParameters.TryGetString(ChannelSelector, out var channelIndex)) return null;
-            
-			MackieChannelData cd = this.GetChannel(channelIndex);
+            if (!actionParameters.TryGetString(ControlOrientationSelector, out var controlOrientation)) return null;
+
+            MackieChannelData cd = this.GetChannel(channelIndex);
 
 			var bb = new BitmapBuilder(imageWidth, imageHeight);
 
             int sideBarW = 8;
+            int sideBarX = bb.Width - sideBarW;
+            int volBarX = 0;
+            int volBarH = (int)Math.Ceiling(cd.Value * bb.Height);
             int piW = (bb.Width - 2* sideBarW)/ 2;
             int piH = 8;
+
+            if (controlOrientation.Equals("right"))
+            {
+                volBarX = sideBarX;
+                sideBarX = 0;
+            }
 
             if (this.selectMode == SelectButtonMode.Select)
             {
@@ -115,7 +125,7 @@
                 }
                 if (cd.Selected && cd.ChannelID < StudioOneMidiPlugin.ChannelCount)
                 {
-                    bb.FillRectangle(0, 0, sideBarW, bb.Height, ChannelProperty.PropertyColor[(int)ChannelProperty.PropertyType.Select]);
+                    bb.FillRectangle(sideBarX, 0, sideBarW, bb.Height, ChannelProperty.PropertyColor[(int)ChannelProperty.PropertyType.Select]);
                 }
                 if (cd.Armed)
                 {
@@ -126,6 +136,8 @@
                     bb.FillRectangle(sideBarW + piW, bb.Height - piH, piW, piH, ChannelProperty.PropertyColor[(int)ChannelProperty.PropertyType.Monitor]);
                 }
             }
+            bb.FillRectangle(volBarX, bb.Height - volBarH, sideBarW, volBarH, new BitmapColor(20, 30, 80));
+
             //			bb.DrawText(cd.TrackName, 0, 0, bb.Width, bb.Height / 2, null, imageSize == PluginImageSize.Width60 ? 12 : 1);
             //            bb.DrawText($"{Math.Round(cd.Value * 100.0f)} %", 0, bb.Height / 2, bb.Width, bb.Height / 2);
             bb.DrawText(cd.ValueStr, 0, bb.Height / 4, bb.Width, bb.Height / 2);

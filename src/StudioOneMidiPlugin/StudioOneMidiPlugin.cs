@@ -42,6 +42,8 @@ namespace Loupedeck.StudioOneMidiPlugin
         public event EventHandler<NoteOnEvent> Ch0NoteReceived;
         public event EventHandler<NoteOnEvent> Ch1NoteReceived;
         public event EventHandler SelectButtonPressed;
+        public event EventHandler<string> FocusDeviceChanged;
+
         public enum SelectButtonMode
         {
             Select,
@@ -49,7 +51,13 @@ namespace Loupedeck.StudioOneMidiPlugin
             User
         }
         public event EventHandler<SelectButtonMode> SelectModeChanged;
-        public event EventHandler<string> FocusDeviceChanged;
+
+        public enum FaderMode
+        {
+            Volume,
+            Pan
+        }
+        public event EventHandler<FaderMode> FaderModeChanged;
 
         public class FunctionKeyParams
         {
@@ -222,6 +230,11 @@ namespace Loupedeck.StudioOneMidiPlugin
             this.SelectModeChanged?.Invoke(this, sm);
         }
         
+        public void EmitFaderModeChanged(FaderMode fm)
+        {
+            this.FaderModeChanged?.Invoke(this, fm);
+        }
+
         public override void RunCommand(String commandName, String parameter)
         {
 		}

@@ -14,6 +14,7 @@
         private const String ControlOrientationSelector = "controlOrientationSelector";
 
         private SelectButtonMode selectMode = SelectButtonMode.Select;
+        private FaderMode faderMode = FaderMode.Volume;
 
 		public ChannelFader() : base(true)
 		{
@@ -36,20 +37,26 @@
         }
 
         protected override bool OnLoad()
-		{
-			plugin = base.Plugin as StudioOneMidiPlugin;
-			plugin.channelFader = this;
+        {
+            this.plugin = base.Plugin as StudioOneMidiPlugin;
+            this.plugin.channelFader = this;
 
-			plugin.ChannelDataChanged += (object sender, EventArgs e) => {
-				ActionImageChanged();
-			};
+            this.plugin.ChannelDataChanged += (object sender, EventArgs e) => {
+                ActionImageChanged();
+            };
 
-            plugin.SelectModeChanged += (object sender, SelectButtonMode e) =>
+            this.plugin.SelectModeChanged += (object sender, SelectButtonMode e) =>
             {
                 this.selectMode = e;
                 ActionImageChanged();
             };
-            
+
+            this.plugin.FaderModeChanged += (object sender, FaderMode e) =>
+            {
+                this.faderMode = e;
+                ActionImageChanged();
+            };
+
             return true;
         }
 
@@ -101,12 +108,12 @@
 
 			var bb = new BitmapBuilder(imageWidth, imageHeight);
 
-            int sideBarW = 8;
+            const int sideBarW = 8;
             int sideBarX = bb.Width - sideBarW;
             int volBarX = 0;
             int volBarH = (int)Math.Ceiling(cd.Value * bb.Height);
             int piW = (bb.Width - 2* sideBarW)/ 2;
-            int piH = 8;
+            const int piH = 8;
 
             if (controlOrientation.Equals("right"))
             {
@@ -114,12 +121,16 @@
                 sideBarX = 0;
             }
 
+            // Check for selected channel volume & pan
+            if (cd.ChannelID == StudioOneMidiPlugin.ChannelCount)          this.faderMode = FaderMode.Volume;
+            else if (cd.ChannelID == StudioOneMidiPlugin.ChannelCount + 1) this.faderMode = FaderMode.Pan;
+
             if (this.selectMode == SelectButtonMode.Select)
             {
                 if (cd.Muted || cd.Solo)
                 {
                     bb.FillRectangle(
-                        0, 0, bb.Width, bb.Height,
+                        sideBarW, piH, bb.Width - 2 * sideBarW, bb.Height - 2 * piH,
                         ChannelProperty.PropertyColor[cd.Muted ? (int)ChannelProperty.PropertyType.Mute : (int)ChannelProperty.PropertyType.Solo]
                         );
                 }
@@ -136,7 +147,17 @@
                     bb.FillRectangle(sideBarW + piW, bb.Height - piH, piW, piH, ChannelProperty.PropertyColor[(int)ChannelProperty.PropertyType.Monitor]);
                 }
             }
-            bb.FillRectangle(volBarX, bb.Height - volBarH, sideBarW, volBarH, new BitmapColor(20, 30, 80));
+            if (this.faderMode == FaderMode.Volume)
+            {
+                bb.FillRectangle(volBarX, bb.Height - volBarH, sideBarW, volBarH, new BitmapColor(20, 30, 80));
+            }
+            else
+            {
+                int panBarW = (int)(Math.Abs(cd.Value - 0.5) * bb.Width);
+                int panBarX = cd.Value > 0.5 ? bb.Width / 2 : bb.Width / 2 - panBarW;
+
+                bb.FillRectangle(panBarX, 0, panBarW, piH, new BitmapColor(20, 30, 80));
+            }
 
             //			bb.DrawText(cd.TrackName, 0, 0, bb.Width, bb.Height / 2, null, imageSize == PluginImageSize.Width60 ? 12 : 1);
             //            bb.DrawText($"{Math.Round(cd.Value * 100.0f)} %", 0, bb.Height / 2, bb.Width, bb.Height / 2);

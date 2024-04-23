@@ -170,8 +170,10 @@ namespace Loupedeck.StudioOneMidiPlugin
             PluginResources.Init(this.Assembly);
 
             // Create the channel data objects (one object for each bank channel, plus one for the selected channel).
-			for (int i = 0; i <= ChannelCount; i++)
-				mackieChannelData[i.ToString()] = new MackieChannelData(this, i);
+            for (int i = 0; i <= ChannelCount; i++)
+            {
+                mackieChannelData[i.ToString()] = new MackieChannelData(this, i);
+            }
 
 			this.ChannelDataChangeTimer = new System.Timers.Timer(10);
 			this.ChannelDataChangeTimer.AutoReset = false;

@@ -74,6 +74,10 @@ namespace Loupedeck.StudioOneMidiPlugin
 
 			ChannelID = channelID;
     		this.Label = $"Channel {channelID + 1}";
+            if (channelID == StudioOneMidiPlugin.ChannelCount)
+            {
+                this.Label = "Selected Channel";
+            }
 		}
 
 		public void EmitVolumeUpdate()

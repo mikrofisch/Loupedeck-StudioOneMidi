@@ -161,11 +161,10 @@
         {
             if (!actionParameters.TryGetString(ChannelSelector, out var channelIndex)) return false;
 
-            MackieChannelData cd = this.plugin.mackieChannelData[channelIndex];
-
             switch (this.CurrentMode)
             {
                 case SelectButtonMode.Select:
+                    MackieChannelData cd = this.plugin.mackieChannelData[channelIndex];
                     if (!cd.Selected)
                     {
                         cd.EmitChannelPropertyPress(ChannelProperty.PropertyType.Select);
@@ -175,7 +174,7 @@
                 case SelectButtonMode.User:
                     NoteOnEvent e = new NoteOnEvent();
                     e.Velocity = (SevenBitNumber)127;
-                    e.NoteNumber = (SevenBitNumber)(UserButtonMidiBase + this.ChannelIndex);
+                    e.NoteNumber = (SevenBitNumber)(UserButtonMidiBase + channelIndex.ParseInt32());
                     this.plugin.mackieMidiOut.SendEvent(e);
                     break;
             }

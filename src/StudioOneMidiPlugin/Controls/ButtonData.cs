@@ -148,7 +148,7 @@
         public int CodeOn = 0;              // alternative code to send when activated
         public string Name;
 
-        public bool Activated = false;
+        public virtual Boolean Activated { get; set; } = false;
 
         public BitmapColor OffColor = BitmapColor.Black;
         public BitmapColor OnColor = BitmapColor.Black;
@@ -265,7 +265,15 @@
             bb.DrawText("PAN", rX, rY + rH + rS, rW, rH, this.Activated ? CommandButtonData.cTextOn : CommandButtonData.cTextOff, rH - 6);
 
             return bb.ToImage();
+        }
 
+        public override Boolean Activated 
+        { 
+            get => base.Activated; 
+            set {
+                base.Activated = value;
+                this.Plugin.EmitFaderModeChanged(value == true ? StudioOneMidiPlugin.FaderMode.Pan : StudioOneMidiPlugin.FaderMode.Volume);
+            }
         }
     }
 

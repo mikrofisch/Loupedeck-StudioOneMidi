@@ -18,6 +18,7 @@
         private const String ButtonTitleSelector = "buttonTitleSelector";
 
         private BitmapImage IconArm, IconMonitor;
+        private ChannelProperty.PropertyType MultiPropertyType = ChannelProperty.PropertyType.Mute;
 
         public ChannelPropertyButton()
         {
@@ -49,10 +50,16 @@
         {
             this.plugin = base.Plugin as StudioOneMidiPlugin;
 
-            this.plugin.ChannelDataChanged += (object sender, EventArgs e) => {
+            this.plugin.ChannelDataChanged += (object sender, EventArgs e) =>
+            {
                 this.ActionImageChanged();
             };
 
+            this.plugin.PropertySelectionChanged += (object sender, ChannelProperty.PropertyType e) =>
+            {
+                this.MultiPropertyType = e;
+                this.ActionImageChanged();
+            };
             return true;
         }
 
@@ -73,6 +80,7 @@
                 e.AddItem($"{(Int32)ChannelProperty.PropertyType.Solo}", "Solo", $"Solo channel");
                 e.AddItem($"{(Int32)ChannelProperty.PropertyType.Arm}", "Arm/Record", $"Arm channel track for recording");
                 e.AddItem($"{(Int32)ChannelProperty.PropertyType.Monitor}", "Monitor", $"Activate monitoring");
+                e.AddItem("9", "Multi", $"Property to control is set by selection button");
             }
             else if (e.ControlName.EqualsNoCase(ChannelSelector))
             {
@@ -98,19 +106,39 @@
 
         protected override BitmapImage GetCommandImage(ActionEditorActionParameters actionParameters, Int32 imageWidth, Int32 imageHeight)
         {
-            if (!actionParameters.TryGetInt32(PropertySelector, out var cp)) return null;
-            if (!actionParameters.TryGetInt32(ButtonTitleSelector, out var tm)) return null;
-            if (!actionParameters.TryGetString(ChannelSelector, out var channelIndex)) return null;
+            if (!actionParameters.TryGetInt32(PropertySelector, out var controlProperty)) return null;
+            if (!actionParameters.TryGetInt32(ButtonTitleSelector, out var trackNameMode)) return null;
+            if (!actionParameters.TryGetInt32(ChannelSelector, out var channelIndex)) return null;
 
-            BitmapImage icon = null;
-            if ((ChannelProperty.PropertyType)cp == ChannelProperty.PropertyType.Arm) icon = this.IconArm;
-            if ((ChannelProperty.PropertyType)cp == ChannelProperty.PropertyType.Monitor) icon = this.IconMonitor;
+            if (channelIndex == StudioOneMidiPlugin.ChannelCount && controlProperty >= 8)
+            {
+                BitmapImage icon = null;
+                if ((ChannelProperty.PropertyType)controlProperty == ChannelProperty.PropertyType.Arm)
+                    icon = this.IconArm;
+                if ((ChannelProperty.PropertyType)controlProperty == ChannelProperty.PropertyType.Monitor)
+                    icon = this.IconMonitor;
 
-            return PropertyButtonData.getImage(new BitmapBuilder(imageWidth, imageHeight),
-                                               this.plugin.mackieChannelData[channelIndex],
-                                               (ChannelProperty.PropertyType)cp,
-                                               (PropertyButtonData.TrackNameMode)tm,
-                                               icon);
+                MackieChannelData cd = this.plugin.mackieChannelData[channelIndex.ToString()];
+                return PropertyButtonData.drawImage(new BitmapBuilder(imageWidth, imageHeight),
+                                                    (ChannelProperty.PropertyType)controlProperty,
+                                                    cd.BoolProperty[controlProperty],
+                                                    (PropertyButtonData.TrackNameMode)trackNameMode,
+                                                    cd.Label,
+                                                    icon);
+            }
+            else
+            {
+                if (controlProperty >= 8)
+                {
+                    controlProperty = (Int32)this.MultiPropertyType;
+                }
+
+                return SelectButtonData.drawImage(new BitmapBuilder(imageWidth, imageHeight),
+                                                  this.plugin.mackieChannelData[channelIndex.ToString()],
+                                                  StudioOneMidiPlugin.SelectButtonMode.Select,
+                                                  false,
+                                                  (ChannelProperty.PropertyType) controlProperty);
+            }
         }
 
         protected override Boolean RunCommand(ActionEditorActionParameters actionParameters)
@@ -119,6 +147,11 @@
             if (!actionParameters.TryGetString(ChannelSelector, out var channelIndex)) return false;
 
             MackieChannelData cd = this.plugin.mackieChannelData[channelIndex];
+
+            if (controlProperty >= 8)
+            {
+                controlProperty = (Int32)this.MultiPropertyType;
+            }
 
             cd.EmitChannelPropertyPress((ChannelProperty.PropertyType)controlProperty);
             return true;

@@ -4,6 +4,7 @@ namespace Loupedeck.StudioOneMidiPlugin
     using System.Collections.Generic;
     using System.Diagnostics.Eventing.Reader;
     using System.Linq;
+    using System.Runtime.CompilerServices;
     using System.Runtime.InteropServices;
     using System.Text;
     using System.Threading;
@@ -43,6 +44,7 @@ namespace Loupedeck.StudioOneMidiPlugin
         public event EventHandler<NoteOnEvent> Ch1NoteReceived;
         public event EventHandler SelectButtonPressed;
         public event EventHandler<string> FocusDeviceChanged;
+        public event EventHandler<ChannelProperty.PropertyType> PropertySelectionChanged;
 
         public enum SelectButtonMode
         {
@@ -169,8 +171,12 @@ namespace Loupedeck.StudioOneMidiPlugin
             // Initialize the plugin resources.
             PluginResources.Init(this.Assembly);
 
-            // Create the channel data objects (one object for each bank channel, plus one for the selected channel).
-            for (int i = 0; i <= ChannelCount; i++)
+            // Create the channel data objects:
+            // - one object for each bank channel
+            // - one object for selected channel volume
+            // - one object for selected channel pan
+            //
+            for (int i = 0; i < ChannelCount + 2; i++)
             {
                 mackieChannelData[i.ToString()] = new MackieChannelData(this, i);
             }
@@ -217,25 +223,20 @@ namespace Loupedeck.StudioOneMidiPlugin
 			isConfigWindowOpen = true;
 		}
 
-		public void EmitChannelDataChanged()
-        {
-            ChannelDataChangeTimer.Start();
-		}
+		public void EmitChannelDataChanged() =>
+            this.ChannelDataChangeTimer.Start();
 
-        public void EmitSelectedButtonPressed()
-        {
+        public void EmitSelectedButtonPressed() =>
             this.SelectButtonPressed?.Invoke(this, null);
-        }
 
-        public void EmitSelectModeChanged(SelectButtonMode sm)
-        {
+        public void EmitSelectModeChanged(SelectButtonMode sm) =>
             this.SelectModeChanged?.Invoke(this, sm);
-        }
         
-        public void EmitFaderModeChanged(FaderMode fm)
-        {
+        public void EmitFaderModeChanged(FaderMode fm) =>
             this.FaderModeChanged?.Invoke(this, fm);
-        }
+
+        public void EmitPropertySelectionChanged(ChannelProperty.PropertyType pt) => 
+            this.PropertySelectionChanged?.Invoke(this, pt);
 
         public override void RunCommand(String commandName, String parameter)
         {

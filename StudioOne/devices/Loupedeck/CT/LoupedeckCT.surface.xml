@@ -143,13 +143,12 @@
 		<Control name="muteButtonSelected"    type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#16" channel="0"/> </Control>
 		<Control name="monitorButtonSelected" type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#7E" channel="0"/> </Control>
 
-		<Control name="selectedFader" title="Selected Fader" type="fader" options="transmit receive public">
-			<MidiMessage status="#E0" channel="9"/>
-		</Control>
-		<Control name="selectedDisplay" type="textdisplay" options="transmit public"/>
+		<Control name="selectedVolume" title="Selected Channel Volume" type="fader" options="transmit receive public"><MidiMessage status="#E0" channel="6"/></Control>
+		<Control name="selectedPan" title="Selected Channel Pan" type="fader" options="transmit receive public"><MidiMessage status="#E0" channel="7"/></Control>
 
 		<Control name="selectedLabelText"  type="textdisplay" options="transmit"/>
-		<Control name="selectedValueText"  type="textdisplay" options="transmit"/>
+		<Control name="selectedVolumeText"  type="textdisplay" options="transmit"/>
+		<Control name="selectedPanText"  type="textdisplay" options="transmit"/>
 
 		<!-- ******************************************************************************************** -->
 		<!-- Displays -->
@@ -401,12 +400,12 @@
 					<Toggle control="muteButtonSelected" param="mute" options="momentary"/>
 					<Toggle control="monitorButtonSelected" param="monitor"/>
 
-					<Value control="selectedFader" param="volume"/>
-					<String control="selectedDisplay" param="volume"/>
+					<Value control="selectedVolume" param="volume"/>
+					<Value control="selectedPan" param="pan"/>
 
 					<String control="selectedLabelText" param="label"/>
-					<String control="selectedValueText" param="volume"/>
-
+					<String control="selectedVolumeText" param="volume"/>
+					<String control="selectedPanText" param="pan"/>
 				</Strip>
 			</ScrollBank>
 
@@ -450,7 +449,7 @@
 
 			<Touch control="ffButton"      param="fastForward"/>
 			<Touch control="rewindButton"  param="rewind"/>
-			<Toggle control="recordButton" param="record"/
+			<Toggle control="recordButton" param="record"/>
 
 			<Value control="recordLED"    param="record"/>
 			<Value control="ffLED"        param="fastForward"/>

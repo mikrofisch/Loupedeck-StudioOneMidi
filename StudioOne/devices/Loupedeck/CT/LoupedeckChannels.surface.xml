@@ -17,8 +17,6 @@
 		<Control name="fader[3]" type="fader" options="transmit receive"> <MidiMessage status="#E0" channel="3"/> </Control>
 		<Control name="fader[4]" type="fader" options="transmit receive"> <MidiMessage status="#E0" channel="4"/> </Control>
 		<Control name="fader[5]" type="fader" options="transmit receive"> <MidiMessage status="#E0" channel="5"/> </Control>
-		<Control name="fader[6]" type="fader" options="transmit receive"> <MidiMessage status="#E0" channel="6"/> </Control>
-		<Control name="fader[7]" type="fader" options="transmit receive"> <MidiMessage status="#E0" channel="7"/> </Control>
 
 		<!-- ******************************************************************************************** -->
 		<!-- VU Meter -->

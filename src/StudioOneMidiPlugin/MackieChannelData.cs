@@ -72,7 +72,7 @@ namespace Loupedeck.StudioOneMidiPlugin
 		{
 			this.plugin = plugin;
 
-			ChannelID = channelID;
+			this.ChannelID = channelID;
     		this.Label = $"Channel {channelID + 1}";
             if (channelID == StudioOneMidiPlugin.ChannelCount)
             {
@@ -84,16 +84,26 @@ namespace Loupedeck.StudioOneMidiPlugin
 		{
 			var e = new PitchBendEvent();
 			e.PitchValue = (ushort)(Value * 16383);
-			e.Channel = (FourBitNumber)ChannelID;
+			e.Channel = (FourBitNumber)this.ChannelID;
 			plugin.mackieMidiOut.SendEvent(e);
 
 			this.plugin.EmitChannelDataChanged();
 		}
 
-		public void EmitChannelPropertyPress(ChannelProperty.PropertyType type)
+        public void EmitValueReset()
+        {
+            var e = new NoteOnEvent();
+            e.NoteNumber = (SevenBitNumber)(0x20 + this.ChannelID);
+            e.Velocity = (SevenBitNumber)(127);
+            plugin.mackieMidiOut.SendEvent(e);
+
+            this.plugin.EmitChannelDataChanged();
+        }
+
+        public void EmitChannelPropertyPress(ChannelProperty.PropertyType type)
 		{
 			var e = new NoteOnEvent();
-			e.NoteNumber = (SevenBitNumber)(ChannelProperty.MidiBaseNote[(int)type] + ChannelID);
+			e.NoteNumber = (SevenBitNumber)(ChannelProperty.MidiBaseNote[(int)type] + this.ChannelID);
 			e.Velocity = (SevenBitNumber)(127);
 			plugin.mackieMidiOut.SendEvent(e);
 

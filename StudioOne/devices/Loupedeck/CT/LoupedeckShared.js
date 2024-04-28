@@ -143,12 +143,6 @@ class ChannelInfo {
     clearFader() {
         this.faderValue.setOriginal(null);
     }
-    setPot(element, paramName) {
-        return element.connectAliasParam(this.potValue, paramName);
-    }
-    clearPot() {
-        this.potValue.setOriginal(null);
-    }
     setValue(element, paramName) {
         return element.connectAliasParam(this.valueString, paramName);
     }
@@ -177,7 +171,6 @@ class LoupedeckSharedComponent extends FocusChannelPanComponent {
         for (let i = 0; i < kNumChannels; i++) {
             let channelInfo = new ChannelInfo;
             channelInfo.faderValue = paramList.addAlias("faderValue" + i);
-            channelInfo.potValue = paramList.addAlias("potValue" + i);
             channelInfo.buttonValue = paramList.addAlias("buttonValue" + i);
             channelInfo.labelString = paramList.addAlias("labelString" + i);
             channelInfo.valueString = paramList.addAlias("valueString" + i);
@@ -278,7 +271,6 @@ class LoupedeckSharedComponent extends FocusChannelPanComponent {
             channelInfo.setLabel(sendElement, PreSonus.ParamID.kSendPort);
             channelInfo.setValue(sendElement, PreSonus.ParamID.kSendLevel);
 
-//            channelInfo.setPot(channelElement, PreSonus.ParamID.kVolume);
             channelInfo.setFader(sendElement, PreSonus.ParamID.kSendLevel);
         }
         else if (mode == ChannelAssignmentMode.kTrackMode || mode == ChannelAssignmentMode.kFXMode) {
@@ -286,14 +278,11 @@ class LoupedeckSharedComponent extends FocusChannelPanComponent {
             channelInfo.setConstantLabel(descriptor.label);
             if (!channelInfo.setValue(this.focusChannelElement, descriptor.name) && descriptor.altname.length > 0)
                 channelInfo.setValue(this.focusChannelElement, descriptor.altname);
-            if (!channelInfo.setPot(this.focusChannelElement, descriptor.name) && descriptor.altname.length > 0)
-                channelInfo.setPot(this.focusChannelElement, descriptor.altname);
             channelInfo.setFader(channelElement, PreSonus.ParamID.kVolume);
         }
         else if (mode == ChannelAssignmentMode.kPanMode) {
             channelInfo.setLabel(channelElement, PreSonus.ParamID.kLabel);
             channelInfo.setValue(channelElement, flipped ? PreSonus.ParamID.kPan : PreSonus.ParamID.kVolume);
-            channelInfo.setPot(channelElement, flipped ? PreSonus.ParamID.kVolume : PreSonus.ParamID.kPan);
             channelInfo.setFader(channelElement, flipped ? PreSonus.ParamID.kPan : PreSonus.ParamID.kVolume);
         }
         else if (mode == ChannelAssignmentMode.kPanFocusMode) {
@@ -304,7 +293,6 @@ class LoupedeckSharedComponent extends FocusChannelPanComponent {
         let pannerType = this.getPanActiveType();
         let lastChannelIndex = kNumChannels - 1;
         channel.clearDisplay();
-        channel.clearPot();
         channel.clearFader();
         if (pannerType == PreSonus.AudioPannerType.kPanTypeSimple) {
             if (channelIndex == 0)
@@ -343,30 +331,23 @@ class LoupedeckSharedComponent extends FocusChannelPanComponent {
         channel.setLabelDirect(titleParam);
         channel.setValue(this.focusChannelElement, valueParamID);
         if (flipped) {
-            channel.setPot(channel.channelElement, PreSonus.ParamID.kVolume);
             channel.setFader(this.focusChannelElement, valueParamID);
         }
         else {
-            channel.setPot(this.focusChannelElement, valueParamID);
             channel.setFader(channel.channelElement, PreSonus.ParamID.kVolume);
         }
     }
     ;
     updateChannelForPanFocusUnassigned(channel, flipped) {
-        if (flipped)
-            channel.setPot(channel.channelElement, PreSonus.ParamID.kVolume);
-        else
-            channel.setFader(channel.channelElement, PreSonus.ParamID.kVolume);
+        channel.setFader(channel.channelElement, PreSonus.ParamID.kVolume);
     }
     updateChannelForPanFocusInfo(channel, flipped) {
         channel.setLabel(this.focusChannelElement, PreSonus.ParamID.kLabel);
         channel.setValue(this.focusChannelElement, PreSonus.ParamID.kPanType);
         if (flipped) {
-            channel.setPot(channel.channelElement, PreSonus.ParamID.kVolume);
             channel.setFader(this.focusChannelElement, PreSonus.ParamID.kPanStereoMode);
         }
         else {
-            channel.setPot(this.focusChannelElement, PreSonus.ParamID.kPanStereoMode);
             channel.setFader(channel.channelElement, PreSonus.ParamID.kVolume);
         }
     }

@@ -1,13 +1,6 @@
 ﻿namespace Loupedeck.StudioOneMidiPlugin.Controls
 {
-    using Melanchall.DryWetMidi.Common;
     using Melanchall.DryWetMidi.Core;
-
-    using System;
-    using System.Collections.Generic;
-    using System.Windows;
-    using System.Windows.Media;
-    using System.Windows.Shapes;
 
     class CommandButton : StudioOneButton<CommandButtonData>
 	{
@@ -19,20 +12,6 @@
             this.AddButton(new CommandButtonData(0x5C, "Fast forward", "fast_forward"), "Transport");
             this.AddButton(new CommandButtonData(0x5B, "Rewind", "rewind"), "Transport");
             this.AddButton(new CommandButtonData(0x56, "Loop", "loop"), "Transport");
-            this.AddButton(new CommandButtonData(0x2E, "Fader Bank Left", "faderBankLeft"));
-            this.AddButton(new CommandButtonData(0x2F, "Fader Bank Right", "faderBankRight"));
-            this.AddButton(new CommandButtonData(0x30, "Fader Channel Left", "faderChannelLeft"));
-            this.AddButton(new CommandButtonData(0x31, "Fader Channel Right", "faderChannelRight"));
-            this.AddButton(new CommandButtonData(0x20, "TRACK"));
-            this.AddButton(new CommandButtonData(0x29, "SEND"));
-            this.AddButton(new CommandButtonData(0x2A, "VOL/PAN"));
-            this.AddButton(new CommandButtonData(0x33, "GLOBAL", new BitmapColor(60, 60, 20), BitmapColor.White));
-            this.AddButton(new CommandButtonData(0x40, "AUDIO"));
-            this.AddButton(new CommandButtonData(0x42, "FX"));
-            this.AddButton(new CommandButtonData(0x43, "BUS"));
-            this.AddButton(new CommandButtonData(0x44, "OUT"));
-            this.AddButton(new FlipPanVolCommandButtonData(0x32));
-            this.AddButton(new CommandButtonData(0x2B, "PLUGIN"));
             this.AddButton(new OneWayCommandButtonData(0x00, "Console"), "View");
             this.AddButton(new OneWayCommandButtonData(0x01, "Browser"), "View");
             this.AddButton(new OneWayCommandButtonData(0x02, "Editor"), "View");

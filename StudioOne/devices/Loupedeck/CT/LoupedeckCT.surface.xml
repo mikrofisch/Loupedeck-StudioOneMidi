@@ -31,13 +31,19 @@
 		<!-- Buttons + LEDs -->
 		<!-- ******************************************************************************************** -->
 
+		<Control name="trackFXButton"    type="trigger" options="receive"> <MidiMessage status="#90" address="#27" channel="0"/> </Control>
+
 		<!-- Assignment Buttons -->
-		<Control name="trackButton"      type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#28" channel="0"/> </Control>
-		<Control name="sendButton"       type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#29" channel="0"/> </Control>
-		<Control name="panButton"        type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#2A" channel="0"/> </Control>
+		<Control name="trackButton"      type="trigger" options="receive"> <MidiMessage status="#90" address="#28" channel="0"/> </Control>
+		<Control name="sendButton"       type="trigger" options="receive"> <MidiMessage status="#90" address="#29" channel="0"/> </Control>
+		<Control name="panButton"        type="trigger" options="receive"> <MidiMessage status="#90" address="#2A" channel="0"/> </Control>
 		<Control name="user1Button"      type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#2B" channel="0"/> </Control>
 		<Control name="user2Button"      type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#2C" channel="0"/> </Control>
 		<Control name="user3Button"      type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#2D" channel="0"/> </Control>
+
+		<Control name="trackLED"         options="transmit"> <MidiMessage status="#90" address="#28" channel="0"/> </Control>
+		<Control name="sendLED"          options="transmit"> <MidiMessage status="#90" address="#29" channel="0"/> </Control>
+		<Control name="panLED"           options="transmit"> <MidiMessage status="#90" address="#2A" channel="0"/> </Control>
 
 		<!-- Fader Banks -->
 		<Control name="faderBankLeft"  type="trigger" options="receive"> <MidiMessage status="#90" address="#2E" channel="0"/> </Control>
@@ -298,6 +304,8 @@
 
 			<String control="assignmentDisplay" param="assignString"/>
 
+			<Invoke control="trackFXButton" onReceive="onTrackFXButtonPressed"/>
+			
 			<!-- kTrackMode -->
 			<Radio control="trackButton" param="assignMode" value="$MODE_TRACK"/>
 			<Radio control="trackLED" param="assignMode" value="$MODE_TRACK"/>
@@ -310,17 +318,13 @@
 			<Value control="panLED" param="panModeLED"/>
 			<Invoke control="panButton" onReceive="onPanButtonPressed"/>
 
-			<!-- kUser1Mode, kUser2Mode, kUser3Mode -->
+						<!-- kUser1Mode, kUser2Mode, kUser3Mode -->
 			<Radio control="user1Button" param="assignMode" value="$MODE_USER1"/>
 			<Radio control="user2Button" param="assignMode" value="$MODE_USER2"/>
 			<Radio control="user3Button" param="assignMode" value="$MODE_USER3"/>
 
 			<!-- kFXMode -->
-			<Radio control="eqButton" param="assignMode" value="$MODE_FX"/>
-			<Radio control="eqLED" param="assignMode" value="$MODE_FX"/>
-
 			<Toggle control="flipButton" param="flipMode"/>
-			<Value control="flipLED" param="flipMode"/>
 
 			<Radio control="globalviewButton" param="bankList" value="$BANK_ALL"/>
 			<Radio control="inputsButton" param="bankList" value="$BANK_AUDIO_INPUT"/>

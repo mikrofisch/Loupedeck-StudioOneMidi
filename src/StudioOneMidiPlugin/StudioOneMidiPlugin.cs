@@ -49,6 +49,7 @@ namespace Loupedeck.StudioOneMidiPlugin
         public enum SelectButtonMode
         {
             Select,
+            Property,
             Send,
             User
         }

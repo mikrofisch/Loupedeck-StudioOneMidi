@@ -45,8 +45,14 @@
             {
                 for (int i = 0; i < StudioOneMidiPlugin.ChannelCount; i++)
                 {
-                    buttonData[i.ToString()].CurrentMode = e;
+                    this.buttonData[i.ToString()].CurrentMode = e;
                 }
+                this.EmitActionImageChanged();
+            };
+
+            this.plugin.PropertySelectionChanged += (object sender, ChannelProperty.PropertyType e) =>
+            {
+                SelectButtonData.SelectionPropertyType = e;
                 this.EmitActionImageChanged();
             };
 

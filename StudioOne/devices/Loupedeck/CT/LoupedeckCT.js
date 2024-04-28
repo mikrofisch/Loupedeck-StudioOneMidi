@@ -11,6 +11,16 @@ const kLoupedeckCTMixerBanks = [
     PreSonus.MixerConsoleBankID.kAudioVCA,
     PreSonus.MixerConsoleBankID.kUser
 ];
+
+function getAllPropertyNames(vObject) {
+    var vPropertyNames = [];
+    do {
+        vPropertyNames = vPropertyNames.concat(Object.getOwnPropertyNames(vObject))
+    } while (vObject = Object.getPrototypeOf(vObject));;
+    var vPrintPropertyNames = vPropertyNames.join("\r\n");
+    Host.GUI.alert(String(vPrintPropertyNames))
+}
+
 class LoupedeckCTComponent extends LoupedeckSharedComponent {
     onInit(hostComponent) {
         // Host.Console.writeLine("Connecting Loupedeck CT...");
@@ -30,9 +40,12 @@ class LoupedeckCTComponent extends LoupedeckSharedComponent {
             this.bankList.appendString(kLoupedeckCTMixerBanks[i]);
         this.bankList.value = kLoupedeckCTMixerBanks.indexOf(PreSonus.MixerConsoleBankID.kUser);
     }
+    onTrackFxButtonPressed(value) {
+        if (!value) return;
+        getAllPropertyNames(Host.Objects.getObjectByUrl("://hostapp/DocumentManager/ActiveDocument/Environment/MixerConsole"));
+    }
     onPanButtonPressed(value) {
-        if (!value)
-            return;
+        if (!value) return;
         let currentMode = this.assignment.mode;
         if (currentMode == ChannelAssignmentMode.kPanMode) {
             this.assignMode.setValue(ChannelAssignmentMode.kPanFocusMode, true);

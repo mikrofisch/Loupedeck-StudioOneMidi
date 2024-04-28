@@ -7,7 +7,7 @@
     using Melanchall.DryWetMidi.Common;
     using Melanchall.DryWetMidi.Core;
 
-    using static Loupedeck.StudioOneMidiPlugin.Controls.PropertyButtonData;
+    using static Loupedeck.StudioOneMidiPlugin.Controls.PropertyButtonDataBase;
     using static Loupedeck.StudioOneMidiPlugin.StudioOneMidiPlugin;
 
     public abstract class ButtonData
@@ -20,11 +20,12 @@
         public abstract void runCommand();
     }
 
-    public class PropertyButtonData : ButtonData
+    public abstract class PropertyButtonDataBase : ButtonData
     {
         public enum TrackNameMode
         {
             None,
+            NoneOffset,
             ShowFull,
             ShowLeftHalf,
             ShowRightHalf
@@ -35,10 +36,10 @@
         private TrackNameMode ShowTrackName;
         private BitmapImage Icon;
 
-        public PropertyButtonData(int channelIndex, 
-                                  ChannelProperty.PropertyType bt, 
-                                  TrackNameMode tm = TrackNameMode.ShowFull, 
-                                  string iconName = null)
+        public PropertyButtonDataBase(int channelIndex,
+                                      ChannelProperty.PropertyType bt,
+                                      TrackNameMode tm = TrackNameMode.ShowFull,
+                                      string iconName = null)
         {
             this.ChannelIndex = channelIndex;
             this.Type = bt;
@@ -50,22 +51,7 @@
             }
         }
 
-        public override BitmapImage getImage(PluginImageSize imageSize)
-        {
-            MackieChannelData cd = this.Plugin.mackieChannelData[this.ChannelIndex.ToString()];
-            //if (!this.Plugin.mackieChannelData.TryGetValue(this.ChannelIndex.ToString(), out MackieChannelData cd))
-            //    return;
-
-            // bb.FillRectangle(0, 0, bb.Width, bb.Height, new BitmapColor(20, 20, 20));
-            return PropertyButtonData.drawImage(new BitmapBuilder(imageSize), 
-                                                this.Type, 
-                                                cd.BoolProperty[(Int32)this.Type], 
-                                                this.ShowTrackName, 
-                                                cd.Label,
-                                                this.Icon);
-        }
-
-        public static BitmapImage drawImage(BitmapBuilder bb, 
+        public static BitmapImage drawImage(BitmapBuilder bb,
                                             ChannelProperty.PropertyType type,
                                             Boolean isSelected,
                                             TrackNameMode showTrackName,
@@ -74,9 +60,8 @@
         {
             if (isSelected)
                 bb.FillRectangle(0, 0, bb.Width, bb.Height, ChannelProperty.PropertyColor[(int)type]);
-//            else
 
-            int yOff = showTrackName == TrackNameMode.None ? 0 : TrackNameH;
+            int yOff = showTrackName == TrackNameMode.None ? 0 : icon == null ? TrackNameH : TrackNameH - 8;
 
             if (icon != null)
             {
@@ -87,7 +72,7 @@
                 bb.DrawText(ChannelProperty.PropertyLetter[(Int32)type], 0, yOff, bb.Width, bb.Height - yOff, null, 32);
             }
 
-            if (showTrackName != TrackNameMode.None)
+            if (showTrackName != TrackNameMode.None && showTrackName != TrackNameMode.NoneOffset)
             {
                 int hPos = 0;
                 int width = bb.Width;
@@ -108,6 +93,21 @@
             return bb.ToImage();
         }
 
+        public override BitmapImage getImage(PluginImageSize imageSize)
+        {
+            MackieChannelData cd = this.Plugin.mackieChannelData[this.ChannelIndex.ToString()];
+            //if (!this.Plugin.mackieChannelData.TryGetValue(this.ChannelIndex.ToString(), out MackieChannelData cd))
+            //    return;
+
+            // bb.FillRectangle(0, 0, bb.Width, bb.Height, new BitmapColor(20, 20, 20));
+            return PropertyButtonDataBase.drawImage(new BitmapBuilder(imageSize),
+                                                    this.Type,
+                                                    cd.BoolProperty[(Int32)this.Type],
+                                                    this.ShowTrackName,
+                                                    cd.Label,
+                                                    this.Icon);
+        }
+
         public override void runCommand()
         {
             MackieChannelData cd = this.Plugin.mackieChannelData[this.ChannelIndex.ToString()];
@@ -116,10 +116,66 @@
         }
     }
 
+    public class PropertySelectionButtonData : ButtonData
+    {
+        public ChannelProperty.PropertyType TypeA, TypeB, CurrentType;
+        public Boolean Activated = true;
+        private BitmapImage IconA, IconB, IconOff;
+
+        public PropertySelectionButtonData(ChannelProperty.PropertyType typeA,
+                                           ChannelProperty.PropertyType typeB,
+                                           String iconNameA,
+                                           String iconNameB,
+                                           String iconNameOff)
+        {
+            this.TypeA = typeA;
+            this.TypeB = typeB;
+            this.CurrentType = typeA;
+
+            this.IconA = EmbeddedResources.ReadImage(EmbeddedResources.FindFile($"{iconNameA}_80px.png"));
+            this.IconB = EmbeddedResources.ReadImage(EmbeddedResources.FindFile($"{iconNameB}_80px.png"));
+            this.IconOff = EmbeddedResources.ReadImage(EmbeddedResources.FindFile($"{iconNameOff}_80px.png"));
+        }
+
+        public override BitmapImage getImage(PluginImageSize imageSize)
+        {
+            BitmapBuilder bb = new BitmapBuilder(imageSize);
+
+            if (!this.Activated)
+            {
+                bb.DrawImage(this.IconOff, 0, 0);
+            }
+            else if (this.CurrentType == this.TypeA)
+            {
+                bb.DrawImage(this.IconA, 0, 0);
+            }
+            else
+            {
+                bb.DrawImage(this.IconB, 0, 0);
+            }
+            return bb.ToImage();
+        }
+
+        public override void runCommand()
+        {
+            if (!this.Activated)
+            {
+                this.Activated = true;
+                this.Plugin.EmitSelectModeChanged(SelectButtonMode.Property);
+            }
+            else
+            {
+                this.CurrentType = this.CurrentType == this.TypeA ? this.TypeB : this.TypeA;
+                this.Plugin.EmitPropertySelectionChanged(this.CurrentType);
+            }
+        }
+    }
+
     public class SelectButtonData : ButtonData
     {
         public SelectButtonMode CurrentMode = SelectButtonMode.Select;
         public bool UserButtonActive = false;
+        public static ChannelProperty.PropertyType SelectionPropertyType = ChannelProperty.PropertyType.Select;
 
         private Int32 ChannelIndex = -1;
 
@@ -140,7 +196,7 @@
 
             var bb = new BitmapBuilder(imageSize);
 
-            return SelectButtonData.drawImage(bb, cd, this.CurrentMode, this.UserButtonActive);
+            return SelectButtonData.drawImage(bb, cd, this.CurrentMode, this.UserButtonActive, SelectionPropertyType);
         }
 
         public static BitmapImage drawImage(BitmapBuilder bb,
@@ -170,6 +226,8 @@
             }
             else
             {
+                if (buttonMode == SelectButtonMode.Select) commandProperty = ChannelProperty.PropertyType.Select;
+
                 if (cd.Selected)
                 {
                     bb.FillRectangle(0, 0, bb.Width, bb.Height, ChannelProperty.PropertyColor[(int)ChannelProperty.PropertyType.Select]);
@@ -187,8 +245,8 @@
                 int rX2 = rX + rW + rS;
                 int rY2 = rY + rH + rS + TitleHeight;
 
-                bb.FillRectangle(rX2 - 6, rY, 2, rH, new BitmapColor(40, 40, 40));
-                bb.FillRectangle(rX2 - 6, rY2, 2, rH, new BitmapColor(40, 40, 40));
+                bb.FillRectangle(rX2 - 5, rY, 2, rH, new BitmapColor(40, 40, 40));
+                bb.FillRectangle(rX2 - 5, rY2, 2, rH, new BitmapColor(40, 40, 40));
 
                 if (cd.Muted || commandProperty == ChannelProperty.PropertyType.Mute)
                 {
@@ -202,13 +260,13 @@
                         cd.Solo ? ChannelProperty.PropertyColor[(int)ChannelProperty.PropertyType.Solo]
                                 : SelectButtonData.CommandPropertyColor);
                 }
-                if (cd.Armed)
+                if (cd.Armed || commandProperty == ChannelProperty.PropertyType.Arm)
                 {
                     bb.FillRectangle(rX - 2, rY2 - 2, rW + 4, rH + 4,
                         cd.Armed ? ChannelProperty.PropertyColor[(int)ChannelProperty.PropertyType.Arm]
                                 : SelectButtonData.CommandPropertyColor);
                 }
-                if (cd.Monitor)
+                if (cd.Monitor || commandProperty == ChannelProperty.PropertyType.Monitor)
                 {
                     bb.FillRectangle(rX2 - 2, rY2 - 2, rW + 4, rH + 4,
                         cd.Monitor ? ChannelProperty.PropertyColor[(int)ChannelProperty.PropertyType.Monitor]
@@ -226,15 +284,18 @@
 
         public override void runCommand()
         {
+            MackieChannelData cd = this.Plugin.mackieChannelData[this.ChannelIndex.ToString()];
             switch (this.CurrentMode)
             {
                 case SelectButtonMode.Select:
-                    MackieChannelData cd = this.Plugin.mackieChannelData[this.ChannelIndex.ToString()];
                     if (!cd.Selected)
                     {
                         cd.EmitChannelPropertyPress(ChannelProperty.PropertyType.Select);
                     }
                     this.Plugin.EmitSelectedButtonPressed();
+                    break;
+                case SelectButtonMode.Property:
+                    cd.EmitChannelPropertyPress(SelectButtonData.SelectionPropertyType);
                     break;
                 case SelectButtonMode.User:
                     NoteOnEvent e = new NoteOnEvent();
@@ -243,41 +304,6 @@
                     this.Plugin.mackieMidiOut.SendEvent(e);
                     break;
             }
-        }
-    }
-
-    public class ModeButtonData : ButtonData
-    {
-        public string Name;
-        public BitmapImage Icon = null;
-
-        public ModeButtonData(string name, string iconName = null)
-        {
-            this.Name = name;
-
-            if (iconName != null)
-                this.Icon = EmbeddedResources.ReadImage(EmbeddedResources.FindFile($"{iconName}_52px.png"));
-        }
-
-        public override BitmapImage getImage(PluginImageSize imageSize)
-        {
-            BitmapBuilder bb = new BitmapBuilder(imageSize);
-
-            if (this.Icon != null)
-            {
-                bb.DrawImage(this.Icon, 0, 0);
-            }
-            else
-            {
-                bb.DrawText(this.Name, 0, 0, bb.Width, bb.Height, null, 16);
-            }
-
-            return bb.ToImage();
-        }
-
-        public override void runCommand()
-        {
-
         }
     }
 
@@ -416,6 +442,132 @@
         }
     }
 
+    public class ModeButtonData : ButtonData
+    {
+        public string Name;
+        public BitmapImage Icon = null;
+
+        public ModeButtonData(string name, string iconName = null)
+        {
+            this.Name = name;
+
+            if (iconName != null)
+                this.Icon = EmbeddedResources.ReadImage(EmbeddedResources.FindFile($"{iconName}_52px.png"));
+        }
+
+        public override BitmapImage getImage(PluginImageSize imageSize)
+        {
+            BitmapBuilder bb = new BitmapBuilder(imageSize);
+
+            if (this.Icon != null)
+            {
+                bb.DrawImage(this.Icon, 0, 0);
+            }
+            else
+            {
+                bb.DrawText(this.Name, 0, 0, bb.Width, bb.Height, null, 16);
+            }
+
+            return bb.ToImage();
+        }
+
+        public override void runCommand()
+        {
+
+        }
+    }
+
+    public class ModeTopCommandButtonData : CommandButtonData
+    {
+        public enum Location
+        {
+            Left,
+            Right
+        }
+        Location ButtonLocation = Location.Left;
+        string TopDisplayText;
+
+
+        public ModeTopCommandButtonData(int code, string name, Location bl, string iconName) : base(code, name, iconName)
+        {
+            this.ButtonLocation = bl;
+        }
+
+        public void setTopDisplay(string text)
+        {
+            this.TopDisplayText = text;
+        }
+
+        public override BitmapImage getImage(PluginImageSize imageSize)
+        {
+            var bb = new BitmapBuilder(imageSize);
+
+            int dispTxtH = 24;
+
+            bb.FillRectangle(0, 0, bb.Width, bb.Height, this.Activated ? this.OnColor : this.OffColor);
+
+            if (this.Activated && this.IconOn != null)
+            {
+                bb.DrawImage(this.IconOn, (bb.Width - this.IconOn.Width) / 2, dispTxtH);
+            }
+            else if (this.Icon != null)
+            {
+                bb.DrawImage(this.Icon, (bb.Width - this.Icon.Width) / 2, dispTxtH);
+            }
+            else
+            {
+                bb.DrawText(this.Name, 0, dispTxtH, bb.Width, bb.Height - dispTxtH, null, 16);
+            }
+
+            int hPos;
+            if (this.ButtonLocation == Location.Left)
+                hPos = 1;
+            else
+                hPos = -bb.Width - 1;
+
+            bb.DrawText(this.TopDisplayText, hPos, 0, bb.Width * 2, dispTxtH);
+
+            return bb.ToImage();
+        }
+    }
+
+    public class ModeChannelSelectButtonData : ButtonData
+    {
+        public BitmapImage Icon, IconOn;
+        public Boolean Activated = false;
+
+        public ModeChannelSelectButtonData()
+        {
+            this.Icon = EmbeddedResources.ReadImage(EmbeddedResources.FindFile("select-select_80px.png"));
+            this.IconOn = EmbeddedResources.ReadImage(EmbeddedResources.FindFile("select-select_on_80px.png"));
+        }
+
+        public override BitmapImage getImage(PluginImageSize imageSize)
+        {
+            BitmapBuilder bb = new BitmapBuilder(imageSize);
+
+            if (!this.Activated)
+            {
+                bb.DrawImage(this.Icon, 0, 0);
+            }
+            else
+            {
+                bb.DrawImage(this.IconOn, 0, 0);
+            }
+
+            return bb.ToImage();
+        }
+
+        public override void runCommand()
+        {
+            if (!this.Activated)
+            {
+                this.Activated = true;
+                this.Plugin.EmitSelectModeChanged(SelectButtonMode.Select);
+            }
+        }
+    }
+
     public class SendsCommandButtonData : CommandButtonData
     {
         public SendsCommandButtonData(int code) : base(code, "SENDS")
@@ -524,59 +676,6 @@
 
     }
 
-    public class ModeTopCommandButtonData : CommandButtonData
-    {
-        public enum Location
-        {
-            Left,
-            Right
-        }
-        Location ButtonLocation = Location.Left;
-        string TopDisplayText;
-
-
-        public ModeTopCommandButtonData(int code, string name, Location bl, string iconName) : base(code, name, iconName)
-        {
-            this.ButtonLocation = bl;
-        }
-
-        public void setTopDisplay(string text)
-        {
-            this.TopDisplayText = text;
-        }
-
-        public override BitmapImage getImage(PluginImageSize imageSize)
-        {
-            var bb = new BitmapBuilder(imageSize);
-
-            int dispTxtH = 24;
-
-            bb.FillRectangle(0, 0, bb.Width, bb.Height, this.Activated ? this.OnColor : this.OffColor);
-
-            if (this.Activated && this.IconOn != null)
-            {
-                bb.DrawImage(this.IconOn, (bb.Width - this.IconOn.Width) / 2, dispTxtH);
-            }
-            else if (this.Icon != null)
-            {
-                bb.DrawImage(this.Icon, (bb.Width - this.Icon.Width) / 2, dispTxtH);
-            }
-            else
-            {
-                bb.DrawText(this.Name, 0, dispTxtH, bb.Width, bb.Height - dispTxtH, null, 16);
-            }
-
-            int hPos = 0;
-            if (this.ButtonLocation == Location.Left)
-                hPos = 1;
-            else
-                hPos = -bb.Width - 1;
-
-            bb.DrawText(this.TopDisplayText, hPos, 0, bb.Width * 2, dispTxtH);
-
-            return bb.ToImage();
-        }
-    }
 
     // Triggers a command from a list in LoupedeckCT.surface.xml on the Studio One side.
     // These are one-shot commands that do not provide feedback.
@@ -613,45 +712,5 @@
         //    eTrigger.NoteNumber = (SevenBitNumber)0x72;    // controlCommandTrigger
         //    this.Plugin.mackieMidiOut.SendEvent(eTrigger);
         // }
-    }
-
-    public class PropertySelectionButtonData : ButtonData
-    {
-        public ChannelProperty.PropertyType Type;
-        public Boolean IsActive = false;
-        private TrackNameMode ShowTrackName;
-        private BitmapImage Icon;
-
-
-        public PropertySelectionButtonData(ChannelProperty.PropertyType type, 
-                                           Boolean isActive,
-                                           String iconName = null)
-        {
-            this.Type = type;
-            this.IsActive = isActive;
-            
-            if (iconName != null)
-            {
-                this.Icon = EmbeddedResources.ReadImage(EmbeddedResources.FindFile($"{iconName}_52px.png"));
-            }
-        }
-
-        public override BitmapImage getImage(PluginImageSize imageSize)
-        {
-            BitmapBuilder bb = new BitmapBuilder(imageSize);
-
-            if (this.IsActive)
-            {
-                bb.FillRectangle(0, 0, bb.Width, bb.Height, new BitmapColor(70, 70, 70));
-            }
-            return PropertyButtonData.drawImage(bb, this.Type, false, TrackNameMode.None, "", this.Icon);
-        }
-
-        public override void runCommand()
-        {
-            this.IsActive = !this.IsActive;
-
-            if (this.IsActive) this.Plugin.EmitPropertySelectionChanged(this.Type);
-        }
     }
 }

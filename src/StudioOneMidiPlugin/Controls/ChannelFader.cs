@@ -1,8 +1,5 @@
 ﻿namespace Loupedeck.StudioOneMidiPlugin.Controls
 {
-    using Melanchall.DryWetMidi.Common;
-    using Melanchall.DryWetMidi.Core;
-
     using System;
     using static Loupedeck.StudioOneMidiPlugin.StudioOneMidiPlugin;
 
@@ -16,7 +13,7 @@
         private SelectButtonMode selectMode = SelectButtonMode.Select;
         private FaderMode faderMode = FaderMode.Volume;
 
-		public ChannelFader() : base(true)
+		public ChannelFader() : base(hasReset: true)
 		{
 
             this.DisplayName = "Channel Fader";
@@ -149,14 +146,14 @@
             }
             if (this.faderMode == FaderMode.Volume)
             {
-                bb.FillRectangle(volBarX, bb.Height - volBarH, sideBarW, volBarH, new BitmapColor(20, 30, 80));
+                bb.FillRectangle(volBarX, bb.Height - volBarH, sideBarW, volBarH, new BitmapColor(60, 192, 232));
             }
             else
             {
                 int panBarW = (int)(Math.Abs(cd.Value - 0.5) * bb.Width);
                 int panBarX = cd.Value > 0.5 ? bb.Width / 2 : bb.Width / 2 - panBarW;
 
-                bb.FillRectangle(panBarX, 0, panBarW, piH, new BitmapColor(20, 30, 80));
+                bb.FillRectangle(panBarX, 0, panBarW, piH, new BitmapColor(60, 192, 232));
             }
 
             //			bb.DrawText(cd.TrackName, 0, 0, bb.Width, bb.Height / 2, null, imageSize == PluginImageSize.Width60 ? 12 : 1);
@@ -173,44 +170,47 @@
 
         protected override Boolean RunCommand(ActionEditorActionParameters actionParameters)
         {
-            if (!actionParameters.TryGetString(ChannelSelector, out var channelIndex)) return false;
-
-            MackieChannelData cd = GetChannel(channelIndex);
-            cd.EmitChannelPropertyPress(ChannelProperty.PropertyType.Mute);
+//            if (!actionParameters.TryGetString(ChannelSelector, out var channelIndex)) return false;
+//
+//            MackieChannelData cd = GetChannel(channelIndex);
+//            cd.EmitChannelPropertyPress(ChannelProperty.PropertyType.Mute);
 
             return true;
         }
 
-            // This never gets called in the current version of the Loupedeck SDK.
-            // 
-            // protected override bool ProcessTouchEvent(string actionParameter, DeviceTouchEvent touchEvent)
-            // {
-            //	MackieChannelData cd = GetChannel(actionParameter);
-            //
-            //    if (touchEvent.EventType == DeviceTouchEventType.Tap)
-            //    {
-            //        cd.EmitBoolPropertyPress(ChannelProperty.BoolType.Select);
-            //    }
-            //    else if (touchEvent.EventType == DeviceTouchEventType.DoubleTap)
-            //    {
-            //        cd.EmitBoolPropertyPress(ChannelProperty.BoolType.Arm);
-            //    }
-            //
-            //    return true;
-            // }
+        // Gets called when the dial is pressed. Assuming this is how you implement
+        // the value reset command.
+        protected override Boolean ProcessButtonEvent2(ActionEditorActionParameters actionParameters, DeviceButtonEvent2 buttonEvent)
+        {
+            if (!actionParameters.TryGetString(ChannelSelector, out var channelIndex))
+                return false;
 
-            // This gets called when the dial is pressed, but does not react to the
-            // corresponding touch screen area at all. Could be used to catch a long press
-            // or double click on the dial.
-            //
-            // protected override bool ProcessButtonEvent2(string actionParameter, DeviceButtonEvent2 buttonEvent)
-            // {
-            //    MackieChannelData cd = GetChannel(actionParameter);
-            //    if (buttonEvent.EventType.IsButtonPressed())
-            //        cd.EmitBoolPropertyPress(ChannelProperty.BoolType.Select);
-            //
-            //    return base.ProcessButtonEvent2(actionParameter, buttonEvent);
-            // }
+            MackieChannelData cd = this.GetChannel(channelIndex);
 
+            if (buttonEvent.EventType.IsButtonPressed())
+            {
+                cd.EmitValueReset();
+            }
+            
+            return base.ProcessButtonEvent2(actionParameters, buttonEvent);
         }
+
+        // This never gets called in the current version of the Loupedeck SDK.
+        // 
+        // protected override bool ProcessTouchEvent(string actionParameter, DeviceTouchEvent touchEvent)
+        // {
+        //	MackieChannelData cd = GetChannel(actionParameter);
+        //
+        //    if (touchEvent.EventType == DeviceTouchEventType.Tap)
+        //    {
+        //        cd.EmitBoolPropertyPress(ChannelProperty.BoolType.Select);
+        //    }
+        //    else if (touchEvent.EventType == DeviceTouchEventType.DoubleTap)
+        //    {
+        //        cd.EmitBoolPropertyPress(ChannelProperty.BoolType.Arm);
+        //    }
+        //
+        //    return true;
+        // }
     }
+}

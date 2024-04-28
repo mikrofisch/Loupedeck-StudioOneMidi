@@ -180,20 +180,13 @@
 		<Control name="vbut[2][4]" title="User 3 Button 5" type="trigger" options="receive public"/>
 		<Control name="vbut[2][5]" title="User 3 Button 6" type="trigger" options="receive public"/>
 
-		<Control name="ledRing[0]" options="transmit"/>
-		<Control name="ledRing[1]" options="transmit"/>
-		<Control name="ledRing[2]" options="transmit"/>
-		<Control name="ledRing[3]" options="transmit"/>
-		<Control name="ledRing[4]" options="transmit"/>
-		<Control name="ledRing[5]" options="transmit"/>
-
-		<!-- V-Select -->
-		<Control name="vpotSelect[0]" type="trigger" options="receive"> <MidiMessage status="#90" address="#20" channel="0"/> </Control>
-		<Control name="vpotSelect[1]" type="trigger" options="receive"> <MidiMessage status="#90" address="#21" channel="0"/> </Control>
-		<Control name="vpotSelect[2]" type="trigger" options="receive"> <MidiMessage status="#90" address="#22" channel="0"/> </Control>
-		<Control name="vpotSelect[3]" type="trigger" options="receive"> <MidiMessage status="#90" address="#23" channel="0"/> </Control>
-		<Control name="vpotSelect[4]" type="trigger" options="receive"> <MidiMessage status="#90" address="#24" channel="0"/> </Control>
-		<Control name="vpotSelect[5]" type="trigger" options="receive"> <MidiMessage status="#90" address="#25" channel="0"/> </Control>
+		<!-- Reset to default values -->
+		<Control name="faderReset[0]" type="trigger" options="receive"> <MidiMessage status="#90" address="#20" channel="0"/> </Control>
+		<Control name="faderReset[1]" type="trigger" options="receive"> <MidiMessage status="#90" address="#21" channel="0"/> </Control>
+		<Control name="faderReset[2]" type="trigger" options="receive"> <MidiMessage status="#90" address="#22" channel="0"/> </Control>
+		<Control name="faderReset[3]" type="trigger" options="receive"> <MidiMessage status="#90" address="#23" channel="0"/> </Control>
+		<Control name="faderReset[4]" type="trigger" options="receive"> <MidiMessage status="#90" address="#24" channel="0"/> </Control>
+		<Control name="faderReset[5]" type="trigger" options="receive"> <MidiMessage status="#90" address="#25" channel="0"/> </Control>
 
 	</Controls>
 
@@ -229,8 +222,7 @@
 				<Value control="fader[$ch]" param="faderValue$ch"/>
 				<Toggle control="userButton[$ch]" param="buttonValue$ch"/>
 				<Value control="userLED[$ch]" param="buttonValue$ch"/>
-				<Value control="ledRing[$ch]" param="potValue$ch"/>
-				<DefaultValue control="vpotSelect[$ch]" param="potValue$ch"/>
+				<DefaultValue control="faderReset[$ch]" param="faderValue$ch"/>
 			</foreach>
 		</Template>
 
@@ -257,19 +249,10 @@
 
 					<!-- Note: faders + vpots are connected to alias parameters -->
 					<Toggle control="recordButton[$ch]" param="recordArmed"/>
-					<Value control="recordLED[$ch]" param="recordArmed"/>
-
 					<Toggle control="soloButton[$ch]" param="solo" options="momentary"/>
-					<Value control="soloLED[$ch]" param="solo"/>
-
 					<Toggle control="muteButton[$ch]" param="mute" options="momentary"/>
-					<Value control="muteLED[$ch]" param="mute"/>
-
 					<Toggle control="monitorButton[$ch]" param="monitor"/>
-					<Value control="monitorLED[$ch]" param="monitor"/>
-
 					<Toggle control="selectButton[$ch]" param="selected"/>
-					<Value control="selectLED[$ch]" param="selected"/>
 
 					<Value control="stereo[$ch]"    param="stereo"/>
 					<Value control="meter[$ch][0]"  param="level1"/>

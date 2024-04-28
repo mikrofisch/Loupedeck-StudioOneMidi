@@ -80,7 +80,8 @@
                 e.AddItem($"{(Int32)ChannelProperty.PropertyType.Solo}", "Solo", $"Solo channel");
                 e.AddItem($"{(Int32)ChannelProperty.PropertyType.Arm}", "Arm/Record", $"Arm channel track for recording");
                 e.AddItem($"{(Int32)ChannelProperty.PropertyType.Monitor}", "Monitor", $"Activate monitoring");
-                e.AddItem("9", "Multi", $"Property to control is set by selection button");
+                e.AddItem("8", "Multi Mute/Solo", $"Property to control is set by selection button (default: Mute)");
+                e.AddItem("9", "Multi Arm/Monitor", $"Property to control is set by selection button (default: Arm)");
             }
             else if (e.ControlName.EqualsNoCase(ChannelSelector))
             {
@@ -93,10 +94,11 @@
             }
             else if (e.ControlName.EqualsNoCase(ButtonTitleSelector))
             {
-                e.AddItem($"{(Int32)PropertyButtonData.TrackNameMode.None}", "None", $"No title");
-                e.AddItem($"{(Int32)PropertyButtonData.TrackNameMode.ShowFull}", "Full", $"Show the entire title text");
-                e.AddItem($"{(Int32)PropertyButtonData.TrackNameMode.ShowLeftHalf}", "Left Half", $"Show left half of the title text");
-                e.AddItem($"{(Int32)PropertyButtonData.TrackNameMode.ShowRightHalf}", "Right Half", $"Show right half of the title text");
+                e.AddItem($"{(Int32)PropertyButtonDataBase.TrackNameMode.None}", "None", $"No title");
+                e.AddItem($"{(Int32)PropertyButtonDataBase.TrackNameMode.NoneOffset}", "None With Offset", $"No title with extra space at the top of the button");
+                e.AddItem($"{(Int32)PropertyButtonDataBase.TrackNameMode.ShowFull}", "Full", $"Show the entire title text");
+                e.AddItem($"{(Int32)PropertyButtonDataBase.TrackNameMode.ShowLeftHalf}", "Left Half", $"Show left half of the title text");
+                e.AddItem($"{(Int32)PropertyButtonDataBase.TrackNameMode.ShowRightHalf}", "Right Half", $"Show right half of the title text");
             }
             else
             {
@@ -110,7 +112,7 @@
             if (!actionParameters.TryGetInt32(ButtonTitleSelector, out var trackNameMode)) return null;
             if (!actionParameters.TryGetInt32(ChannelSelector, out var channelIndex)) return null;
 
-            if (channelIndex == StudioOneMidiPlugin.ChannelCount && controlProperty >= 8)
+            if (channelIndex == StudioOneMidiPlugin.ChannelCount && controlProperty < 8)
             {
                 BitmapImage icon = null;
                 if ((ChannelProperty.PropertyType)controlProperty == ChannelProperty.PropertyType.Arm)
@@ -119,10 +121,10 @@
                     icon = this.IconMonitor;
 
                 MackieChannelData cd = this.plugin.mackieChannelData[channelIndex.ToString()];
-                return PropertyButtonData.drawImage(new BitmapBuilder(imageWidth, imageHeight),
+                return PropertyButtonDataBase.drawImage(new BitmapBuilder(imageWidth, imageHeight),
                                                     (ChannelProperty.PropertyType)controlProperty,
                                                     cd.BoolProperty[controlProperty],
-                                                    (PropertyButtonData.TrackNameMode)trackNameMode,
+                                                    (PropertyButtonDataBase.TrackNameMode)trackNameMode,
                                                     cd.Label,
                                                     icon);
             }
@@ -130,6 +132,14 @@
             {
                 if (controlProperty >= 8)
                 {
+                    if (controlProperty == 8 &&
+                        (this.MultiPropertyType == ChannelProperty.PropertyType.Arm ||
+                        this.MultiPropertyType == ChannelProperty.PropertyType.Monitor))
+                        this.MultiPropertyType = ChannelProperty.PropertyType.Mute;
+                    else if (controlProperty == 9 &&
+                        (this.MultiPropertyType == ChannelProperty.PropertyType.Mute ||
+                        this.MultiPropertyType == ChannelProperty.PropertyType.Solo))
+                        this.MultiPropertyType = ChannelProperty.PropertyType.Arm;
                     controlProperty = (Int32)this.MultiPropertyType;
                 }
 

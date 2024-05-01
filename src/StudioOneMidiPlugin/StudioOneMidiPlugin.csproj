@@ -149,6 +149,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Resources\select-mute-solo_80px.png" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\select-arm-monitor_80px.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent Condition="$(OS) == 'Windows_NT'">call "$(ProjectDir)BuildEvents\postbuild.cmd" "$(ProjectDir)" "$(TargetDir)"</PostBuildEvent>

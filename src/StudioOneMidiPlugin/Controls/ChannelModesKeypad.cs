@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Net.Sockets;
 
     using Melanchall.DryWetMidi.Core;
 
@@ -32,11 +33,11 @@
         private static readonly String idxSendButton = $"{(Int32)ButtonLayer.faderModesSend}:5";
         private static readonly String idxPlayMuteSoloButton = $"{(Int32)ButtonLayer.channelPropertiesPlay}:0";
         private static readonly String idxPlaySelButton = $"{(Int32)ButtonLayer.channelPropertiesPlay}:1";
+        private static readonly String idxRecArmMonitorButton = $"{(Int32)ButtonLayer.channelPropertiesRec}:0";
 
         private IDictionary<int, string> noteReceivers = new Dictionary<int, string>();
 
         ButtonLayer CurrentLayer = ButtonLayer.channelPropertiesPlay;
-        SelectButtonMode SelectMode = SelectButtonMode.Select;
 
         public ChannelModesKeypad() : base()
         {
@@ -54,7 +55,6 @@
             this.addButton(ButtonLayer.viewSelector, 1, new ModeButtonData("REC"));
             this.addButton(ButtonLayer.viewSelector, 2, new ModeButtonData("SHOW"));
             this.addButton(ButtonLayer.viewSelector, 3, new ModeButtonData("USER\rSENDS"));
-//            this.addButton(ButtonLayer.viewSelector, 3, new CommandButtonData(0x29, "USER\rSENDS"));
 
             // Create button data for each layer
             //this.addButton(ButtonLayer.channelProperties, 0, new PropertyButtonData(StudioOneMidiPlugin.ChannelCount, 
@@ -73,10 +73,17 @@
             //                                                                        "monitor"));
             this.addButton(ButtonLayer.channelPropertiesPlay, 0, new PropertySelectionButtonData(ChannelProperty.PropertyType.Mute,
                                                                                                  ChannelProperty.PropertyType.Solo,
-                                                                                                 "select-mute", "select-solo", "select-mute-solo"));
+                                                                                                 "select-mute", "select-solo", "select-mute-solo",
+                                                                                                 activated: false));
             this.addButton(ButtonLayer.channelPropertiesPlay, 1, new ModeChannelSelectButtonData());
             this.addButton(ButtonLayer.channelPropertiesPlay, 4, new ModeButtonData("VIEWS"));
             this.addButton(ButtonLayer.channelPropertiesPlay, 5, new FlipPanVolCommandButtonData(0x32), true);
+
+            this.addButton(ButtonLayer.channelPropertiesRec, 0, new PropertySelectionButtonData(ChannelProperty.PropertyType.Arm,
+                                                                                                ChannelProperty.PropertyType.Monitor,
+                                                                                                "select-arm", "select-monitor", "select-arm-monitor",
+                                                                                                activated: true));
+            this.addButton(ButtonLayer.channelPropertiesRec, 4, new ModeButtonData("VIEWS"));
 
             this.addButton(ButtonLayer.faderModesShow, 0, new CommandButtonData(0x40, "AUDIO", new BitmapColor(0, 60, 80), BitmapColor.White));
             this.addButton(ButtonLayer.faderModesShow, 1, new CommandButtonData(0x42, "FX", new BitmapColor(0, 60, 80), BitmapColor.White));
@@ -120,12 +127,8 @@
                 this.EmitActionImageChanged();
             };
 
-            this.plugin.EmitSelectModeChanged(SelectButtonMode.Property);
-
             return true;
         }
-
-        // private void Plugin_FocusDeviceChanged(Object sender, String e) => throw new NotImplementedException();
 
         protected void OnNoteReceived(object sender, NoteOnEvent e)
         {
@@ -168,6 +171,8 @@
                 bd.runCommand();
             }
 
+            SelectButtonMode selectMode;
+
             switch (this.CurrentLayer)
             {
                 case ButtonLayer.viewSelector:
@@ -175,11 +180,15 @@
                     {
                         case 0: // PLAY
                             this.CurrentLayer = ButtonLayer.channelPropertiesPlay;
-                            this.SelectMode = SelectButtonMode.Property;
-                            this.plugin.EmitSelectModeChanged(this.SelectMode);
+                            selectMode = (this.buttonData[idxPlaySelButton] as ModeChannelSelectButtonData).Activated ? SelectButtonMode.Select
+                                                                                                                      : SelectButtonMode.Property;
+                            this.plugin.EmitSelectModeChanged(selectMode);
+                            this.plugin.EmitPropertySelectionChanged((this.buttonData[idxPlayMuteSoloButton] as PropertySelectionButtonData).CurrentType);
                             break;
                         case 1: // REC
                             this.CurrentLayer = ButtonLayer.channelPropertiesRec;
+                            this.plugin.EmitSelectModeChanged(SelectButtonMode.Property);
+                            this.plugin.EmitPropertySelectionChanged((this.buttonData[idxRecArmMonitorButton] as PropertySelectionButtonData).CurrentType);
                             break;
                         case 2: // SHOW
                             this.plugin.EmitPropertySelectionChanged(ChannelProperty.PropertyType.Select);
@@ -189,15 +198,15 @@
                             this.CurrentLayer = ButtonLayer.faderModesSend;
                             if (LastUserSendsMode == UserSendsMode.Sends)
                             {
-                                this.SelectMode = SelectButtonMode.Send;
+                                selectMode = SelectButtonMode.Send;
                                 this.buttonData[idxSendButton].runCommand();
                             }
                             else
                             {
-                                this.SelectMode = SelectButtonMode.User;
+                                selectMode = SelectButtonMode.User;
                                 this.buttonData[idxUserButton].runCommand();
                             } 
-                            this.plugin.EmitSelectModeChanged(this.SelectMode);
+                            this.plugin.EmitSelectModeChanged(selectMode);
                             break;
                     }
                     this.EmitActionImageChanged();
@@ -210,6 +219,19 @@
                             break;
                         case 1: // SEL
                             (this.buttonData[idxPlayMuteSoloButton] as PropertySelectionButtonData).Activated = false;
+                            break;
+                        case 4: // VIEWS
+                            this.CurrentLayer = ButtonLayer.viewSelector;
+                            break;
+                    }
+                    this.EmitActionImageChanged();
+                    break;
+                case ButtonLayer.channelPropertiesRec:
+                    switch (Int32.Parse(actionParameter))
+                    {
+                        case 0: // ARM/MONITOR
+                            break;
+                        case 1: 
                             break;
                         case 4: // VIEWS
                             this.CurrentLayer = ButtonLayer.viewSelector;
@@ -240,19 +262,16 @@
                     {
                         case 3: // USER 1 2 3
                             LastUserSendsMode = UserSendsMode.User;
-                            this.SelectMode = SelectButtonMode.User;
-                            this.plugin.EmitSelectModeChanged(this.SelectMode);
+                            this.plugin.EmitSelectModeChanged(SelectButtonMode.User);
                             break;
                         case 4: // VIEWS (BACK)
                             this.CurrentLayer = ButtonLayer.viewSelector;
-                            this.SelectMode = SelectButtonMode.Select;
-                            this.plugin.EmitSelectModeChanged(this.SelectMode);
+                            this.plugin.EmitSelectModeChanged(SelectButtonMode.Select);
                             this.EmitActionImageChanged();
                             break;
                         case 5: // SENDS
                             LastUserSendsMode = UserSendsMode.Sends;
-                            this.SelectMode = SelectButtonMode.Send;
-                            this.plugin.EmitSelectModeChanged(this.SelectMode);
+                            this.plugin.EmitSelectModeChanged(SelectButtonMode.Send);
                             break;
                     }
                     break;

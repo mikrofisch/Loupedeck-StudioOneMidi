@@ -119,14 +119,15 @@
     public class PropertySelectionButtonData : ButtonData
     {
         public ChannelProperty.PropertyType TypeA, TypeB, CurrentType;
-        public Boolean Activated = true;
+        public Boolean Activated;
         private BitmapImage IconA, IconB, IconOff;
 
         public PropertySelectionButtonData(ChannelProperty.PropertyType typeA,
                                            ChannelProperty.PropertyType typeB,
                                            String iconNameA,
                                            String iconNameB,
-                                           String iconNameOff)
+                                           String iconNameOff,
+                                           Boolean activated = false)
         {
             this.TypeA = typeA;
             this.TypeB = typeB;
@@ -135,6 +136,7 @@
             this.IconA = EmbeddedResources.ReadImage(EmbeddedResources.FindFile($"{iconNameA}_80px.png"));
             this.IconB = EmbeddedResources.ReadImage(EmbeddedResources.FindFile($"{iconNameB}_80px.png"));
             this.IconOff = EmbeddedResources.ReadImage(EmbeddedResources.FindFile($"{iconNameOff}_80px.png"));
+            this.Activated = activated;
         }
 
         public override BitmapImage getImage(PluginImageSize imageSize)
@@ -166,8 +168,8 @@
             else
             {
                 this.CurrentType = this.CurrentType == this.TypeA ? this.TypeB : this.TypeA;
-                this.Plugin.EmitPropertySelectionChanged(this.CurrentType);
             }
+            this.Plugin.EmitPropertySelectionChanged(this.CurrentType);
         }
     }
 
@@ -534,7 +536,7 @@
     public class ModeChannelSelectButtonData : ButtonData
     {
         public BitmapImage Icon, IconOn;
-        public Boolean Activated = false;
+        public Boolean Activated = true;
 
         public ModeChannelSelectButtonData()
         {

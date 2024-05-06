@@ -84,6 +84,7 @@
                                                                                                 "select-arm", "select-monitor", "select-arm-monitor",
                                                                                                 activated: true));
             this.addButton(ButtonLayer.channelPropertiesRec, 4, new ModeButtonData("VIEWS"));
+            this.addButton(ButtonLayer.channelPropertiesRec, 5, new CommandButtonData(0x59, "Click", "click"), isNoteReceiver: true);
 
             this.addButton(ButtonLayer.faderModesShow, 0, new CommandButtonData(0x40, "AUDIO", new BitmapColor(0, 60, 80), BitmapColor.White));
             this.addButton(ButtonLayer.faderModesShow, 1, new CommandButtonData(0x42, "FX", new BitmapColor(0, 60, 80), BitmapColor.White));
@@ -278,10 +279,10 @@
             }
         }
 
-        private void setPropertySelectionMode(ChannelProperty.PropertyType channelProperty)
-        {
-            (this.buttonData[$"{(Int32)ButtonLayer.channelPropertiesPlay}:0"] as PropertySelectionButtonData).CurrentType = channelProperty;
-        }
+//        private void setPropertySelectionMode(ChannelProperty.PropertyType channelProperty)
+//        {
+//            (this.buttonData[$"{(Int32)ButtonLayer.channelPropertiesPlay}:0"] as PropertySelectionButtonData).CurrentType = channelProperty;
+//        }
 
         private void addButton(ButtonLayer buttonLayer, int buttonIndex, ButtonData bd, bool isNoteReceiver = false)
         {

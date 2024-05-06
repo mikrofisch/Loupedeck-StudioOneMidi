@@ -467,7 +467,6 @@
 
 		<DeviceMapping device="Metronome">
 			<Toggle control="clickButton" param="clickOn"/>
-			<Value control="clickLED" param="clickOn"/>
 		</DeviceMapping>
 
 	</Mappings>

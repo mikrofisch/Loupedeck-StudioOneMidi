@@ -12,6 +12,7 @@
             this.AddButton(new CommandButtonData(0x5C, "Fast forward", "fast_forward"), "Transport");
             this.AddButton(new CommandButtonData(0x5B, "Rewind", "rewind"), "Transport");
             this.AddButton(new CommandButtonData(0x56, "Loop", "loop"), "Transport");
+            this.AddButton(new CommandButtonData(0x59, "Click", "click"), "Settings");
             this.AddButton(new OneWayCommandButtonData(0x00, "Console"), "View");
             this.AddButton(new OneWayCommandButtonData(0x01, "Browser"), "View");
             this.AddButton(new OneWayCommandButtonData(0x02, "Editor"), "View");

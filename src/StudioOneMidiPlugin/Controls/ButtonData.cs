@@ -443,7 +443,7 @@
             }
         }
     }
-
+ 
     public class ModeButtonData : ButtonData
     {
         public string Name;
@@ -570,7 +570,28 @@
         }
     }
 
-    public class SendsCommandButtonData : CommandButtonData
+    public class AutoModeButtondata : ButtonData
+    {
+        BitmapColor BgColor = BitmapColor.Black;
+        BitmapColor TextColor = BitmapColor.White;
+        String ButtonText;
+
+        public override BitmapImage getImage(PluginImageSize imageSize)
+        {
+            BitmapBuilder bb = new BitmapBuilder(imageSize);
+
+            bb.FillRectangle(0, 0, bb.Width, bb.Height, this.BgColor);
+            bb.DrawText(this.ButtonText, 0, 0, bb.Width, bb.Height, this.TextColor, 16);
+
+            return bb.ToImage();
+        }
+
+        public override void runCommand()
+        {
+        }
+    }
+
+        public class SendsCommandButtonData : CommandButtonData
     {
         public SendsCommandButtonData(int code) : base(code, "SENDS")
         {

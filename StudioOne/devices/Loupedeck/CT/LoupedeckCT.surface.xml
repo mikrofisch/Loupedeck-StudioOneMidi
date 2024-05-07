@@ -80,11 +80,12 @@
 		<Control name="cmdaltButton"  type="trigger" options="receive"> <MidiMessage status="#90" address="#49" channel="0"/> </Control>
 
 		<!-- Automation -->
-		<Control name="readoffButton" type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#4A" channel="0"/> </Control>
-		<Control name="writeButton"   type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#4B" channel="0"/> </Control>
-		<Control name="trimButton"    type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#4C" channel="0"/> </Control>
-		<Control name="touchButton"   type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#4D" channel="0"/> </Control>
-		<Control name="latchButton"   type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#4E" channel="0"/> </Control>
+		<Control name="readButton"    type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#4A" channel="0"/> </Control>
+		<Control name="touchButton"   type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#4B" channel="0"/> </Control>
+		<Control name="latchButton"   type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#4C" channel="0"/> </Control>
+		<Control name="writeButton"   type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#4D" channel="0"/> </Control>
+		<Control name="trimButton"    type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#4E" channel="0"/> </Control>
+
 		<Control name="groupButton"   type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#4F" channel="0"/> </Control>
 
  		<!-- Utilities for the Loupedeck modes keypad -->
@@ -384,19 +385,14 @@
 					<!-- Automation Mode -->
 					<!--
 					<Radio control="trimButton"   param="automationMode" value="5" options="toggle"/>
-					<Radio control="trimLED"      param="automationMode" value="5"/>
 					-->
-					<Radio control="readoffButton" param="automationMode" value="1" options="toggle"/>
-					<Radio control="readoffLED"    param="automationMode" value="1"/>
+					<Radio control="readButton" param="automationMode" value="1" options="toggle"/>
 
 					<Radio control="touchButton"   param="automationMode" value="2" options="toggle"/>
-					<Radio control="touchLED"      param="automationMode" value="2"/>
 
 					<Radio control="latchButton"   param="automationMode" value="3" options="toggle"/>
-					<Radio control="latchLED"      param="automationMode" value="3"/>
 
 					<Radio control="writeButton"   param="automationMode" value="4" options="toggle"/>
-					<Radio control="writeLED"      param="automationMode" value="4"/>
 
 					<!-- Selected Console Channel -->
 					<Toggle control="recordButtonSelected" param="recordArmed"/>

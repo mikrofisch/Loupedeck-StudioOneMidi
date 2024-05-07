@@ -2,14 +2,10 @@ namespace Loupedeck.StudioOneMidiPlugin
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics.Eventing.Reader;
     using System.Linq;
-    using System.Runtime.CompilerServices;
-    using System.Runtime.InteropServices;
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
-    using System.Timers;
 
     using Loupedeck.StudioOneMidiPlugin.Controls;
 
@@ -76,6 +72,17 @@ namespace Loupedeck.StudioOneMidiPlugin
             public bool isActive { get; set; }
         }
         public event EventHandler<UserButtonParams> UserButtonChanged;
+
+        public enum AutomationMode
+        {
+            Off,
+            Read,
+            Touch,
+            Latch,
+            Write
+        }
+        public event EventHandler<AutomationMode> AutomationModeChanged;
+        AutomationMode CurrentAutomationMode = AutomationMode.Off;
 
         private System.Timers.Timer ChannelDataChangeTimer;
 
@@ -315,6 +322,23 @@ namespace Loupedeck.StudioOneMidiPlugin
                         ubp.channelIndex = ce.NoteNumber - UserButtonMidiBase;
                         ubp.isActive = ce.Velocity > 0;
                         UserButtonChanged.Invoke(this, ubp);
+                    }
+                    else if (ce.NoteNumber >= 0x4A && ce.NoteNumber <= 0x4D)
+                    {
+                        var am = this.CurrentAutomationMode;
+                        if (ce.Velocity > 0)
+                        {
+                            am = (AutomationMode)(ce.NoteNumber - 0x4A + 1);
+                        }
+                        else if (ce.NoteNumber == 0x4A)
+                        {
+                            am = AutomationMode.Off;
+                        }
+                        if (am != this.CurrentAutomationMode)
+                        {
+                            this.CurrentAutomationMode = am;
+                            AutomationModeChanged.Invoke(this, am);
+                        }
                     }
                     else
                     {

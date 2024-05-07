@@ -443,7 +443,7 @@
             }
         }
     }
-
+ 
     public class ModeButtonData : ButtonData
     {
         public string Name;
@@ -567,6 +567,76 @@
                 this.Activated = true;
                 this.Plugin.EmitSelectModeChanged(SelectButtonMode.Select);
             }
+        }
+    }
+
+    public class AutomationModeButtonData : ButtonData
+    {
+        public static String[] AutomationText =
+        {
+             "Auto: Off", // Off
+			 "Read",      // Read
+			 "Touch",     // Touch
+			 "Latch",     // Latch
+			 "Write",     // Write
+		};
+        public static BitmapColor[] AutomationBgColor =
+        {
+             new BitmapColor(  0,   0,   0), // Off
+			 new BitmapColor(129, 171, 115), // Read
+			 new BitmapColor(216, 176,  82), // Touch
+			 new BitmapColor(194,  90,  95), // Latch
+			 new BitmapColor(208,  64,  71), // Write
+		};
+        public static BitmapColor[] AutomationTextColor =
+        {
+             BitmapColor.White, // Off
+			 BitmapColor.Black, // Read
+			 BitmapColor.Black, // Touch
+			 BitmapColor.White, // Latch
+			 BitmapColor.White, // Write
+		};
+
+        public AutomationMode CurrentMode = AutomationMode.Off;
+
+        public override BitmapImage getImage(PluginImageSize imageSize)
+        {
+            const Int32 fillHeight = 24;
+            BitmapBuilder bb = new BitmapBuilder(imageSize);
+
+            bb.FillRectangle(0, (bb.Height - fillHeight) / 2, bb.Width, fillHeight, AutomationBgColor[(Int32)this.CurrentMode]);
+            bb.DrawText(AutomationText[(Int32)this.CurrentMode], 0, 0, bb.Width, bb.Height, AutomationTextColor[(Int32)this.CurrentMode], 16);
+
+            return bb.ToImage();
+        }
+
+        public override void runCommand()
+        {
+        }
+    }
+
+    public class AutomationModeCommandButtonData : CommandButtonData
+    {
+        private AutomationMode Mode;
+
+        public AutomationModeCommandButtonData(AutomationMode am) : base(0x00, "", null)
+        {
+            this.Mode = am;
+        }
+
+        public override BitmapImage getImage(PluginImageSize imageSize)
+        {
+            const Int32 fillHeight = 24;
+            BitmapBuilder bb = new BitmapBuilder(imageSize);
+
+            bb.FillRectangle(0, (bb.Height - fillHeight) / 2, bb.Width, fillHeight, AutomationModeButtonData.AutomationBgColor[(Int32)this.Mode]);
+            bb.DrawText(AutomationModeButtonData.AutomationText[(Int32)this.Mode], 0, 0, bb.Width, bb.Height, AutomationModeButtonData.AutomationTextColor[(Int32)this.Mode], 16);
+
+            return bb.ToImage();
+        }
+        public override void runCommand()
+        {
+
         }
     }
 

@@ -75,14 +75,14 @@ namespace Loupedeck.StudioOneMidiPlugin
 
         public enum AutomationMode
         {
-            Off,
+            Off = 0,
             Read,
             Touch,
             Latch,
             Write
         }
         public event EventHandler<AutomationMode> AutomationModeChanged;
-        AutomationMode CurrentAutomationMode = AutomationMode.Off;
+        public AutomationMode CurrentAutomationMode = AutomationMode.Off;
 
         private System.Timers.Timer ChannelDataChangeTimer;
 

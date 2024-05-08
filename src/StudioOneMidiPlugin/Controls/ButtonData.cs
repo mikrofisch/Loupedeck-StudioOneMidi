@@ -3,6 +3,7 @@
     using System;
     using System.Diagnostics;
     using System.Security.Cryptography.X509Certificates;
+    using System.Windows.Media;
 
     using Melanchall.DryWetMidi.Common;
     using Melanchall.DryWetMidi.Core;
@@ -582,7 +583,7 @@
 		};
         public static BitmapColor[] AutomationBgColor =
         {
-             new BitmapColor(  0,   0,   0), // Off
+             BitmapColor.Transparent, // Off
 			 new BitmapColor(129, 171, 115), // Read
 			 new BitmapColor(216, 176,  82), // Touch
 			 new BitmapColor(194,  90,  95), // Latch
@@ -598,15 +599,23 @@
 		};
 
         public AutomationMode CurrentMode = AutomationMode.Off;
+        public Boolean SelectionModeActivated = false;
 
         public override BitmapImage getImage(PluginImageSize imageSize)
         {
             const Int32 fillHeight = 24;
             BitmapBuilder bb = new BitmapBuilder(imageSize);
 
-            bb.FillRectangle(0, (bb.Height - fillHeight) / 2, bb.Width, fillHeight, AutomationBgColor[(Int32)this.CurrentMode]);
-            bb.DrawText(AutomationText[(Int32)this.CurrentMode], 0, 0, bb.Width, bb.Height, AutomationTextColor[(Int32)this.CurrentMode], 16);
-
+            if (this.SelectionModeActivated)
+            {
+                bb.FillRectangle(0, 0, bb.Width, bb.Height, AutomationModeCommandButtonData.BgColor);
+                bb.DrawText("Auto\rMode", 0, 0, bb.Width, bb.Height, null, 16);
+            }
+            else
+            {
+                bb.FillRectangle(0, (bb.Height - fillHeight) / 2, bb.Width, fillHeight, AutomationBgColor[(Int32)this.CurrentMode]);
+                bb.DrawText(AutomationText[(Int32)this.CurrentMode], 0, 0, bb.Width, bb.Height, AutomationTextColor[(Int32)this.CurrentMode], 16);
+            }
             return bb.ToImage();
         }
 
@@ -615,11 +624,13 @@
         }
     }
 
-    public class AutomationModeCommandButtonData : CommandButtonData
+    public class AutomationModeCommandButtonData : ButtonData
     {
-        private AutomationMode Mode;
+        public static readonly BitmapColor BgColor = new BitmapColor(60, 60, 60);
 
-        public AutomationModeCommandButtonData(AutomationMode am) : base(0x00, "", null)
+        private readonly AutomationMode Mode;
+
+        public AutomationModeCommandButtonData(AutomationMode am)
         {
             this.Mode = am;
         }
@@ -628,15 +639,42 @@
         {
             const Int32 fillHeight = 24;
             BitmapBuilder bb = new BitmapBuilder(imageSize);
+            var bY = (bb.Height - fillHeight) / 2;
 
-            bb.FillRectangle(0, (bb.Height - fillHeight) / 2, bb.Width, fillHeight, AutomationModeButtonData.AutomationBgColor[(Int32)this.Mode]);
-            bb.DrawText(AutomationModeButtonData.AutomationText[(Int32)this.Mode], 0, 0, bb.Width, bb.Height, AutomationModeButtonData.AutomationTextColor[(Int32)this.Mode], 16);
+            bb.FillRectangle(0, 0, bb.Width, bb.Height, BgColor);
+            bb.FillRectangle(0, bY, bb.Width, fillHeight, AutomationModeButtonData.AutomationBgColor[(Int32)this.Mode]);
+            bb.DrawText(this.Mode == AutomationMode.Off ? "Off" : AutomationModeButtonData.AutomationText[(Int32)this.Mode], 
+                        0, 0, bb.Width, bb.Height, AutomationModeButtonData.AutomationTextColor[(Int32)this.Mode], 16);
+
+            if (this.Mode == this.Plugin.CurrentAutomationMode)
+            {
+                bb.FillRectangle(0, bY - 4, bb.Width, 4, BitmapColor.White);
+                bb.FillRectangle(0, bY + fillHeight, bb.Width, 4, BitmapColor.White);
+            }
 
             return bb.ToImage();
         }
+        
         public override void runCommand()
         {
+            if (this.Mode == this.Plugin.CurrentAutomationMode)
+            {
+                return;
+            }
 
+            var e = new NoteOnEvent();
+            e.Channel = (FourBitNumber)0;
+
+            if (this.Mode == AutomationMode.Off)
+            {
+                e.NoteNumber = (SevenBitNumber)(0x4A + (Int32)this.Plugin.CurrentAutomationMode - 1);
+            }
+            else
+            {
+                e.NoteNumber = (SevenBitNumber)(0x4A + (Int32)this.Mode - 1);
+            }
+            e.Velocity = (SevenBitNumber)127;
+            this.Plugin.mackieMidiOut.SendEvent(e);
         }
     }
 
@@ -754,35 +792,39 @@
     //
     public class OneWayCommandButtonData : CommandButtonData
     {
-        public OneWayCommandButtonData(int code, string name, string iconName=null) : base(0, name, iconName)
+        public OneWayCommandButtonData(int code, string name, string iconName=null) : base(code, name, iconName)
         {
             this.MidiChannel = 1;
-            this.Code = code;
         }
-        public OneWayCommandButtonData(int code, string name, BitmapColor textColor) : base(0, name, null)
+        public OneWayCommandButtonData(int code, string name, BitmapColor textColor) : base(code, name, null)
         {
             this.MidiChannel = 1;
-            this.Code = code;
             this.TextColor = textColor;
         }
 
-        // The code below is an alternative method for invoking commands by setting
-        // a command parameter via a MIDI controller and then triggering it by a MIDI note.
-        // This provides 127 addresses for command triggering per MIDI controller, but it requires
-        // two separate MIDI messages to be sent which is not ideal.
-        //
-        // public override void runCommand()
-        // {
-        //
-        //    var ccSet = new ControlChangeEvent();
-        //    ccSet.ControlNumber = (SevenBitNumber)0x00;
-        //    ccSet.ControlValue = (SevenBitNumber)this.CommandCode;
-        //    this.Plugin.mackieMidiOut.SendEvent(ccSet);
-        //
-        //    var eTrigger = new NoteOnEvent();
-        //    eTrigger.Velocity = (SevenBitNumber)127;
-        //    eTrigger.NoteNumber = (SevenBitNumber)0x72;    // controlCommandTrigger
-        //    this.Plugin.mackieMidiOut.SendEvent(eTrigger);
-        // }
+        public OneWayCommandButtonData(int code, string name, BitmapColor onColor, BitmapColor textOnColor, Boolean isActivatedByDefault = false)
+            : base(code, name, onColor, textOnColor, isActivatedByDefault)
+        {
+            this.MidiChannel = 1;
+        }
+
+            // The code below is an alternative method for invoking commands by setting
+            // a command parameter via a MIDI controller and then triggering it by a MIDI note.
+            // This provides 127 addresses for command triggering per MIDI controller, but it requires
+            // two separate MIDI messages to be sent which is not ideal.
+            //
+            // public override void runCommand()
+            // {
+            //
+            //    var ccSet = new ControlChangeEvent();
+            //    ccSet.ControlNumber = (SevenBitNumber)0x00;
+            //    ccSet.ControlValue = (SevenBitNumber)this.CommandCode;
+            //    this.Plugin.mackieMidiOut.SendEvent(ccSet);
+            //
+            //    var eTrigger = new NoteOnEvent();
+            //    eTrigger.Velocity = (SevenBitNumber)127;
+            //    eTrigger.NoteNumber = (SevenBitNumber)0x72;    // controlCommandTrigger
+            //    this.Plugin.mackieMidiOut.SendEvent(eTrigger);
+            // }
+        }
     }
-}

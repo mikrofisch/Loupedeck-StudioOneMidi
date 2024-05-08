@@ -91,8 +91,8 @@
             this.addButton(ButtonLayer.channelPropertiesPlay, "5-2", new AutomationModeCommandButtonData(AutomationMode.Latch));
             this.addButton(ButtonLayer.channelPropertiesPlay, "4-2", new AutomationModeCommandButtonData(AutomationMode.Write));
             this.addButton(ButtonLayer.channelPropertiesPlay, "3", new ModeButtonData("LAYERS"));
-            this.addButton(ButtonLayer.channelPropertiesPlay, "0-1", new CommandButtonData(0x00, "LAY UP", BitmapColor.Black, BitmapColor.White));
-            this.addButton(ButtonLayer.channelPropertiesPlay, "2-1", new CommandButtonData(0x00, "LAY DN", BitmapColor.Black, BitmapColor.White));
+            this.addButton(ButtonLayer.channelPropertiesPlay, "0-1", new OneWayCommandButtonData(0x30, "LAY UP", BitmapColor.Black, BitmapColor.White));
+            this.addButton(ButtonLayer.channelPropertiesPlay, "2-1", new OneWayCommandButtonData(0x31, "LAY DN", BitmapColor.Black, BitmapColor.White));
             this.addButton(ButtonLayer.channelPropertiesPlay, "4", new ModeButtonData("VIEWS"));
             this.addButton(ButtonLayer.channelPropertiesPlay, "5", new FlipPanVolCommandButtonData(0x32), true);
 
@@ -176,21 +176,7 @@
             if (actionParameter == null)
                 return null;
 
-            var idx = $"{(int)this.CurrentLayer}:{actionParameter}";
-            if (this.CurrentLayer == ButtonLayer.channelPropertiesPlay)
-            {
-                if (this.CurrentPlayLayerMode == PlayLayerMode.SelectionActivated &&
-                    "02".Contains(actionParameter))
-                {
-                    idx += "-1";
-                }
-                else if (this.CurrentPlayLayerMode == PlayLayerMode.AutomationActivated &&
-                         "01345".Contains(actionParameter))
-                {
-                    idx += "-2";
-                }
-            }
-            if (this.buttonData.TryGetValue(idx, out var bd))
+            if (this.buttonData.TryGetValue(this.getButtonIndex(actionParameter), out var bd))
             {
                 return bd.getImage(imageSize);
             }
@@ -202,7 +188,7 @@
 
         protected override void RunCommand(string actionParameter)
         {
-            var idx = $"{(int)this.CurrentLayer}:{actionParameter}";
+            var idx = this.getButtonIndex(actionParameter);
             if (this.buttonData.TryGetValue(idx, out var bd))
             {
                 bd.runCommand();
@@ -249,25 +235,39 @@
                     this.EmitActionImageChanged();
                     break;
                 case ButtonLayer.channelPropertiesPlay:
-                    switch (Int32.Parse(actionParameter))
+                    if (this.CurrentPlayLayerMode == PlayLayerMode.AutomationActivated)
                     {
-                        case 0: // MUTE/SOLO
-                            (this.buttonData[idxPlaySelButton] as ModeChannelSelectButtonData).Activated = false;
-                            break;
-                        case 1: // SEL
-                            (this.buttonData[idxPlayMuteSoloButton] as PropertySelectionButtonData).Activated = false;
-                            break;
-                        case 2: // AUTO
-                            this.CurrentPlayLayerMode = this.CurrentPlayLayerMode == PlayLayerMode.All ? PlayLayerMode.AutomationActivated
-                                                                                                       : PlayLayerMode.All;
-                            break;
-                        case 3: // LAYERS
-                            this.CurrentPlayLayerMode = this.CurrentPlayLayerMode == PlayLayerMode.All ? PlayLayerMode.SelectionActivated
-                                                                                                       : PlayLayerMode.All;
-                            break;
-                        case 4: // VIEWS
-                            this.CurrentLayer = ButtonLayer.viewSelector;
-                            break;
+                        (this.buttonData[idxPlayAutomationModeButton] as AutomationModeButtonData).SelectionModeActivated = false;
+                        this.CurrentPlayLayerMode = PlayLayerMode.All;
+                    }
+                    else
+                    {
+                        switch (Int32.Parse(actionParameter))
+                        {
+                            case 0: // MUTE/SOLO
+                                if (this.CurrentPlayLayerMode == PlayLayerMode.All)
+                                {
+                                    (this.buttonData[idxPlaySelButton] as ModeChannelSelectButtonData).Activated = false;
+                                }
+                                break;
+                            case 1: // SEL
+                                (this.buttonData[idxPlayMuteSoloButton] as PropertySelectionButtonData).Activated = false;
+                                break;
+                            case 2: // AUTO
+                                if (this.CurrentPlayLayerMode == PlayLayerMode.All)
+                                {
+                                    (bd as AutomationModeButtonData).SelectionModeActivated = true;
+                                    this.CurrentPlayLayerMode = PlayLayerMode.AutomationActivated;
+                                }
+                                break;
+                            case 3: // LAYERS
+                                this.CurrentPlayLayerMode = this.CurrentPlayLayerMode == PlayLayerMode.All ? PlayLayerMode.SelectionActivated
+                                                                                                           : PlayLayerMode.All;
+                                break;
+                            case 4: // VIEWS
+                                this.CurrentLayer = ButtonLayer.viewSelector;
+                                break;
+                        }
                     }
                     this.EmitActionImageChanged();
                     break;
@@ -327,6 +327,25 @@
 //        {
 //            (this.buttonData[$"{(Int32)ButtonLayer.channelPropertiesPlay}:0"] as PropertySelectionButtonData).CurrentType = channelProperty;
 //        }
+
+        private String getButtonIndex(String actionParameter)
+        {
+            var idx = $"{(Int32)this.CurrentLayer}:{actionParameter}";
+            if (this.CurrentLayer == ButtonLayer.channelPropertiesPlay)
+            {
+                if (this.CurrentPlayLayerMode == PlayLayerMode.SelectionActivated &&
+                    "02".Contains(actionParameter))
+                {
+                    idx += "-1";
+                }
+                else if (this.CurrentPlayLayerMode == PlayLayerMode.AutomationActivated &&
+                         "01345".Contains(actionParameter))
+                {
+                    idx += "-2";
+                }
+            }
+            return idx;
+        }
 
         private void addButton(ButtonLayer buttonLayer, String buttonIndex, ButtonData bd, bool isNoteReceiver = false)
         {

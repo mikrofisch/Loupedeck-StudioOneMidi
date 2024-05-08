@@ -17,29 +17,45 @@
 		<Control name="viewNextPerspectiveCmd"      type="trigger" options="receive"> <MidiMessage status="#90" address="#08" channel="1"/> </Control>
 		<Control name="viewShowGroupsCmd"           type="trigger" options="receive"> <MidiMessage status="#90" address="#09" channel="1"/> </Control>
 		<Control name="viewToggleFloatWinsCmd"      type="trigger" options="receive"> <MidiMessage status="#90" address="#0A" channel="1"/> </Control>
-		<Control name="consoleShowInputsCmd"        type="trigger" options="receive"> <MidiMessage status="#90" address="#0B" channel="1"/> </Control>
-		<Control name="consoleShowTrackCmd"         type="trigger" options="receive"> <MidiMessage status="#90" address="#0C" channel="1"/> </Control>
-		<Control name="consoleShowChannelEditorCmd" type="trigger" options="receive"> <MidiMessage status="#90" address="#0D" channel="1"/> </Control>
-		<Control name="consoleInstrEditorCmd"       type="trigger" options="receive"> <MidiMessage status="#90" address="#0E" channel="1"/> </Control>
-		<Control name="consoleOpenChannelCmd"       type="trigger" options="receive"> <MidiMessage status="#90" address="#0F" channel="1"/> </Control>
-		<Control name="consoleAddInsertCmd"         type="trigger" options="receive"> <MidiMessage status="#90" address="#10" channel="1"/> </Control>
-		<Control name="consoleAddSendCmd"           type="trigger" options="receive"> <MidiMessage status="#90" address="#11" channel="1"/> </Control>
-		<Control name="consoleAddBusChannelCmd"     type="trigger" options="receive"> <MidiMessage status="#90" address="#12" channel="1"/> </Control>
-		<Control name="consoleAddFXChannelCmd"      type="trigger" options="receive"> <MidiMessage status="#90" address="#13" channel="1"/> </Control>
-		<Control name="consoleGlobalMuteCmd"        type="trigger" options="receive"> <MidiMessage status="#90" address="#14" channel="1"/> </Control>
-		<Control name="consoleGlobalSoloCmd"        type="trigger" options="receive"> <MidiMessage status="#90" address="#15" channel="1"/> </Control>
-		<Control name="consoleNextChannelCmd"       type="trigger" options="receive"> <MidiMessage status="#90" address="#16" channel="1"/> </Control>
-		<Control name="consolePrevChannelCmd"       type="trigger" options="receive"> <MidiMessage status="#90" address="#17" channel="1"/> </Control>
-		<Control name="groupSuspendCmd"             type="trigger" options="receive"> <MidiMessage status="#90" address="#18" channel="1"/> </Control>
-		<Control name="groupSuspendAllCmd"          type="trigger" options="receive"> <MidiMessage status="#90" address="#19" channel="1"/> </Control>
-		<Control name="groupSuspend1Cmd"            type="trigger" options="receive"> <MidiMessage status="#90" address="#1A" channel="1"/> </Control>
-		<Control name="groupSuspend2Cmd"            type="trigger" options="receive"> <MidiMessage status="#90" address="#1B" channel="1"/> </Control>
-		<Control name="groupSuspend3Cmd"            type="trigger" options="receive"> <MidiMessage status="#90" address="#1C" channel="1"/> </Control>
-		<Control name="groupSuspend4Cmd"            type="trigger" options="receive"> <MidiMessage status="#90" address="#1D" channel="1"/> </Control>
-		<Control name="groupSuspend5Cmd"            type="trigger" options="receive"> <MidiMessage status="#90" address="#1E" channel="1"/> </Control>
-		<Control name="groupSuspend6Cmd"            type="trigger" options="receive"> <MidiMessage status="#90" address="#1F" channel="1"/> </Control>
-		<Control name="groupSuspend7Cmd"            type="trigger" options="receive"> <MidiMessage status="#90" address="#20" channel="1"/> </Control>
-		<Control name="groupSuspend8Cmd"            type="trigger" options="receive"> <MidiMessage status="#90" address="#21" channel="1"/> </Control>
+		<Control name="consoleShowInputsCmd"        type="trigger" options="receive"> <MidiMessage status="#90" address="#10" channel="1"/> </Control>
+		<Control name="consoleShowTrackCmd"         type="trigger" options="receive"> <MidiMessage status="#90" address="#11" channel="1"/> </Control>
+		<Control name="consoleShowChannelEditorCmd" type="trigger" options="receive"> <MidiMessage status="#90" address="#12" channel="1"/> </Control>
+		<Control name="consoleInstrEditorCmd"       type="trigger" options="receive"> <MidiMessage status="#90" address="#13" channel="1"/> </Control>
+		<Control name="consoleOpenChannelCmd"       type="trigger" options="receive"> <MidiMessage status="#90" address="#14" channel="1"/> </Control>
+		<Control name="consoleAddInsertCmd"         type="trigger" options="receive"> <MidiMessage status="#90" address="#15" channel="1"/> </Control>
+		<Control name="consoleAddSendCmd"           type="trigger" options="receive"> <MidiMessage status="#90" address="#16" channel="1"/> </Control>
+		<Control name="consoleAddBusChannelCmd"     type="trigger" options="receive"> <MidiMessage status="#90" address="#17" channel="1"/> </Control>
+		<Control name="consoleAddFXChannelCmd"      type="trigger" options="receive"> <MidiMessage status="#90" address="#18" channel="1"/> </Control>
+		<Control name="consoleGlobalMuteCmd"        type="trigger" options="receive"> <MidiMessage status="#90" address="#19" channel="1"/> </Control>
+		<Control name="consoleGlobalSoloCmd"        type="trigger" options="receive"> <MidiMessage status="#90" address="#1A" channel="1"/> </Control>
+		<Control name="consoleNextChannelCmd"       type="trigger" options="receive"> <MidiMessage status="#90" address="#1B" channel="1"/> </Control>
+		<Control name="consolePrevChannelCmd"       type="trigger" options="receive"> <MidiMessage status="#90" address="#1C" channel="1"/> </Control>
+		<Control name="groupSuspendCmd"             type="trigger" options="receive"> <MidiMessage status="#90" address="#20" channel="1"/> </Control>
+		<Control name="groupSuspendAllCmd"          type="trigger" options="receive"> <MidiMessage status="#90" address="#21" channel="1"/> </Control>
+		<Control name="groupSuspend1Cmd"            type="trigger" options="receive"> <MidiMessage status="#90" address="#22" channel="1"/> </Control>
+		<Control name="groupSuspend2Cmd"            type="trigger" options="receive"> <MidiMessage status="#90" address="#23" channel="1"/> </Control>
+		<Control name="groupSuspend3Cmd"            type="trigger" options="receive"> <MidiMessage status="#90" address="#24" channel="1"/> </Control>
+		<Control name="groupSuspend4Cmd"            type="trigger" options="receive"> <MidiMessage status="#90" address="#25" channel="1"/> </Control>
+		<Control name="groupSuspend5Cmd"            type="trigger" options="receive"> <MidiMessage status="#90" address="#26" channel="1"/> </Control>
+		<Control name="groupSuspend6Cmd"            type="trigger" options="receive"> <MidiMessage status="#90" address="#27" channel="1"/> </Control>
+		<Control name="groupSuspend7Cmd"            type="trigger" options="receive"> <MidiMessage status="#90" address="#28" channel="1"/> </Control>
+		<Control name="groupSuspend8Cmd"            type="trigger" options="receive"> <MidiMessage status="#90" address="#29" channel="1"/> </Control>
+		<Control name="trackActivatePreviousLayer"  type="trigger" options="receive"> <MidiMessage status="#90" address="#30" channel="1"/> </Control>
+		<Control name="trackActivateNextLayer"      type="trigger" options="receive"> <MidiMessage status="#90" address="#31" channel="1"/> </Control>
+		<Control name="trackAddLayer"               type="trigger" options="receive"> <MidiMessage status="#90" address="#32" channel="1"/> </Control>
+		<Control name="trackRemoveLayer"            type="trigger" options="receive"> <MidiMessage status="#90" address="#33" channel="1"/> </Control>
+		<Control name="trackExpandLayers"           type="trigger" options="receive"> <MidiMessage status="#90" address="#34" channel="1"/> </Control>
+		<Control name="trackRenameLayer"            type="trigger" options="receive"> <MidiMessage status="#90" address="#35" channel="1"/> </Control>
+		<Control name="trackGroupSelectedTracks"    type="trigger" options="receive"> <MidiMessage status="#90" address="#36" channel="1"/> </Control>
+		<Control name="trackDissolveGroup"          type="trigger" options="receive"> <MidiMessage status="#90" address="#37" channel="1"/> </Control>
+		<Control name="trackShowEnvelopes"          type="trigger" options="receive"> <MidiMessage status="#90" address="#38" channel="1"/> </Control>
+		<Control name="trackShowInConsole"          type="trigger" options="receive"> <MidiMessage status="#90" address="#39" channel="1"/> </Control>
+		<Control name="trackExpandFolderTrack"      type="trigger" options="receive"> <MidiMessage status="#90" address="#3A" channel="1"/> </Control>
+		<Control name="trackCollapseAllTracks"      type="trigger" options="receive"> <MidiMessage status="#90" address="#3B" channel="1"/> </Control>
+		<Control name="trackAddTracks"              type="trigger" options="receive"> <MidiMessage status="#90" address="#3C" channel="1"/> </Control>
+		<Control name="trackAddAutomationTrack"     type="trigger" options="receive"> <MidiMessage status="#90" address="#3D" channel="1"/> </Control>
+		<Control name="trackAddBusForSelectedChnls" type="trigger" options="receive"> <MidiMessage status="#90" address="#3E" channel="1"/> </Control>
+		<Control name="trackArmAllAudioTracks"      type="trigger" options="receive"> <MidiMessage status="#90" address="#3F" channel="1"/> </Control>
 	</Controls>
 
 	<Templates>
@@ -83,6 +99,22 @@
 			<Command control="groupSuspend6Cmd"              command.category="Group"   command.name="Suspend Group 6"/>
 			<Command control="groupSuspend7Cmd"              command.category="Group"   command.name="Suspend Group 7"/>
 			<Command control="groupSuspend8Cmd"              command.category="Group"   command.name="Suspend Group 8"/>
+			<Command control="trackActivatePreviousLayer"    command.category="Track"   command.name="Activate Previous Layer"/>
+			<Command control="trackActivateNextLayer"        command.category="Track"   command.name="Activate Next Layer"/>
+			<Command control="trackAddLayer"                 command.category="Track"   command.name="Add Layer"/>
+			<Command control="trackRemoveLayer"              command.category="Track"   command.name="Remove Layer"/>
+			<Command control="trackExpandLayers"             command.category="Track"   command.name="Expand Layers"/>
+			<Command control="trackRenameLayer"              command.category="Track"   command.name="Rename Layer"/>
+			<Command control="trackGroupSelectedTracks"      command.category="Track"   command.name="Group Selected Tracks"/>
+			<Command control="trackDissolveGroup"            command.category="Track"   command.name="Dissolve Group"/>
+			<Command control="trackShowEnvelopes"            command.category="Track"   command.name="Show Envelopes"/>
+			<Command control="trackShowInConsole"            command.category="Track"   command.name="Show in Console"/>
+			<Command control="trackExpandFolderTrack"        command.category="Track"   command.name="Expand Folder Track"/>
+			<Command control="trackCollapseAllTracks"        command.category="Track"   command.name="Collapse All Tracks"/>
+			<Command control="trackAddTracks"                command.category="Track"   command.name="Add Tracks"/>
+			<Command control="trackAddAutomationTrack"       command.category="Track"   command.name="Add Automation Track"/>
+			<Command control="trackAddBusForSelectedChnls"   command.category="Track"   command.name="Add Bus for Selected Channels"/>
+			<Command control="trackArmAllAudioTracks"        command.category="Track"   command.name="Arm All Audio Tracks"/>
 		</Template>
     </Templates>
 

@@ -94,13 +94,13 @@
 		<Control name="nextPluginButton"      type="trigger" options="receive"> <MidiMessage status="#90" address="#52" channel="0"/> </Control>
 
 		<!-- Transport -->
-		<Control name="markerButton"  type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#54" channel="0"/> </Control>
-		<Control name="nudgeButton"   type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#55" channel="0"/> </Control>
-		<Control name="cycleButton"   type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#56" channel="0"/> </Control>
-		<Control name="dropButton"    type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#57" channel="0"/> </Control>
-		<Control name="replaceButton" type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#58" channel="0"/> </Control>
-		<Control name="clickButton"   type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#59" channel="0"/> </Control>
-		<Control name="soloButton"    type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#5A" channel="0"/> </Control>
+		<Control name="markerButton"   type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#54" channel="0"/> </Control>
+		<Control name="cycleButton"    type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#55" channel="0"/> </Control>
+		<Control name="precountButton" type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#56" channel="0"/> </Control>
+		<Control name="prerollButton"  type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#57" channel="0"/> </Control>
+		<Control name="punchButton"    type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#58" channel="0"/> </Control>
+		<Control name="clickButton"    type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#59" channel="0"/> </Control>
+		<Control name="soloButton"     type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#5A" channel="0"/> </Control>
 
 		<Control name="rewindButton" type="trigger" options="receive"> <MidiMessage status="#90" address="#5B" channel="0"/> </Control>
 		<Control name="ffButton"     type="trigger" options="receive"> <MidiMessage status="#90" address="#5C" channel="0"/> </Control>
@@ -108,7 +108,11 @@
 		<Control name="playButton"   type="trigger" options="receive"> <MidiMessage status="#90" address="#5E" channel="0"/> </Control>
 		<Control name="recordButton" type="trigger" options="receive"> <MidiMessage status="#90" address="#5F" channel="0"/> </Control>
 
-		<Control name="cycleLED"  options="transmit"> <MidiMessage status="#90" address="#56" channel="0"/> </Control>
+		<Control name="cycleLED"    options="transmit"> <MidiMessage status="#90" address="#55" channel="0"/> </Control>
+		<Control name="precountLED" options="transmit"> <MidiMessage status="#90" address="#56" channel="0"/> </Control>
+		<Control name="prerollLED"  options="transmit"> <MidiMessage status="#90" address="#57" channel="0"/> </Control>
+		<Control name="punchLED"    options="transmit"> <MidiMessage status="#90" address="#58" channel="0"/> </Control>
+
 		<Control name="rewindLED" options="transmit"> <MidiMessage status="#90" address="#5B" channel="0"/> </Control>
 		<Control name="ffLED"     options="transmit"> <MidiMessage status="#90" address="#5C" channel="0"/> </Control>
 		<Control name="stopLED"   options="transmit"> <MidiMessage status="#90" address="#5D" channel="0"/> </Control>
@@ -386,12 +390,9 @@
 					<!--
 					<Radio control="trimButton"   param="automationMode" value="5" options="toggle"/>
 					-->
-					<Radio control="readButton" param="automationMode" value="1" options="toggle"/>
-
+					<Radio control="readButton"    param="automationMode" value="1" options="toggle"/>
 					<Radio control="touchButton"   param="automationMode" value="2" options="toggle"/>
-
 					<Radio control="latchButton"   param="automationMode" value="3" options="toggle"/>
-
 					<Radio control="writeButton"   param="automationMode" value="4" options="toggle"/>
 
 					<!-- Selected Console Channel -->
@@ -433,11 +434,17 @@
 
 			<!-- <Toggle control="cycleButton" param="loop"/> -->
 			<Command control="cycleButton" command.category="Transport" command.name="Toggle Loop"/>
-			<Value control="cycleLED"     param="loop"/>
+			<Value control="cycleLED"    param="loop"/>
 
-			<!-- <Toggle control="dropButton"  param="punch"/> -->
-			<Command control="dropButton" command.category="Transport" command.name="Autopunch"/>
-			<Value  control="dropLED"     param="punch"/>
+			<!-- <Toggle control="punchButton"  param="punch"/> -->
+			<Command control="punchButton" command.category="Transport" command.name="Autopunch"/>
+			<Value  control="punchLED"   param="punch"/>
+
+			<Command control="prerollButton" command.category="Transport" command.name="Preroll"/>
+			<Value  control="prerollLED" param="preroll"/>
+
+			<Command control="precountButton" command.category="Transport" command.name="Precount"/>
+			<Value  control="precountLED" param="precount"/>
 
 			<!-- <Toggle control="playButton"  param="start"/> -->
 			<Command control="playButton" command.category="Transport" command.name="Start"/>

@@ -158,6 +158,60 @@
   <ItemGroup>
     <EmbeddedResource Include="Resources\click_on_52px.png" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\autopunch_52px.png" />
+    <EmbeddedResource Include="Resources\autopunch_on_52px.png" />
+    <EmbeddedResource Include="Resources\autopunch_sm_52px.png" />
+    <EmbeddedResource Include="Resources\autopunch_sm_on_52px.png" />
+    <EmbeddedResource Include="Resources\playmarker_52px.png" />
+    <EmbeddedResource Include="Resources\precount_52px.png" />
+    <EmbeddedResource Include="Resources\precount_on_52px.png" />
+    <EmbeddedResource Include="Resources\precount_sm_52px.png" />
+    <EmbeddedResource Include="Resources\precount_sm_on_52px.png" />
+    <EmbeddedResource Include="Resources\preroll_52px.png" />
+    <EmbeddedResource Include="Resources\preroll_on_52px.png" />
+    <EmbeddedResource Include="Resources\preroll_sm_52px.png" />
+    <EmbeddedResource Include="Resources\preroll_sm_on_52px.png" />
+    <EmbeddedResource Include="Resources\replace_52px.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\layers_52px.png" />
+    <EmbeddedResource Include="Resources\layers_expand_52px.png" />
+    <EmbeddedResource Include="Resources\layer_add_52px.png" />
+    <EmbeddedResource Include="Resources\layer_down_52px.png" />
+    <EmbeddedResource Include="Resources\layer_remove_52px.png" />
+    <EmbeddedResource Include="Resources\layer_up_52px.png" />
+    <EmbeddedResource Include="Resources\rec_panel_52px.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\layers_inv_80px.png" />
+    <EmbeddedResource Include="Resources\layer_down_inv_80px.png" />
+    <EmbeddedResource Include="Resources\layer_up_inv_80px.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\layers_expand_inv_80px.png" />
+    <EmbeddedResource Include="Resources\layer_add_inv_80px.png" />
+    <EmbeddedResource Include="Resources\layer_remove_inv_80px.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\show_groups_52px.png" />
+    <EmbeddedResource Include="Resources\show_inputs_52px.png" />
+    <EmbeddedResource Include="Resources\toggle_height_52px.png" />
+    <EmbeddedResource Include="Resources\toggle_width_52px.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\panels_52px.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\time_display_52px.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\channel_editor_52px.png" />
+    <EmbeddedResource Include="Resources\plugins_52px.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\return_to_zero_52px.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent Condition="$(OS) == 'Windows_NT'">call "$(ProjectDir)BuildEvents\postbuild.cmd" "$(ProjectDir)" "$(TargetDir)"</PostBuildEvent>

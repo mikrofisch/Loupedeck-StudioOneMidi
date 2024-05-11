@@ -318,8 +318,8 @@
 
         public virtual Boolean Activated { get; set; } = false;
 
-        public BitmapColor OffColor = BitmapColor.Black;
-        public BitmapColor OnColor = BitmapColor.Black;
+        public BitmapColor OffColor = BitmapColor.Transparent;
+        public BitmapColor OnColor = BitmapColor.Transparent;
         public BitmapColor TextColor = BitmapColor.White;
         public BitmapColor TextOnColor = BitmapColor.White;
         public BitmapImage Icon, IconOn;
@@ -339,6 +339,13 @@
         public CommandButtonData(int code, string name, string iconName = null)
         {
             this.init(code, name, iconName);
+        }
+
+        public CommandButtonData(int code, string name, string iconName, BitmapColor bgColor)
+        {
+            this.init(code, name, iconName);
+            this.OnColor = bgColor;
+            this.OffColor = bgColor;
         }
 
         public CommandButtonData(int code, int codeOn, string name, string iconName = null)
@@ -361,8 +368,10 @@
 
             if (iconName != null)
             {
-                this.Icon = EmbeddedResources.ReadImage(EmbeddedResources.FindFile($"{iconName}_52px.png"));
-                var iconResOn = EmbeddedResources.FindFile($"{iconName}_on_52px.png");
+                var iconResExt = "_52px.png";
+                if (EmbeddedResources.FindFile(iconName + iconResExt) == null) iconResExt = "_80px.png";
+                this.Icon = EmbeddedResources.ReadImage(EmbeddedResources.FindFile(iconName + iconResExt));
+                var iconResOn = EmbeddedResources.FindFile(iconName + "_on" + iconResExt);
                 if (iconResOn != null)
                 {
                     this.IconOn = EmbeddedResources.ReadImage(iconResOn);
@@ -444,27 +453,83 @@
             }
         }
     }
- 
+
+    // Triggers a command from a list in LoupedeckCT.surface.xml on the Studio One side.
+    // These are one-shot commands that do not provide feedback.
+    //
+    public class OneWayCommandButtonData : CommandButtonData
+    {
+        public OneWayCommandButtonData(int code, string name, string iconName = null) : base(code, name, iconName)
+        {
+            this.MidiChannel = 1;
+        }
+
+        public OneWayCommandButtonData(int code, string name, string iconName, BitmapColor bgColor) : base(code, name, iconName, bgColor)
+        {
+            this.MidiChannel = 1;
+        }
+
+        public OneWayCommandButtonData(int code, string name, BitmapColor textColor) : base(code, name, null)
+        {
+            this.MidiChannel = 1;
+            this.TextColor = textColor;
+        }
+
+        public OneWayCommandButtonData(int code, string name, BitmapColor onColor, BitmapColor textOnColor, Boolean isActivatedByDefault = false)
+            : base(code, name, onColor, textOnColor, isActivatedByDefault)
+        {
+            this.MidiChannel = 1;
+        }
+
+        // The code below is an alternative method for invoking commands by setting
+        // a command parameter via a MIDI controller and then triggering it by a MIDI note.
+        // This provides 127 addresses for command triggering per MIDI controller, but it requires
+        // two separate MIDI messages to be sent which is not ideal.
+        //
+        // public override void runCommand()
+        // {
+        //
+        //    var ccSet = new ControlChangeEvent();
+        //    ccSet.ControlNumber = (SevenBitNumber)0x00;
+        //    ccSet.ControlValue = (SevenBitNumber)this.CommandCode;
+        //    this.Plugin.mackieMidiOut.SendEvent(ccSet);
+        //
+        //    var eTrigger = new NoteOnEvent();
+        //    eTrigger.Velocity = (SevenBitNumber)127;
+        //    eTrigger.NoteNumber = (SevenBitNumber)0x72;    // controlCommandTrigger
+        //    this.Plugin.mackieMidiOut.SendEvent(eTrigger);
+        // }
+    }
+
     public class ModeButtonData : ButtonData
     {
         public string Name;
         public BitmapImage Icon = null;
+        public Boolean Activated = false;
 
         public ModeButtonData(string name, string iconName = null)
         {
             this.Name = name;
 
             if (iconName != null)
-                this.Icon = EmbeddedResources.ReadImage(EmbeddedResources.FindFile($"{iconName}_52px.png"));
+            {
+                if (!iconName.Contains("px")) iconName += "_52px";
+                this.Icon = EmbeddedResources.ReadImage(EmbeddedResources.FindFile($"{iconName}.png"));
+            }
         }
 
         public override BitmapImage getImage(PluginImageSize imageSize)
         {
             BitmapBuilder bb = new BitmapBuilder(imageSize);
 
+            if (this.Activated)
+            {
+                bb.FillRectangle(0, 0, bb.Width, bb.Height, AutomationModeCommandButtonData.BgColor);
+            }
+
             if (this.Icon != null)
             {
-                bb.DrawImage(this.Icon, 0, 0);
+                bb.DrawImage(this.Icon);
             }
             else
             {
@@ -678,7 +743,49 @@
         }
     }
 
-    public class SendsCommandButtonData : CommandButtonData
+    public class RecPreModeButtonData : ButtonData
+    {
+        public Boolean SelectionModeActivated = false;
+
+        private BitmapImage[] Icon = new BitmapImage[3];
+        private BitmapImage[] IconOn = new BitmapImage[3];
+
+        public RecPreModeButtonData()
+        {
+            this.loadIcon(RecPreMode.Precount, "precount");
+            this.loadIcon(RecPreMode.Preroll, "preroll");
+            this.loadIcon(RecPreMode.Autopunch, "autopunch");
+        }
+
+        public override BitmapImage getImage(PluginImageSize imageSize)
+        {
+            BitmapBuilder bb = new BitmapBuilder(imageSize);
+
+            if (this.SelectionModeActivated)
+            {
+                bb.FillRectangle(0, 0, bb.Width, bb.Height, AutomationModeCommandButtonData.BgColor);
+            }
+
+            for (int i = 0; i < this.Icon.Length; i++)
+            {
+                if (i == (Int32)this.Plugin.CurrentRecPreMode) bb.DrawImage(this.IconOn[i]);
+                else                                           bb.DrawImage(this.Icon[i]);
+            }
+            return bb.ToImage();
+        }
+
+        public override void runCommand()
+        {
+        }
+
+        private void loadIcon(RecPreMode mode, String baseName)
+        {
+            this.Icon[(Int32)mode]   = EmbeddedResources.ReadImage(EmbeddedResources.FindFile($"{baseName}_sm_52px.png"));
+            this.IconOn[(Int32)mode] = EmbeddedResources.ReadImage(EmbeddedResources.FindFile($"{baseName}_sm_on_52px.png"));
+        }
+    }
+
+        public class SendsCommandButtonData : CommandButtonData
     {
         public SendsCommandButtonData(int code) : base(code, "SENDS")
         {
@@ -785,46 +892,4 @@
         }
 
     }
-
-
-    // Triggers a command from a list in LoupedeckCT.surface.xml on the Studio One side.
-    // These are one-shot commands that do not provide feedback.
-    //
-    public class OneWayCommandButtonData : CommandButtonData
-    {
-        public OneWayCommandButtonData(int code, string name, string iconName=null) : base(code, name, iconName)
-        {
-            this.MidiChannel = 1;
-        }
-        public OneWayCommandButtonData(int code, string name, BitmapColor textColor) : base(code, name, null)
-        {
-            this.MidiChannel = 1;
-            this.TextColor = textColor;
-        }
-
-        public OneWayCommandButtonData(int code, string name, BitmapColor onColor, BitmapColor textOnColor, Boolean isActivatedByDefault = false)
-            : base(code, name, onColor, textOnColor, isActivatedByDefault)
-        {
-            this.MidiChannel = 1;
-        }
-
-            // The code below is an alternative method for invoking commands by setting
-            // a command parameter via a MIDI controller and then triggering it by a MIDI note.
-            // This provides 127 addresses for command triggering per MIDI controller, but it requires
-            // two separate MIDI messages to be sent which is not ideal.
-            //
-            // public override void runCommand()
-            // {
-            //
-            //    var ccSet = new ControlChangeEvent();
-            //    ccSet.ControlNumber = (SevenBitNumber)0x00;
-            //    ccSet.ControlValue = (SevenBitNumber)this.CommandCode;
-            //    this.Plugin.mackieMidiOut.SendEvent(ccSet);
-            //
-            //    var eTrigger = new NoteOnEvent();
-            //    eTrigger.Velocity = (SevenBitNumber)127;
-            //    eTrigger.NoteNumber = (SevenBitNumber)0x72;    // controlCommandTrigger
-            //    this.Plugin.mackieMidiOut.SendEvent(eTrigger);
-            // }
-        }
-    }
+}

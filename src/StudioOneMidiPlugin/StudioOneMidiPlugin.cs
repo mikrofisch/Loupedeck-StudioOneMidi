@@ -84,6 +84,15 @@ namespace Loupedeck.StudioOneMidiPlugin
         public event EventHandler<AutomationMode> AutomationModeChanged;
         public AutomationMode CurrentAutomationMode = AutomationMode.Off;
 
+        public enum RecPreMode
+        {
+            Off = -1,
+            Precount,
+            Preroll,
+            Autopunch
+        }
+        public RecPreMode CurrentRecPreMode = RecPreMode.Off;
+            
         private System.Timers.Timer ChannelDataChangeTimer;
 
         public string MidiInName
@@ -339,6 +348,19 @@ namespace Loupedeck.StudioOneMidiPlugin
                             this.CurrentAutomationMode = am;
                             AutomationModeChanged.Invoke(this, am);
                         }
+                    }
+                    else if (ce.NoteNumber >= 0x56 && ce.NoteNumber <= 0x58)
+                    {
+                        var rpm = (RecPreMode)(ce.NoteNumber - 0x56);
+                        if (ce.Velocity > 0)
+                        {
+                            this.CurrentRecPreMode = rpm;
+                        }
+                        else if (rpm == this.CurrentRecPreMode)
+                        {
+                            this.CurrentRecPreMode = RecPreMode.Off;
+                        }
+                        Ch0NoteReceived.Invoke(this, ce);
                     }
                     else
                     {

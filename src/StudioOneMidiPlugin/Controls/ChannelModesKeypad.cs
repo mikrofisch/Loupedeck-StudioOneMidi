@@ -61,6 +61,8 @@
         private static readonly String idxRecAutomationModeButton = $"{(Int32)ButtonLayer.channelPropertiesRec}:2";
         private static readonly String idxRecPanelsButton = $"{(Int32)ButtonLayer.channelPropertiesRec}:3";
         private static readonly String idxUserSendsPluginsButton = $"{(Int32)ButtonLayer.faderModesSend}:2";
+        private static readonly String idxUserSendsU1Button = $"{(Int32)ButtonLayer.faderModesSend}:0";
+        private static readonly String idxUserSendsU2Button = $"{(Int32)ButtonLayer.faderModesSend}:1";
 
         private IDictionary<int, string> noteReceivers = new Dictionary<int, string>();
 
@@ -144,6 +146,8 @@
             this.addButton(ButtonLayer.faderModesShow, "4", new ModeButtonData("VIEWS"));
             this.addButton(ButtonLayer.faderModesShow, "5", new CommandButtonData(0x33, "ALL", new BitmapColor(60, 60, 20), BitmapColor.White, true), true);
 
+            this.addButton(ButtonLayer.faderModesSend, "0", new ModeTopCommandButtonData(0x6C, "U1", ModeTopCommandButtonData.Location.Left), isNoteReceiver: true);
+            this.addButton(ButtonLayer.faderModesSend, "1", new ModeTopCommandButtonData(0x6D, "U2", ModeTopCommandButtonData.Location.Right), isNoteReceiver: true);
             this.addButton(ButtonLayer.faderModesSend, "2", new ModeButtonData("Plugins", "plugins"));
             this.addButton(ButtonLayer.faderModesSend, "0-1", new ModeTopCommandButtonData(0x51, "Previous\rPlugin", ModeTopCommandButtonData.Location.Left, "plugin_prev", AutomationModeCommandButtonData.BgColor));
             this.addButton(ButtonLayer.faderModesSend, "1-1", new ModeTopCommandButtonData(0x52, "Next\rPlugin", ModeTopCommandButtonData.Location.Right, "plugin_next", AutomationModeCommandButtonData.BgColor));
@@ -184,6 +188,14 @@
             {
                 var ambd = this.buttonData[idxPlayAutomationModeButton] as AutomationModeButtonData;
                 ambd.CurrentMode = e;
+                this.EmitActionImageChanged();
+            };
+            this.plugin.FunctionKeyChanged += (object sender, FunctionKeyParams fke) =>
+            {
+                if (fke.KeyID == 12 || fke.KeyID == 13)
+                {
+                    (this.buttonData[$"{(Int32)ButtonLayer.faderModesSend}:{fke.KeyID - 12}"] as CommandButtonData).Name = fke.FunctionName;
+                }
                 this.EmitActionImageChanged();
             };
 

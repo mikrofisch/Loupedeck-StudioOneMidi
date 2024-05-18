@@ -556,7 +556,7 @@
         string TopDisplayText;
 
 
-        public ModeTopCommandButtonData(int code, string name, Location bl, string iconName) : base(code, name, iconName)
+        public ModeTopCommandButtonData(int code, string name, Location bl, string iconName = null) : base(code, name, iconName)
         {
             this.ButtonLocation = bl;
         }

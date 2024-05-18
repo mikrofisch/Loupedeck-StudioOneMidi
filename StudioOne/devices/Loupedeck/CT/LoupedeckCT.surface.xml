@@ -146,6 +146,12 @@
 		<Control name="F11Text" type="textdisplay" options="transmit public"/>
 		<Control name="F12Text" type="textdisplay" options="transmit public"/>
 
+		<Control name="U1" title="U1"	type="trigger" options="transmit receive public"> <MidiMessage status="#90" address="#6C" channel="0"/> </Control>
+		<Control name="U2" title="U2"	type="trigger" options="transmit receive public"> <MidiMessage status="#90" address="#6D" channel="0"/> </Control>
+
+		<Control name="U1Text"  type="textdisplay" options="transmit public"/>
+		<Control name="U2Text"  type="textdisplay" options="transmit public"/>
+
 		<!-- ******************************************************************************************** -->
 		<!-- Selected Channel Controls -->
 		<!-- ******************************************************************************************** -->

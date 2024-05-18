@@ -109,6 +109,7 @@ class Assignment {
             this.mode == ChannelAssignmentMode.kUser3Mode;
     }
 }
+
 class ChannelInfo {
     setLabel(element, paramName) {
         return element.connectAliasParam(this.labelString, paramName);
@@ -157,6 +158,7 @@ class ChannelInfo {
     }
 }
 ChannelInfo.kInvalidChannelIndex = -1;
+
 class LoupedeckSharedComponent extends FocusChannelPanComponent {
     onInit(hostComponent) {
         super.onInit(hostComponent);

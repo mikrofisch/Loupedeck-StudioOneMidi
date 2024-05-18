@@ -60,6 +60,7 @@
         private static readonly String idxRecArmMonitorButton = $"{(Int32)ButtonLayer.channelPropertiesRec}:0";
         private static readonly String idxRecAutomationModeButton = $"{(Int32)ButtonLayer.channelPropertiesRec}:2";
         private static readonly String idxRecPanelsButton = $"{(Int32)ButtonLayer.channelPropertiesRec}:3";
+        private static readonly String idxUserSendsPluginsButton = $"{(Int32)ButtonLayer.faderModesSend}:2";
 
         private IDictionary<int, string> noteReceivers = new Dictionary<int, string>();
 
@@ -144,9 +145,9 @@
             this.addButton(ButtonLayer.faderModesShow, "5", new CommandButtonData(0x33, "ALL", new BitmapColor(60, 60, 20), BitmapColor.White, true), true);
 
             this.addButton(ButtonLayer.faderModesSend, "2", new ModeButtonData("Plugins", "plugins"));
-            this.addButton(ButtonLayer.faderModesSend, "0-1", new ModeTopCommandButtonData(0x51, "Previous\rPlugin", ModeTopCommandButtonData.Location.Left, "plugin_prev"));
-            this.addButton(ButtonLayer.faderModesSend, "1-1", new ModeTopCommandButtonData(0x52, "Next\rPlugin", ModeTopCommandButtonData.Location.Right, "plugin_next"));
-            this.addButton(ButtonLayer.faderModesSend, "3-1", new CommandButtonData(0x50, "Channel Editor", "channel_editor"));
+            this.addButton(ButtonLayer.faderModesSend, "0-1", new ModeTopCommandButtonData(0x51, "Previous\rPlugin", ModeTopCommandButtonData.Location.Left, "plugin_prev", AutomationModeCommandButtonData.BgColor));
+            this.addButton(ButtonLayer.faderModesSend, "1-1", new ModeTopCommandButtonData(0x52, "Next\rPlugin", ModeTopCommandButtonData.Location.Right, "plugin_next", AutomationModeCommandButtonData.BgColor));
+            this.addButton(ButtonLayer.faderModesSend, "3-1", new CommandButtonData(0x50, "Channel Editor", "channel_editor", AutomationModeCommandButtonData.BgColor));
             this.addButton(ButtonLayer.faderModesSend, "3", new UserModeButtonData());
             this.addButton(ButtonLayer.faderModesSend, "4", new CommandButtonData(0x2A, "VIEWS"));
             this.addButton(ButtonLayer.faderModesSend, "5", new SendsCommandButtonData(0x29), isNoteReceiver: true);
@@ -173,7 +174,7 @@
             {
                 for (int i = 0; i < 2; i++)
                 {
-                    var mtcbd = this.buttonData[$"{(int)ButtonLayer.faderModesSend}:{i}"] as ModeTopCommandButtonData;
+                    var mtcbd = this.buttonData[$"{(int)ButtonLayer.faderModesSend}:{i}-1"] as ModeTopCommandButtonData;
                     mtcbd.setTopDisplay(e);
                 }
                 this.EmitActionImageChanged();
@@ -372,9 +373,18 @@
                 case ButtonLayer.faderModesSend:
                     switch (Int32.Parse(actionParameter))
                     {
+                        case 2: // PLUGINS
+                            this.CurrentUserSendsLayerMode = this.CurrentUserSendsLayerMode == UserSendsLayerMode.All ? UserSendsLayerMode.PluginSelectionActivated
+                                                                                                                      : UserSendsLayerMode.All;
+                            (this.buttonData[idxUserSendsPluginsButton] as ModeButtonData).Activated = this.CurrentUserSendsLayerMode == UserSendsLayerMode.PluginSelectionActivated;
+                            this.EmitActionImageChanged();
+                            break;
                         case 3: // USER 1 2 3
-                            LastUserSendsMode = UserSendsMode.User;
-                            this.plugin.EmitSelectModeChanged(SelectButtonMode.User);
+                            if (this.CurrentUserSendsLayerMode != UserSendsLayerMode.PluginSelectionActivated)
+                            {
+                                LastUserSendsMode = UserSendsMode.User;
+                                this.plugin.EmitSelectModeChanged(SelectButtonMode.User);
+                            }
                             break;
                         case 4: // VIEWS (BACK)
                             this.CurrentLayer = ButtonLayer.viewSelector;
@@ -418,6 +428,13 @@
                 else if (this.CurrentRecLayerMode == RecLayerMode.PanelsActivated && "01245".Contains(actionParameter))
                 {
                     idx += "-2";
+                }
+            }
+            else if (this.CurrentLayer == ButtonLayer.faderModesSend)
+            {
+                if (this.CurrentUserSendsLayerMode == UserSendsLayerMode.PluginSelectionActivated && "013".Contains(actionParameter))
+                {
+                    idx += "-1";
                 }
             }
             return idx;

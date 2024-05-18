@@ -561,6 +561,12 @@
             this.ButtonLocation = bl;
         }
 
+        public ModeTopCommandButtonData(int code, string name, Location bl, string iconName, BitmapColor offColor) : base(code, name, iconName)
+        {
+            this.ButtonLocation = bl;
+            this.OffColor = offColor;
+        }
+
         public void setTopDisplay(string text)
         {
             this.TopDisplayText = text;

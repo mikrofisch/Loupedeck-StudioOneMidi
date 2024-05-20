@@ -65,6 +65,7 @@
     </Compile>
     <Compile Include="Controls\ButtonData.cs" />
     <Compile Include="Controls\ChannelControlButton.cs" />
+    <Compile Include="Controls\ColorFinder.cs" />
     <Compile Include="Controls\ConfigCommand.cs" />
     <Compile Include="Controls\ChannelPropertyButton.cs" />
     <Compile Include="Controls\ChannelSelectButton.cs" />

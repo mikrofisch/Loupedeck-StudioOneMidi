@@ -4,7 +4,6 @@ using Melanchall.DryWetMidi.Core;
 namespace Loupedeck.StudioOneMidiPlugin
 {
     using System;
-    using System.Reflection.Emit;
 
     public class MackieChannelData : EventArgs
 	{

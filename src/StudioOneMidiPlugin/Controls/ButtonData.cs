@@ -2,6 +2,7 @@
 {
     using System;
     using System.Diagnostics;
+    using System.Runtime.CompilerServices;
     using System.Security.Cryptography.X509Certificates;
     using System.Windows.Media;
 
@@ -185,6 +186,8 @@
         private const int TitleHeight = 24;
         private static BitmapImage IconSelMon, IconSelRec;
         private static readonly BitmapColor CommandPropertyColor = new BitmapColor(40, 40, 40);
+        public static readonly BitmapColor BgColorAssigned = new BitmapColor(100, 100, 100);
+        public static readonly BitmapColor BgColorUnassigned = new BitmapColor(40, 40, 40);
 
         public SelectButtonData(int channelIndex)
         {
@@ -224,7 +227,7 @@
             {
                 bb.DrawText(cd.Description, 0, 0, bb.Width, TitleHeight, new BitmapColor(175, 175, 175));
                 bb.DrawText(cd.Label, 0, bb.Height / 2 - TitleHeight / 2, bb.Width, TitleHeight);
-                bb.FillRectangle(0, bb.Height * 2 / 3, bb.Width, bb.Height / 3, cd.UserLabel.Length > 0 ? new BitmapColor(100, 100, 100) : new BitmapColor(30, 30, 30));
+                bb.FillRectangle(0, bb.Height * 2 / 3, bb.Width, bb.Height / 3, cd.UserLabel.Length > 0 ? BgColorAssigned : BgColorUnassigned);
                 bb.DrawText(cd.UserLabel, 0, bb.Height * 2 / 3, bb.Width, TitleHeight, userButtonActive ? BitmapColor.White : BitmapColor.Black);
             }
             else
@@ -554,6 +557,7 @@
         }
         Location ButtonLocation = Location.Left;
         string TopDisplayText;
+        protected Boolean IsUserButton = false;
 
 
         public ModeTopCommandButtonData(int code, string name, Location bl, string iconName = null) : base(code, name, iconName)
@@ -576,9 +580,18 @@
         {
             var bb = new BitmapBuilder(imageSize);
 
-            int dispTxtH = 24;
+            var dispTxtH = 24;
+            var bgX = this.IsUserButton ? dispTxtH + 4 : 0;
+            var bgH = bb.Height - bgX;
 
-            bb.FillRectangle(0, 0, bb.Width, bb.Height, this.Activated ? this.OnColor : this.OffColor);
+            if (this.IsUserButton && this.Name.Length == 0)
+            {
+                bb.FillRectangle(0, bgX, bb.Width, bgH, SelectButtonData.BgColorUnassigned);
+            }
+            else
+            {
+                bb.FillRectangle(0, bgX, bb.Width, bgH, this.Activated ? this.OnColor : this.OffColor);
+            }
 
             if (this.Activated && this.IconOn != null)
             {
@@ -590,7 +603,7 @@
             }
             else
             {
-                bb.DrawText(this.Name, 0, dispTxtH, bb.Width, bb.Height - dispTxtH, null, 16);
+                bb.DrawText(this.Name, 0, dispTxtH, bb.Width, bb.Height - dispTxtH, this.Activated ? BitmapColor.White : BitmapColor.Black, 16);
             }
 
             int hPos;
@@ -604,6 +617,17 @@
             return bb.ToImage();
         }
     }
+
+    public class ModeTopUserButtonData : ModeTopCommandButtonData
+    {
+        public ModeTopUserButtonData(int code, string name, Location bl) : base(code, name, bl)
+        {
+            this.IsUserButton = true;
+            this.OnColor = SelectButtonData.BgColorAssigned;
+            this.OffColor = SelectButtonData.BgColorAssigned;
+        }
+    }
+
 
     public class ModeChannelSelectButtonData : ButtonData
     {

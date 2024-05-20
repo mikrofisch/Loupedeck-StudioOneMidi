@@ -65,7 +65,7 @@ namespace Loupedeck.StudioOneMidiPlugin
         }
         public event EventHandler<FunctionKeyParams> FunctionKeyChanged;
 
-        public const int UserButtonMidiBase = 0x6C;
+        public const int UserButtonMidiBase = 0x70;
         public class UserButtonParams
         {
             public int channelIndex { get; set; }
@@ -93,7 +93,7 @@ namespace Loupedeck.StudioOneMidiPlugin
         }
         public RecPreMode CurrentRecPreMode = RecPreMode.Off;
             
-        private System.Timers.Timer ChannelDataChangeTimer;
+        public ColorFinder GlobalColorFinder = new ColorFinder();
 
         public string MidiInName
         {
@@ -178,6 +178,8 @@ namespace Loupedeck.StudioOneMidiPlugin
 				}
 			}
 		}
+
+        private System.Timers.Timer ChannelDataChangeTimer;
 
         // Initializes a new instance of the plugin class.
         public StudioOneMidiPlugin()

@@ -146,8 +146,8 @@
             this.addButton(ButtonLayer.faderModesShow, "4", new ModeButtonData("VIEWS"));
             this.addButton(ButtonLayer.faderModesShow, "5", new CommandButtonData(0x33, "ALL", new BitmapColor(60, 60, 20), BitmapColor.White, true), true);
 
-            this.addButton(ButtonLayer.faderModesSend, "0", new ModeTopCommandButtonData(0x6C, "U1", ModeTopCommandButtonData.Location.Left), isNoteReceiver: true);
-            this.addButton(ButtonLayer.faderModesSend, "1", new ModeTopCommandButtonData(0x6D, "U2", ModeTopCommandButtonData.Location.Right), isNoteReceiver: true);
+            this.addButton(ButtonLayer.faderModesSend, "0", new ModeTopUserButtonData(0x6C, "", ModeTopCommandButtonData.Location.Left), isNoteReceiver: true);
+            this.addButton(ButtonLayer.faderModesSend, "1", new ModeTopUserButtonData(0x6D, "", ModeTopCommandButtonData.Location.Right), isNoteReceiver: true);
             this.addButton(ButtonLayer.faderModesSend, "2", new ModeButtonData("Plugins", "plugins"));
             this.addButton(ButtonLayer.faderModesSend, "0-1", new ModeTopCommandButtonData(0x51, "Previous\rPlugin", ModeTopCommandButtonData.Location.Left, "plugin_prev", AutomationModeCommandButtonData.BgColor));
             this.addButton(ButtonLayer.faderModesSend, "1-1", new ModeTopCommandButtonData(0x52, "Next\rPlugin", ModeTopCommandButtonData.Location.Right, "plugin_next", AutomationModeCommandButtonData.BgColor));
@@ -176,10 +176,13 @@
 
             this.plugin.FocusDeviceChanged += (object sender, string e) =>
             {
+                var start = e.IndexOf(" - ") + 3;
+                var pluginName = e.Substring(start, e.Length - start);
+
                 for (int i = 0; i < 2; i++)
                 {
-                    var mtcbd = this.buttonData[$"{(int)ButtonLayer.faderModesSend}:{i}-1"] as ModeTopCommandButtonData;
-                    mtcbd.setTopDisplay(e);
+                    (this.buttonData[$"{(int)ButtonLayer.faderModesSend}:{i}"] as ModeTopCommandButtonData).setTopDisplay(e);
+                    (this.buttonData[$"{(int)ButtonLayer.faderModesSend}:{i}-1"] as ModeTopCommandButtonData).setTopDisplay(e);
                 }
                 this.EmitActionImageChanged();
             };

@@ -1,13 +1,7 @@
 ﻿namespace Loupedeck.StudioOneMidiPlugin.Controls
 {
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Runtime.CompilerServices;
-    using System.Text;
-    using System.Threading.Tasks;
 
-    using Melanchall.DryWetMidi.Core;
 
     // Buttons to select the property to control when a ChannelPropertyButton
     // is set to 'Multi' mode.

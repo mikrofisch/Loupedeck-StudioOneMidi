@@ -120,15 +120,15 @@
 		<Control name="recordLED" options="transmit"> <MidiMessage status="#90" address="#5F" channel="0"/> </Control>
 
 		<!-- F1 - F12 -->
-		<Control name="F1" title="F1"	type="trigger" options="transmit receive public"> <MidiMessage status="#90" address="#60" channel="0"/> </Control>
-		<Control name="F2" title="F2"	type="trigger" options="transmit receive public"> <MidiMessage status="#90" address="#61" channel="0"/> </Control>
-		<Control name="F3" title="F3"	type="trigger" options="transmit receive public"> <MidiMessage status="#90" address="#62" channel="0"/> </Control>
-		<Control name="F4" title="F4"	type="trigger" options="transmit receive public"> <MidiMessage status="#90" address="#63" channel="0"/> </Control>
-		<Control name="F5" title="F5"	type="trigger" options="transmit receive public"> <MidiMessage status="#90" address="#64" channel="0"/> </Control>
-		<Control name="F6" title="F6"	type="trigger" options="transmit receive public"> <MidiMessage status="#90" address="#65" channel="0"/> </Control>
-		<Control name="F7" title="F7"	type="trigger" options="transmit receive public"> <MidiMessage status="#90" address="#66" channel="0"/> </Control>
-		<Control name="F8" title="F8"	type="trigger" options="transmit receive public"> <MidiMessage status="#90" address="#67" channel="0"/> </Control>
-		<Control name="F9" title="F9"	type="trigger" options="transmit receive public"> <MidiMessage status="#90" address="#68" channel="0"/> </Control>
+		<Control name="F1"   title="F1"	type="trigger" options="transmit receive public"> <MidiMessage status="#90" address="#60" channel="0"/> </Control>
+		<Control name="F2"   title="F2"	type="trigger" options="transmit receive public"> <MidiMessage status="#90" address="#61" channel="0"/> </Control>
+		<Control name="F3"   title="F3"	type="trigger" options="transmit receive public"> <MidiMessage status="#90" address="#62" channel="0"/> </Control>
+		<Control name="F4"   title="F4"	type="trigger" options="transmit receive public"> <MidiMessage status="#90" address="#63" channel="0"/> </Control>
+		<Control name="F5"   title="F5"	type="trigger" options="transmit receive public"> <MidiMessage status="#90" address="#64" channel="0"/> </Control>
+		<Control name="F6"   title="F6"	type="trigger" options="transmit receive public"> <MidiMessage status="#90" address="#65" channel="0"/> </Control>
+		<Control name="F7"   title="F7"	type="trigger" options="transmit receive public"> <MidiMessage status="#90" address="#66" channel="0"/> </Control>
+		<Control name="F8"   title="F8"	type="trigger" options="transmit receive public"> <MidiMessage status="#90" address="#67" channel="0"/> </Control>
+		<Control name="F9"   title="F9"	type="trigger" options="transmit receive public"> <MidiMessage status="#90" address="#68" channel="0"/> </Control>
 		<Control name="F10" title="F10"	type="trigger" options="transmit receive public"> <MidiMessage status="#90" address="#69" channel="0"/> </Control>
 		<Control name="F11" title="F11"	type="trigger" options="transmit receive public"> <MidiMessage status="#90" address="#6A" channel="0"/> </Control>
 		<Control name="F12" title="F12"	type="trigger" options="transmit receive public"> <MidiMessage status="#90" address="#6B" channel="0"/> </Control>
@@ -237,6 +237,14 @@
 					<Toggle control= "F$fi" param="value" options="above"/>
 					<using controller="Editor/F$fi">
 						<String control="F$fiText" param="title"/>
+					</using>
+					</Strip>
+				</foreach>
+				<foreach variable="$ui" start="1" count="2">
+					<Strip name= "U$ui">
+					<Toggle control= "U$ui" param="value" options="above"/>
+					<using controller="Editor/U$ui">
+						<String control="U$uiText" param="title"/>
 					</using>
 					</Strip>
 				</foreach>

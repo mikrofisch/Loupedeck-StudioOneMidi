@@ -26,7 +26,7 @@
             this.plugin.Ch0NoteReceived += (object sender, NoteOnEvent e) =>
             {
                 string param = e.NoteNumber.ToString();
-                if (!this.buttonData.ContainsKey(param))  return;
+                if (!this.buttonData.ContainsKey(param)) return;
 
                 var bd = this.buttonData[param];
                 bd.Activated = e.Velocity > 0;
@@ -35,8 +35,14 @@
 
             this.plugin.FunctionKeyChanged += (object sender, FunctionKeyParams fke) =>
             {
-                var bd = this.buttonData[(fke.KeyID + 0x60).ToString()];
-                bd.Name = fke.FunctionName;
+                // Need to check if there is a key in the dictionary for the received
+                // parameters since the global user buttons are handled as additional
+                // function keys.
+                //
+                if (this.buttonData.TryGetValue((fke.KeyID + 0x60).ToString(), out var bd))
+                {
+                    bd.Name = fke.FunctionName;
+                }
 
                 this.EmitActionImageChanged();
             };
@@ -47,7 +53,7 @@
         private void AddButton(CommandButtonData bd)
         {
             this.buttonData[bd.Code.ToString()] = bd;
-            AddParameter(bd.Code.ToString(), bd.Name, "Function Keys");
+            this.AddParameter(bd.Code.ToString(), bd.Name, "Function Keys");
         }
     }
 }

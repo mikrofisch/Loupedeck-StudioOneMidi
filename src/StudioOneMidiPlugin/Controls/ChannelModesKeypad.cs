@@ -177,12 +177,17 @@
             this.plugin.FocusDeviceChanged += (object sender, string e) =>
             {
                 var start = e.IndexOf(" - ") + 3;
-                var pluginName = e.Substring(start, e.Length - start);
+                String pluginName = "";
+                if (start > 2) pluginName = e.Substring(start, e.Length - start);
 
                 for (int i = 0; i < 2; i++)
                 {
-                    (this.buttonData[$"{(int)ButtonLayer.faderModesSend}:{i}"] as ModeTopCommandButtonData).setTopDisplay(e);
-                    (this.buttonData[$"{(int)ButtonLayer.faderModesSend}:{i}-1"] as ModeTopCommandButtonData).setTopDisplay(e);
+                    var bd = this.buttonData[$"{(int)ButtonLayer.faderModesSend}:{i}"] as ModeTopCommandButtonData;
+                    bd.setTopDisplay(e);
+                    bd.setPluginName(pluginName);
+                    bd = this.buttonData[$"{(int)ButtonLayer.faderModesSend}:{i}-1"] as ModeTopCommandButtonData;
+                    bd.setTopDisplay(e);
+                    bd.setPluginName(pluginName);
                 }
                 this.EmitActionImageChanged();
             };

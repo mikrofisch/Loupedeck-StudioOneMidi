@@ -20,49 +20,30 @@
 
         public ColorFinder()
         {
-            this.ColorDict.Add(("#any", "Bypass"), new ColorSettings { OnColor = new BitmapColor(204, 156, 107) });
+            this.ColorDict.Add(("", "Bypass"), new ColorSettings { OnColor = new BitmapColor(204, 156, 107) });
         }
 
-        BitmapColor getOnColor(String pluginName, String parameterName)
+        private ColorSettings getColorSettings(String pluginName, String parameterName)
         {
-            if (this.ColorDict.TryGetValue((pluginName, parameterName), out var colorSettings))
+            if (this.ColorDict.TryGetValue((pluginName, parameterName), out var colorSettings) ||
+                this.ColorDict.TryGetValue(("", parameterName), out colorSettings))
             {
-                return colorSettings.OnColor;
+                return colorSettings;
             }
-            return BitmapColor.Transparent;
+            return new ColorSettings();
         }
 
-        BitmapColor getOffColor(String pluginName, String parameterName)
-        {
-            if (this.ColorDict.TryGetValue((pluginName, parameterName), out var colorSettings))
-            {
-                return colorSettings.OffColor;
-            }
-            return BitmapColor.Transparent;
-        }
+        public BitmapColor getOnColor(String pluginName, String parameterName) => this.getColorSettings(pluginName, parameterName).OnColor;
+        public BitmapColor getOffColor(String pluginName, String parameterName) => this.getColorSettings(pluginName, parameterName).OffColor;
+        public BitmapColor getTextOnColor(String pluginName, String parameterName) => this.getColorSettings(pluginName, parameterName).TextOnColor;
+        public BitmapColor getTextOffColor(String pluginName, String parameterName) => this.getColorSettings(pluginName, parameterName).TextOffColor;
 
-        BitmapColor getTextOnColor(String pluginName, String parameterName)
-        {
-            if (this.ColorDict.TryGetValue((pluginName, parameterName), out var colorSettings))
-            {
-                return colorSettings.TextOnColor;
-            }
-            return BitmapColor.White;
-        }
-        BitmapColor getTextOffColor(String pluginName, String parameterName)
-        {
-            if (this.ColorDict.TryGetValue((pluginName, parameterName), out var colorSettings))
-            {
-                return colorSettings.TextOffColor;
-            }
-            return BitmapColor.White;
-        }
-
-        BitmapImage getIconOff(String pluginName, String parameterName)
+        
+        public BitmapImage getIconOff(String pluginName, String parameterName)
         {
             return null;
         }
-        BitmapImage getIconOn(String pluginName, String parameterName)
+        public BitmapImage getIconOn(String pluginName, String parameterName)
         {
             return null;
         }

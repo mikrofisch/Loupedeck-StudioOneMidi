@@ -558,7 +558,7 @@
         Location ButtonLocation = Location.Left;
         string TopDisplayText;
         protected Boolean IsUserButton = false;
-
+        protected String PluginName;
 
         public ModeTopCommandButtonData(int code, string name, Location bl, string iconName = null) : base(code, name, iconName)
         {
@@ -571,10 +571,8 @@
             this.OffColor = offColor;
         }
 
-        public void setTopDisplay(string text)
-        {
-            this.TopDisplayText = text;
-        }
+        public void setTopDisplay(String text) => this.TopDisplayText = text;
+        public void setPluginName(String text) => this.PluginName = text;
 
         public override BitmapImage getImage(PluginImageSize imageSize)
         {
@@ -590,7 +588,8 @@
             }
             else
             {
-                bb.FillRectangle(0, bgX, bb.Width, bgH, this.Activated ? this.OnColor : this.OffColor);
+                bb.FillRectangle(0, bgX, bb.Width, bgH, this.Activated ? Plugin.GlobalColorFinder.getOnColor(this.PluginName, this.Name)
+                                                                       : this.OffColor);
             }
 
             if (this.Activated && this.IconOn != null)
@@ -607,10 +606,8 @@
             }
 
             int hPos;
-            if (this.ButtonLocation == Location.Left)
-                hPos = 1;
-            else
-                hPos = -bb.Width - 1;
+            if (this.ButtonLocation == Location.Left) hPos = 1;
+            else                                      hPos = -bb.Width - 1;
 
             bb.DrawText(this.TopDisplayText, hPos, 0, bb.Width * 2, dispTxtH);
 

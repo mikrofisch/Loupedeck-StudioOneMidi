@@ -176,9 +176,7 @@
 
             this.plugin.FocusDeviceChanged += (object sender, string e) =>
             {
-                var start = e.IndexOf(" - ") + 3;
-                String pluginName = "";
-                if (start > 2) pluginName = e.Substring(start, e.Length - start);
+                var pluginName = getPluginName(e);
 
                 for (int i = 0; i < 2; i++)
                 {

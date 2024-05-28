@@ -186,13 +186,24 @@
         private const int TitleHeight = 24;
         private static BitmapImage IconSelMon, IconSelRec;
         private static readonly BitmapColor CommandPropertyColor = new BitmapColor(40, 40, 40);
-        public static readonly BitmapColor BgColorAssigned = new BitmapColor(100, 100, 100);
+        public static readonly BitmapColor BgColorAssigned = new BitmapColor(80, 80, 80);
         public static readonly BitmapColor BgColorUnassigned = new BitmapColor(40, 40, 40);
+
+        private String PluginName;
+        private static readonly ColorFinder UserColorFinder = new ColorFinder(new ColorFinder.ColorSettings
+        {
+            OnColor = BgColorAssigned,
+            OffColor = BgColorAssigned,
+            TextOnColor = BitmapColor.White,
+            TextOffColor = BitmapColor.Black
+        });
 
         public SelectButtonData(int channelIndex)
         {
             this.ChannelIndex = channelIndex;
         }
+
+        public void setPluginName(String text) => this.PluginName = text;
 
         public override BitmapImage getImage(PluginImageSize imageSize)
         {
@@ -202,14 +213,15 @@
 
             var bb = new BitmapBuilder(imageSize);
 
-            return SelectButtonData.drawImage(bb, cd, this.CurrentMode, this.UserButtonActive, SelectionPropertyType);
+            return SelectButtonData.drawImage(bb, cd, this.CurrentMode, this.UserButtonActive, SelectionPropertyType, this.PluginName);
         }
 
         public static BitmapImage drawImage(BitmapBuilder bb,
                                             MackieChannelData cd,
                                             SelectButtonMode buttonMode,
                                             Boolean userButtonActive,
-                                            ChannelProperty.PropertyType commandProperty = ChannelProperty.PropertyType.Select)
+                                            ChannelProperty.PropertyType commandProperty = ChannelProperty.PropertyType.Select,
+                                            String pluginName = "")
         {
             if (SelectButtonData.IconSelMon == null)
             {
@@ -221,14 +233,20 @@
             {
                 //                bb.FillRectangle(0, 0, bb.Width, bb.Height, BitmapColor.Black);
                 bb.DrawText(cd.Description, 0, 0, bb.Width, TitleHeight, new BitmapColor(175, 175, 175));
-                bb.DrawText(cd.Label, 0, bb.Height / 2 - TitleHeight / 2, bb.Width, TitleHeight);
+                bb.DrawText(ColorFinder.stripLabel(cd.Label), 0, bb.Height / 2 - TitleHeight / 2, bb.Width, TitleHeight);
             }
             else if (buttonMode == SelectButtonMode.User)
             {
                 bb.DrawText(cd.Description, 0, 0, bb.Width, TitleHeight, new BitmapColor(175, 175, 175));
-                bb.DrawText(cd.Label, 0, bb.Height / 2 - TitleHeight / 2, bb.Width, TitleHeight);
-                bb.FillRectangle(0, bb.Height * 2 / 3, bb.Width, bb.Height / 3, cd.UserLabel.Length > 0 ? BgColorAssigned : BgColorUnassigned);
-                bb.DrawText(cd.UserLabel, 0, bb.Height * 2 / 3, bb.Width, TitleHeight, userButtonActive ? BitmapColor.White : BitmapColor.Black);
+                bb.DrawText(UserColorFinder.getLabelShort(pluginName, cd.Label), 0, bb.Height / 2 - TitleHeight / 2, bb.Width, TitleHeight, 
+                            UserColorFinder.DefaultColorSettings.TextOnColor);
+                bb.FillRectangle(0, bb.Height * 2 / 3, bb.Width, bb.Height / 3, 
+                                 cd.UserLabel.Length > 0 ? userButtonActive ? UserColorFinder.getOnColor(pluginName, cd.UserLabel)
+                                                                            : UserColorFinder.getOffColor(pluginName, cd.UserLabel)
+                                                         : BgColorUnassigned);
+                bb.DrawText(UserColorFinder.getLabelShort(pluginName, cd.UserLabel), 0, bb.Height * 2 / 3, bb.Width, TitleHeight, 
+                            userButtonActive ? UserColorFinder.getTextOnColor(pluginName, cd.UserLabel)
+                                             : UserColorFinder.getTextOffColor(pluginName, cd.UserLabel));
             }
             else
             {
@@ -283,7 +301,7 @@
                 bb.DrawImage(SelectButtonData.IconSelRec, rX + rW / 2 - SelectButtonData.IconSelRec.Width / 2, rY2 + rH / 2 - SelectButtonData.IconSelRec.Height / 2);
                 bb.DrawImage(SelectButtonData.IconSelMon, rX2 + rW / 2 - SelectButtonData.IconSelMon.Width / 2, rY2 + rH / 2 - SelectButtonData.IconSelRec.Height / 2);
 
-                bb.DrawText(cd.Label, 0, bb.Height / 2 - TitleHeight / 2, bb.Width, TitleHeight);
+                bb.DrawText(ColorFinder.stripLabel(cd.Label), 0, bb.Height / 2 - TitleHeight / 2, bb.Width, TitleHeight);
             }
             return bb.ToImage();
         }
@@ -559,6 +577,7 @@
         string TopDisplayText;
         protected Boolean IsUserButton = false;
         protected String PluginName;
+        protected ColorFinder UserColorFinder = new ColorFinder();
 
         public ModeTopCommandButtonData(int code, string name, Location bl, string iconName = null) : base(code, name, iconName)
         {
@@ -578,6 +597,12 @@
         {
             var bb = new BitmapBuilder(imageSize);
 
+            if (this.IsUserButton && this.Name.Length > 0)
+            {
+                if (this.Icon == null) this.Icon = this.UserColorFinder.getIcon(this.PluginName, this.Name);
+                if (this.IconOn == null) this.IconOn = this.UserColorFinder.getIconOn(this.PluginName, this.Name);
+            }
+
             var dispTxtH = 24;
             var bgX = this.IsUserButton ? dispTxtH + 4 : 0;
             var bgH = bb.Height - bgX;
@@ -588,8 +613,8 @@
             }
             else
             {
-                bb.FillRectangle(0, bgX, bb.Width, bgH, this.Activated ? Plugin.GlobalColorFinder.getOnColor(this.PluginName, this.Name)
-                                                                       : this.OffColor);
+                bb.FillRectangle(0, bgX, bb.Width, bgH, this.Activated ? this.UserColorFinder.getOnColor(this.PluginName, this.Name)
+                                                                       : this.UserColorFinder.getOffColor(this.PluginName, this.Name));
             }
 
             if (this.Activated && this.IconOn != null)
@@ -598,11 +623,13 @@
             }
             else if (this.Icon != null)
             {
-                bb.DrawImage(this.Icon, (bb.Width - this.Icon.Width) / 2, dispTxtH);
+                bb.DrawImage(this.Icon, (bb.Width - this.Icon.Width) / 2, dispTxtH + (bb.Height - dispTxtH - this.Icon.Height) / 2);
             }
             else
             {
-                bb.DrawText(this.Name, 0, dispTxtH, bb.Width, bb.Height - dispTxtH, this.Activated ? BitmapColor.White : BitmapColor.Black, 16);
+                bb.DrawText(this.UserColorFinder.getLabel(this.PluginName, this.Name), 0, dispTxtH, bb.Width, bb.Height - dispTxtH, 
+                            this.Activated ? this.UserColorFinder.getTextOnColor(this.PluginName, this.Name)
+                                           : this.UserColorFinder.getTextOffColor(this.PluginName, this.Name), 16);
             }
 
             int hPos;
@@ -620,8 +647,8 @@
         public ModeTopUserButtonData(int code, string name, Location bl) : base(code, name, bl)
         {
             this.IsUserButton = true;
-            this.OnColor = SelectButtonData.BgColorAssigned;
-            this.OffColor = SelectButtonData.BgColorAssigned;
+            this.UserColorFinder.DefaultColorSettings.OnColor = SelectButtonData.BgColorAssigned;
+            this.UserColorFinder.DefaultColorSettings.OffColor = SelectButtonData.BgColorAssigned;
         }
     }
 

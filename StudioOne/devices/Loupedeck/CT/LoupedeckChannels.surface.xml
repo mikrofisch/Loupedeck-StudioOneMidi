@@ -101,6 +101,14 @@
 		<Control name="selectButton[4]" type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#1C" channel="0"/> </Control>
 		<Control name="selectButton[5]" type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#1D" channel="0"/> </Control>
 
+		<!-- Reset to default values -->
+		<Control name="faderReset[0]" type="trigger" options="receive"> <MidiMessage status="#90" address="#20" channel="0"/> </Control>
+		<Control name="faderReset[1]" type="trigger" options="receive"> <MidiMessage status="#90" address="#21" channel="0"/> </Control>
+		<Control name="faderReset[2]" type="trigger" options="receive"> <MidiMessage status="#90" address="#22" channel="0"/> </Control>
+		<Control name="faderReset[3]" type="trigger" options="receive"> <MidiMessage status="#90" address="#23" channel="0"/> </Control>
+		<Control name="faderReset[4]" type="trigger" options="receive"> <MidiMessage status="#90" address="#24" channel="0"/> </Control>
+		<Control name="faderReset[5]" type="trigger" options="receive"> <MidiMessage status="#90" address="#25" channel="0"/> </Control>
+
 		<!-- ******************************************************************************************** -->
 		<!-- Displays -->
 		<!-- ******************************************************************************************** -->
@@ -179,15 +187,6 @@
 		<Control name="vbut[2][3]" title="User 3 Button 4" type="trigger" options="receive public"/>
 		<Control name="vbut[2][4]" title="User 3 Button 5" type="trigger" options="receive public"/>
 		<Control name="vbut[2][5]" title="User 3 Button 6" type="trigger" options="receive public"/>
-
-		<!-- Reset to default values -->
-		<Control name="faderReset[0]" type="trigger" options="receive"> <MidiMessage status="#90" address="#20" channel="0"/> </Control>
-		<Control name="faderReset[1]" type="trigger" options="receive"> <MidiMessage status="#90" address="#21" channel="0"/> </Control>
-		<Control name="faderReset[2]" type="trigger" options="receive"> <MidiMessage status="#90" address="#22" channel="0"/> </Control>
-		<Control name="faderReset[3]" type="trigger" options="receive"> <MidiMessage status="#90" address="#23" channel="0"/> </Control>
-		<Control name="faderReset[4]" type="trigger" options="receive"> <MidiMessage status="#90" address="#24" channel="0"/> </Control>
-		<Control name="faderReset[5]" type="trigger" options="receive"> <MidiMessage status="#90" address="#25" channel="0"/> </Control>
-
 	</Controls>
 
 	<!-- ******************************************************************************************** -->

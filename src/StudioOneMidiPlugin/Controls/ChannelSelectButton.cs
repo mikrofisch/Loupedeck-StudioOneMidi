@@ -56,6 +56,17 @@
                 this.EmitActionImageChanged();
             };
 
+            this.plugin.FocusDeviceChanged += (object sender, string e) =>
+            {
+                var pluginName = getPluginName(e);
+
+                for (int i = 0; i < StudioOneMidiPlugin.ChannelCount; i++)
+                {
+                    this.buttonData[i.ToString()].setPluginName(pluginName);
+                }
+                this.EmitActionImageChanged();
+            };
+            
             return true;
         }
     }

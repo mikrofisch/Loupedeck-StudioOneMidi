@@ -48,7 +48,9 @@
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Web" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -65,7 +67,7 @@
     </Compile>
     <Compile Include="Controls\ButtonData.cs" />
     <Compile Include="Controls\ChannelControlButton.cs" />
-    <Compile Include="Controls\ColorFinder.cs" />
+    <Compile Include="ColorFinder.cs" />
     <Compile Include="Controls\ConfigCommand.cs" />
     <Compile Include="Controls\ChannelPropertyButton.cs" />
     <Compile Include="Controls\ChannelSelectButton.cs" />
@@ -84,6 +86,9 @@
     <Compile Include="Helpers\PluginResources.cs" />
     <Compile Include="Actions\CounterAdjustment.cs" />
     <Compile Include="Actions\CounterCommand.cs" />
+    <Compile Include="UserPotConfig.xaml.cs">
+      <DependentUpon>UserPotConfig.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="metadata\LoupedeckPackage.yaml" />
@@ -103,6 +108,10 @@
     <Page Include="ConfigWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UserPotConfig.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <ItemGroup>
@@ -212,6 +221,9 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\return_to_zero_52px.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\bypass_52px.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

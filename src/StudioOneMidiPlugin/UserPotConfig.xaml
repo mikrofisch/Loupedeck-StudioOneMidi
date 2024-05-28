@@ -1,0 +1,137 @@
+﻿<Window x:Class="Loupedeck.StudioOneMidiPlugin.UserPotConfig"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Loupedeck.StudioOneMidiPlugin"
+        mc:Ignorable="d"
+        Title="User Dial Configuration"
+        SizeToContent="WidthAndHeight" Height="290" Width="326" Background="#FF5A5A5A" Foreground="#FFD8D7D7" MinWidth="290" MinHeight="326"
+        >
+    <Window.DataContext>
+        <local:UserPotConfigData/>
+    </Window.DataContext>
+    <Window.Resources>
+        <Style TargetType="Label">
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Foreground" Value="#FFD8D7D7" />
+        </Style>
+        <Style TargetType="RadioButton">
+            <Setter Property="Foreground" Value="#FFD8D7D7" />
+        </Style>
+        <Style TargetType="TextBox">
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="Foreground" Value="#FFD8D7D7" />
+            <Setter Property="Background" Value="#FF404040" />
+            <Setter Property="BorderBrush" Value="{x:Null}" />
+            <Setter Property="Height" Value="24" />
+        </Style>
+        <Style TargetType="Button">
+            <Setter Property="Foreground" Value="#FFC0C0C0" />
+            <Setter Property="Background" Value="#FF505050" />
+            <Setter Property="BorderBrush" Value="{x:Null}" />
+            <Setter Property="Height" Value="24" />
+        </Style>
+    </Window.Resources>
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid HorizontalAlignment="Left" Height="0" Margin="0,0,0,0" VerticalAlignment="Top" Width="0"/>
+        <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,0,0">
+            <GroupBox Height="Auto" Header="Pot Mode" BorderBrush="{x:Null}">
+                <Grid Margin="5">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid HorizontalAlignment="Left" Height="0" Margin="10,26,0,0" VerticalAlignment="Top" Width="0"/>
+                    <StackPanel Grid.Row="0" Grid.Column="0">
+                        <RadioButton Content="Positive Only" IsChecked="True"/>
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Grid.Column="0">
+                        <RadioButton Content="Symmetric"/>
+                    </StackPanel>
+                </Grid>
+            </GroupBox>
+        </StackPanel>
+        <StackPanel Grid.Row="0" Grid.Column="1" Margin="0,0,0,0" HorizontalAlignment="Right">
+            <Grid Margin="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Grid HorizontalAlignment="Left" Height="0" VerticalAlignment="Top" Width="0"/>
+                <Label Content="Plugin: " HorizontalAlignment="Right" Margin="0,0,0,0" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" FontSize="10" Foreground="#FFADADAD"/>
+                <TextBox HorizontalAlignment="Left" Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Text="{Binding PluginName}" x:Name="tbPluginName"  TextAlignment="Left" Width="80" Focusable="False" Background="{x:Null}" FontSize="10"/>
+                <Label Content="Parameter: " HorizontalAlignment="Right" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" FontSize="10" Foreground="#FFADADAD"/>
+                <TextBox HorizontalAlignment="Left" Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Text="{Binding PluginParameter}" TextAlignment="Left" Width="80" Focusable="False" Background="{x:Null}" FontSize="10"/>
+            </Grid>
+        </StackPanel>
+        <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,10,0,0">
+            <Grid Margin="5">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Grid HorizontalAlignment="Left" Height="0" Margin="0,0,0,0" VerticalAlignment="Top" Width="0"/>
+                <Rectangle x:Name="rColorPatch" Height="Auto" Width="50" Fill="#FF7F7F7F" Grid.RowSpan="3" Stroke="#FF757575" />
+                <Label Content="R" HorizontalAlignment="Left" Margin="8,0,0,0" Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" HorizontalContentAlignment="Right"/>
+                <TextBox x:Name="tbColorR" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="0" Grid.Column="2" VerticalAlignment="Center" Text="123" TextAlignment="Right" Width="30" TextChanged="ColorChangedHandler" PreviewTextInput="CheckNumberInput"/>
+                <Label Content="G" HorizontalAlignment="Left" Margin="8,0,0,0" Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" HorizontalContentAlignment="Right"/>
+                <TextBox x:Name="tbColorG" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="1" Grid.Column="2" VerticalAlignment="Center" Text="123" TextAlignment="Right" Width="30" TextChanged="ColorChangedHandler" PreviewTextInput="CheckNumberInput"/>
+                <Label Content="B" HorizontalAlignment="Left" Margin="8,0,0,0" Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" HorizontalContentAlignment="Right"/>
+                <TextBox x:Name="tbColorB" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="2" Grid.Column="2" VerticalAlignment="Center" Text="123" TextAlignment="Right" Width="30" TextChanged="ColorChangedHandler" PreviewTextInput="CheckNumberInput"/>
+            </Grid>
+        </StackPanel>
+        <StackPanel Grid.Row="2" Grid.Column="0"  Margin="0,10,0,0">
+            <Grid Margin="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Grid HorizontalAlignment="Left" Height="0" Margin="0,0,0,0" VerticalAlignment="Top" Width="0"/>
+                <Label Content="Label" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center"/>
+                <TextBox HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Text="Murksdödel" TextAlignment="Left" Width="80"/>
+            </Grid>
+        </StackPanel>
+        <StackPanel Grid.Row="3" Grid.Column="0" Height="Auto" VerticalAlignment="Bottom" HorizontalAlignment="Right" Grid.ColumnSpan="2">
+            <Grid Margin="0" VerticalAlignment="Bottom" HorizontalAlignment="Right">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="55"/>
+                </Grid.ColumnDefinitions>
+                <Grid HorizontalAlignment="Right" Height="0" Margin="0,0,0,0" Width="Auto" VerticalAlignment="Top"/>
+                <Button Content="OK" Width="50" Height="25" />
+                <Button Content="Cancel" IsCancel="True" Grid.Column="1" Width="50" HorizontalAlignment="Right" />
+            </Grid>
+        </StackPanel>
+    </Grid>
+</Window>

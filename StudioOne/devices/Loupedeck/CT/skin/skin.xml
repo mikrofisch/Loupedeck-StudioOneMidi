@@ -30,7 +30,7 @@
 		</Style>
 
 		<Style name="RadioGroup">
-			<Font name="textfont" 	themeid="PresonusUI" size="10"/>
+			<Font name="textfont" themeid="PresonusUI" size="10"/>
 			<Color name="textcolor" color="white" />
 			<Image name="background"  image="BigButton"/>
 			<Metric name="buttonstyle" value="1"/>

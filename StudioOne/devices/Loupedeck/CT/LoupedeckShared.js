@@ -139,6 +139,7 @@ class ChannelInfo {
         return true;
     }
     setFader(element, paramName) {
+        // Host.Console.writeLine(" faderValue.default: " + this.faderValue._default);
         return element.connectAliasParam(this.faderValue, paramName);
     }
     clearFader() {
@@ -202,7 +203,7 @@ class LoupedeckSharedComponent extends FocusChannelPanComponent {
            if (stripCount == 0)
                 stripCount = kNumChannels;
             let position = Math.floor(channelIndex / stripCount) * stripCount;
-            Host.Console.writeLine("channelIndex: "+channelIndex+", stripCount: "+stripCount+", position: "+position);
+            // Host.Console.writeLine("channelIndex: "+channelIndex+", stripCount: "+stripCount+", position: "+position);
             this.channelBankElement.scrollTo(position);
         }
         super.onConnectFocusChannel();
@@ -364,7 +365,7 @@ class LoupedeckSharedComponent extends FocusChannelPanComponent {
         this.updateAll();
     }
     paramChanged(param) {
-        Host.Console.writeLine("LoupedeckSharedComponent.paramChanged");
+        // Host.Console.writeLine("LoupedeckSharedComponent.paramChanged");
     }
     updatePanModeStatus() {
         if (this.assignment.mode == ChannelAssignmentMode.kPanFocusMode)

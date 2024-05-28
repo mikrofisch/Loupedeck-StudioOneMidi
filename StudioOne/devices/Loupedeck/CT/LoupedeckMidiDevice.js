@@ -71,9 +71,9 @@ class LoupedeckMidiDevice extends PreSonus.ControlSurfaceDevice {
     }
     sendChannelText(channelID, offset, text) {
         // let outText = text.substring(0, 1) + text.substring(1);
-        let outText = text;
-        if (outText.length > 8) outText = outText.replace(/(?<!^)[aeiou]/g, '');
-        this.sendSysex(LoupedeckProtocol.buildChannelTextSysex(this.sysexSendBuffer, channelID, offset, outText)); 
+        // let outText = text;
+        // if (outText.length > 8) outText = outText.replace(/(?<!^)[aeiou]/g, '');
+        this.sendSysex(LoupedeckProtocol.buildChannelTextSysex(this.sysexSendBuffer, channelID, offset, text)); 
     } 
     sendPlainText(text) {
         this.sendSysex(LoupedeckProtocol.buildPlainTextSysex(this.sysexSendBuffer, text)); 

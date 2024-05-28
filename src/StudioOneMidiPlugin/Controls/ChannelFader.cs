@@ -1,6 +1,8 @@
 ﻿namespace Loupedeck.StudioOneMidiPlugin.Controls
 {
     using System;
+    using System.Threading;
+
     using static Loupedeck.StudioOneMidiPlugin.StudioOneMidiPlugin;
 
     public class ChannelFader : ActionEditorAdjustment
@@ -12,13 +14,25 @@
 
         private SelectButtonMode selectMode = SelectButtonMode.Select;
         private FaderMode faderMode = FaderMode.Volume;
+        private String PluginName;
+        private static readonly ColorFinder UserColorFinder = new ColorFinder(new ColorFinder.ColorSettings
+        {
+            OnColor = BitmapColor.Transparent,
+            OffColor = BitmapColor.Transparent,
+            TextOnColor = new BitmapColor(60, 192, 232),  // Used for volume bar
+            TextOffColor = new BitmapColor(80, 80, 80)    // Used for volume bar
+        });
+        private static Boolean[] UserButtonActive = new Boolean[StudioOneMidiPlugin.ChannelCount];
 
-		public ChannelFader() : base(hasReset: true)
+        private Boolean IsUserPotConfigWindowOpen = false;
+
+        public ChannelFader() : base(hasReset: true)
 		{
 
             this.DisplayName = "Channel Fader";
-            this.Description = "Channel fader.\nButton press -> Mute\nScreen touch -> Select\nScreen double tap -> Arm/rec";
+            this.Description = "Channel fader.\nButton press -> reset to default";
             this.GroupName = "";
+            for (int i = 0; i < UserButtonActive.Length; i++) { UserButtonActive[i] = false; }
 
             this.ActionEditor.AddControlEx(parameterControl:
                 new ActionEditorListbox(name: ChannelSelector, labelText: "Channel:"/*,"Select the fader bank channel"*/)
@@ -39,19 +53,31 @@
             this.plugin.channelFader = this;
 
             this.plugin.ChannelDataChanged += (object sender, EventArgs e) => {
-                ActionImageChanged();
+                this.ActionImageChanged();
             };
 
             this.plugin.SelectModeChanged += (object sender, SelectButtonMode e) =>
             {
                 this.selectMode = e;
-                ActionImageChanged();
+                this.ActionImageChanged();
             };
 
             this.plugin.FaderModeChanged += (object sender, FaderMode e) =>
             {
                 this.faderMode = e;
-                ActionImageChanged();
+                this.ActionImageChanged();
+            };
+
+            this.plugin.FocusDeviceChanged += (object sender, string e) =>
+            {
+                this.PluginName = getPluginName(e);
+                this.ActionImageChanged();
+            };
+
+            this.plugin.UserButtonChanged += (object sender, UserButtonParams e) =>
+            {
+                UserButtonActive[e.channelIndex] = e.isActive;
+                this.ActionImageChanged();
             };
 
             return true;
@@ -146,7 +172,14 @@
             }
             if (this.faderMode == FaderMode.Volume)
             {
-                bb.FillRectangle(volBarX, bb.Height - volBarH, sideBarW, volBarH, new BitmapColor(60, 192, 232));
+                var volBarColor = UserColorFinder.getTextOnColor(this.PluginName, cd.Label);
+                if (cd.ChannelID < UserButtonActive.Length && 
+                    !UserButtonActive[cd.ChannelID] && 
+                    UserColorFinder.getLinkedParameter(this.PluginName, cd.Label) == cd.UserLabel)
+                {
+                    volBarColor = UserColorFinder.getTextOffColor(this.PluginName, cd.Label);
+                }
+                bb.FillRectangle(volBarX, bb.Height - volBarH, sideBarW, volBarH, volBarColor);
             }
             else
             {
@@ -187,11 +220,20 @@
 
             MackieChannelData cd = this.GetChannel(channelIndex);
 
-            if (buttonEvent.EventType.IsButtonPressed())
+            if (buttonEvent.EventType.IsPress())
             {
                 cd.EmitValueReset();
             }
-            
+            else if (buttonEvent.EventType.IsLongPress())
+            {
+                if (this.selectMode == SelectButtonMode.User)
+                {
+                    var volBarColor = UserColorFinder.getTextOnColor(this.PluginName, cd.Label);
+
+                    this.OpenUserPotConfigWindow(cd.UserLabel);
+                }
+            }
+
             return base.ProcessButtonEvent2(actionParameters, buttonEvent);
         }
 
@@ -212,5 +254,23 @@
         //
         //    return true;
         // }
+
+        public void OpenUserPotConfigWindow(String pluginParameter)
+        {
+            if (this.IsUserPotConfigWindowOpen)
+                return;
+
+            var t = new Thread(() => {
+                var w = new UserPotConfig(this.PluginName, pluginParameter);
+                w.Closed += (_, _) => this.IsUserPotConfigWindowOpen = false;
+                w.Show();
+                System.Windows.Threading.Dispatcher.Run();
+            });
+
+            t.SetApartmentState(ApartmentState.STA);
+            t.Start();
+
+            this.IsUserPotConfigWindowOpen = true;
+        }
     }
 }

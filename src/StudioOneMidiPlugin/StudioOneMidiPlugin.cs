@@ -11,7 +11,7 @@ namespace Loupedeck.StudioOneMidiPlugin
 
     using Melanchall.DryWetMidi.Core;
     using Melanchall.DryWetMidi.Multimedia;
- 
+
     // This class contains the plugin-level logic of the Loupedeck plugin.
 
     public class StudioOneMidiPlugin : Plugin
@@ -93,8 +93,6 @@ namespace Loupedeck.StudioOneMidiPlugin
         }
         public RecPreMode CurrentRecPreMode = RecPreMode.Off;
             
-        public ColorFinder GlobalColorFinder = new ColorFinder();
-
         public string MidiInName
         {
 			get => midiInName;
@@ -180,6 +178,15 @@ namespace Loupedeck.StudioOneMidiPlugin
 		}
 
         private System.Timers.Timer ChannelDataChangeTimer;
+
+        public static String getPluginName(String focusDeviceName)
+        {
+            var start = focusDeviceName.IndexOf(" - ") + 3;
+            String pluginName = "";
+            if (start > 2) pluginName = focusDeviceName.Substring(start, focusDeviceName.Length - start);
+        
+            return pluginName;
+        }
 
         // Initializes a new instance of the plugin class.
         public StudioOneMidiPlugin()

@@ -116,7 +116,7 @@
                 </Grid.ColumnDefinitions>
                 <Grid HorizontalAlignment="Left" Height="0" Margin="0,0,0,0" VerticalAlignment="Top" Width="0"/>
                 <Label Content="Label" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center"/>
-                <TextBox HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Text="Murksdödel" TextAlignment="Left" Width="80"/>
+                <TextBox x:Name="tbLabel" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Text="Murksdödel" TextAlignment="Left" Width="80"/>
             </Grid>
         </StackPanel>
         <StackPanel Grid.Row="3" Grid.Column="0" Height="Auto" VerticalAlignment="Bottom" HorizontalAlignment="Right" Grid.ColumnSpan="2">

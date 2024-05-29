@@ -228,9 +228,7 @@
             {
                 if (this.selectMode == SelectButtonMode.User)
                 {
-                    var volBarColor = UserColorFinder.getTextOnColor(this.PluginName, cd.Label);
-
-                    this.OpenUserPotConfigWindow(cd.UserLabel);
+                    this.OpenUserPotConfigWindow(cd.Label, cd.UserLabel);
                 }
             }
 
@@ -240,7 +238,7 @@
         // This never gets called in the current version of the Loupedeck SDK.
         // 
         // protected override bool ProcessTouchEvent(string actionParameter, DeviceTouchEvent touchEvent)
-        // {
+        // 
         //	MackieChannelData cd = GetChannel(actionParameter);
         //
         //    if (touchEvent.EventType == DeviceTouchEventType.Tap)
@@ -260,8 +258,15 @@
             if (this.IsUserPotConfigWindowOpen)
                 return;
 
+            var volBarColor = UserColorFinder.getTextOnColor(this.PluginName, pluginParameter);
+
             var t = new Thread(() => {
-                var w = new UserPotConfig(this.PluginName, pluginParameter);
+                var w = new UserPotConfig(new UserPotConfigData { PluginName = this.PluginName,
+                                                                  PluginParameter = pluginParameter,
+                                                                  R = volBarColor.R,
+                                                                  G = volBarColor.G,
+                                                                  B = volBarColor.B,
+                                                                  Label = UserColorFinder.getLabel(this.PluginName, pluginParameter) } );
                 w.Closed += (_, _) => this.IsUserPotConfigWindowOpen = false;
                 w.Show();
                 System.Windows.Threading.Dispatcher.Run();

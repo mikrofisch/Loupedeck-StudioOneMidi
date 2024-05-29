@@ -31,20 +31,34 @@
         public Byte G { get; set; }
         public Byte B { get; set; }
         public String Label { get; set; }
+        public UserPotConfigData() { }
+        public UserPotConfigData(UserPotConfigData u)
+        {
+            this.PluginName = u.PluginName;
+            this.PluginParameter = u.PluginParameter;
+            this.Mode = u.Mode;
+            this.R = u.R;
+            this.G = u.G;
+            this.B = u.B;
+            this.Label = u.Label;
+        }
     }
 
     public partial class UserPotConfig : Window
     {
         UserPotConfigData ConfigData;
-        public UserPotConfig(String pluginName, String pluginParameter)
+        public UserPotConfig(UserPotConfigData configData)
         {
             this.InitializeComponent();
 
-            ConfigData = new UserPotConfigData();
-            ConfigData.PluginName = pluginName;
-            ConfigData.PluginParameter = pluginParameter;
+            ConfigData = new UserPotConfigData(configData);
 
-            this.DataContext = ConfigData;
+            this.DataContext = this.ConfigData;
+
+            this.tbColorR.Text = this.ConfigData.R.ToString();
+            this.tbColorG.Text = this.ConfigData.G.ToString();
+            this.tbColorB.Text = this.ConfigData.B.ToString();
+            this.tbLabel.Text = this.ConfigData.Label;
         }
 
         private void ColorChangedHandler(Object sender, TextChangedEventArgs e)

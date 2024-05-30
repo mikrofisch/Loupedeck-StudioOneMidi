@@ -205,6 +205,12 @@
 
         public void setPluginName(String text) => this.PluginName = text;
 
+        public override void OnLoad(StudioOneMidiPlugin plugin)
+        {
+            base.OnLoad(plugin);
+            UserColorFinder.Init(plugin);
+        }
+
         public override BitmapImage getImage(PluginImageSize imageSize)
         {
             MackieChannelData cd = this.Plugin.mackieChannelData[this.ChannelIndex.ToString()];
@@ -588,6 +594,12 @@
         {
             this.ButtonLocation = bl;
             this.OffColor = offColor;
+        }
+
+        public override void OnLoad(StudioOneMidiPlugin plugin)
+        {
+            base.OnLoad(plugin);
+            UserColorFinder.Init(plugin);
         }
 
         public void setTopDisplay(String text) => this.TopDisplayText = text;

@@ -7,7 +7,7 @@
 
     public class ChannelFader : ActionEditorAdjustment
 	{
-		private StudioOneMidiPlugin plugin = null;
+		// private StudioOneMidiPlugin plugin = null;
 
         private const String ChannelSelector = "channelSelector";
         private const String ControlOrientationSelector = "controlOrientationSelector";
@@ -22,7 +22,7 @@
             TextOnColor = new BitmapColor(60, 192, 232),  // Used for volume bar
             TextOffColor = new BitmapColor(80, 80, 80)    // Used for volume bar
         });
-        private static Boolean[] UserButtonActive = new Boolean[StudioOneMidiPlugin.ChannelCount];
+        private static UserButtonParams[] UserButtonInfo = new UserButtonParams[StudioOneMidiPlugin.ChannelCount];
 
         private Boolean IsUserPotConfigWindowOpen = false;
 
@@ -32,7 +32,6 @@
             this.DisplayName = "Channel Fader";
             this.Description = "Channel fader.\nButton press -> reset to default";
             this.GroupName = "";
-            for (int i = 0; i < UserButtonActive.Length; i++) { UserButtonActive[i] = false; }
 
             this.ActionEditor.AddControlEx(parameterControl:
                 new ActionEditorListbox(name: ChannelSelector, labelText: "Channel:"/*,"Select the fader bank channel"*/)
@@ -49,34 +48,35 @@
 
         protected override bool OnLoad()
         {
-            this.plugin = base.Plugin as StudioOneMidiPlugin;
-            this.plugin.channelFader = this;
+            StudioOneMidiPlugin plugin = base.Plugin as StudioOneMidiPlugin;
+            plugin.channelFader = this;
+            UserColorFinder.Init( plugin );
 
-            this.plugin.ChannelDataChanged += (object sender, EventArgs e) => {
+            plugin.ChannelDataChanged += (object sender, EventArgs e) => {
                 this.ActionImageChanged();
             };
 
-            this.plugin.SelectModeChanged += (object sender, SelectButtonMode e) =>
+            plugin.SelectModeChanged += (object sender, SelectButtonMode e) =>
             {
                 this.selectMode = e;
                 this.ActionImageChanged();
             };
 
-            this.plugin.FaderModeChanged += (object sender, FaderMode e) =>
+            plugin.FaderModeChanged += (object sender, FaderMode e) =>
             {
                 this.faderMode = e;
                 this.ActionImageChanged();
             };
 
-            this.plugin.FocusDeviceChanged += (object sender, string e) =>
+            plugin.FocusDeviceChanged += (object sender, string e) =>
             {
                 this.PluginName = getPluginName(e);
                 this.ActionImageChanged();
             };
 
-            this.plugin.UserButtonChanged += (object sender, UserButtonParams e) =>
+            plugin.UserButtonChanged += (object sender, UserButtonParams e) =>
             {
-                UserButtonActive[e.channelIndex] = e.isActive;
+                UserButtonInfo[e.channelIndex] = e;
                 this.ActionImageChanged();
             };
 
@@ -134,7 +134,6 @@
             const int sideBarW = 8;
             int sideBarX = bb.Width - sideBarW;
             int volBarX = 0;
-            int volBarH = (int)Math.Ceiling(cd.Value * bb.Height);
             int piW = (bb.Width - 2* sideBarW)/ 2;
             const int piH = 8;
 
@@ -172,14 +171,31 @@
             }
             if (this.faderMode == FaderMode.Volume)
             {
+                var linkedParameter = UserColorFinder.getLinkedParameter(this.PluginName, cd.Label);
+                var isActive = false;
+                foreach (UserButtonParams ubp in UserButtonInfo)
+                {
+                    if (ubp != null && ubp.userLabel == linkedParameter)
+                    {
+                        isActive = ubp.isActive;
+                        break;
+                    }
+                }
+
                 var volBarColor = UserColorFinder.getTextOnColor(this.PluginName, cd.Label);
-                if (cd.ChannelID < UserButtonActive.Length && 
-                    !UserButtonActive[cd.ChannelID] && 
-                    UserColorFinder.getLinkedParameter(this.PluginName, cd.Label) == cd.UserLabel)
+                if (!linkedParameter.IsNullOrEmpty() && !isActive)
                 {
                     volBarColor = UserColorFinder.getTextOffColor(this.PluginName, cd.Label);
                 }
-                bb.FillRectangle(volBarX, bb.Height - volBarH, sideBarW, volBarH, volBarColor);
+
+                int volBarH = (int)Math.Ceiling(cd.Value * bb.Height);
+                int volBarY = bb.Height - volBarH;
+                if (UserColorFinder.getMode(this.PluginName, cd.Label) == ColorFinder.ColorSettings.PotMode.Symmetric)
+                {
+                    volBarH = (int)(Math.Abs(cd.Value - 0.5) * bb.Height);
+                    volBarY = cd.Value < 0.5 ? bb.Height / 2 : bb.Height / 2 - volBarH;
+                }
+                bb.FillRectangle(volBarX, volBarY, sideBarW, volBarH, volBarColor);
             }
             else
             {
@@ -198,7 +214,7 @@
 
 		private MackieChannelData GetChannel(string actionParameter)
 		{
-			return plugin.mackieChannelData[actionParameter];
+			return (this.Plugin as StudioOneMidiPlugin).mackieChannelData[actionParameter];
 		}
 
         protected override Boolean RunCommand(ActionEditorActionParameters actionParameters)
@@ -228,7 +244,7 @@
             {
                 if (this.selectMode == SelectButtonMode.User)
                 {
-                    this.OpenUserPotConfigWindow(cd.Label, cd.UserLabel);
+                    this.OpenUserPotConfigWindow(cd.Label);
                 }
             }
 
@@ -261,13 +277,21 @@
             var volBarColor = UserColorFinder.getTextOnColor(this.PluginName, pluginParameter);
 
             var t = new Thread(() => {
-                var w = new UserPotConfig(new UserPotConfigData { PluginName = this.PluginName,
+                var w = new UserPotConfig(this.Plugin,
+                                          new UserPotConfigData { PluginName = this.PluginName,
                                                                   PluginParameter = pluginParameter,
+                                                                  Mode = UserColorFinder.getMode(this.PluginName, pluginParameter),
                                                                   R = volBarColor.R,
                                                                   G = volBarColor.G,
                                                                   B = volBarColor.B,
                                                                   Label = UserColorFinder.getLabel(this.PluginName, pluginParameter) } );
-                w.Closed += (_, _) => this.IsUserPotConfigWindowOpen = false;
+                w.Closed += (_, _) =>
+                {
+                    this.IsUserPotConfigWindowOpen = false;
+                    UserColorFinder.Init(this.Plugin, forceReload: true);
+//                    this.ActionImageChanged();
+                    (this.Plugin as StudioOneMidiPlugin).EmitChannelDataChanged();
+                };
                 w.Show();
                 System.Windows.Threading.Dispatcher.Run();
             });

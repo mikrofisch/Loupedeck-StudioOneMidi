@@ -6,6 +6,7 @@ namespace Loupedeck.StudioOneMidiPlugin
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
+    using System.Windows.Forms;
 
     using Loupedeck.StudioOneMidiPlugin.Controls;
 
@@ -69,7 +70,8 @@ namespace Loupedeck.StudioOneMidiPlugin
         public class UserButtonParams
         {
             public int channelIndex { get; set; }
-            public bool isActive { get; set; }
+            public String userLabel;
+            public bool isActive { get; set; } = false;
         }
         public event EventHandler<UserButtonParams> UserButtonChanged;
 
@@ -339,6 +341,11 @@ namespace Loupedeck.StudioOneMidiPlugin
                         var ubp = new UserButtonParams();
                         ubp.channelIndex = ce.NoteNumber - UserButtonMidiBase;
                         ubp.isActive = ce.Velocity > 0;
+                        if (mackieChannelData.TryGetValue(ubp.channelIndex.ToString(), out MackieChannelData cd))
+                        {
+                            cd.UserActive = ubp.isActive;
+                            ubp.userLabel = cd.UserLabel;
+                        }
                         UserButtonChanged.Invoke(this, ubp);
                     }
                     else if (ce.NoteNumber >= 0x4A && ce.NoteNumber <= 0x4D)

@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using System.Linq;
     using System.Text;
     using System.Text.RegularExpressions;
@@ -25,8 +26,7 @@
     {
         public String PluginName { get; set; }
         public String PluginParameter { get; set; }
-        public enum PotMode { Positive, Symmetric };
-        public PotMode Mode { get; set; }
+        public ColorFinder.ColorSettings.PotMode Mode { get; set; }
         public Byte R { get; set; }
         public Byte G { get; set; }
         public Byte B { get; set; }
@@ -43,22 +43,25 @@
             this.Label = u.Label;
         }
     }
-
     public partial class UserPotConfig : Window
     {
-        UserPotConfigData ConfigData;
-        public UserPotConfig(UserPotConfigData configData)
+        private UserPotConfigData ConfigData;
+
+
+        private Plugin Plugin { get; set; }
+        public UserPotConfig(Plugin plugin, UserPotConfigData configData)
         {
+            this.Plugin = plugin;
+
             this.InitializeComponent();
 
-            ConfigData = new UserPotConfigData(configData);
+//            this.ConfigData = new UserPotConfigData(configData);
+            this.ConfigData = configData;
 
             this.DataContext = this.ConfigData;
 
-            this.tbColorR.Text = this.ConfigData.R.ToString();
-            this.tbColorG.Text = this.ConfigData.G.ToString();
-            this.tbColorB.Text = this.ConfigData.B.ToString();
-            this.tbLabel.Text = this.ConfigData.Label;
+            this.rbPositive.IsChecked  = configData.Mode == ColorFinder.ColorSettings.PotMode.Positive;
+            this.rbSymmetric.IsChecked = configData.Mode == ColorFinder.ColorSettings.PotMode.Symmetric;
         }
 
         private void ColorChangedHandler(Object sender, TextChangedEventArgs e)
@@ -68,26 +71,44 @@
                 ((TextBox)sender).Text = "255";
             }
 
-            if (this.ConfigData != null)
+            if (this.tbColorR != null && this.tbColorG != null && this.tbColorB != null)
             {
-                if (this.tbColorR != null)
-                    this.ConfigData.R = (Byte)this.tbColorR.Text.ParseInt32();
-                if (this.tbColorG != null)
-                    this.ConfigData.G = (Byte)this.tbColorR.Text.ParseInt32();
-                if (this.tbColorB != null)
-                    this.ConfigData.B = (Byte)this.tbColorR.Text.ParseInt32();
-
-                this.rColorPatch.Fill = new SolidColorBrush(Color.FromArgb(255, this.ConfigData.R,
-                                                                                this.ConfigData.G,
-                                                                                this.ConfigData.B));
+                this.rColorPatch.Fill = new SolidColorBrush(Color.FromArgb(255, (Byte)this.tbColorR.Text.ParseInt32(),
+                                                                                (Byte)this.tbColorG.Text.ParseInt32(),
+                                                                                (Byte)this.tbColorB.Text.ParseInt32()));
             }
         }
 
        
-        private static readonly Regex _regex = new Regex("[^0-9]"); //regex that matches numbers only
+        private static readonly Regex _regex = new Regex("[^0-9]"); //regex that matches non-numbers only
         private void CheckNumberInput(Object sender, TextCompositionEventArgs e)
         {
             e.Handled = (((TextBox)sender).Text.Length > 2) || _regex.IsMatch(e.Text) ;
+        }
+
+        private void Cancel(Object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void CloseNoSave(Object sender, RoutedEventArgs e)
+        {
+            this.Close();
+        }
+
+        private void SetPluginSetting(String valueID, String value) => 
+            this.Plugin.SetPluginSetting(ColorFinder.settingName(this.ConfigData.PluginName,
+                                                                 this.ConfigData.PluginParameter,
+                                                                 valueID), value);
+        private void SaveAndClose(Object sender, RoutedEventArgs e)
+        {
+            var textOnColorHex = ((Byte)this.tbColorR.Text.ParseInt32()).ToString("X2") +
+                                 ((Byte)this.tbColorG.Text.ParseInt32()).ToString("X2") +
+                                 ((Byte)this.tbColorB.Text.ParseInt32()).ToString("X2");
+            this.SetPluginSetting(ColorFinder.ColorSettings.strTextOnColor, textOnColorHex);
+            this.SetPluginSetting(ColorFinder.ColorSettings.strLabel, this.tbLabel.Text);
+            this.SetPluginSetting(ColorFinder.ColorSettings.strMode, $"{(this.rbPositive.IsChecked == true ? 0 : 1)}");
+            this.Close();
         }
     }
 }

@@ -250,6 +250,10 @@
                                  cd.UserLabel.Length > 0 ? userButtonActive ? UserColorFinder.getOnColor(pluginName, cd.UserLabel)
                                                                             : UserColorFinder.getOffColor(pluginName, cd.UserLabel)
                                                          : BgColorUnassigned);
+                if (cd.UserLabel.Length > 0 && UserColorFinder.showUserButtonCircle(pluginName, cd.UserLabel))
+                {
+                    
+                }
                 bb.DrawText(UserColorFinder.getLabelShort(pluginName, cd.UserLabel), 0, bb.Height * 2 / 3, bb.Width, TitleHeight, 
                             userButtonActive ? UserColorFinder.getTextOnColor(pluginName, cd.UserLabel)
                                              : UserColorFinder.getTextOffColor(pluginName, cd.UserLabel));
@@ -633,7 +637,7 @@
             {
                 bb.DrawImage(this.IconOn, (bb.Width - this.IconOn.Width) / 2, dispTxtH);
             }
-            else if (this.Icon != null)
+            else if (this.Icon != null && !(this.IsUserButton && this.Name.Length == 0))
             {
                 bb.DrawImage(this.Icon, (bb.Width - this.Icon.Width) / 2, dispTxtH + (bb.Height - dispTxtH - this.Icon.Height) / 2);
             }

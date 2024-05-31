@@ -12,6 +12,8 @@
         {
             public enum PotMode { Positive, Symmetric };
             public PotMode Mode = PotMode.Positive;
+            public Boolean HideValueBar = false;
+            public Boolean ShowUserButtonCircle = false;
 
             public BitmapColor OnColor = NoColor;
             public BitmapColor OffColor = NoColor;
@@ -71,13 +73,13 @@
                 ColorDict.Add(("Pro EQ", "Show Dynamics"), new ProEqTopControlColors(label: "Dynamics"));
                 ColorDict.Add(("Pro EQ", "High Quality"), new ProEqTopControlColors());
                 ColorDict.Add(("Pro EQ", "View Mode"), new ProEqTopControlColors(label: "Curves"));
-                ColorDict.Add(("Pro EQ", "LF-Active"), new ColorSettings { TextOnColor = new BitmapColor(255, 120, 38), Label = "LF Active" });
-                ColorDict.Add(("Pro EQ", "MF-Active"), new ColorSettings { TextOnColor = new BitmapColor(107, 224, 44), Label = "MF Active" });
-                ColorDict.Add(("Pro EQ", "HF-Active"), new ColorSettings { TextOnColor = new BitmapColor(75, 212, 250), Label = "HF Active" });
-                ColorDict.Add(("Pro EQ", "LMF-Active"), new ColorSettings { TextOnColor = new BitmapColor(245, 205, 58), Label = "LMF Active" });
-                ColorDict.Add(("Pro EQ", "HMF-Active"), new ColorSettings { TextOnColor = new BitmapColor(70, 183, 130), Label = "HMF Active" });
-                ColorDict.Add(("Pro EQ", "LC-Active"), new ColorSettings { TextOnColor = new BitmapColor(255, 74, 61), Label = "LC Active" });
-                ColorDict.Add(("Pro EQ", "HC-Active"), new ColorSettings { TextOnColor = new BitmapColor(158, 98, 255), Label = "HC Active" });
+                ColorDict.Add(("Pro EQ", "LF-Active"), new ColorSettings { TextOnColor = new BitmapColor(255, 120, 38), Label = "LF", ShowUserButtonCircle = true });
+                ColorDict.Add(("Pro EQ", "MF-Active"), new ColorSettings { TextOnColor = new BitmapColor(107, 224, 44), Label = "MF", ShowUserButtonCircle = true });
+                ColorDict.Add(("Pro EQ", "HF-Active"), new ColorSettings { TextOnColor = new BitmapColor(75, 212, 250), Label = "HF", ShowUserButtonCircle = true });
+                ColorDict.Add(("Pro EQ", "LMF-Active"), new ColorSettings { TextOnColor = new BitmapColor(245, 205, 58), Label = "LMF", ShowUserButtonCircle = true });
+                ColorDict.Add(("Pro EQ", "HMF-Active"), new ColorSettings { TextOnColor = new BitmapColor(70, 183, 130), Label = "HMF", ShowUserButtonCircle = true });
+                ColorDict.Add(("Pro EQ", "LC-Active"), new ColorSettings { TextOnColor = new BitmapColor(255, 74, 61), Label = "LC", ShowUserButtonCircle = true });
+                ColorDict.Add(("Pro EQ", "HC-Active"), new ColorSettings { TextOnColor = new BitmapColor(158, 98, 255), Label = "HC", ShowUserButtonCircle = true });
                 this.addLinked("Pro EQ", "LF-Gain", "LF-Active", label: "LF Gain", mode: ColorSettings.PotMode.Symmetric);
                 this.addLinked("Pro EQ", "LF-Frequency", "LF-Active", label: "LF Freq");
                 this.addLinked("Pro EQ", "LF-Q", "LF-Active", label: "LF Q");
@@ -194,6 +196,9 @@
             return null;
         }
         public String getLinkedParameter(String pluginName, String parameterName) => this.getColorSettings(pluginName, parameterName).LinkedParameter;
+        public Boolean hideValueBar(String pluginName, String parameterName) => this.getColorSettings(pluginName, parameterName).HideValueBar;
+        public Boolean showUserButtonCircle(String pluginName, String parameterName) => this.getColorSettings(pluginName, parameterName).ShowUserButtonCircle;
+
 
         public static String settingName(String pluginName, String parameterName, String setting) => 
             strColorSettingsID + pluginName + "|" + parameterName + "|" + setting;

@@ -2,6 +2,7 @@
 {
     using System;
     using System.Threading;
+    using System.Windows.Forms;
 
     using static Loupedeck.StudioOneMidiPlugin.StudioOneMidiPlugin;
 
@@ -117,7 +118,10 @@
 
             MackieChannelData cd = this.GetChannel(channelIndex);
 
-			cd.Value = Math.Min(1, Math.Max(0, (float)Math.Round(cd.Value * 100 + diff) / 100));
+            var stepDivisions = 100;
+            if ((Control.ModifierKeys & Keys.Shift) == Keys.Shift)
+                stepDivisions = 400;
+            cd.Value = Math.Min(1, Math.Max(0, (float)Math.Round(cd.Value * stepDivisions + diff) / stepDivisions));
 			cd.EmitVolumeUpdate();
             return true;
 		}

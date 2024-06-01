@@ -115,18 +115,20 @@
                 <TextBox x:Name="tbLabel" HorizontalAlignment="Left" Margin="0,0,0,0" Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Text="{Binding Label}" TextAlignment="Left" Width="80"/>
             </Grid>
         </StackPanel>
-        <StackPanel Grid.Row="3" Grid.Column="0" Height="Auto" VerticalAlignment="Bottom" HorizontalAlignment="Right" Grid.ColumnSpan="2">
-            <Grid Margin="0" VerticalAlignment="Bottom" HorizontalAlignment="Right">
+        <StackPanel Grid.Row="3" Grid.Column="0" Height="Auto" VerticalAlignment="Bottom" Grid.ColumnSpan="2">
+            <Grid Margin="0" VerticalAlignment="Bottom">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="55"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <Grid HorizontalAlignment="Right" Height="0" Margin="0,0,0,0" Width="Auto" VerticalAlignment="Top"/>
-                <Button Content="OK" Width="50" Height="25" Click="SaveAndClose" />
-                <Button Content="Cancel" IsCancel="True" Grid.Column="1" Width="50" HorizontalAlignment="Right" Click="CloseNoSave" />
+                <Grid Height="0" Margin="0,0,0,0" Width="Auto" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+                <Button Content="Reset" Width="50" Height="25" Click="Reset" Grid.Column="0" HorizontalAlignment="Left" />
+                <Button Content="OK" Width="50" Height="25" Click="SaveAndClose" Grid.Column="1" HorizontalAlignment="Left" />
+                <Button Content="Cancel" IsCancel="True" Grid.Column="2" Width="50" Click="CloseNoSave" HorizontalAlignment="Right" />
             </Grid>
         </StackPanel>
     </Grid>

@@ -97,7 +97,7 @@
 
         public override BitmapImage getImage(PluginImageSize imageSize)
         {
-            MackieChannelData cd = this.Plugin.mackieChannelData[this.ChannelIndex.ToString()];
+            MackieChannelData cd = this.Plugin.channelData[this.ChannelIndex.ToString()];
             //if (!this.Plugin.mackieChannelData.TryGetValue(this.ChannelIndex.ToString(), out MackieChannelData cd))
             //    return;
 
@@ -112,7 +112,7 @@
 
         public override void runCommand()
         {
-            MackieChannelData cd = this.Plugin.mackieChannelData[this.ChannelIndex.ToString()];
+            MackieChannelData cd = this.Plugin.channelData[this.ChannelIndex.ToString()];
 
             cd.EmitChannelPropertyPress(this.Type);
         }
@@ -189,8 +189,9 @@
         public static readonly BitmapColor BgColorAssigned = new BitmapColor(80, 80, 80);
         public static readonly BitmapColor BgColorUnassigned = new BitmapColor(40, 40, 40);
 
-        private String PluginName;
-        private static readonly ColorFinder UserColorFinder = new ColorFinder(new ColorFinder.ColorSettings
+        public static String PluginName { get; set; }
+
+        public static readonly ColorFinder UserColorFinder = new ColorFinder(new ColorFinder.ColorSettings
         {
             OnColor = BgColorAssigned,
             OffColor = BgColorAssigned,
@@ -203,7 +204,7 @@
             this.ChannelIndex = channelIndex;
         }
 
-        public void setPluginName(String text) => this.PluginName = text;
+//        public void setPluginName(String text) => this.PluginName = text;
 
         public override void OnLoad(StudioOneMidiPlugin plugin)
         {
@@ -213,13 +214,13 @@
 
         public override BitmapImage getImage(PluginImageSize imageSize)
         {
-            MackieChannelData cd = this.Plugin.mackieChannelData[this.ChannelIndex.ToString()];
+            MackieChannelData cd = this.Plugin.channelData[this.ChannelIndex.ToString()];
             //if (!this.Plugin.mackieChannelData.TryGetValue(this.ChannelIndex.ToString(), out MackieChannelData cd))
             //    return;
 
             var bb = new BitmapBuilder(imageSize);
 
-            return SelectButtonData.drawImage(bb, cd, this.CurrentMode, this.UserButtonActive, SelectionPropertyType, this.PluginName);
+            return SelectButtonData.drawImage(bb, cd, this.CurrentMode, this.UserButtonActive, SelectionPropertyType, PluginName);
         }
 
         public static BitmapImage drawImage(BitmapBuilder bb,
@@ -318,7 +319,7 @@
 
         public override void runCommand()
         {
-            MackieChannelData cd = this.Plugin.mackieChannelData[this.ChannelIndex.ToString()];
+            MackieChannelData cd = this.Plugin.channelData[this.ChannelIndex.ToString()];
             switch (this.CurrentMode)
             {
                 case SelectButtonMode.Select:

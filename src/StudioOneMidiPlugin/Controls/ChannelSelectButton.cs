@@ -5,6 +5,8 @@
 
     using Melanchall.DryWetMidi.Core;
     using Melanchall.DryWetMidi.Common;
+    using System.Runtime.CompilerServices;
+    using System.Threading;
 
     // This defines 
     // Based on the source code for the official Loupedeck OBS Studio plugin
@@ -12,6 +14,8 @@
     //
     internal class ChannelSelectButton : StudioOneButton<SelectButtonData>
     {
+        private Boolean IsUserPotConfigWindowOpen = false;
+
         public ChannelSelectButton()
         {
             this.DisplayName = "Channel Select Button";
@@ -22,7 +26,7 @@
                 var idx = $"{i}";
 
                 this.buttonData[idx] = new SelectButtonData(i);
-                AddParameter(idx, $"Select Channel {i+1}", "Channel Selection");
+                this.AddParameter(idx, $"Select Channel {i+1}", "Channel Selection");
             }
         }
 
@@ -58,16 +62,63 @@
 
             this.plugin.FocusDeviceChanged += (object sender, string e) =>
             {
-                var pluginName = getPluginName(e);
-
-                for (int i = 0; i < StudioOneMidiPlugin.ChannelCount; i++)
-                {
-                    this.buttonData[i.ToString()].setPluginName(pluginName);
-                }
+                SelectButtonData.PluginName = getPluginName(e);
                 this.EmitActionImageChanged();
             };
             
             return true;
         }
+
+        protected override Boolean ProcessButtonEvent2(string actionParameter, DeviceButtonEvent2 buttonEvent)
+        {
+            if (buttonEvent.EventType.IsLongPress())
+            {
+                if (this.buttonData[actionParameter].CurrentMode == SelectButtonMode.User)
+                {
+                    MackieChannelData cd = this.plugin.channelData[actionParameter];
+
+                    this.OpenUserConfigWindow(cd.Label);
+                }
+            }
+
+
+            return base.ProcessButtonEvent2(actionParameter, buttonEvent);
+        }
+        public void OpenUserConfigWindow(String pluginParameter)
+        {
+            if (this.IsUserPotConfigWindowOpen)
+                return;
+
+            var volBarColor = SelectButtonData.UserColorFinder.getTextOnColor(SelectButtonData.PluginName, pluginParameter);
+
+            var t = new Thread(() => {
+                var w = new UserPotConfig(this.Plugin,
+                                          new UserPotConfigData
+                                          {
+                                              PluginName = SelectButtonData.PluginName,
+                                              PluginParameter = pluginParameter,
+                                              Mode = SelectButtonData.UserColorFinder.getMode(SelectButtonData.PluginName, pluginParameter),
+                                              R = volBarColor.R,
+                                              G = volBarColor.G,
+                                              B = volBarColor.B,
+                                              Label = SelectButtonData.UserColorFinder.getLabel(SelectButtonData.PluginName, pluginParameter)
+                                          });
+                w.Closed += (_, _) =>
+                {
+                    this.IsUserPotConfigWindowOpen = false;
+                    SelectButtonData.UserColorFinder.Init(this.Plugin, forceReload: true);
+                    (this.Plugin as StudioOneMidiPlugin).EmitChannelDataChanged();
+                };
+                w.Show();
+                System.Windows.Threading.Dispatcher.Run();
+            });
+
+            t.SetApartmentState(ApartmentState.STA);
+            t.Start();
+
+            this.IsUserPotConfigWindowOpen = true;
+        }
+
     }
+
 }

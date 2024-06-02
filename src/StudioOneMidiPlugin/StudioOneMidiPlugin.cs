@@ -28,7 +28,7 @@ namespace Loupedeck.StudioOneMidiPlugin
 
 		public const int ChannelCount = 6;
 
-		public IDictionary<string, MackieChannelData> mackieChannelData = new Dictionary<string, MackieChannelData>();
+		public IDictionary<string, MackieChannelData> channelData = new Dictionary<string, MackieChannelData>();
 
         string midiInName, midiOutName, mackieMidiInName, mackieMidiOutName;
 
@@ -206,7 +206,7 @@ namespace Loupedeck.StudioOneMidiPlugin
             //
             for (int i = 0; i < ChannelCount + 2; i++)
             {
-                mackieChannelData[i.ToString()] = new MackieChannelData(this, i);
+                channelData[i.ToString()] = new MackieChannelData(this, i);
             }
 
 			this.ChannelDataChangeTimer = new System.Timers.Timer(10);
@@ -300,7 +300,7 @@ namespace Loupedeck.StudioOneMidiPlugin
             // PitchBend -> volume
             if (e is PitchBendEvent)
             {
-                if (!mackieChannelData.TryGetValue(((int)(e as ChannelEvent).Channel).ToString(), out MackieChannelData cd))
+                if (!channelData.TryGetValue(((int)(e as ChannelEvent).Channel).ToString(), out MackieChannelData cd))
                     return;
 
                 var ce = e as PitchBendEvent;
@@ -328,7 +328,7 @@ namespace Loupedeck.StudioOneMidiPlugin
                 {
                     var channelIndex = ce.NoteNumber - ChannelProperty.MidiBaseNote[(int)eventType];
 
-                    if (!mackieChannelData.TryGetValue(channelIndex.ToString(), out MackieChannelData cd))
+                    if (!channelData.TryGetValue(channelIndex.ToString(), out MackieChannelData cd))
                         return;
 
                     cd.BoolProperty[(int)eventType] = ce.Velocity > 0;
@@ -341,7 +341,7 @@ namespace Loupedeck.StudioOneMidiPlugin
                         var ubp = new UserButtonParams();
                         ubp.channelIndex = ce.NoteNumber - UserButtonMidiBase;
                         ubp.isActive = ce.Velocity > 0;
-                        if (mackieChannelData.TryGetValue(ubp.channelIndex.ToString(), out MackieChannelData cd))
+                        if (channelData.TryGetValue(ubp.channelIndex.ToString(), out MackieChannelData cd))
                         {
                             cd.UserActive = ubp.isActive;
                             ubp.userLabel = cd.UserLabel;
@@ -407,7 +407,7 @@ namespace Loupedeck.StudioOneMidiPlugin
                     var receivedString = Encoding.UTF8.GetString(str, 0, str.Length);
                     var displayIndex = offset / 4;
 
-                    if (!mackieChannelData.TryGetValue(displayIndex.ToString(), out MackieChannelData cd))
+                    if (!channelData.TryGetValue(displayIndex.ToString(), out MackieChannelData cd))
                         return;
 
                     switch (offset % 4)

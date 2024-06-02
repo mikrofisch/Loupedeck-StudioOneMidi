@@ -23,7 +23,7 @@
         });
         private static readonly UserButtonParams[] UserButtonInfo = new UserButtonParams[StudioOneMidiPlugin.ChannelCount];
 
-        private Boolean IsUserPotConfigWindowOpen = false;
+        private Boolean IsUserConfigWindowOpen = false;
 
         public ChannelFader() : base(hasReset: true)
 		{
@@ -246,7 +246,7 @@
             {
                 if (this.selectMode == SelectButtonMode.User)
                 {
-                    this.OpenUserPotConfigWindow(cd.Label);
+                    this.OpenUserConfigWindow(cd.Label);
                 }
             }
 
@@ -271,17 +271,17 @@
         //    return true;
         // }
 
-        public void OpenUserPotConfigWindow(String pluginParameter)
+        public void OpenUserConfigWindow(String pluginParameter)
         {
-            if (this.IsUserPotConfigWindowOpen)
+            if (this.IsUserConfigWindowOpen)
                 return;
 
             var volBarColor = UserColorFinder.getOnColor(this.PluginName, pluginParameter);
 
             var t = new Thread(() => {
-                var w = new UserPotConfig(this.Plugin,
+                var w = new UserControlConfig(this.Plugin,
                                           UserColorFinder,
-                                          new UserPotConfigData { PluginName = this.PluginName,
+                                          new UserControlConfigData { PluginName = this.PluginName,
                                                                   PluginParameter = pluginParameter,
                                                                   Mode = UserColorFinder.getMode(this.PluginName, pluginParameter),
                                                                   R = volBarColor.R,
@@ -290,7 +290,7 @@
                                                                   Label = UserColorFinder.getLabel(this.PluginName, pluginParameter) } );
                 w.Closed += (_, _) =>
                 {
-                    this.IsUserPotConfigWindowOpen = false;
+                    this.IsUserConfigWindowOpen = false;
                     UserColorFinder.Init(this.Plugin, forceReload: true);
                     (this.Plugin as StudioOneMidiPlugin).EmitChannelDataChanged();
                 };
@@ -301,7 +301,7 @@
             t.SetApartmentState(ApartmentState.STA);
             t.Start();
 
-            this.IsUserPotConfigWindowOpen = true;
+            this.IsUserConfigWindowOpen = true;
         }
     }
 }

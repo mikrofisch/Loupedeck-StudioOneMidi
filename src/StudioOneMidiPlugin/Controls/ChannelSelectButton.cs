@@ -2,10 +2,6 @@
 {
     using System;
     using static Loupedeck.StudioOneMidiPlugin.StudioOneMidiPlugin;
-
-    using Melanchall.DryWetMidi.Core;
-    using Melanchall.DryWetMidi.Common;
-    using System.Runtime.CompilerServices;
     using System.Threading;
 
     // This defines 
@@ -14,7 +10,7 @@
     //
     internal class ChannelSelectButton : StudioOneButton<SelectButtonData>
     {
-        private Boolean IsUserPotConfigWindowOpen = false;
+        private Boolean IsUserConfigWindowOpen = false;
 
         public ChannelSelectButton()
         {
@@ -86,14 +82,15 @@
         }
         public void OpenUserConfigWindow(String pluginParameter)
         {
-            if (this.IsUserPotConfigWindowOpen)
+            if (this.IsUserConfigWindowOpen)
                 return;
 
             var volBarColor = SelectButtonData.UserColorFinder.getTextOnColor(SelectButtonData.PluginName, pluginParameter);
 
             var t = new Thread(() => {
-                var w = new UserPotConfig(this.Plugin,
-                                          new UserPotConfigData
+                var w = new UserControlConfig(this.Plugin,
+                                          SelectButtonData.UserColorFinder,
+                                          new UserControlConfigData
                                           {
                                               PluginName = SelectButtonData.PluginName,
                                               PluginParameter = pluginParameter,
@@ -105,7 +102,7 @@
                                           });
                 w.Closed += (_, _) =>
                 {
-                    this.IsUserPotConfigWindowOpen = false;
+                    this.IsUserConfigWindowOpen = false;
                     SelectButtonData.UserColorFinder.Init(this.Plugin, forceReload: true);
                     (this.Plugin as StudioOneMidiPlugin).EmitChannelDataChanged();
                 };
@@ -116,7 +113,7 @@
             t.SetApartmentState(ApartmentState.STA);
             t.Start();
 
-            this.IsUserPotConfigWindowOpen = true;
+            this.IsUserConfigWindowOpen = true;
         }
 
     }

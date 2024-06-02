@@ -19,11 +19,11 @@
     using System.Windows.Shapes;
 
     /// <summary>
-    /// Interaction logic for UserPotConfig.xaml
+    /// Interaction logic for UserControlConfig.xaml
     /// </summary>
     /// 
 
-    public class UserPotConfigData
+    public class UserControlConfigData
     {
         public String PluginName { get; set; }
         public String PluginParameter { get; set; }
@@ -32,8 +32,8 @@
         public Byte G { get; set; }
         public Byte B { get; set; }
         public String Label { get; set; }
-        public UserPotConfigData() { }
-        public UserPotConfigData(UserPotConfigData u)
+        public UserControlConfigData() { }
+        public UserControlConfigData(UserControlConfigData u)
         {
             this.PluginName = u.PluginName;
             this.PluginParameter = u.PluginParameter;
@@ -44,13 +44,13 @@
             this.Label = u.Label;
         }
     }
-    public partial class UserPotConfig : Window
+    public partial class UserControlConfig : Window
     {
-        private UserPotConfigData ConfigData;
+        private UserControlConfigData ConfigData;
         private ColorFinder UserColorFinder;
 
         private Plugin Plugin { get; set; }
-        public UserPotConfig(Plugin plugin, ColorFinder cf, UserPotConfigData configData)
+        public UserControlConfig(Plugin plugin, ColorFinder cf, UserControlConfigData configData)
         {
             this.Plugin = plugin;
             this.UserColorFinder = cf;

@@ -86,8 +86,8 @@
     <Compile Include="Helpers\PluginResources.cs" />
     <Compile Include="Actions\CounterAdjustment.cs" />
     <Compile Include="Actions\CounterCommand.cs" />
-    <Compile Include="UserPotConfig.xaml.cs">
-      <DependentUpon>UserPotConfig.xaml</DependentUpon>
+    <Compile Include="UserControlConfig.xaml.cs">
+      <DependentUpon>UserControlConfig.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -109,7 +109,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="UserPotConfig.xaml">
+    <Page Include="UserControlConfig.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

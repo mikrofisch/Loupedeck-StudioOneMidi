@@ -18,10 +18,8 @@
         private String PluginName;
         private static readonly ColorFinder UserColorFinder = new ColorFinder(new ColorFinder.ColorSettings
         {
-            OnColor = BitmapColor.Transparent,
-            OffColor = BitmapColor.Transparent,
-            TextOnColor = new BitmapColor(60, 192, 232),  // Used for volume bar
-            TextOffColor = new BitmapColor(80, 80, 80)    // Used for volume bar
+            OnColor =  new FinderColor(60, 192, 232),      // Used for volume bar
+            OffColor = new FinderColor(80, 80, 80)         // Used for volume bar
         });
         private static readonly UserButtonParams[] UserButtonInfo = new UserButtonParams[StudioOneMidiPlugin.ChannelCount];
 
@@ -120,7 +118,7 @@
 
             var stepDivisions = 100;
             if ((Control.ModifierKeys & Keys.Shift) == Keys.Shift)
-                stepDivisions = 400;
+                stepDivisions = 600;
             cd.Value = Math.Min(1, Math.Max(0, (float)Math.Round(cd.Value * stepDivisions + diff) / stepDivisions));
 			cd.EmitVolumeUpdate();
             return true;
@@ -186,10 +184,10 @@
                     }
                 }
 
-                var volBarColor = UserColorFinder.getTextOnColor(this.PluginName, cd.Label);
+                var volBarColor = UserColorFinder.getOnColor(this.PluginName, cd.Label);
                 if (!linkedParameter.IsNullOrEmpty() && !isActive)
                 {
-                    volBarColor = UserColorFinder.getTextOffColor(this.PluginName, cd.Label);
+                    volBarColor = UserColorFinder.getOffColor(this.PluginName, cd.Label);
                 }
 
                 int volBarH = (int)Math.Ceiling(cd.Value * bb.Height);
@@ -278,10 +276,11 @@
             if (this.IsUserPotConfigWindowOpen)
                 return;
 
-            var volBarColor = UserColorFinder.getTextOnColor(this.PluginName, pluginParameter);
+            var volBarColor = UserColorFinder.getOnColor(this.PluginName, pluginParameter);
 
             var t = new Thread(() => {
                 var w = new UserPotConfig(this.Plugin,
+                                          UserColorFinder,
                                           new UserPotConfigData { PluginName = this.PluginName,
                                                                   PluginParameter = pluginParameter,
                                                                   Mode = UserColorFinder.getMode(this.PluginName, pluginParameter),

@@ -474,7 +474,7 @@
 
 			<Touch control="ffButton"      param="fastForward"/>
 			<Touch control="rewindButton"  param="rewind"/>
-			<Toggle control="recordButton" param="record"/>
+			<Command control="recordButton" command.category="Transport" command.name="Record"/>
 
 			<Value control="recordLED"    param="record"/>
 			<Value control="ffLED"        param="fastForward"/>

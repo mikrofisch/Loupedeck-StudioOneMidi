@@ -186,8 +186,10 @@
         private const int TitleHeight = 24;
         private static BitmapImage IconSelMon, IconSelRec;
         private static readonly BitmapColor CommandPropertyColor = new BitmapColor(40, 40, 40);
-        public static readonly BitmapColor BgColorAssigned = new BitmapColor(80, 80, 80);
-        public static readonly BitmapColor BgColorUnassigned = new BitmapColor(40, 40, 40);
+        public static readonly BitmapColor TextDescColor = new BitmapColor(175, 175, 175);
+        public static readonly FinderColor BgColorAssigned =   new FinderColor(80, 80, 80);
+        public static readonly FinderColor BgColorUnassigned = new FinderColor(40, 40, 40);
+        public static readonly BitmapColor BgColorUserCircle = new BitmapColor(60, 60, 60);
 
         public static String PluginName { get; set; }
 
@@ -195,8 +197,8 @@
         {
             OnColor = BgColorAssigned,
             OffColor = BgColorAssigned,
-            TextOnColor = BitmapColor.White,
-            TextOffColor = BitmapColor.Black
+            TextOnColor = FinderColor.White,
+            TextOffColor = FinderColor.Black
         });
 
         public SelectButtonData(int channelIndex)
@@ -239,25 +241,39 @@
             if (buttonMode == SelectButtonMode.Send)
             {
                 //                bb.FillRectangle(0, 0, bb.Width, bb.Height, BitmapColor.Black);
-                bb.DrawText(cd.Description, 0, 0, bb.Width, TitleHeight, new BitmapColor(175, 175, 175));
+                bb.DrawText(cd.Description, 0, 0, bb.Width, TitleHeight, TextDescColor);
                 bb.DrawText(ColorFinder.stripLabel(cd.Label), 0, bb.Height / 2 - TitleHeight / 2, bb.Width, TitleHeight);
             }
             else if (buttonMode == SelectButtonMode.User)
             {
-                bb.DrawText(cd.Description, 0, 0, bb.Width, TitleHeight, new BitmapColor(175, 175, 175));
+                var ubh = bb.Height / 3;
+                var uby = bb.Height - ubh;
+                bb.DrawText(cd.Description, 0, 0, bb.Width, TitleHeight, TextDescColor);
                 bb.DrawText(UserColorFinder.getLabelShort(pluginName, cd.Label), 0, bb.Height / 2 - TitleHeight / 2, bb.Width, TitleHeight, 
                             UserColorFinder.DefaultColorSettings.TextOnColor);
-                bb.FillRectangle(0, bb.Height * 2 / 3, bb.Width, bb.Height / 3, 
-                                 cd.UserLabel.Length > 0 ? userButtonActive ? UserColorFinder.getOnColor(pluginName, cd.UserLabel)
-                                                                            : UserColorFinder.getOffColor(pluginName, cd.UserLabel)
-                                                         : BgColorUnassigned);
-                if (cd.UserLabel.Length > 0 && UserColorFinder.showUserButtonCircle(pluginName, cd.UserLabel))
+
+                var drawCircle = cd.UserLabel.Length > 0 && UserColorFinder.showUserButtonCircle(pluginName, cd.UserLabel);
+                var tx = 0;
+                var tw = bb.Width;
+                var tc = userButtonActive ? drawCircle ? UserColorFinder.getOnColor(pluginName, cd.UserLabel)
+                                                       : UserColorFinder.getTextOnColor(pluginName, cd.UserLabel)
+                                          : UserColorFinder.getTextOffColor(pluginName, cd.UserLabel);
+                var bc = cd.UserLabel.Length > 0 ? userButtonActive ? UserColorFinder.getOnColor(pluginName, cd.UserLabel)
+                                                                    : UserColorFinder.getOffColor(pluginName, cd.UserLabel)
+                                                 : BgColorUnassigned;
+                bb.FillRectangle(0, uby, bb.Width, ubh, drawCircle ? BgColorUserCircle : bc);
+                if (drawCircle)
                 {
-                    
+                    var cx = ubh/2;
+                    if (cd.ChannelID >= 3) cx = bb.Width - ubh / 2;
+                    var cy = uby + ubh/2;
+                    var cr = ubh/2 - 5;
+                    if (userButtonActive) bb.FillCircle(cx, cy, cr, tc);
+                    else                  bb.DrawArc(cx, cy, cr, 0, 360, tc, 2);
+                    tx = ubh;
+                    tw = bb.Width - ubh * 2;
                 }
-                bb.DrawText(UserColorFinder.getLabelShort(pluginName, cd.UserLabel), 0, bb.Height * 2 / 3, bb.Width, TitleHeight, 
-                            userButtonActive ? UserColorFinder.getTextOnColor(pluginName, cd.UserLabel)
-                                             : UserColorFinder.getTextOffColor(pluginName, cd.UserLabel));
+                bb.DrawText(UserColorFinder.getLabelShort(pluginName, cd.UserLabel), tx, uby, tw, TitleHeight, tc);
             }
             else
             {

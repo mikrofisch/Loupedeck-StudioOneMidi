@@ -31,7 +31,7 @@
 		<!-- Buttons + LEDs -->
 		<!-- ******************************************************************************************** -->
 
-		<Control name="trackFXButton"    type="trigger" options="receive"> <MidiMessage status="#90" address="#27" channel="0"/> </Control>
+		<Control name="trackFXButton"    type="trigger" options="receive"> <MidiMessage status="#90" address="#7F" channel="0"/> </Control>
 
 		<!-- Assignment Buttons -->
 		<Control name="trackButton"      type="trigger" options="receive"> <MidiMessage status="#90" address="#28" channel="0"/> </Control>
@@ -146,8 +146,8 @@
 		<Control name="F11Text" type="textdisplay" options="transmit public"/>
 		<Control name="F12Text" type="textdisplay" options="transmit public"/>
 
-		<Control name="U1" title="U1"	type="trigger" options="transmit receive public"> <MidiMessage status="#90" address="#6C" channel="0"/> </Control>
-		<Control name="U2" title="U2"	type="trigger" options="transmit receive public"> <MidiMessage status="#90" address="#6D" channel="0"/> </Control>
+		<Control name="U1" title="U1"	type="trigger" options="transmit receive public"> <MidiMessage status="#90" address="#76" channel="0"/> </Control>
+		<Control name="U2" title="U2"	type="trigger" options="transmit receive public"> <MidiMessage status="#90" address="#77" channel="0"/> </Control>
 
 		<Control name="U1Text"  type="textdisplay" options="transmit public"/>
 		<Control name="U2Text"  type="textdisplay" options="transmit public"/>
@@ -162,6 +162,8 @@
 
 		<Control name="selectedVolume" title="Selected Channel Volume" type="fader" options="transmit receive public"><MidiMessage status="#E0" channel="6"/></Control>
 		<Control name="selectedPan" title="Selected Channel Pan" type="fader" options="transmit receive public"><MidiMessage status="#E0" channel="7"/></Control>
+		<Control name="selectedVolumeReset" type="trigger" options="receive"> <MidiMessage status="#90" address="#26" channel="0"/> </Control>
+		<Control name="selectedPanReset" type="trigger" options="receive"> <MidiMessage status="#90" address="#27" channel="0"/> </Control>
 
 		<Control name="selectedLabelText"  type="textdisplay" options="transmit"/>
 		<Control name="selectedVolumeText"  type="textdisplay" options="transmit"/>
@@ -417,6 +419,8 @@
 
 					<Value control="selectedVolume" param="volume"/>
 					<Value control="selectedPan" param="pan"/>
+					<DefaultValue control="selectedVolumeReset" param="volume"/>
+					<DefaultValue control="selectedPanReset" param="pan"/>
 
 					<String control="selectedLabelText" param="label"/>
 					<String control="selectedVolumeText" param="volume"/>

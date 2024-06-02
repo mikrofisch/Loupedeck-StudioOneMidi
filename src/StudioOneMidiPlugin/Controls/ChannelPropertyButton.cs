@@ -120,7 +120,7 @@
                 if ((ChannelProperty.PropertyType)controlProperty == ChannelProperty.PropertyType.Monitor)
                     icon = this.IconMonitor;
 
-                MackieChannelData cd = this.plugin.mackieChannelData[channelIndex.ToString()];
+                MackieChannelData cd = this.plugin.channelData[channelIndex.ToString()];
                 return PropertyButtonDataBase.drawImage(new BitmapBuilder(imageWidth, imageHeight),
                                                     (ChannelProperty.PropertyType)controlProperty,
                                                     cd.BoolProperty[controlProperty],
@@ -144,7 +144,7 @@
                 }
 
                 return SelectButtonData.drawImage(new BitmapBuilder(imageWidth, imageHeight),
-                                                  this.plugin.mackieChannelData[channelIndex.ToString()],
+                                                  this.plugin.channelData[channelIndex.ToString()],
                                                   StudioOneMidiPlugin.SelectButtonMode.Select,
                                                   false,
                                                   (ChannelProperty.PropertyType) controlProperty);
@@ -156,7 +156,7 @@
             if (!actionParameters.TryGetInt32(PropertySelector, out var controlProperty)) return false;
             if (!actionParameters.TryGetString(ChannelSelector, out var channelIndex)) return false;
 
-            MackieChannelData cd = this.plugin.mackieChannelData[channelIndex];
+            MackieChannelData cd = this.plugin.channelData[channelIndex];
 
             if (controlProperty >= 8)
             {

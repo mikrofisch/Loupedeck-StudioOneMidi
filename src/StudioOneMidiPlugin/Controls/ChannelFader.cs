@@ -23,7 +23,7 @@
             TextOnColor = new BitmapColor(60, 192, 232),  // Used for volume bar
             TextOffColor = new BitmapColor(80, 80, 80)    // Used for volume bar
         });
-        private static UserButtonParams[] UserButtonInfo = new UserButtonParams[StudioOneMidiPlugin.ChannelCount];
+        private static readonly UserButtonParams[] UserButtonInfo = new UserButtonParams[StudioOneMidiPlugin.ChannelCount];
 
         private Boolean IsUserPotConfigWindowOpen = false;
 
@@ -218,7 +218,7 @@
 
 		private MackieChannelData GetChannel(string actionParameter)
 		{
-			return (this.Plugin as StudioOneMidiPlugin).mackieChannelData[actionParameter];
+			return (this.Plugin as StudioOneMidiPlugin).channelData[actionParameter];
 		}
 
         protected override Boolean RunCommand(ActionEditorActionParameters actionParameters)
@@ -293,7 +293,6 @@
                 {
                     this.IsUserPotConfigWindowOpen = false;
                     UserColorFinder.Init(this.Plugin, forceReload: true);
-//                    this.ActionImageChanged();
                     (this.Plugin as StudioOneMidiPlugin).EmitChannelDataChanged();
                 };
                 w.Show();

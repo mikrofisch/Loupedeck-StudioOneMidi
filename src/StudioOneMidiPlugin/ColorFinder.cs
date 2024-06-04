@@ -56,6 +56,7 @@
             public const String strLabel = "Label";
             public const String strLinkedParameter = "LinkedParameter";
             public const String strMode = "Mode";
+            public const String strShowCircle = "ShowCircle";
             //public const String[] strModeValue = { "Positive", "Symmetric" };
         }
         private static readonly Dictionary<(String PluginName, String PluginParameter), ColorSettings> ColorDict = new Dictionary<(String, String), ColorSettings>();
@@ -151,6 +152,35 @@
                 this.addLinked("Fat Channel", "High Freq", "High On", label: "HF Freq");
                 this.addLinked("Fat Channel", "High Q", "High On", label: "HF Q");
 
+                ColorDict.Add(("SSLGChannel Mono", "HP Frq"), new ColorSettings { OnColor = new FinderColor(220, 216, 207) });
+                ColorDict.Add(("SSLGChannel Mono", "LP Frq"), new ColorSettings { OnColor = new FinderColor(220, 216, 207) });
+                ColorDict.Add(("SSLGChannel Mono", "FilterSplit"), new ColorSettings { OnColor = new FinderColor(204, 191, 46), Label = "SPLIT" });
+                ColorDict.Add(("SSLGChannel Mono", "HF Gain"), new ColorSettings { OnColor = new FinderColor(177, 53, 63), Mode = ColorSettings.PotMode.Symmetric });
+                ColorDict.Add(("SSLGChannel Mono", "HF Frq"), new ColorSettings { OnColor = new FinderColor(177, 53, 63) });
+                ColorDict.Add(("SSLGChannel Mono", "HMF X3"), new ColorSettings { OnColor = new FinderColor(27, 92, 64), Label = "HMFx3" });
+                ColorDict.Add(("SSLGChannel Mono", "LF Gain"), new ColorSettings { OnColor = new FinderColor(180, 180, 180), Mode = ColorSettings.PotMode.Symmetric });
+                ColorDict.Add(("SSLGChannel Mono", "LF Frq"), new ColorSettings { OnColor = new FinderColor(180, 180, 180) });
+                ColorDict.Add(("SSLGChannel Mono", "LMF div3"), new ColorSettings { OnColor = new FinderColor(22, 97, 120), Label = "LMF/3" });
+                ColorDict.Add(("SSLGChannel Mono", "HMF Gain"), new ColorSettings { OnColor = new FinderColor(27, 92, 64), Mode = ColorSettings.PotMode.Symmetric });
+                ColorDict.Add(("SSLGChannel Mono", "HMF Frq"), new ColorSettings { OnColor = new FinderColor(27, 92, 64) });
+                ColorDict.Add(("SSLGChannel Mono", "HMF Q"), new ColorSettings { OnColor = new FinderColor(27, 92, 64), Mode = ColorSettings.PotMode.Symmetric });
+                ColorDict.Add(("SSLGChannel Mono", "LMF Gain"), new ColorSettings { OnColor = new FinderColor(22, 97, 120), Mode = ColorSettings.PotMode.Symmetric });
+                ColorDict.Add(("SSLGChannel Mono", "LMF Frq"), new ColorSettings { OnColor = new FinderColor(22, 97, 120) });
+                ColorDict.Add(("SSLGChannel Mono", "LMF Q"), new ColorSettings { OnColor = new FinderColor(22, 97, 120), Mode = ColorSettings.PotMode.Symmetric });
+                ColorDict.Add(("SSLGChannel Mono", "EQBypass"), new ColorSettings { OnColor = new FinderColor(226, 61, 80), Label = "EQ BYP" });
+                ColorDict.Add(("SSLGChannel Mono", "EQDynamic"), new ColorSettings { OnColor = new FinderColor(241, 171, 53), Label = "FLT DYN SC" });
+                ColorDict.Add(("SSLGChannel Mono", "CompRatio"), new ColorSettings { OnColor = new FinderColor(220, 216, 207), Label = "COMP Ratio" });
+                ColorDict.Add(("SSLGChannel Mono", "CompThresh"), new ColorSettings { OnColor = new FinderColor(220, 216, 207), Label = "COMP Thresh" });
+                ColorDict.Add(("SSLGChannel Mono", "CompRelease"), new ColorSettings { OnColor = new FinderColor(220, 216, 207), Label = "COMP Release" });
+                ColorDict.Add(("SSLGChannel Mono", "CompFast"), new ColorSettings { Label = "F.ATK" });
+                ColorDict.Add(("SSLGChannel Mono", "ExpRange"), new ColorSettings { OnColor = new FinderColor(27, 92, 64), Label = "EXP Range" });
+                ColorDict.Add(("SSLGChannel Mono", "ExpThresh"), new ColorSettings { OnColor = new FinderColor(27, 92, 64), Label = "EXP Thresh" });
+                ColorDict.Add(("SSLGChannel Mono", "ExpRelease"), new ColorSettings { OnColor = new FinderColor(27, 92, 64), Label = "EXP Release" });
+                ColorDict.Add(("SSLGChannel Mono", "ExpAttack"), new ColorSettings { Label = "F.ATK" });
+                ColorDict.Add(("SSLGChannel Mono", "ExpGate"), new ColorSettings { Label = "GATE" });
+                ColorDict.Add(("SSLGChannel Mono", "DynamicBypass"), new ColorSettings { OnColor = new FinderColor(226, 61, 80), Label = "DYN BYP" });
+                ColorDict.Add(("SSLGChannel Mono", "DynaminCHOut"), new ColorSettings { OnColor = new FinderColor(241, 171, 53), Label = "DYN CH OUT" });
+                ColorDict.Add(("SSLGChannel Mono", "VUInOut"), new ColorSettings { OnColor = new FinderColor(241, 171, 53), Label = "VU OUT" });
 
                 var settingsList = plugin.ListPluginSettings();
 
@@ -175,8 +205,14 @@
                                 case ColorSettings.strLabel:
                                     cs.Label = val;
                                     break;
+                                case ColorSettings.strLinkedParameter:
+                                    cs.LinkedParameter = val;
+                                    break;
                                 case ColorSettings.strMode:
                                     cs.Mode = val.ParseInt32() == 0 ? ColorSettings.PotMode.Positive : ColorSettings.PotMode.Symmetric;
+                                    break;
+                                case ColorSettings.strShowCircle:
+                                    cs.ShowUserButtonCircle = val.ParseInt32() == 1 ? true : false;
                                     break;
                             }
                         }
@@ -208,6 +244,8 @@
         private BitmapColor findColor(FinderColor settingsColor, BitmapColor defaultColor) => settingsColor ?? defaultColor;
 
         public ColorSettings.PotMode getMode(String pluginName, String parameterName) => this.getColorSettings(pluginName, parameterName).Mode;
+        public Boolean getShowCircle(String pluginName, String parameterName) => this.getColorSettings(pluginName, parameterName).ShowUserButtonCircle;
+
         public BitmapColor getOnColor(String pluginName, String parameterName) => this.findColor(this.getColorSettings(pluginName, parameterName).OnColor,
                                                                                                  this.DefaultColorSettings.OnColor);
         public BitmapColor getOffColor(String pluginName, String parameterName) => this.findColor(this.getColorSettings(pluginName, parameterName).OffColor,

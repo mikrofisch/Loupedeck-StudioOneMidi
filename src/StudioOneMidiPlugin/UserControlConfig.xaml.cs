@@ -4,13 +4,15 @@
     using System.Collections.Generic;
     using System.Globalization;
     using System.Linq;
+    using System.Security.RightsManagement;
     using System.Text;
     using System.Text.RegularExpressions;
     using System.Threading.Tasks;
     using System.Windows;
     using System.Windows.Controls;
-    using System.Windows.Data;
+    // using System.Drawing;
     using System.Windows.Documents;
+    //using System.Windows.Forms;
     using System.Windows.Forms.VisualStyles;
     using System.Windows.Input;
     using System.Windows.Media;
@@ -25,12 +27,15 @@
 
     public class UserControlConfigData
     {
+        public String Title { get; set; }
         public String PluginName { get; set; }
         public String PluginParameter { get; set; }
         public ColorFinder.ColorSettings.PotMode Mode { get; set; }
+        public Boolean ShowCircle { get; set; }
         public Byte R { get; set; }
         public Byte G { get; set; }
         public Byte B { get; set; }
+        public String LinkedParameter { get; set; }
         public String Label { get; set; }
         public UserControlConfigData() { }
         public UserControlConfigData(UserControlConfigData u)
@@ -46,23 +51,39 @@
     }
     public partial class UserControlConfig : Window
     {
+        public enum WindowMode
+        {
+            Dial, Button
+        }
         private UserControlConfigData ConfigData;
         private ColorFinder UserColorFinder;
 
         private Plugin Plugin { get; set; }
-        public UserControlConfig(Plugin plugin, ColorFinder cf, UserControlConfigData configData)
+        public UserControlConfig(WindowMode mode, Plugin plugin, ColorFinder cf, UserControlConfigData configData)
         {
             this.Plugin = plugin;
             this.UserColorFinder = cf;
 
+            configData.Title = mode == WindowMode.Dial ? "User Dial Configuration" : "User Button Configuration";
+           
             this.InitializeComponent();
 
             this.ConfigData = configData;
 
             this.DataContext = this.ConfigData;
 
-            this.rbPositive.IsChecked  = configData.Mode == ColorFinder.ColorSettings.PotMode.Positive;
-            this.rbSymmetric.IsChecked = configData.Mode == ColorFinder.ColorSettings.PotMode.Symmetric;
+            if (mode == WindowMode.Dial)
+            {
+                this.spShowCircle.Visibility = Visibility.Collapsed;
+                this.rbPositive.IsChecked = configData.Mode == ColorFinder.ColorSettings.PotMode.Positive;
+                this.rbSymmetric.IsChecked = configData.Mode == ColorFinder.ColorSettings.PotMode.Symmetric;
+            }
+            else if (mode == WindowMode.Button)
+            {
+                this.gPotMode.Visibility = Visibility.Collapsed;
+                this.spLinkedParam.Visibility = Visibility.Collapsed;
+                this.chShowCircle.IsChecked = configData.ShowCircle;
+            }
         }
 
         private void ColorChangedHandler(Object sender, TextChangedEventArgs e)
@@ -80,16 +101,10 @@
             }
         }
 
-       
         private static readonly Regex _regex = new Regex("[^0-9]"); //regex that matches non-numbers only
         private void CheckNumberInput(Object sender, TextCompositionEventArgs e)
         {
             e.Handled = (((TextBox)sender).Text.Length > 2) || _regex.IsMatch(e.Text) ;
-        }
-
-        private void Cancel(Object sender, RoutedEventArgs e)
-        {
-
         }
 
         private void CloseNoSave(Object sender, RoutedEventArgs e)
@@ -127,13 +142,37 @@
         }
         private void SaveAndClose(Object sender, RoutedEventArgs e)
         {
+            if (this.gPotMode.IsVisible)
+            {
+                this.SetPluginSetting(ColorFinder.ColorSettings.strMode, $"{(this.rbPositive.IsChecked == true ? 0 : 1)}");
+            }
+            if (this.spShowCircle.IsVisible)
+            {
+                this.SetPluginSetting(ColorFinder.ColorSettings.strShowCircle, $"{(this.chShowCircle.IsChecked == true ? 1 : 0)}");
+            }
+
             var onColorHex = ((Byte)this.tbColorR.Text.ParseInt32()).ToString("X2") +
                              ((Byte)this.tbColorG.Text.ParseInt32()).ToString("X2") +
                              ((Byte)this.tbColorB.Text.ParseInt32()).ToString("X2");
             this.SetPluginSetting(ColorFinder.ColorSettings.strOnColor, onColorHex);
             this.SetPluginSetting(ColorFinder.ColorSettings.strLabel, this.tbLabel.Text);
-            this.SetPluginSetting(ColorFinder.ColorSettings.strMode, $"{(this.rbPositive.IsChecked == true ? 0 : 1)}");
+            if (this.tbLinkedParam.IsVisible)
+            {
+                this.SetPluginSetting(ColorFinder.ColorSettings.strLinkedParameter, this.tbLinkedParam.Text);
+            }
             this.Close();
+        }
+
+        private void ShowCircleClickHandler(Object sender, RoutedEventArgs e)
+        {
+            if (this.chShowCircle.IsChecked == true)
+            {
+                this.chShowCircle.IsChecked = false;
+            }
+            else
+            {
+                this.chShowCircle.IsChecked = true;
+            }
         }
     }
 }

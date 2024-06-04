@@ -279,15 +279,17 @@
             var volBarColor = UserColorFinder.getOnColor(this.PluginName, pluginParameter);
 
             var t = new Thread(() => {
-                var w = new UserControlConfig(this.Plugin,
-                                          UserColorFinder,
-                                          new UserControlConfigData { PluginName = this.PluginName,
-                                                                  PluginParameter = pluginParameter,
-                                                                  Mode = UserColorFinder.getMode(this.PluginName, pluginParameter),
-                                                                  R = volBarColor.R,
-                                                                  G = volBarColor.G,
-                                                                  B = volBarColor.B,
-                                                                  Label = UserColorFinder.getLabel(this.PluginName, pluginParameter) } );
+                var w = new UserControlConfig(UserControlConfig.WindowMode.Dial,
+                                              this.Plugin,
+                                              UserColorFinder,
+                                              new UserControlConfigData { PluginName = this.PluginName,
+                                                                          PluginParameter = pluginParameter,
+                                                                          Mode = UserColorFinder.getMode(this.PluginName, pluginParameter),
+                                                                          R = volBarColor.R,
+                                                                          G = volBarColor.G,
+                                                                          B = volBarColor.B,
+                                                                          LinkedParameter = UserColorFinder.getLinkedParameter(this.PluginName, pluginParameter),
+                                                                          Label = UserColorFinder.getLabel(this.PluginName, pluginParameter) } );
                 w.Closed += (_, _) =>
                 {
                     this.IsUserConfigWindowOpen = false;

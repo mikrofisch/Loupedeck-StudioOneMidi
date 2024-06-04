@@ -65,41 +65,43 @@
             return true;
         }
 
-        protected override Boolean ProcessButtonEvent2(string actionParameter, DeviceButtonEvent2 buttonEvent)
+        protected override Boolean ProcessTouchEvent(String actionParameter, DeviceTouchEvent touchEvent)
         {
-            if (buttonEvent.EventType.IsLongPress())
+            if (touchEvent.EventType.IsLongPress())
             {
                 if (this.buttonData[actionParameter].CurrentMode == SelectButtonMode.User)
                 {
                     MackieChannelData cd = this.plugin.channelData[actionParameter];
 
-                    this.OpenUserConfigWindow(cd.Label);
+                    this.OpenUserConfigWindow(cd.UserLabel);
                 }
+                return true;
             }
 
-
-            return base.ProcessButtonEvent2(actionParameter, buttonEvent);
+            return base.ProcessTouchEvent(actionParameter, touchEvent);
         }
+
         public void OpenUserConfigWindow(String pluginParameter)
         {
             if (this.IsUserConfigWindowOpen)
                 return;
 
-            var volBarColor = SelectButtonData.UserColorFinder.getTextOnColor(SelectButtonData.PluginName, pluginParameter);
+            var onColor = SelectButtonData.UserColorFinder.getOnColor(SelectButtonData.PluginName, pluginParameter);
 
             var t = new Thread(() => {
-                var w = new UserControlConfig(this.Plugin,
-                                          SelectButtonData.UserColorFinder,
-                                          new UserControlConfigData
-                                          {
-                                              PluginName = SelectButtonData.PluginName,
-                                              PluginParameter = pluginParameter,
-                                              Mode = SelectButtonData.UserColorFinder.getMode(SelectButtonData.PluginName, pluginParameter),
-                                              R = volBarColor.R,
-                                              G = volBarColor.G,
-                                              B = volBarColor.B,
-                                              Label = SelectButtonData.UserColorFinder.getLabel(SelectButtonData.PluginName, pluginParameter)
-                                          });
+                var w = new UserControlConfig(UserControlConfig.WindowMode.Button,
+                                              this.Plugin,
+                                              SelectButtonData.UserColorFinder,
+                                              new UserControlConfigData
+                                              {
+                                                  PluginName = SelectButtonData.PluginName,
+                                                  PluginParameter = pluginParameter,
+                                                  ShowCircle = SelectButtonData.UserColorFinder.getShowCircle(SelectButtonData.PluginName, pluginParameter),
+                                                  R = onColor.R,
+                                                  G = onColor.G,
+                                                  B = onColor.B,
+                                                  Label = SelectButtonData.UserColorFinder.getLabel(SelectButtonData.PluginName, pluginParameter)
+                                              });
                 w.Closed += (_, _) =>
                 {
                     this.IsUserConfigWindowOpen = false;

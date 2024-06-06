@@ -40,28 +40,23 @@
 		<Control name="user1Button"      type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#2B" channel="0"/> </Control>
 		<Control name="user2Button"      type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#2C" channel="0"/> </Control>
 		<Control name="user3Button"      type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#2D" channel="0"/> </Control>
+		<Control name="user4Button"      type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#2E" channel="0"/> </Control>
+		<Control name="user5Button"      type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#2F" channel="0"/> </Control>
+		<Control name="user6Button"      type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#30" channel="0"/> </Control>
 
 		<Control name="trackLED"         options="transmit"> <MidiMessage status="#90" address="#28" channel="0"/> </Control>
 		<Control name="sendLED"          options="transmit"> <MidiMessage status="#90" address="#29" channel="0"/> </Control>
 		<Control name="panLED"           options="transmit"> <MidiMessage status="#90" address="#2A" channel="0"/> </Control>
 
 		<!-- Fader Banks -->
-		<Control name="faderBankLeft"  type="trigger" options="receive"> <MidiMessage status="#90" address="#2E" channel="0"/> </Control>
-		<Control name="faderBankRight" type="trigger" options="receive"> <MidiMessage status="#90" address="#2F" channel="0"/> </Control>
-		<Control name="faderChanLeft"  type="trigger" options="receive"> <MidiMessage status="#90" address="#30" channel="0"/> </Control>
-		<Control name="faderChanRight" type="trigger" options="receive"> <MidiMessage status="#90" address="#31" channel="0"/> </Control>
+		<Control name="faderBankLeft"  type="trigger" options="receive"> <MidiMessage status="#90" address="#31" channel="0"/> </Control>
+		<Control name="faderBankRight" type="trigger" options="receive"> <MidiMessage status="#90" address="#32" channel="0"/> </Control>
+		<Control name="faderChanLeft"  type="trigger" options="receive"> <MidiMessage status="#90" address="#33" channel="0"/> </Control>
+		<Control name="faderChanRight" type="trigger" options="receive"> <MidiMessage status="#90" address="#34" channel="0"/> </Control>
 
 		<!-- Flip / Global View-->
-		<Control name="flipButton"       type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#32" channel="0"/> </Control>
-		<Control name="globalviewButton" type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#33" channel="0"/> </Control>
-
-		<!-- Navigation -->
-		<Control name="upButton"    type="trigger" options="receive"> <MidiMessage status="#90" address="#34" channel="0"/> </Control>
-		<Control name="downButton"  type="trigger" options="receive"> <MidiMessage status="#90" address="#35" channel="0"/> </Control>
-		<Control name="leftButton"  type="trigger" options="receive"> <MidiMessage status="#90" address="#36" channel="0"/> </Control>
-		<Control name="rightButton" type="trigger" options="receive"> <MidiMessage status="#90" address="#37" channel="0"/> </Control>
-
-		<Control name="zoomButton"  type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#38" channel="0"/> </Control>
+		<Control name="flipButton"       type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#35" channel="0"/> </Control>
+		<Control name="globalviewButton" type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#36" channel="0"/> </Control>
 
 		<!-- Mixer Bank Selectors -->
 		<Control name="miditracksButton"      type="trigger" options="receive"> <MidiMessage status="#90" address="#3E" channel="0"/> </Control>
@@ -151,6 +146,7 @@
 
 		<Control name="U1Text"  type="textdisplay" options="transmit public"/>
 		<Control name="U2Text"  type="textdisplay" options="transmit public"/>
+		<Control name="UserPagesActive"  options="transmit public"> <MidiMessage status="#B0" address="#6F" channel="0"/> </Control>
 
 		<!-- ******************************************************************************************** -->
 		<!-- Selected Channel Controls -->
@@ -208,7 +204,10 @@
 		<define name="$MODE_USER1"    value="3"/>
 		<define name="$MODE_USER2"    value="4"/>
 		<define name="$MODE_USER3"    value="5"/>
-		<define name="$MODE_PANFOCUS" value="6"/>
+		<define name="$MODE_USER4"    value="6"/>
+		<define name="$MODE_USER5"    value="7"/>
+		<define name="$MODE_USER6"    value="8"/>
+		<define name="$MODE_PANFOCUS" value="9"/>
 
 		<!-- Mixer banks, keep in sync with script kLoupedeckCtMixerBanks. -->
 		<define name="$BANK_ALL"          value="0"/>
@@ -277,23 +276,6 @@
 			<Command control="F7" command.category="Console"   	command.name="Show Channel Editor"/>
 			<Command control="F8" command.category="View"   	command.name="Toggle Floating Windows"/>
 
-			<Variant control="zoomButton" options="lock" statusled="zoomLED">
-				<!-- [Zoom] not pressed -->
-				<Group>
-					<Command control="upButton"    command.category="Navigation" command.name="Up" options="autorepeat"/>
-					<Command control="downButton"  command.category="Navigation" command.name="Down" options="autorepeat"/>
-					<Command control="leftButton"  command.category="Navigation" command.name="Left" options="autorepeat"/>
-					<Command control="rightButton" command.category="Navigation" command.name="Right" options="autorepeat"/>
-				</Group>
-				<!-- [Zoom] pressed -->
-				<Group>
-					<Command control="upButton"    command.category="Zoom" command.name="Zoom Out Vertical"/>
-					<Command control="downButton"  command.category="Zoom" command.name="Zoom In Vertical"/>
-					<Command control="leftButton"  command.category="Zoom" command.name="Zoom Out"/>
-					<Command control="rightButton" command.category="Zoom" command.name="Zoom In"/>
-				</Group>
-			</Variant>
-
 			<!--
 			<PlainValue control="commandControlSet" param="commandControlValue"/>
 			<ParamVariant param="commandControlValue" strict="true">
@@ -343,6 +325,9 @@
 			<Radio control="user1Button" param="assignMode" value="$MODE_USER1"/>
 			<Radio control="user2Button" param="assignMode" value="$MODE_USER2"/>
 			<Radio control="user3Button" param="assignMode" value="$MODE_USER3"/>
+			<Radio control="user4Button" param="assignMode" value="$MODE_USER4"/>
+			<Radio control="user5Button" param="assignMode" value="$MODE_USER5"/>
+			<Radio control="user6Button" param="assignMode" value="$MODE_USER6"/>
 
 			<!-- kFXMode -->
 			<Toggle control="flipButton" param="flipMode"/>
@@ -360,6 +345,8 @@
 			<using device="Editor">
 				<String control="focusDeviceText" param="focusDeviceName"/>
 			</using>
+
+			<Value control="UserPagesActive" param="userPagesActive"/>
 
 			<include template="ChannelStripAliasMapping"/>
 			<include template="S1CommandMapping"/>

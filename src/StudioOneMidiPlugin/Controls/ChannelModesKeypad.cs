@@ -119,7 +119,7 @@
             this.addButton(ButtonLayer.channelPropertiesPlay, "4-1", new OneWayCommandButtonData(0x32, "LAY +", "layer_add_inv"));
             this.addButton(ButtonLayer.channelPropertiesPlay, "5-1", new OneWayCommandButtonData(0x33, "LAY -", "layer_remove_inv"));
             this.addButton(ButtonLayer.channelPropertiesPlay, "4", new ModeButtonData("VIEWS"));
-            this.addButton(ButtonLayer.channelPropertiesPlay, "5", new FlipPanVolCommandButtonData(0x32), true);
+            this.addButton(ButtonLayer.channelPropertiesPlay, "5", new FlipPanVolCommandButtonData(0x35), true);
 
             this.addButton(ButtonLayer.channelPropertiesRec, "0", new PropertySelectionButtonData(ChannelProperty.PropertyType.Arm,
                                                                                                 ChannelProperty.PropertyType.Monitor,
@@ -144,7 +144,7 @@
             this.addButton(ButtonLayer.faderModesShow, "2", new CommandButtonData(0x43, "BUS", new BitmapColor(0, 60, 80), BitmapColor.White));
             this.addButton(ButtonLayer.faderModesShow, "3", new CommandButtonData(0x44, "OUT", new BitmapColor(0, 60, 80), BitmapColor.White));
             this.addButton(ButtonLayer.faderModesShow, "4", new ModeButtonData("VIEWS"));
-            this.addButton(ButtonLayer.faderModesShow, "5", new CommandButtonData(0x33, "ALL", new BitmapColor(60, 60, 20), BitmapColor.White, true), true);
+            this.addButton(ButtonLayer.faderModesShow, "5", new CommandButtonData(0x36, "ALL", new BitmapColor(60, 60, 20), BitmapColor.White, true), true);
 
             this.addButton(ButtonLayer.faderModesSend, "0", new ModeTopUserButtonData(0x76, "", ModeTopCommandButtonData.Location.Left), isNoteReceiver: true);
             this.addButton(ButtonLayer.faderModesSend, "1", new ModeTopUserButtonData(0x77, "", ModeTopCommandButtonData.Location.Right), isNoteReceiver: true);

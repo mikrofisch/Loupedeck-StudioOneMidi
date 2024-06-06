@@ -30,7 +30,7 @@ class LoupedeckProtocol {
         sysexBuffer.end();
         return sysexBuffer;
     }
-    static buildPlainTextSysex(sysexBuffer, text) {
+    static buildFocusDeviceTextSysex(sysexBuffer, text) {
         sysexBuffer.begin(LoupedeckProtocol.kSysexHeader);
         sysexBuffer.push(0x14);
         sysexBuffer.push(0x13);

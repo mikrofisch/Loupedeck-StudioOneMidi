@@ -14,13 +14,13 @@ class ChannelTextHandler extends PreSonus.ControlHandler {
     }
 }
 
-class PlainTextHandler extends PreSonus.ControlHandler {
+class FocusDeviceTextHandler extends PreSonus.ControlHandler {
     constructor(name) {
         super();
         this.name = name;
     }
     sendValue(value, flags) {
-        this.device.sendPlainText(value);
+        this.device.sendFocusDeviceText(value);
     }
 }
 
@@ -58,7 +58,7 @@ class LoupedeckMidiDevice extends PreSonus.ControlSurfaceDevice {
         }
         this.addHandler(new FunctionTextHandler("U1Text", 12));
         this.addHandler(new FunctionTextHandler("U2Text", 13));
-        this.addHandler(new PlainTextHandler("focusDeviceText"));
+        this.addHandler(new FocusDeviceTextHandler("focusDeviceText"));
     }
     onMidiOutConnected(state) {
         super.onMidiOutConnected(state);
@@ -75,8 +75,8 @@ class LoupedeckMidiDevice extends PreSonus.ControlSurfaceDevice {
         // if (outText.length > 8) outText = outText.replace(/(?<!^)[aeiou]/g, '');
         this.sendSysex(LoupedeckProtocol.buildChannelTextSysex(this.sysexSendBuffer, channelID, offset, text)); 
     } 
-    sendPlainText(text) {
-        this.sendSysex(LoupedeckProtocol.buildPlainTextSysex(this.sysexSendBuffer, text)); 
+    sendFocusDeviceText(text) {
+        this.sendSysex(LoupedeckProtocol.buildFocusDeviceTextSysex(this.sysexSendBuffer, text)); 
     } 
     sendFunctionText(index, text) {
         this.sendSysex(LoupedeckProtocol.buildFunctionTextSysex(this.sysexSendBuffer, index, text)); 

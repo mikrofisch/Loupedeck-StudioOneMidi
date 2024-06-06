@@ -167,6 +167,27 @@
 		<Control name="vpot[2][4]" title="User 3 Knob 5" type="relative" options="receive public"/>
 		<Control name="vpot[2][5]" title="User 3 Knob 6" type="relative" options="receive public"/>
 
+		<Control name="vpot[3][0]" title="User 4 Knob 1" type="relative" options="receive public"/>
+		<Control name="vpot[3][1]" title="User 4 Knob 2" type="relative" options="receive public"/>
+		<Control name="vpot[3][2]" title="User 4 Knob 3" type="relative" options="receive public"/>
+		<Control name="vpot[3][3]" title="User 4 Knob 4" type="relative" options="receive public"/>
+		<Control name="vpot[3][4]" title="User 4 Knob 5" type="relative" options="receive public"/>
+		<Control name="vpot[3][5]" title="User 4 Knob 6" type="relative" options="receive public"/>
+
+		<Control name="vpot[4][0]" title="User 5 Knob 1" type="relative" options="receive public"/>
+		<Control name="vpot[4][1]" title="User 5 Knob 2" type="relative" options="receive public"/>
+		<Control name="vpot[4][2]" title="User 5 Knob 3" type="relative" options="receive public"/>
+		<Control name="vpot[4][3]" title="User 5 Knob 4" type="relative" options="receive public"/>
+		<Control name="vpot[4][4]" title="User 5 Knob 5" type="relative" options="receive public"/>
+		<Control name="vpot[4][5]" title="User 5 Knob 6" type="relative" options="receive public"/>
+
+		<Control name="vpot[5][0]" title="User 6 Knob 1" type="relative" options="receive public"/>
+		<Control name="vpot[5][1]" title="User 6 Knob 2" type="relative" options="receive public"/>
+		<Control name="vpot[5][2]" title="User 6 Knob 3" type="relative" options="receive public"/>
+		<Control name="vpot[5][3]" title="User 6 Knob 4" type="relative" options="receive public"/>
+		<Control name="vpot[5][4]" title="User 6 Knob 5" type="relative" options="receive public"/>
+		<Control name="vpot[5][5]" title="User 6 Knob 6" type="relative" options="receive public"/>
+
 		<Control name="vbut[0][0]" title="User 1 Button 1" type="trigger" options="receive public"/>
 		<Control name="vbut[0][1]" title="User 1 Button 2" type="trigger" options="receive public"/>
 		<Control name="vbut[0][2]" title="User 1 Button 3" type="trigger" options="receive public"/>
@@ -187,6 +208,27 @@
 		<Control name="vbut[2][3]" title="User 3 Button 4" type="trigger" options="receive public"/>
 		<Control name="vbut[2][4]" title="User 3 Button 5" type="trigger" options="receive public"/>
 		<Control name="vbut[2][5]" title="User 3 Button 6" type="trigger" options="receive public"/>
+
+		<Control name="vbut[3][0]" title="User 4 Button 1" type="trigger" options="receive public"/>
+		<Control name="vbut[3][1]" title="User 4 Button 2" type="trigger" options="receive public"/>
+		<Control name="vbut[3][2]" title="User 4 Button 3" type="trigger" options="receive public"/>
+		<Control name="vbut[3][3]" title="User 4 Button 4" type="trigger" options="receive public"/>
+		<Control name="vbut[3][4]" title="User 4 Button 5" type="trigger" options="receive public"/>
+		<Control name="vbut[3][5]" title="User 4 Button 6" type="trigger" options="receive public"/>
+
+		<Control name="vbut[4][0]" title="User 5 Button 1" type="trigger" options="receive public"/>
+		<Control name="vbut[4][1]" title="User 5 Button 2" type="trigger" options="receive public"/>
+		<Control name="vbut[4][2]" title="User 5 Button 3" type="trigger" options="receive public"/>
+		<Control name="vbut[4][3]" title="User 5 Button 4" type="trigger" options="receive public"/>
+		<Control name="vbut[4][4]" title="User 5 Button 5" type="trigger" options="receive public"/>
+		<Control name="vbut[4][5]" title="User 5 Button 6" type="trigger" options="receive public"/>
+
+		<Control name="vbut[5][0]" title="User 6 Button 1" type="trigger" options="receive public"/>
+		<Control name="vbut[5][1]" title="User 6 Button 2" type="trigger" options="receive public"/>
+		<Control name="vbut[5][2]" title="User 6 Button 3" type="trigger" options="receive public"/>
+		<Control name="vbut[5][3]" title="User 6 Button 4" type="trigger" options="receive public"/>
+		<Control name="vbut[5][4]" title="User 6 Button 5" type="trigger" options="receive public"/>
+		<Control name="vbut[5][5]" title="User 6 Button 6" type="trigger" options="receive public"/>
 	</Controls>
 
 	<!-- ******************************************************************************************** -->
@@ -200,7 +242,7 @@
 		<!-- ******************************************************************************************** -->
 
 		<Template name="PlugControlMapping">
-			<foreach variable="$ub" count="3">
+			<foreach variable="$ub" count="6">
 				<foreach variable="$ch" count="6">
 					<Strip name="vpot[$ub][$ch]" onConnect="onConnectPlugControl($ch)"/>
 					<Strip name="vbut[$ub][$ch]" onConnect="onConnectPlugControl($ch)"/>

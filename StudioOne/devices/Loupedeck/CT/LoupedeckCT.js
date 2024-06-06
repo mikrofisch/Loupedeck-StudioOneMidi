@@ -25,6 +25,7 @@ class LoupedeckCTComponent extends LoupedeckSharedComponent {
     onInit(hostComponent) {
         // Host.Console.writeLine("Connecting Loupedeck CT...");
         super.onInit(hostComponent);
+        this.userBanksActive = 0;
         let paramList = hostComponent.paramList;
         this.commandControlValue = paramList.addInteger(0, 33, "commandControlValue");
         this.commandControlValue.setValue(1);
@@ -33,6 +34,7 @@ class LoupedeckCTComponent extends LoupedeckSharedComponent {
         this.sendMode = paramList.addParam("sendMode");
         this.flipMode = paramList.addParam("flipMode");
         this.panModeLED = paramList.addParam("panModeLED");
+        this.userPagesActive = paramList.addInteger(0, 127, "userPagesActive");
         this.updateModeParams();
         
         this.bankList = paramList.addList("bankList");
@@ -70,7 +72,7 @@ class LoupedeckCTComponent extends LoupedeckSharedComponent {
         this.updateModeParams();
     }
     paramChanged(param) {
-        Host.Console.writeLine("LoupedeckCTComponent.paramChanged commandControlValue: " + this.commandControlValue.value);
+        // Host.Console.writeLine("LoupedeckCTComponent.paramChanged commandControlValue: " + this.commandControlValue.value);
         // Host.Console.writeLine("LoupedeckCTComponent.paramChanged");
         if (param == this.sendMode) {
             this.assignment.navigateSends(this.getMaxSendSlotCount());
@@ -89,13 +91,17 @@ class LoupedeckCTComponent extends LoupedeckSharedComponent {
             if (mode == ChannelAssignmentMode.kUser1Mode) userBank = 0;
             else if (mode == ChannelAssignmentMode.kUser2Mode) userBank = 1;
             else if (mode == ChannelAssignmentMode.kUser3Mode) userBank = 2;
+            else if (mode == ChannelAssignmentMode.kUser4Mode) userBank = 3;
+            else if (mode == ChannelAssignmentMode.kUser5Mode) userBank = 4;
+            else if (mode == ChannelAssignmentMode.kUser6Mode) userBank = 5;
     
             if (userBank >= 0) {
                 // Host.Console.writeLine("paramChanged vpot[" + userBank + "]");
+                let genericMappingElement = this.root.getGenericMapping();
                 for (let i = 0; i < kNumChannels; i++) {
-                    let genericMappingElement = this.root.getGenericMapping();
                     this.channels[i].plugControlElement = genericMappingElement.getElement(0).find("vpot[" + userBank + "][" + i + "]");
                     this.channels[i].plugButtonElement  = genericMappingElement.getElement(0).find("vbut[" + userBank + "][" + i + "]");
+                    // getAllPropertyNames(this.channels[i].plugControlElement);
                 }
             }
 

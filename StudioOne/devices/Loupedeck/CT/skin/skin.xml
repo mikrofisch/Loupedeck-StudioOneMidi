@@ -40,6 +40,12 @@
 			<Color name="backcolor"	color="hsl(0,0,20)"/>
 		</Style>
 
+		<Style name="DropDownStyle">
+			<Font name="textfont" themeid="PresonusUI" size="12" style="bold"/>
+			<Color name="textcolor" color="hsl(204,40,65)"/>
+			<Color name="backcolor"	color="hsl(0,0,15)"/>
+		</Style>
+
 	</Styles>
 	
 	<Forms>
@@ -66,6 +72,9 @@
 							<TextBox name="controlValue" size="0,44,70,32" options="transparent fittext composited nocontextmenu" style="LUserText"/>
 							<TextBox name="controlValue" size="0,44,70,32" options="transparent fittext composited nocontextmenu" style="LUserText"/>
 							<TextBox name="controlValue" size="0,44,70,32" options="transparent fittext composited nocontextmenu" style="LUserText"/>
+							<TextBox name="controlValue" size="0,44,70,32" options="transparent fittext composited nocontextmenu" style="LUserText"/>
+							<TextBox name="controlValue" size="0,44,70,32" options="transparent fittext composited nocontextmenu" style="LUserText"/>
+							<TextBox name="controlValue" size="0,44,70,32" options="transparent fittext composited nocontextmenu" style="LUserText"/>
 						</using>
 					</Variant>
 					<Variant name="assignMode">
@@ -81,6 +90,15 @@
 						<using controller="Editor/vpot[2][$index]">
 							<Toggle name="controlValue" size="0,0,70,38" options="transparent"/>
 						</using>
+						<using controller="Editor/vpot[3][$index]">
+							<Toggle name="controlValue" size="0,0,70,38" options="transparent"/>
+						</using>
+						<using controller="Editor/vpot[4][$index]">
+							<Toggle name="controlValue" size="0,0,70,38" options="transparent"/>
+						</using>
+						<using controller="Editor/vpot[5][$index]">
+							<Toggle name="controlValue" size="0,0,70,38" options="transparent"/>
+						</using>
 					</Variant>
 					<Variant name="assignMode">
 						<Label title="" size="0,44,70,32" style="LDisplayText"/>
@@ -93,6 +111,15 @@
 							<Toggle name="controlValue" size="0,44,70,32" options="transparent"/>
 						</using>
 						<using controller="Editor/vbut[2][$index]">
+							<Toggle name="controlValue" size="0,44,70,32" options="transparent"/>
+						</using>
+						<using controller="Editor/vbut[3][$index]">
+							<Toggle name="controlValue" size="0,44,70,32" options="transparent"/>
+						</using>
+						<using controller="Editor/vbut[4][$index]">
+							<Toggle name="controlValue" size="0,44,70,32" options="transparent"/>
+						</using>
+						<using controller="Editor/vbut[5][$index]">
 							<Toggle name="controlValue" size="0,44,70,32" options="transparent"/>
 						</using>
 					</Variant>
@@ -138,15 +165,18 @@
 
 				<!-- ASSIGNMENT -->
 				<using controller="Device">
-					<ImageView style="AssignModeGroupBGColor" options="colorize" size="60,166">
+					<ImageView style="AssignModeGroupBGColor" options="colorize" size="46,166">
 						<Horizontal margin="0" spacing="0">
 							<!-- <RadioButton name="assignMode" value="0" title="Track"	 size="0,0,61,24" style="RadioGroup"/> -->
-							<RadioButton name="assignMode" value="1" title="Sends"	 size="0,0,61,24" style="RadioGroup"/>
-							<RadioButton name="assignMode" value="2" title="Vol/Pan" size="0,0,61,24" style="RadioGroup"/>
-							<RadioButton name="assignMode" value="3" title="User 1"  size="0,0,61,24" style="RadioGroup"/>
-							<RadioButton name="assignMode" value="4" title="User 2"  size="0,0,61,24" style="RadioGroup"/>
-							<RadioButton name="assignMode" value="5" title="User 3"  size="0,0,61,24" style="RadioGroup"/>
-							<Space width="1"/>
+							<RadioButton name="assignMode" value="1" title="Sends"	 size="0,0,56,24" style="RadioGroup"/>
+							<RadioButton name="assignMode" value="2" title="Vol/Pan" size="0,0,56,24" style="RadioGroup"/>
+							<Space width="2"/>
+							<RadioButton name="assignMode" value="3" title="1"  size="0,0,36,24" style="RadioGroup"/>
+							<RadioButton name="assignMode" value="4" title="2"  size="0,0,36,24" style="RadioGroup"/>
+							<RadioButton name="assignMode" value="5" title="3"  size="0,0,36,24" style="RadioGroup"/>
+							<RadioButton name="assignMode" value="6" title="4"  size="0,0,36,24" style="RadioGroup"/>
+							<RadioButton name="assignMode" value="7" title="5"  size="0,0,36,24" style="RadioGroup"/>
+							<RadioButton name="assignMode" value="8" title="6"  size="0,0,36,24" style="RadioGroup"/>
 						</Horizontal>
 					</ImageView>
 				</using>

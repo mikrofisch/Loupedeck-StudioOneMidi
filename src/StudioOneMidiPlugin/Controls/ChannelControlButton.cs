@@ -12,19 +12,19 @@
 
         public ChannelControlButton()
         {
-            this.AddButton(new CommandButtonData(0x2E, "Fader Bank Left", "faderBankLeft"));
-            this.AddButton(new CommandButtonData(0x2F, "Fader Bank Right", "faderBankRight"));
-            this.AddButton(new CommandButtonData(0x30, "Fader Channel Left", "faderChannelLeft"));
-            this.AddButton(new CommandButtonData(0x31, "Fader Channel Right", "faderChannelRight"));
+            this.AddButton(new CommandButtonData(0x31, "Fader Bank Left", "faderBankLeft"));
+            this.AddButton(new CommandButtonData(0x32, "Fader Bank Right", "faderBankRight"));
+            this.AddButton(new CommandButtonData(0x33, "Fader Channel Left", "faderChannelLeft"));
+            this.AddButton(new CommandButtonData(0x34, "Fader Channel Right", "faderChannelRight"));
             this.AddButton(new CommandButtonData(0x20, "TRACK"));
             this.AddButton(new CommandButtonData(0x29, "SEND"));
             this.AddButton(new CommandButtonData(0x2A, "VOL/PAN"));
-            this.AddButton(new CommandButtonData(0x33, "GLOBAL", new BitmapColor(60, 60, 20), BitmapColor.White), addToShowList: true);
+            this.AddButton(new CommandButtonData(0x36, "GLOBAL", new BitmapColor(60, 60, 20), BitmapColor.White), addToShowList: true);
             this.AddButton(new CommandButtonData(0x40, "AUDIO", new BitmapColor(0, 60, 80), BitmapColor.White), addToShowList: true);
             this.AddButton(new CommandButtonData(0x42, "FX", new BitmapColor(0, 60, 80), BitmapColor.White), addToShowList: true);
             this.AddButton(new CommandButtonData(0x43, "BUS", new BitmapColor(0, 60, 80), BitmapColor.White), addToShowList: true);
             this.AddButton(new CommandButtonData(0x44, "OUT", new BitmapColor(0, 60, 80), BitmapColor.White), addToShowList: true);
-            this.AddButton(new FlipPanVolCommandButtonData(0x32));
+            this.AddButton(new FlipPanVolCommandButtonData(0x35));
             this.AddButton(new CommandButtonData(0x2B, "PLUGIN"));
         }
         protected override bool OnLoad()

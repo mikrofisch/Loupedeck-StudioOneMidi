@@ -2,7 +2,7 @@ include_file("resource://com.presonus.musicdevices/sdk/controlsurfacecomponent.j
 include_file("resource://com.presonus.musicdevices/presonus/pslsurfacecomponent.js");
 
 const kNumChannels = 6;
-const kNumUserBanks = 3;
+const kNumUserBanks = 6;
 const kSendSlotAll = 0;
 const kSendSlotFirst = 1;
 
@@ -47,8 +47,11 @@ var ChannelAssignmentMode;
     ChannelAssignmentMode[ChannelAssignmentMode["kUser1Mode"] = 3] = "kUser1Mode";
     ChannelAssignmentMode[ChannelAssignmentMode["kUser2Mode"] = 4] = "kUser2Mode";
     ChannelAssignmentMode[ChannelAssignmentMode["kUser3Mode"] = 5] = "kUser3Mode";
-    ChannelAssignmentMode[ChannelAssignmentMode["kPanFocusMode"] = 6] = "kPanFocusMode";
-    ChannelAssignmentMode[ChannelAssignmentMode["kLastMode"] = 7] = "kLastMode";
+    ChannelAssignmentMode[ChannelAssignmentMode["kUser4Mode"] = 6] = "kUser4Mode";
+    ChannelAssignmentMode[ChannelAssignmentMode["kUser5Mode"] = 7] = "kUser5Mode";
+    ChannelAssignmentMode[ChannelAssignmentMode["kUser6Mode"] = 8] = "kUser6Mode";
+    ChannelAssignmentMode[ChannelAssignmentMode["kPanFocusMode"] = 9] = "kPanFocusMode";
+    ChannelAssignmentMode[ChannelAssignmentMode["kLastMode"] = 10] = "kLastMode";
 })(ChannelAssignmentMode || (ChannelAssignmentMode = {}));
 class Assignment {
     constructor() {
@@ -79,6 +82,12 @@ class Assignment {
                 return "U2";
             case ChannelAssignmentMode.kUser3Mode:
                 return "U3";
+            case ChannelAssignmentMode.kUser4Mode:
+                return "U4";
+            case ChannelAssignmentMode.kUser5Mode:
+                return "U5";
+            case ChannelAssignmentMode.kUser6Mode:
+                return "U6";
             default:
                 break;
         }
@@ -105,8 +114,11 @@ class Assignment {
     }
     isUserMode() {
         return this.mode == ChannelAssignmentMode.kUser1Mode ||
-            this.mode == ChannelAssignmentMode.kUser2Mode ||
-            this.mode == ChannelAssignmentMode.kUser3Mode;
+               this.mode == ChannelAssignmentMode.kUser2Mode ||
+               this.mode == ChannelAssignmentMode.kUser3Mode ||
+               this.mode == ChannelAssignmentMode.kUser4Mode ||
+               this.mode == ChannelAssignmentMode.kUser5Mode ||
+               this.mode == ChannelAssignmentMode.kUser6Mode ;
     }
 }
 
@@ -167,7 +179,6 @@ class LoupedeckSharedComponent extends FocusChannelPanComponent {
         this.assignment = new Assignment;
         this.channelBankElement = this.mixerMapping.find("ChannelBankElement");
         this.focusSendsBankElement = this.focusChannelElement.find("SendsBankElement");
-        //let genericMappingElement = this.root.getGenericMapping();
         let paramList = hostComponent.paramList;
 
         this.channels = [];
@@ -222,9 +233,42 @@ class LoupedeckSharedComponent extends FocusChannelPanComponent {
             this.updateAll();
     }
     onConnectPlugControl(index) {
-        // Host.Console.writeLine("onConnectPlugControl(" + index + ") assignment.mode: " + this.assignment.mode);
-
         if (this.assignment.isUserMode()) {
+            if (index == kNumChannels - 1) {
+                // Determine maximum number of used user banks when the last channel of new bank
+                // is connected. There must be a better way to do this but at least it comes
+                // up with the correct number eventually. It actually counts up from zero until
+                // the maximum number is reached, so something dynamic is going on in the background.
+                // Note that dynamics don't seem to improve much between triggering on the first and
+                // the last channel.
+                // However, all of this seems to happen fast enough for only one MIDI controller message
+                // to be sent.
+                
+                // Host.Console.writeLine("onConnectPlugControl(" + index + ") assignment.mode: " + this.assignment.mode);
+                let ubCount = kNumUserBanks;
+                let genericMappingElement = this.root.getGenericMapping();
+                for (let bank = 0; bank < kNumUserBanks; bank++) {
+                    let i = 0;
+                    for (i = 0; i < kNumChannels; i++) {
+                        // Host.Console.writeLine("vpot["+bank+"]["+i+"].getParamCount: " + genericMappingElement.getElement(0).find("vpot[" + bank + "][" + i + "]").getParamCount());
+                        if (genericMappingElement.getElement(0).find("vpot[" + bank + "][" + i + "]").isConnected()) break;
+                        if (genericMappingElement.getElement(0).find("vbut[" + bank + "][" + i + "]").isConnected()) break;
+                    }
+                    if (i == kNumChannels)
+                    {
+                        ubCount = bank;
+                        break;
+                    }
+                }
+                if (this.userBanksActive != ubCount) {
+                    this.userBanksActive = ubCount;
+                    // Host.Console.writeLine("userBanksActive: " + this.userBanksActive);
+
+                    // This triggers a MIDI controller message to the Loupedeck.
+                    this.userPagesActive.value = this.userBanksActive;
+                }
+            }
+
             this.updateChannel(index);
         }
     }
@@ -244,6 +288,7 @@ class LoupedeckSharedComponent extends FocusChannelPanComponent {
         let mode = this.assignment.mode;
 
         if (this.assignment.isUserMode())  {
+            // Host.Console.writeLine("updateChannel UserMode");
             let plugControlElement = channelInfo.plugControlElement;
             let plugButtonElement = channelInfo.plugButtonElement;
             

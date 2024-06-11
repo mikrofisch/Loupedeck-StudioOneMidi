@@ -65,6 +65,7 @@
     <Compile Include="ConfigWindow.xaml.cs">
       <DependentUpon>ConfigWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\AutomationButton.cs" />
     <Compile Include="Controls\ButtonData.cs" />
     <Compile Include="Controls\ChannelControlButton.cs" />
     <Compile Include="ColorFinder.cs" />
@@ -127,12 +128,12 @@
     <EmbeddedResource Include="Resources\stop_on_52px.png" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Resources\faderBankLeft_52px.png" />
-    <EmbeddedResource Include="Resources\faderBankRight_52px.png" />
+    <EmbeddedResource Include="Resources\fader_bank_left_52px.png" />
+    <EmbeddedResource Include="Resources\fader_bank_right_52px.png" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Resources\faderChannelLeft_52px.png" />
-    <EmbeddedResource Include="Resources\faderChannelRight_52px.png" />
+    <EmbeddedResource Include="Resources\fader_channel_prev_52px.png" />
+    <EmbeddedResource Include="Resources\fader_channel_next_52px.png" />
     <EmbeddedResource Include="Resources\monitor_24px.png" />
     <EmbeddedResource Include="Resources\monitor_52px.png" />
     <EmbeddedResource Include="Resources\record_24px.png" />
@@ -206,8 +207,8 @@
   <ItemGroup>
     <EmbeddedResource Include="Resources\show_groups_52px.png" />
     <EmbeddedResource Include="Resources\show_inputs_52px.png" />
-    <EmbeddedResource Include="Resources\toggle_height_52px.png" />
-    <EmbeddedResource Include="Resources\toggle_width_52px.png" />
+    <EmbeddedResource Include="Resources\console_height_52px.png" />
+    <EmbeddedResource Include="Resources\console_width_52px.png" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\panels_52px.png" />
@@ -224,6 +225,27 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\bypass_52px.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\marker_insert_52px.png" />
+    <EmbeddedResource Include="Resources\dial_52px.png" />
+    <EmbeddedResource Include="Resources\fullscreen_52px.png" />
+    <EmbeddedResource Include="Resources\inspector_52px.png" />
+    <EmbeddedResource Include="Resources\marker_next_52px.png" />
+    <EmbeddedResource Include="Resources\plugin_scroll_52px.png" />
+    <EmbeddedResource Include="Resources\marker_previous_52px.png" />
+    <EmbeddedResource Include="Resources\marker_delete_52px.png" />
+    <EmbeddedResource Include="Resources\show_envelopes_52px.png" />
+    <EmbeddedResource Include="Resources\show_markers_52px.png" />
+    <EmbeddedResource Include="Resources\groups_suspend_52px.png" />
+    <EmbeddedResource Include="Resources\tap_tempo_52px.png" />
+    <EmbeddedResource Include="Resources\track_list_52px.png" />
+    <EmbeddedResource Include="Resources\zoom_h_52px copy.png" />
+    <EmbeddedResource Include="Resources\zoom_v_52px.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\group_dissolve_52px.png" />
+    <EmbeddedResource Include="Resources\group_new_52px.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

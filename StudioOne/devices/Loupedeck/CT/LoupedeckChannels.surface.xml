@@ -141,7 +141,6 @@
 		<Control name="userText[4]" type="textdisplay" options="transmit public"/>
 		<Control name="userText[5]" type="textdisplay" options="transmit public"/>
 
-
 		<!-- ******************************************************************************************** -->
 		<!-- V-Pots -->
 		<!-- ******************************************************************************************** -->
@@ -244,8 +243,8 @@
 		<Template name="PlugControlMapping">
 			<foreach variable="$ub" count="6">
 				<foreach variable="$ch" count="6">
-					<Strip name="vpot[$ub][$ch]" onConnect="onConnectPlugControl($ch)"/>
-					<Strip name="vbut[$ub][$ch]" onConnect="onConnectPlugControl($ch)"/>
+					<Strip name="vpot[$ub][$ch]" onConnect="onConnectPlugControl($ub,$ch)"/>
+					<Strip name="vbut[$ub][$ch]" onConnect="onConnectPlugControl($ub,$ch)"/>
 				</foreach>
 			</foreach>
 		</Template>

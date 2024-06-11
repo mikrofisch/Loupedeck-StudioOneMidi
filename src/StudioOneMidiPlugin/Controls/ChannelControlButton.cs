@@ -12,10 +12,10 @@
 
         public ChannelControlButton()
         {
-            this.AddButton(new CommandButtonData(0x31, "Fader Bank Left", "faderBankLeft"));
-            this.AddButton(new CommandButtonData(0x32, "Fader Bank Right", "faderBankRight"));
-            this.AddButton(new CommandButtonData(0x33, "Fader Channel Left", "faderChannelLeft"));
-            this.AddButton(new CommandButtonData(0x34, "Fader Channel Right", "faderChannelRight"));
+            this.AddButton(new CommandButtonData(0x31, "Fader Bank Left", "fader_bank_left"));
+            this.AddButton(new CommandButtonData(0x32, "Fader Bank Right", "fader_bank_right"));
+            this.AddButton(new CommandButtonData(0x33, "Fader Channel Left", "fader_channel_prev"));
+            this.AddButton(new CommandButtonData(0x34, "Fader Channel Right", "fader_channel_next"));
             this.AddButton(new CommandButtonData(0x20, "TRACK"));
             this.AddButton(new CommandButtonData(0x29, "SEND"));
             this.AddButton(new CommandButtonData(0x2A, "VOL/PAN"));
@@ -31,7 +31,7 @@
         {
             base.OnLoad();
 
-            this.plugin.Ch0NoteReceived += (object sender, NoteOnEvent e) =>
+            this.plugin.CommandNoteReceived += (object sender, NoteOnEvent e) =>
             {
                 var idx = $"{e.NoteNumber}";
 

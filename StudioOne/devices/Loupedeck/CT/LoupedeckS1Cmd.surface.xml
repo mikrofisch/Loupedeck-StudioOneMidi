@@ -18,6 +18,10 @@
 		<Control name="viewShowGroups"              type="trigger" options="receive"> <MidiMessage status="#90" address="#09" channel="1"/> </Control>
 		<Control name="viewToggleFloatingWindows"   type="trigger" options="receive"> <MidiMessage status="#90" address="#0A" channel="1"/> </Control>
 		<Control name="viewTimeDisplay"             type="trigger" options="receive"> <MidiMessage status="#90" address="#0B" channel="1"/> </Control>
+		<Control name="viewOpenMarkerTrack"         type="trigger" options="receive"> <MidiMessage status="#90" address="#0C" channel="1"/> </Control>
+		<Control name="viewOpenSignatureTrack"      type="trigger" options="receive"> <MidiMessage status="#90" address="#0D" channel="1"/> </Control>
+		<Control name="viewOpenTempoTrack"          type="trigger" options="receive"> <MidiMessage status="#90" address="#0E" channel="1"/> </Control>
+		<Control name="viewFitTimeline"             type="trigger" options="receive"> <MidiMessage status="#90" address="#0F" channel="1"/> </Control>
 		<Control name="consoleShowInputs"           type="trigger" options="receive"> <MidiMessage status="#90" address="#10" channel="1"/> </Control>
 		<Control name="consoleShowTrack"            type="trigger" options="receive"> <MidiMessage status="#90" address="#11" channel="1"/> </Control>
 		<Control name="consoleShowChannelEditor"    type="trigger" options="receive"> <MidiMessage status="#90" address="#12" channel="1"/> </Control>
@@ -68,6 +72,27 @@
 		<Control name="transportPlayFromLoopStart"  type="trigger" options="receive"> <MidiMessage status="#90" address="#46" channel="1"/> </Control>
 		<Control name="transportLoopFollowsSel"     type="trigger" options="receive"> <MidiMessage status="#90" address="#47" channel="1"/> </Control>
 		<Control name="transportTapTempo"           type="trigger" options="receive"> <MidiMessage status="#90" address="#48" channel="1"/> </Control>
+		<Control name="markerDelete"                type="trigger" options="receive"> <MidiMessage status="#90" address="#50" channel="1"/> </Control>
+		<Control name="markerInsert"                type="trigger" options="receive"> <MidiMessage status="#90" address="#51" channel="1"/> </Control>
+		<Control name="markerInsertNamed"           type="trigger" options="receive"> <MidiMessage status="#90" address="#52" channel="1"/> </Control>
+		<Control name="markerPrevious"              type="trigger" options="receive"> <MidiMessage status="#90" address="#53" channel="1"/> </Control>
+		<Control name="markerNext"                  type="trigger" options="receive"> <MidiMessage status="#90" address="#54" channel="1"/> </Control>
+		<Control name="markerRecall"                type="trigger" options="receive"> <MidiMessage status="#90" address="#55" channel="1"/> </Control>
+		<Control name="markerRecall1"               type="trigger" options="receive"> <MidiMessage status="#90" address="#56" channel="1"/> </Control>
+		<Control name="markerRecall2"               type="trigger" options="receive"> <MidiMessage status="#90" address="#57" channel="1"/> </Control>
+		<Control name="markerRecall3"               type="trigger" options="receive"> <MidiMessage status="#90" address="#58" channel="1"/> </Control>
+		<Control name="markerRecall4"               type="trigger" options="receive"> <MidiMessage status="#90" address="#59" channel="1"/> </Control>
+		<Control name="markerRecall5"               type="trigger" options="receive"> <MidiMessage status="#90" address="#5A" channel="1"/> </Control>
+		<Control name="markerRecall6"               type="trigger" options="receive"> <MidiMessage status="#90" address="#5B" channel="1"/> </Control>
+		<Control name="markerRecall7"               type="trigger" options="receive"> <MidiMessage status="#90" address="#5C" channel="1"/> </Control>
+		<Control name="markerRecall8"               type="trigger" options="receive"> <MidiMessage status="#90" address="#5D" channel="1"/> </Control>
+		<Control name="navTrackPrev"                type="trigger" options="receive"> <MidiMessage status="#90" address="#60" channel="1"/> </Control>
+		<Control name="navTrackNext"                type="trigger" options="receive"> <MidiMessage status="#90" address="#61" channel="1"/> </Control>
+		<Control name="navEventPrev"                type="trigger" options="receive"> <MidiMessage status="#90" address="#62" channel="1"/> </Control>
+		<Control name="navEventNext"                type="trigger" options="receive"> <MidiMessage status="#90" address="#63" channel="1"/> </Control>
+		<Control name="navPageSkipUp"               type="trigger" options="receive"> <MidiMessage status="#90" address="#64" channel="1"/> </Control>
+		<Control name="navPageSkipDn"               type="trigger" options="receive"> <MidiMessage status="#90" address="#65" channel="1"/> </Control>
+		
 	</Controls>
 
 	<Templates>
@@ -77,68 +102,92 @@
 			<!-- Command Mapping -->
 			<!-- **************************************************************************************** -->
 
-			<Command control="viewConsole"                   command.category="View"      command.name="Console"/>
-			<Command control="viewBrowser"                   command.category="View"      command.name="Browser"/>
-			<Command control="viewEditor"                    command.category="View"      command.name="Editor"/>
-			<Command control="viewFullscreen"                command.category="View"      command.name="Fullscreen"/>
-			<Command control="viewInspector"                 command.category="View"      command.name="Inspector"/>
-			<Command control="viewRecordPanel"               command.category="View"      command.name="Record Panel"/>
-			<Command control="viewTrackList"                 command.category="View"      command.name="Track List"/>
-			<Command control="viewPrevPerspective"           command.category="View"      command.name="Previous Perspective"/>
-			<Command control="viewNextPerspective"           command.category="View"      command.name="Next Perspective"/>
-			<Command control="viewShowGroups"                command.category="View"      command.name="Show Groups (Channel List)"/>
-			<Command control="viewToggleFloatingWindows"     command.category="View"      command.name="Toggle Floating Windows"/>
-			<Command control="viewTimeDisplay"               command.category="View"      command.name="Time Display"/>
-			<Command control="consoleShowInputs"             command.category="Console"   command.name="Show Inputs"/>
-			<Command control="consoleShowTrack"              command.category="Console"   command.name="Show Track"/>
-			<Command control="consoleShowChannelEditor"      command.category="Console"   command.name="Show Channel Editor"/>
-			<Command control="consoleInstrEditor"            command.category="Console"   command.name="Show Instrument Editor"/>
-			<Command control="consoleOpenChannel"            command.category="Console"   command.name="Open Channel"/>
-			<Command control="consoleAddInsert"              command.category="Console"   command.name="Add Insert"/>
-			<Command control="consoleAddSend"                command.category="Console"   command.name="Add Send"/>
-			<Command control="consoleAddBusChannel"          command.category="Console"   command.name="Add Bus Channel"/>
-			<Command control="consoleAddFXChannel"           command.category="Console"   command.name="Add FX Channel"/>
-			<Command control="consoleGlobalMute"             command.category="Console"   command.name="Global Mute"/>
-			<Command control="consoleGlobalSolo"             command.category="Console"   command.name="Global Solo"/>
-			<Command control="consoleNextChannel"            command.category="Console"   command.name="Next Channel"/>
-			<Command control="consolePrevChannel"            command.category="Console"   command.name="Previous Channel"/>
-			<Command control="consoleToggleSize"             command.category="Console"   command.name="Toggle Size"/>
-			<Command control="consoleToggleWidth"            command.category="Console"   command.name="Toggle Width"/>
-			<Command control="groupSuspend"                  command.category="Group"     command.name="Suspend Group"/>
-			<Command control="groupSuspendAll"               command.category="Group"     command.name="Suspend All Groups"/>
-			<Command control="groupSuspend1"                 command.category="Group"     command.name="Suspend Group 1"/>
-			<Command control="groupSuspend2"                 command.category="Group"     command.name="Suspend Group 2"/>
-			<Command control="groupSuspend3"                 command.category="Group"     command.name="Suspend Group 3"/>
-			<Command control="groupSuspend4"                 command.category="Group"     command.name="Suspend Group 4"/>
-			<Command control="groupSuspend5"                 command.category="Group"     command.name="Suspend Group 5"/>
-			<Command control="groupSuspend6"                 command.category="Group"     command.name="Suspend Group 6"/>
-			<Command control="groupSuspend7"                 command.category="Group"     command.name="Suspend Group 7"/>
-			<Command control="groupSuspend8"                 command.category="Group"     command.name="Suspend Group 8"/>
-			<Command control="trackActivatePreviousLayer"    command.category="Track"     command.name="Activate Previous Layer"/>
-			<Command control="trackActivateNextLayer"        command.category="Track"     command.name="Activate Next Layer"/>
-			<Command control="trackAddLayer"                 command.category="Track"     command.name="Add Layer"/>
-			<Command control="trackRemoveLayer"              command.category="Track"     command.name="Remove Layer"/>
-			<Command control="trackExpandLayers"             command.category="Track"     command.name="Expand Layers"/>
-			<Command control="trackRenameLayer"              command.category="Track"     command.name="Rename Layer"/>
-			<Command control="trackGroupSelectedTracks"      command.category="Track"     command.name="Group Selected Tracks"/>
-			<Command control="trackDissolveGroup"            command.category="Track"     command.name="Dissolve Group"/>
-			<Command control="trackShowEnvelopes"            command.category="Track"     command.name="Show Envelopes"/>
-			<Command control="trackShowInConsole"            command.category="Track"     command.name="Show in Console"/>
-			<Command control="trackExpandFolderTrack"        command.category="Track"     command.name="Expand Folder Track"/>
-			<Command control="trackCollapseAllTracks"        command.category="Track"     command.name="Collapse All Tracks"/>
-			<Command control="trackAddTracks"                command.category="Track"     command.name="Add Tracks"/>
-			<Command control="trackAddAutomationTrack"       command.category="Track"     command.name="Add Automation Track"/>
-			<Command control="trackAddBusForSelectedChnls"   command.category="Track"     command.name="Add Bus for Selected Channels"/>
-			<Command control="trackArmAllAudioTracks"        command.category="Track"     command.name="Arm All Audio Tracks"/>
-			<Command control="transportReturnToZero"         command.category="Transport" command.name="Return to Zero"/>
-			<Command control="transportReturnToStart"        command.category="Transport" command.name="Return to Start on Stop"/>
-			<Command control="transportEnablePlayMarker"     command.category="Transport" command.name="Enable Play Start Marker"/>
-			<Command control="transportSetPlayMarker"        command.category="Transport" command.name="Set Play Start Marker"/>
-			<Command control="transportLoopSelection"        command.category="Transport" command.name="Loop Selection"/>
-			<Command control="transportLoopSelectionSnp"     command.category="Transport" command.name="Loop Selection Snapped"/>
-			<Command control="transportPlayFromLoopStart"    command.category="Transport" command.name="Play from Loop Start"/>
-			<Command control="transportLoopFollowsSel"       command.category="Transport" command.name="Loop Follows Selection"/>
-			<Command control="transportTapTempo"             command.category="Transport" command.name="Tap Tempo"/>
+			<Command control="viewConsole"                   command.category="View"       command.name="Console"/>
+			<Command control="viewBrowser"                   command.category="View"       command.name="Browser"/>
+			<Command control="viewEditor"                    command.category="View"       command.name="Editor"/>
+			<Command control="viewFullscreen"                command.category="View"       command.name="Fullscreen"/>
+			<Command control="viewInspector"                 command.category="View"       command.name="Inspector"/>
+			<Command control="viewRecordPanel"               command.category="View"       command.name="Record Panel"/>
+			<Command control="viewTrackList"                 command.category="View"       command.name="Track List"/>
+			<Command control="viewPrevPerspective"           command.category="View"       command.name="Previous Perspective"/>
+			<Command control="viewNextPerspective"           command.category="View"       command.name="Next Perspective"/>
+			<Command control="viewShowGroups"                command.category="View"       command.name="Show Groups (Channel List)"/>
+			<Command control="viewToggleFloatingWindows"     command.category="View"       command.name="Toggle Floating Windows"/>
+			<Command control="viewTimeDisplay"               command.category="View"       command.name="Time Display"/>
+			<Command control="viewOpenMarkerTrack"           command.category="View"       command.name="Open Marker Track"/>
+			<Command control="viewOpenSignatureTrack"        command.category="View"       command.name="Open Signature Track"/>
+			<Command control="viewOpenTempoTrack"            command.category="View"       command.name="Open Tempo Track"/>
+			<Command control="viewFitTimeline"               command.category="View"       command.name="Fit Timeline to Contents"/>
+			<Command control="consoleShowInputs"             command.category="Console"    command.name="Show Inputs"/>
+			<Command control="consoleShowTrack"              command.category="Console"    command.name="Show Track"/>
+			<Command control="consoleShowChannelEditor"      command.category="Console"    command.name="Show Channel Editor"/>
+			<Command control="consoleInstrEditor"            command.category="Console"    command.name="Show Instrument Editor"/>
+			<Command control="consoleOpenChannel"            command.category="Console"    command.name="Open Channel"/>
+			<Command control="consoleAddInsert"              command.category="Console"    command.name="Add Insert"/>
+			<Command control="consoleAddSend"                command.category="Console"    command.name="Add Send"/>
+			<Command control="consoleAddBusChannel"          command.category="Console"    command.name="Add Bus Channel"/>
+			<Command control="consoleAddFXChannel"           command.category="Console"    command.name="Add FX Channel"/>
+			<Command control="consoleGlobalMute"             command.category="Console"    command.name="Global Mute"/>
+			<Command control="consoleGlobalSolo"             command.category="Console"    command.name="Global Solo"/>
+			<Command control="consoleNextChannel"            command.category="Console"    command.name="Next Channel"/>
+			<Command control="consolePrevChannel"            command.category="Console"    command.name="Previous Channel"/>
+			<Command control="consoleToggleSize"             command.category="Console"    command.name="Toggle Size"/>
+			<Command control="consoleToggleWidth"            command.category="Console"    command.name="Toggle Width"/>
+			<Command control="groupSuspend"                  command.category="Group"      command.name="Suspend Group"/>
+			<Command control="groupSuspendAll"               command.category="Group"      command.name="Suspend All Groups"/>
+			<Command control="groupSuspend1"                 command.category="Group"      command.name="Suspend Group 1"/>
+			<Command control="groupSuspend2"                 command.category="Group"      command.name="Suspend Group 2"/>
+			<Command control="groupSuspend3"                 command.category="Group"      command.name="Suspend Group 3"/>
+			<Command control="groupSuspend4"                 command.category="Group"      command.name="Suspend Group 4"/>
+			<Command control="groupSuspend5"                 command.category="Group"      command.name="Suspend Group 5"/>
+			<Command control="groupSuspend6"                 command.category="Group"      command.name="Suspend Group 6"/>
+			<Command control="groupSuspend7"                 command.category="Group"      command.name="Suspend Group 7"/>
+			<Command control="groupSuspend8"                 command.category="Group"      command.name="Suspend Group 8"/>
+			<Command control="trackActivatePreviousLayer"    command.category="Track"      command.name="Activate Previous Layer"/>
+			<Command control="trackActivateNextLayer"        command.category="Track"      command.name="Activate Next Layer"/>
+			<Command control="trackAddLayer"                 command.category="Track"      command.name="Add Layer"/>
+			<Command control="trackRemoveLayer"              command.category="Track"      command.name="Remove Layer"/>
+			<Command control="trackExpandLayers"             command.category="Track"      command.name="Expand Layers"/>
+			<Command control="trackRenameLayer"              command.category="Track"      command.name="Rename Layer"/>
+			<Command control="trackGroupSelectedTracks"      command.category="Track"      command.name="Group Selected Tracks"/>
+			<Command control="trackDissolveGroup"            command.category="Track"      command.name="Dissolve Group"/>
+			<Command control="trackShowEnvelopes"            command.category="Track"      command.name="Show Envelopes"/>
+			<Command control="trackShowInConsole"            command.category="Track"      command.name="Show in Console"/>
+			<Command control="trackExpandFolderTrack"        command.category="Track"      command.name="Expand Folder Track"/>
+			<Command control="trackCollapseAllTracks"        command.category="Track"      command.name="Collapse All Tracks"/>
+			<Command control="trackAddTracks"                command.category="Track"      command.name="Add Tracks"/>
+			<Command control="trackAddAutomationTrack"       command.category="Track"      command.name="Add Automation Track"/>
+			<Command control="trackAddBusForSelectedChnls"   command.category="Track"      command.name="Add Bus for Selected Channels"/>
+			<Command control="trackArmAllAudioTracks"        command.category="Track"      command.name="Arm All Audio Tracks"/>
+			<Command control="transportReturnToZero"         command.category="Transport"  command.name="Return to Zero"/>
+			<Command control="transportReturnToStart"        command.category="Transport"  command.name="Return to Start on Stop"/>
+			<Command control="transportEnablePlayMarker"     command.category="Transport"  command.name="Enable Play Start Marker"/>
+			<Command control="transportSetPlayMarker"        command.category="Transport"  command.name="Set Play Start Marker"/>
+			<Command control="transportLoopSelection"        command.category="Transport"  command.name="Loop Selection"/>
+			<Command control="transportLoopSelectionSnp"     command.category="Transport"  command.name="Loop Selection Snapped"/>
+			<Command control="transportPlayFromLoopStart"    command.category="Transport"  command.name="Play from Loop Start"/>
+			<Command control="transportLoopFollowsSel"       command.category="Transport"  command.name="Loop Follows Selection"/>
+			<Command control="transportTapTempo"             command.category="Transport"  command.name="Tap Tempo"/>
+			<Command control="markerDelete"                  command.category="Marker"     command.name="Delete"/>
+			<Command control="markerInsert"                  command.category="Marker"     command.name="Insert"/>
+			<Command control="markerInsertNamed"             command.category="Marker"     command.name="Insert Named"/>
+			<Command control="markerPrevious"                command.category="Marker"     command.name="Goto Previous Marker"/>
+			<Command control="markerNext"                    command.category="Marker"     command.name="Goto Next Marker"/>
+			<Command control="markerRecall"                  command.category="Marker"     command.name="Recall Marker"/>
+			<Command control="markerRecall1"                 command.category="Marker"     command.name="Recall Marker 1"/>
+			<Command control="markerRecall2"                 command.category="Marker"     command.name="Recall Marker 2"/>
+			<Command control="markerRecall3"                 command.category="Marker"     command.name="Recall Marker 3"/>
+			<Command control="markerRecall4"                 command.category="Marker"     command.name="Recall Marker 4"/>
+			<Command control="markerRecall5"                 command.category="Marker"     command.name="Recall Marker 5"/>
+			<Command control="markerRecall6"                 command.category="Marker"     command.name="Recall Marker 6"/>
+			<Command control="markerRecall7"                 command.category="Marker"     command.name="Recall Marker 7"/>
+			<Command control="markerRecall8"                 command.category="Marker"     command.name="Recall Marker 8"/>
+			<Command control="navTrackPrev"                  command.category="Navigation" command.name="Previous Track"/>
+			<Command control="navTrackNext"                  command.category="Navigation" command.name="Next Track"/>
+			<Command control="navEventPrev"                  command.category="Navigation" command.name="Previous Event"/>
+			<Command control="navEventNext"                  command.category="Navigation" command.name="Next Event"/>
+			<Command control="navPageSkipUp"                 command.category="Navigation" command.name="Page Up Skip"/>
+			<Command control="navPageSkipDn"                 command.category="Navigation" command.name="Page Down Skip"/>
 		</Template>
     </Templates>
 

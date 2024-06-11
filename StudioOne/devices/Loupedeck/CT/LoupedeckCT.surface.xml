@@ -83,11 +83,6 @@
 
 		<Control name="groupButton"   type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#4F" channel="0"/> </Control>
 
- 		<!-- Utilities for the Loupedeck modes keypad -->
-		<Control name="channelEditorButton"   type="trigger" options="receive"> <MidiMessage status="#90" address="#50" channel="0"/> </Control>
-		<Control name="previousPluginButton"  type="trigger" options="receive"> <MidiMessage status="#90" address="#51" channel="0"/> </Control>
-		<Control name="nextPluginButton"      type="trigger" options="receive"> <MidiMessage status="#90" address="#52" channel="0"/> </Control>
-
 		<!-- Transport -->
 		<Control name="markerButton"   type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#54" channel="0"/> </Control>
 		<Control name="cycleButton"    type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#55" channel="0"/> </Control>
@@ -146,7 +141,7 @@
 
 		<Control name="U1Text"  type="textdisplay" options="transmit public"/>
 		<Control name="U2Text"  type="textdisplay" options="transmit public"/>
-		<Control name="UserPagesActive"  options="transmit public"> <MidiMessage status="#B0" address="#6F" channel="0"/> </Control>
+		<Control name="ActiveUserPages"  options="transmit public"> <MidiMessage status="#B0" address="#60" channel="0"/> </Control>
 
 		<!-- ******************************************************************************************** -->
 		<!-- Selected Channel Controls -->
@@ -263,10 +258,6 @@
 			<!-- **************************************************************************************** -->
 
 			<!-- Used by the Loupedeck modes keypad -->
-			<Command control="channelEditorButton" command.category="Console" command.name="Show Channel Editor"/>
-			<Command control="previousPluginButton" command.category="Navigation" command.name="Page Up Skip"/>
-			<Command control="nextPluginButton" command.category="Navigation" command.name="Page Down Skip"/>
-
 			<Command control="F1" command.category="Console"   	command.name="Show Inputs"/>
 			<Command control="F2" command.category="Console"   	command.name="Show Track"/>
 			<Command control="F3" command.category="View"      	command.name="Console"/>
@@ -346,7 +337,7 @@
 				<String control="focusDeviceText" param="focusDeviceName"/>
 			</using>
 
-			<Value control="UserPagesActive" param="userPagesActive"/>
+			<Value control="ActiveUserPages" param="activeUserPages"/>
 
 			<include template="ChannelStripAliasMapping"/>
 			<include template="S1CommandMapping"/>

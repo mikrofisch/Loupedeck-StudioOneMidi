@@ -2,8 +2,10 @@
 {
     using System;
     using System.Diagnostics;
+    using System.Resources;
     using System.Runtime.CompilerServices;
     using System.Security.Cryptography.X509Certificates;
+    using System.Windows.Forms;
     using System.Windows.Media;
 
     using Melanchall.DryWetMidi.Common;
@@ -593,7 +595,7 @@
         }
     }
 
-    public class ModeTopCommandButtonData : CommandButtonData
+    public class ModeTopCommandButtonData : OneWayCommandButtonData
     {
         public enum Location
         {
@@ -601,7 +603,7 @@
             Right
         }
         Location ButtonLocation = Location.Left;
-        string TopDisplayText;
+        String TopDisplayText;
         protected Boolean IsUserButton = false;
         protected String PluginName;
         protected ColorFinder UserColorFinder = new ColorFinder();
@@ -620,7 +622,7 @@
         public override void OnLoad(StudioOneMidiPlugin plugin)
         {
             base.OnLoad(plugin);
-            UserColorFinder.Init(plugin);
+            this.UserColorFinder.Init(plugin);
         }
 
         public void setTopDisplay(String text) => this.TopDisplayText = text;
@@ -899,37 +901,39 @@
 
     public class UserModeButtonData : ButtonData
     {
-        private int UserMode = 0;
-        public bool UserMode1Activated = false;
-        public bool UserMode2Activated = false;
-        public bool UserMode3Activated = false;
+        public const Int32 MaxUserPages = 6;
+        public const Int32 BaseNote = 0x2B;
+        public Int32 ActiveUserPages { get; set; } = 3;
+        public Int32 UserPage { get; private set; } = 0;
+
+        private Boolean[] UserModeActivated { get; set; } = new Boolean[MaxUserPages];
 
         public UserModeButtonData()
         {
         }
 
-        public void setUserMode(int userMode, bool activated)
+        public void setUserPage(Int32 noteNumber, Boolean activated)
         {
-            switch (userMode)
+            if (noteNumber >= BaseNote && noteNumber <= BaseNote + MaxUserPages)
             {
-                case 0x2B:
-                    this.UserMode1Activated = activated;
-                    break;
-                case 0x2C:
-                    this.UserMode2Activated = activated;
-                    break;
-                case 0x2D:
-                    this.UserMode3Activated = activated;
-                    break;
+                this.UserModeActivated[noteNumber - BaseNote] = activated;
             }
-            if (this.UserMode1Activated)
-                this.UserMode = 1;
-            else if (this.UserMode2Activated)
-                this.UserMode = 2;
-            else if (this.UserMode3Activated)
-                this.UserMode = 3;
-            else
-                this.UserMode = 0;
+
+            this.UserPage = 0;
+            for (Int32 i = 0; i < MaxUserPages; i++)
+            {
+                if (this.UserModeActivated[i])
+                {
+                    this.UserPage = i + 1;
+                    break;
+                }
+            }
+        }
+
+        public void resetUserPage()
+        {
+            this.UserPage = 0;
+            this.runCommand();
         }
 
         public override BitmapImage getImage(PluginImageSize imageSize)
@@ -942,38 +946,68 @@
             int rH = (bb.Height - 2 * rY) / 2;
             int rX = (bb.Width - rW) / 2;
 
-            bb.FillRectangle(rX, rY, rW, rH, this.UserMode == 0 ? CommandButtonData.cRectOff : CommandButtonData.cRectOn);
-            bb.DrawText("USER", rX, rY, rW, rH, this.UserMode == 0 ? CommandButtonData.cTextOff : CommandButtonData.cTextOn, 16);
+            bb.FillRectangle(rX, rY, rW, rH, this.UserPage == 0 ? CommandButtonData.cRectOff : CommandButtonData.cRectOn);
+            bb.DrawText("USER", rX, rY, rW, rH, this.UserPage == 0 ? CommandButtonData.cTextOff : CommandButtonData.cTextOn, 16);
 
             rY += rH;
             bb.FillRectangle(rX, rY, rW, rH, CommandButtonData.cRectOff);
 
-            int rW2 = rW / 3;
-            int rW3 = rW - 2 * rW2;
-            if (this.UserMode > 0)
+            int rW2 = rW / 3 + 1;
+
+            bb.DrawText("1", rX, rY, rW2, rH, CommandButtonData.cTextOff);
+
+            if (this.ActiveUserPages > 1)
             {
-                bb.FillRectangle(rX + (this.UserMode - 1) * rW2, rY, this.UserMode == 3 ? rW3 : rW2, rH, CommandButtonData.cRectOn);
+                if (this.ActiveUserPages > 2)
+                {
+                    bb.DrawText(this.ActiveUserPages.ToString(), rX + rW - rW2, rY, rW2, rH, CommandButtonData.cTextOff);
+                }
+                if (this.ActiveUserPages < 4)
+                {
+                    bb.DrawText("2", rX + rW2, rY, rW2, rH, CommandButtonData.cTextOff);
+                }
+                else
+                {
+                    var sp = (rW2 + 6) / 3;
+                    for (var i = 0; i < 3; i++)
+                    {
+                        bb.FillCircle(rX + rW2 + sp * i, rY + rH / 2 + 2, 1, CommandButtonData.cTextOff);
+                    }
+                }
+                if (this.ActiveUserPages < 3)
+                {
+                    rX += rW2 * (this.UserPage - 1);
+                }
+                else
+                {
+                    if (this.UserPage == this.ActiveUserPages) rX = rX + rW - rW2;
+                    else rX += (rW - rW2) / (this.ActiveUserPages - 1) * (this.UserPage - 1);
+                }
             }
-            for (int i = 1; i <= 3; i++)
+
+            if (this.UserPage > 0)
             {
-                bb.DrawText(i.ToString(), rX + (i - 1) * rW2, rY, rW2, rH, this.UserMode == i ? CommandButtonData.cTextOn : CommandButtonData.cTextOff, 16);
+                bb.FillRectangle(rX, rY, rW2, rH, CommandButtonData.cRectOn);
+                bb.DrawText(this.UserPage.ToString(), rX, rY, rW2, rH, CommandButtonData.cTextOn);
             }
+//            for (int i = 1; i <= 3; i++)
+//            {
+//                bb.DrawText(i.ToString(), rX + (i - 1) * rW2, rY, rW2, rH, this.UserPage == i ? CommandButtonData.cTextOn : CommandButtonData.cTextOff, 16);
+//            }
 
             return bb.ToImage();
 
         }
         public override void runCommand()
         {
-            this.UserMode += 1;
-            if (this.UserMode > 3)
-            {
-                this.UserMode = 1;
-            }
+            this.UserPage = (Control.ModifierKeys & Keys.Shift) == Keys.Shift
+                ? this.UserPage <= 1 ? this.ActiveUserPages : this.UserPage - 1
+                : this.UserPage > this.ActiveUserPages - 1 ? 1 : this.UserPage + 1;
 
-            int Code = 0x2A + this.UserMode;
+            var Code = BaseNote - 1 + this.UserPage;
 
-            NoteOnEvent e = new NoteOnEvent();
-            e.Velocity = (SevenBitNumber)(127);
+            var e = new NoteOnEvent();
+            e.Velocity = (SevenBitNumber)127;
             e.NoteNumber = (SevenBitNumber)Code;
             this.Plugin.mackieMidiOut.SendEvent(e);
         }

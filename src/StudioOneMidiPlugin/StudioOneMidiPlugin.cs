@@ -6,7 +6,6 @@ namespace Loupedeck.StudioOneMidiPlugin
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
-    using System.Windows.Forms;
 
     using Loupedeck.StudioOneMidiPlugin.Controls;
 
@@ -37,8 +36,9 @@ namespace Loupedeck.StudioOneMidiPlugin
         public bool isConfigWindowOpen = false;
 
         public event EventHandler ChannelDataChanged;
-        public event EventHandler<NoteOnEvent> Ch0NoteReceived;
-        public event EventHandler<NoteOnEvent> Ch1NoteReceived;
+        public event EventHandler<NoteOnEvent> CommandNoteReceived;
+        public event EventHandler<NoteOnEvent> OneWayCommandNoteReceived;
+        public event EventHandler<Int32> ActiveUserPagesReceived;
         public event EventHandler SelectButtonPressed;
         public event EventHandler<string> FocusDeviceChanged;
         public event EventHandler<ChannelProperty.PropertyType> PropertySelectionChanged;
@@ -184,7 +184,7 @@ namespace Loupedeck.StudioOneMidiPlugin
         public static String getPluginName(String focusDeviceName)
         {
             var start = focusDeviceName.IndexOf(" - ") + 3;
-            String pluginName = "";
+            var pluginName = "";
             if (start > 2) pluginName = focusDeviceName.Substring(start, focusDeviceName.Length - start);
         
             return pluginName;
@@ -206,7 +206,7 @@ namespace Loupedeck.StudioOneMidiPlugin
             //
             for (int i = 0; i < ChannelCount + 2; i++)
             {
-                channelData[i.ToString()] = new MackieChannelData(this, i);
+                this.channelData[i.ToString()] = new MackieChannelData(this, i);
             }
 
 			this.ChannelDataChangeTimer = new System.Timers.Timer(10);
@@ -225,7 +225,7 @@ namespace Loupedeck.StudioOneMidiPlugin
 			this.Info.Icon48x48   = EmbeddedResources.ReadImage(EmbeddedResources.FindFile("plugin_icon_s1_48px.png"));
 			this.Info.Icon256x256 = EmbeddedResources.ReadImage(EmbeddedResources.FindFile("plugin_icon_s1_96px.png"));
 
-			LoadSettings();
+			this.LoadSettings();
         }
 
         // This method is called when the plugin is unloaded during the Loupedeck service shutdown.
@@ -235,12 +235,12 @@ namespace Loupedeck.StudioOneMidiPlugin
 
 		public void OpenConfigWindow()
         {
-			if (isConfigWindowOpen)
+			if (this.isConfigWindowOpen)
 				return;
 
 			Thread t = new Thread(() => {
 				ConfigWindow w = new ConfigWindow(this);
-				w.Closed += (_, _) => isConfigWindowOpen = false;
+				w.Closed += (_, _) => this.isConfigWindowOpen = false;
 				w.Show();
 				System.Windows.Threading.Dispatcher.Run();
 			});
@@ -248,7 +248,7 @@ namespace Loupedeck.StudioOneMidiPlugin
 			t.SetApartmentState(ApartmentState.STA);
 			t.Start();
 
-			isConfigWindowOpen = true;
+			this.isConfigWindowOpen = true;
 		}
 
 		public void EmitChannelDataChanged() =>
@@ -297,22 +297,22 @@ namespace Loupedeck.StudioOneMidiPlugin
         private void OnMackieMidiEvent(object sender, MidiEventReceivedEventArgs args)
         {
             MidiEvent e = args.Event;
-            // PitchBend -> volume
+            // PitchBend -> faders
             if (e is PitchBendEvent)
             {
-                if (!channelData.TryGetValue(((int)(e as ChannelEvent).Channel).ToString(), out MackieChannelData cd))
+                if (!this.channelData.TryGetValue(((int)(e as ChannelEvent).Channel).ToString(), out MackieChannelData cd))
                     return;
 
                 var ce = e as PitchBendEvent;
                 cd.Value = ce.PitchValue / 16383.0f;
                 this.EmitChannelDataChanged();
             }
-            // Note event -> solo/mute/...
+            // Note event -> toggle settings
             else if (e is NoteOnEvent)
             {
                 var ce = e as NoteOnEvent;
                 ChannelProperty.PropertyType eventType = ChannelProperty.PropertyType.Select;
-                bool eventTypeFound = false;
+                var eventTypeFound = false;
 
                 foreach (ChannelProperty.PropertyType bt in Enum.GetValues(typeof(ChannelProperty.PropertyType)))
                 {
@@ -328,7 +328,7 @@ namespace Loupedeck.StudioOneMidiPlugin
                 {
                     var channelIndex = ce.NoteNumber - ChannelProperty.MidiBaseNote[(int)eventType];
 
-                    if (!channelData.TryGetValue(channelIndex.ToString(), out MackieChannelData cd))
+                    if (!this.channelData.TryGetValue(channelIndex.ToString(), out MackieChannelData cd))
                         return;
 
                     cd.BoolProperty[(int)eventType] = ce.Velocity > 0;
@@ -341,7 +341,7 @@ namespace Loupedeck.StudioOneMidiPlugin
                         var ubp = new UserButtonParams();
                         ubp.channelIndex = ce.NoteNumber - UserButtonMidiBase;
                         ubp.isActive = ce.Velocity > 0;
-                        if (channelData.TryGetValue(ubp.channelIndex.ToString(), out MackieChannelData cd))
+                        if (this.channelData.TryGetValue(ubp.channelIndex.ToString(), out MackieChannelData cd))
                         {
                             cd.UserActive = ubp.isActive;
                             ubp.userLabel = cd.UserLabel;
@@ -376,19 +376,28 @@ namespace Loupedeck.StudioOneMidiPlugin
                         {
                             this.CurrentRecPreMode = RecPreMode.Off;
                         }
-                        Ch0NoteReceived.Invoke(this, ce);
+                        CommandNoteReceived.Invoke(this, ce);
                     }
                     else
                     {
-                        Ch0NoteReceived.Invoke(this, ce);
+                        CommandNoteReceived.Invoke(this, ce);
                     }
                 }
                 else if (ce.Channel == 1)
                 {
-                    Ch1NoteReceived.Invoke(this, ce);
+                    OneWayCommandNoteReceived.Invoke(this, ce);
                 }
             }
-            else if (e is NormalSysExEvent)
+            else if (e is ControlChangeEvent)  // controllers -> numeric arguments
+            {
+                var ce = e as ControlChangeEvent;
+
+                if (ce.ControlNumber == 0x60)
+                {
+                    ActiveUserPagesReceived.Invoke(this, ce.ControlValue);
+                }
+            }
+            else if (e is NormalSysExEvent)  // SysEx -> text for labels etc.
             {
                 var ce = e as NormalSysExEvent;
                 if (ce.Data.Length < 5)
@@ -407,7 +416,7 @@ namespace Loupedeck.StudioOneMidiPlugin
                     var receivedString = Encoding.UTF8.GetString(str, 0, str.Length);
                     var displayIndex = offset / 4;
 
-                    if (!channelData.TryGetValue(displayIndex.ToString(), out MackieChannelData cd))
+                    if (!this.channelData.TryGetValue(displayIndex.ToString(), out MackieChannelData cd))
                         return;
 
                     switch (offset % 4)
@@ -453,7 +462,7 @@ namespace Loupedeck.StudioOneMidiPlugin
 
 		public override bool TryProcessTouchEvent(string actionName, string actionParameter, DeviceTouchEvent deviceTouchEvent)
         {
-            if (actionName == channelFader.GetResetActionName())
+            if (actionName == this.channelFader.GetResetActionName())
             {
                 // return channelFader.TryProcessTouchEvent(actionParameter, deviceTouchEvent);
             }

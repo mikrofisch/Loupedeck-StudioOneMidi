@@ -25,7 +25,7 @@ class LoupedeckCTComponent extends LoupedeckSharedComponent {
     onInit(hostComponent) {
         // Host.Console.writeLine("Connecting Loupedeck CT...");
         super.onInit(hostComponent);
-        this.userBanksActive = 0;
+        this.activeUserPagesCounter = 0;
         let paramList = hostComponent.paramList;
         this.commandControlValue = paramList.addInteger(0, 33, "commandControlValue");
         this.commandControlValue.setValue(1);
@@ -34,7 +34,7 @@ class LoupedeckCTComponent extends LoupedeckSharedComponent {
         this.sendMode = paramList.addParam("sendMode");
         this.flipMode = paramList.addParam("flipMode");
         this.panModeLED = paramList.addParam("panModeLED");
-        this.userPagesActive = paramList.addInteger(0, 127, "userPagesActive");
+        this.activeUserPagesParam = paramList.addInteger(0, 127, "activeUserPages");
         this.updateModeParams();
         
         this.bankList = paramList.addList("bankList");

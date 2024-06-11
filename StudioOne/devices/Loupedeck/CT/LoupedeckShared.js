@@ -232,43 +232,26 @@ class LoupedeckSharedComponent extends FocusChannelPanComponent {
         else if (this.assignment.mode == ChannelAssignmentMode.kTrackMode)
             this.updateAll();
     }
-    onConnectPlugControl(index) {
+    onConnectPlugControl(bank, index) {
+        // Determine maximum number of used user banks. This function gets called when the active plugin
+        // is changed for each element of vpot and vbut for which the assignemnt changes. Parameters are
+        // handled in increasing order of user bank and channel index, respectively. Disconnections
+        // are handled first.  
+        let element = this.root.getGenericMapping().getElement(0).find("vpot[" + bank + "][" + index + "]");
+        if (element.isConnected()) {
+            this.activeUserPagesCounter = bank + 1;
+        }
+        else if (bank < this.activeUserPagesCounter) {
+            this.activeUserPagesCounter = bank;
+        }
+        //Host.Console.writeLine("onConnectPlugControl(" + bank + ", " + index + ") isConnected: " + element.isConnected());
+        //Host.Console.writeLine("activeUserPagesCounter: " + this.activeUserPagesCounter);
+
+        // This triggers a MIDI controller message to the Loupedeck. There seems to be a timed buffer for midi messages
+        // to limit the update frequency for individual controllers, so this message only gets sent once per plugin change.
+        this.activeUserPagesParam.value = this.activeUserPagesCounter;
+
         if (this.assignment.isUserMode()) {
-            if (index == kNumChannels - 1) {
-                // Determine maximum number of used user banks when the last channel of new bank
-                // is connected. There must be a better way to do this but at least it comes
-                // up with the correct number eventually. It actually counts up from zero until
-                // the maximum number is reached, so something dynamic is going on in the background.
-                // Note that dynamics don't seem to improve much between triggering on the first and
-                // the last channel.
-                // However, all of this seems to happen fast enough for only one MIDI controller message
-                // to be sent.
-                
-                // Host.Console.writeLine("onConnectPlugControl(" + index + ") assignment.mode: " + this.assignment.mode);
-                let ubCount = kNumUserBanks;
-                let genericMappingElement = this.root.getGenericMapping();
-                for (let bank = 0; bank < kNumUserBanks; bank++) {
-                    let i = 0;
-                    for (i = 0; i < kNumChannels; i++) {
-                        // Host.Console.writeLine("vpot["+bank+"]["+i+"].getParamCount: " + genericMappingElement.getElement(0).find("vpot[" + bank + "][" + i + "]").getParamCount());
-                        if (genericMappingElement.getElement(0).find("vpot[" + bank + "][" + i + "]").isConnected()) break;
-                        if (genericMappingElement.getElement(0).find("vbut[" + bank + "][" + i + "]").isConnected()) break;
-                    }
-                    if (i == kNumChannels)
-                    {
-                        ubCount = bank;
-                        break;
-                    }
-                }
-                if (this.userBanksActive != ubCount) {
-                    this.userBanksActive = ubCount;
-                    // Host.Console.writeLine("userBanksActive: " + this.userBanksActive);
-
-                    // This triggers a MIDI controller message to the Loupedeck.
-                    this.userPagesActive.value = this.userBanksActive;
-                }
-            }
-
             this.updateChannel(index);
         }
     }
@@ -288,7 +271,7 @@ class LoupedeckSharedComponent extends FocusChannelPanComponent {
         let mode = this.assignment.mode;
 
         if (this.assignment.isUserMode())  {
-            // Host.Console.writeLine("updateChannel UserMode");
+            // Host.Console.writeLine("updateChannel(" + index + ") UserMode");
             let plugControlElement = channelInfo.plugControlElement;
             let plugButtonElement = channelInfo.plugButtonElement;
             

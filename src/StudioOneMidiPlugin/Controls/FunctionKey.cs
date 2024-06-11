@@ -23,7 +23,7 @@
         {
             base.OnLoad();
 
-            this.plugin.Ch0NoteReceived += (object sender, NoteOnEvent e) =>
+            this.plugin.CommandNoteReceived += (object sender, NoteOnEvent e) =>
             {
                 string param = e.NoteNumber.ToString();
                 if (!this.buttonData.ContainsKey(param)) return;

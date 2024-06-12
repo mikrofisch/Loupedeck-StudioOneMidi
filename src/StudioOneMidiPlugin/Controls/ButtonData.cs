@@ -551,6 +551,27 @@
         // }
     }
 
+    public class GroupSuspendButtonData : OneWayCommandButtonData
+    {
+        private readonly Int32 GroupNumber;
+        public GroupSuspendButtonData(Int32 groupNumber) : base(0x21 + groupNumber, $"Group {groupNumber}", "group_suspend_no")
+        {
+            this.GroupNumber = groupNumber;
+        }
+        public override BitmapImage getImage(PluginImageSize imageSize)
+        {
+            // Debug.WriteLine("CommandButtonData.getImage " + this.Code.ToString() + ", name: " + this.Name);
+
+            var bb = new BitmapBuilder(imageSize);
+            bb.FillRectangle(0, 0, bb.Width, bb.Height, this.Activated ? this.OnColor : this.OffColor);
+
+            bb.DrawImage(this.Icon);
+            bb.DrawText(this.GroupNumber.ToString(), 0, 7, bb.Width, bb.Height, this.TextColor, 14);
+
+            return bb.ToImage();
+        }
+    }
+
     public class ModeButtonData : ButtonData
     {
         public string Name;

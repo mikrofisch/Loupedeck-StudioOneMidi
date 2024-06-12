@@ -247,6 +247,9 @@
     <EmbeddedResource Include="Resources\group_dissolve_52px.png" />
     <EmbeddedResource Include="Resources\group_new_52px.png" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\group_suspend_no_52px.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent Condition="$(OS) == 'Windows_NT'">call "$(ProjectDir)BuildEvents\postbuild.cmd" "$(ProjectDir)" "$(TargetDir)"</PostBuildEvent>

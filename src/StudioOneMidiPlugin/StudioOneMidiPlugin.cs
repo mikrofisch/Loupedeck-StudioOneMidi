@@ -383,7 +383,7 @@ namespace Loupedeck.StudioOneMidiPlugin
                         CommandNoteReceived.Invoke(this, ce);
                     }
                 }
-                else if (ce.Channel == 1)
+                else if (ce.Channel >= 14)
                 {
                     OneWayCommandNoteReceived.Invoke(this, ce);
                 }

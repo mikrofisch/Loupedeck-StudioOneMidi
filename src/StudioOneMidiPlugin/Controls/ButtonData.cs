@@ -16,6 +16,8 @@
 
     public abstract class ButtonData
     {
+        public static readonly BitmapColor DefaultSelectionBgColor = new BitmapColor(60, 60, 60);
+
         protected StudioOneMidiPlugin Plugin;
         protected const int TrackNameH = 24;
 
@@ -511,24 +513,24 @@
     {
         public OneWayCommandButtonData(int code, string name, string iconName = null) : base(code, name, iconName)
         {
-            this.MidiChannel = 1;
+            this.MidiChannel = 14;
         }
 
         public OneWayCommandButtonData(int code, string name, string iconName, BitmapColor bgColor) : base(code, name, iconName, bgColor)
         {
-            this.MidiChannel = 1;
+            this.MidiChannel = 14;
         }
 
         public OneWayCommandButtonData(int code, string name, BitmapColor textColor) : base(code, name, null)
         {
-            this.MidiChannel = 1;
+            this.MidiChannel = 14;
             this.TextColor = textColor;
         }
 
         public OneWayCommandButtonData(int code, string name, BitmapColor onColor, BitmapColor textOnColor, Boolean isActivatedByDefault = false)
             : base(code, name, onColor, textOnColor, isActivatedByDefault)
         {
-            this.MidiChannel = 1;
+            this.MidiChannel = 14;
         }
 
         // The code below is an alternative method for invoking commands by setting
@@ -556,14 +558,13 @@
         private readonly Int32 GroupNumber;
         public GroupSuspendButtonData(Int32 groupNumber) : base(0x21 + groupNumber, $"Group {groupNumber}", "group_suspend_no")
         {
+            this.OffColor = new BitmapColor(191, 255, 144, 80);
             this.GroupNumber = groupNumber;
         }
         public override BitmapImage getImage(PluginImageSize imageSize)
         {
-            // Debug.WriteLine("CommandButtonData.getImage " + this.Code.ToString() + ", name: " + this.Name);
-
             var bb = new BitmapBuilder(imageSize);
-            bb.FillRectangle(0, 0, bb.Width, bb.Height, this.Activated ? this.OnColor : this.OffColor);
+            bb.FillRectangle(0, 0, bb.Width, bb.Height, this.OffColor);
 
             bb.DrawImage(this.Icon);
             bb.DrawText(this.GroupNumber.ToString(), 0, 7, bb.Width, bb.Height, this.TextColor, 14);
@@ -571,20 +572,53 @@
             return bb.ToImage();
         }
     }
+    public class MarkerGotoButtonData : OneWayCommandButtonData
+    {
+        public static readonly BitmapColor BgColor = new BitmapColor(169, 146, 255, 80);
+        private readonly Int32 MarkerNumber;
+        public MarkerGotoButtonData(Int32 markerNumber) : base(0x65 + markerNumber, $"Marker {markerNumber}", "marker_goto_no")
+        {
+            this.MarkerNumber = markerNumber;
+            this.OffColor = BgColor;
+        }
+        public override BitmapImage getImage(PluginImageSize imageSize)
+        {
+            var bb = new BitmapBuilder(imageSize);
+            bb.FillRectangle(0, 0, bb.Width, bb.Height, this.OffColor);
 
+            bb.DrawImage(this.Icon);
+            bb.DrawText(this.MarkerNumber.ToString(), 7, 9, bb.Width, bb.Height, this.TextColor, 14);
+
+            return bb.ToImage();
+        }
+    }
     public class ModeButtonData : ButtonData
     {
         public string Name;
         public BitmapImage Icon = null;
         public Boolean Activated = false;
+        private BitmapColor BgColor;
 
-        public ModeButtonData(string name, string iconName = null)
+        public ModeButtonData(String name, String iconName = null)
+        {
+            this.init(name, iconName, BitmapColor.Transparent);
+        }
+        public ModeButtonData(String name, String iconName, BitmapColor bgColor)
+        {
+            this.init(name, iconName, bgColor);
+        }
+
+        private void init(String name, String iconName, BitmapColor bgColor)
         {
             this.Name = name;
+            this.BgColor = bgColor;
 
             if (iconName != null)
             {
-                if (!iconName.Contains("px")) iconName += "_52px";
+                if (!iconName.Contains("px"))
+                {
+                    iconName += "_52px";
+                }
                 this.Icon = EmbeddedResources.ReadImage(EmbeddedResources.FindFile($"{iconName}.png"));
             }
         }
@@ -593,10 +627,7 @@
         {
             BitmapBuilder bb = new BitmapBuilder(imageSize);
 
-            if (this.Activated)
-            {
-                bb.FillRectangle(0, 0, bb.Width, bb.Height, AutomationModeCommandButtonData.BgColor);
-            }
+            bb.FillRectangle(0, 0, bb.Width, bb.Height, this.Activated ? ButtonData.DefaultSelectionBgColor : this.BgColor);
 
             if (this.Icon != null)
             {
@@ -783,7 +814,7 @@
 
             if (this.SelectionModeActivated)
             {
-                bb.FillRectangle(0, 0, bb.Width, bb.Height, AutomationModeCommandButtonData.BgColor);
+                bb.FillRectangle(0, 0, bb.Width, bb.Height, ButtonData.DefaultSelectionBgColor);
                 bb.DrawText("Auto\rMode", 0, 0, bb.Width, bb.Height, null, 16);
             }
             else
@@ -801,10 +832,14 @@
 
     public class AutomationModeCommandButtonData : ButtonData
     {
-        public static readonly BitmapColor BgColor = new BitmapColor(60, 60, 60);
-
+        private readonly BitmapColor BgColor = BitmapColor.Transparent;
         private readonly AutomationMode Mode;
 
+        public AutomationModeCommandButtonData(AutomationMode am, BitmapColor bgColor)
+        {
+            this.Mode = am;
+            this.BgColor = bgColor;
+        }
         public AutomationModeCommandButtonData(AutomationMode am)
         {
             this.Mode = am;
@@ -873,7 +908,7 @@
 
             if (this.SelectionModeActivated)
             {
-                bb.FillRectangle(0, 0, bb.Width, bb.Height, AutomationModeCommandButtonData.BgColor);
+                bb.FillRectangle(0, 0, bb.Width, bb.Height, ButtonData.DefaultSelectionBgColor);
             }
 
             for (int i = 0; i < this.Icon.Length; i++)

@@ -13,8 +13,9 @@
         private const String ChannelSelector = "channelSelector";
         private const String ControlOrientationSelector = "controlOrientationSelector";
 
-        private SelectButtonMode selectMode = SelectButtonMode.Select;
-        private FaderMode faderMode = FaderMode.Volume;
+        private SelectButtonMode SelectMode = SelectButtonMode.Select;
+        private FaderMode FaderMode = FaderMode.Volume;
+        private static BitmapImage IconVolume, IconPan;
         private String PluginName;
         private static readonly ColorFinder UserColorFinder = new ColorFinder(new ColorFinder.ColorSettings
         {
@@ -43,6 +44,9 @@
 
             this.ActionEditor.ListboxItemsRequested += this.OnActionEditorListboxItemsRequested;
             this.ActionEditor.ControlValueChanged += this.OnActionEditorControlValueChanged;
+
+            IconVolume ??= EmbeddedResources.ReadImage(EmbeddedResources.FindFile("dial_volume_52px.png"));
+            IconPan ??= EmbeddedResources.ReadImage(EmbeddedResources.FindFile("dial_pan_52px.png"));
         }
 
         protected override bool OnLoad()
@@ -57,13 +61,13 @@
 
             plugin.SelectModeChanged += (object sender, SelectButtonMode e) =>
             {
-                this.selectMode = e;
+                this.SelectMode = e;
                 this.ActionImageChanged();
             };
 
             plugin.FaderModeChanged += (object sender, FaderMode e) =>
             {
-                this.faderMode = e;
+                this.FaderMode = e;
                 this.ActionImageChanged();
             };
 
@@ -148,10 +152,18 @@
             }
 
             // Check for selected channel volume & pan
-            if (cd.ChannelID == StudioOneMidiPlugin.ChannelCount)          this.faderMode = FaderMode.Volume;
-            else if (cd.ChannelID == StudioOneMidiPlugin.ChannelCount + 1) this.faderMode = FaderMode.Pan;
-
-            if (this.selectMode == SelectButtonMode.Select)
+            var isSelectedChannel = false;
+            if (cd.ChannelID == StudioOneMidiPlugin.ChannelCount)
+            {
+                this.FaderMode = FaderMode.Volume;
+                isSelectedChannel = true;
+            }
+            else if (cd.ChannelID == StudioOneMidiPlugin.ChannelCount + 1)
+            {
+                this.FaderMode = FaderMode.Pan;
+                isSelectedChannel = true;
+            }
+            if (this.SelectMode == SelectButtonMode.Select)
             {
                 if (cd.Muted || cd.Solo)
                 {
@@ -164,18 +176,18 @@
                 {
                     bb.FillRectangle(sideBarX, 0, sideBarW, bb.Height, ChannelProperty.PropertyColor[(int)ChannelProperty.PropertyType.Select]);
                 }
-                if (cd.Armed)
+                if (!isSelectedChannel && cd.Armed)
                 {
                     bb.FillRectangle(sideBarW, bb.Height - piH, piW, piH, ChannelProperty.PropertyColor[(int)ChannelProperty.PropertyType.Arm]);
                 }
-                if (cd.Monitor)
+                if (!isSelectedChannel && cd.Monitor)
                 {
                     bb.FillRectangle(sideBarW + piW, bb.Height - piH, piW, piH, ChannelProperty.PropertyColor[(int)ChannelProperty.PropertyType.Monitor]);
                 }
             }
 
             var ValueColor = BitmapColor.White;
-            if (this.faderMode == FaderMode.Volume)
+            if (this.FaderMode == FaderMode.Volume)
             {
                 var volBarColor = UserColorFinder.getOnColor(this.PluginName, cd.Label);
 
@@ -198,31 +210,41 @@
                         volBarColor = UserColorFinder.getOffColor(this.PluginName, cd.Label);
                     }
                 }
-                int volBarH = (int)Math.Ceiling(cd.Value * bb.Height);
-                int volBarY = bb.Height - volBarH;
+                var volBarH = (Int32)Math.Ceiling(cd.Value * bb.Height);
+                var volBarY = bb.Height - volBarH;
                 if (UserColorFinder.getMode(this.PluginName, cd.Label) == ColorFinder.ColorSettings.PotMode.Symmetric)
                 {
-                    volBarH = (int)(Math.Abs(cd.Value - 0.5) * bb.Height);
+                    volBarH = (Int32)(Math.Abs(cd.Value - 0.5) * bb.Height);
                     volBarY = cd.Value < 0.5 ? bb.Height / 2 : bb.Height / 2 - volBarH;
+                }
+                if (isSelectedChannel)
+                {
+                    bb.DrawImage(IconVolume, 0, 0);
                 }
                 bb.FillRectangle(volBarX, volBarY, sideBarW, volBarH, volBarColor);
             }
             else
             {
-                int panBarW = (int)(Math.Abs(cd.Value - 0.5) * bb.Width);
-                int panBarX = cd.Value > 0.5 ? bb.Width / 2 : bb.Width / 2 - panBarW;
+                var panBarW = (Int32)(Math.Abs(cd.Value - 0.5) * bb.Width);
+                var panBarX = cd.Value > 0.5 ? bb.Width / 2 : bb.Width / 2 - panBarW;
 
-                bb.FillRectangle(panBarX, 0, panBarW, piH, new BitmapColor(60, 192, 232));
+                if (isSelectedChannel)
+                {
+                    bb.DrawImage(IconPan, 0, 0);
+                }
+                if (!cd.ValueStr.IsNullOrEmpty())
+                {
+                    bb.FillRectangle(panBarX, 0, panBarW, piH, new BitmapColor(60, 192, 232));
+                }
             }
 
-            //			bb.DrawText(cd.TrackName, 0, 0, bb.Width, bb.Height / 2, null, imageSize == PluginImageSize.Width60 ? 12 : 1);
-            //            bb.DrawText($"{Math.Round(cd.Value * 100.0f)} %", 0, bb.Height / 2, bb.Width, bb.Height / 2);
+            // bb.DrawText(cd.TrackName, 0, 0, bb.Width, bb.Height / 2, null, imageSize == PluginImageSize.Width60 ? 12 : 1);
+            // bb.DrawText($"{Math.Round(cd.Value * 100.0f)} %", 0, bb.Height / 2, bb.Width, bb.Height / 2);
             bb.DrawText(cd.ValueStr, 0, bb.Height / 4, bb.Width, bb.Height / 2, ValueColor);
-//            bb.DrawText(cd.Value.ToString(), 0, bb.Height / 4, bb.Width, bb.Height / 2);
             return bb.ToImage();
 		}
 
-		private MackieChannelData GetChannel(string actionParameter)
+		private MackieChannelData GetChannel(String actionParameter)
 		{
 			return (this.Plugin as StudioOneMidiPlugin).channelData[actionParameter];
 		}
@@ -252,7 +274,7 @@
             }
             else if (buttonEvent.EventType.IsLongPress())
             {
-                if (this.selectMode == SelectButtonMode.User)
+                if (this.SelectMode == SelectButtonMode.User)
                 {
                     this.OpenUserConfigWindow(cd.Label);
                 }

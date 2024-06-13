@@ -15,7 +15,6 @@
             this.DisplayName = "Automation Mode Controls";
             this.Description = "Buttons to display and change the automation mode setting for the current channel";
 
-            this.AddButton(new AutomationModeButtonData(), "auto", "Automation Mode");
             this.AddButton(new AutomationModeCommandButtonData(AutomationMode.Off), "off", "Automation Off");
             this.AddButton(new AutomationModeCommandButtonData(AutomationMode.Read), "read", "Automation: Read");
             this.AddButton(new AutomationModeCommandButtonData(AutomationMode.Touch), "touch", "Automation: Touch");
@@ -28,8 +27,6 @@
 
             this.plugin.AutomationModeChanged += (Object sender, AutomationMode e) =>
             {
-                var ambd = this.buttonData["auto"] as AutomationModeButtonData;
-                ambd.CurrentMode = e;
                 this.EmitActionImageChanged();
             };
 

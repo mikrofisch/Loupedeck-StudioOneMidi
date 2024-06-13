@@ -17,7 +17,7 @@
             this.ActionImageChangedTimer.Elapsed += (object sender, System.Timers.ElapsedEventArgs e) =>
             {
                 // Debug.WriteLine("ActionImageChangeTimer.Elapsed " + this.Name);
-                ActionImageChanged();
+                this.ActionImageChanged();
             };
 
         }

@@ -56,10 +56,10 @@
         private void AddButton(PropertySelectionButtonData bd)
         {
             // String name = ChannelProperty.PropertyName[(int)bd.Type];
-            String idx = bd.TypeA.ToString();
+            var idx = bd.TypeA.ToString();
 
             this.buttonData[idx] = bd;
-            AddParameter(idx, $"{ChannelProperty.PropertyName[(int)bd.TypeA]}/{ChannelProperty.PropertyName[(int)bd.TypeB]}", "Modes");
+            this.AddParameter(idx, $"{ChannelProperty.PropertyName[(Int32)bd.TypeA]}/{ChannelProperty.PropertyName[(int)bd.TypeB]}", "Modes");
         }
     }
 }

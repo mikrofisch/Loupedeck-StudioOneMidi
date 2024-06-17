@@ -79,6 +79,7 @@
     <Compile Include="Controls\CommandButton.cs" />
     <Compile Include="Controls\ChannelFader.cs" />
     <Compile Include="Controls\MidiPadFolder.cs" />
+    <Compile Include="Controls\Wheel.cs" />
     <Compile Include="MackieChannelData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StudioOneMidiApplication.cs" />
@@ -253,7 +254,7 @@
     <EmbeddedResource Include="Resources\marker_goto_no_52px.png" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Resources\add_52px.png" />
+    <EmbeddedResource Include="Resources\button_add_52px.png" />
     <EmbeddedResource Include="Resources\add_audio_mono_52px.png" />
     <EmbeddedResource Include="Resources\add_automation_52px.png" />
     <EmbeddedResource Include="Resources\add_aux_52px.png" />
@@ -324,6 +325,9 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\show_outputs_52px.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\arranger_52px.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

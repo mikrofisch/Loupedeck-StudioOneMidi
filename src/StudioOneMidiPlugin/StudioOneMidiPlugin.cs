@@ -9,6 +9,7 @@ namespace Loupedeck.StudioOneMidiPlugin
 
     using Loupedeck.StudioOneMidiPlugin.Controls;
 
+    using Melanchall.DryWetMidi.Common;
     using Melanchall.DryWetMidi.Core;
     using Melanchall.DryWetMidi.Multimedia;
 
@@ -460,14 +461,23 @@ namespace Loupedeck.StudioOneMidiPlugin
             }
         }
 
-		public override bool TryProcessTouchEvent(string actionName, string actionParameter, DeviceTouchEvent deviceTouchEvent)
+        public void SendMidiNote(Int32 midiChannel, Int32 note)
         {
-            if (actionName == this.channelFader.GetResetActionName())
-            {
-                // return channelFader.TryProcessTouchEvent(actionParameter, deviceTouchEvent);
-            }
+            var e = new NoteOnEvent();
+            e.Channel = (FourBitNumber)midiChannel;
+            e.Velocity = (SevenBitNumber)127;
+            e.NoteNumber = (SevenBitNumber)note;
+            this.mackieMidiOut.SendEvent(e);
+        }
 
-			return base.TryProcessTouchEvent(actionName, actionParameter, deviceTouchEvent);
-		}
+        // public override bool TryProcessTouchEvent(string actionName, string actionParameter, DeviceTouchEvent deviceTouchEvent)
+        // {
+        //    if (actionName == this.channelFader.GetResetActionName())
+        //    {
+        // return channelFader.TryProcessTouchEvent(actionParameter, deviceTouchEvent);
+        //    }
+        //
+        //   return base.TryProcessTouchEvent(actionName, actionParameter, deviceTouchEvent);
+        // }
     }
 }

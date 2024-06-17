@@ -1,11 +1,7 @@
 ﻿namespace Loupedeck.StudioOneMidiPlugin.Controls
 {
     using System;
-    using System.Diagnostics;
 
-    using Melanchall.DryWetMidi.Core;
-
-     // This defines 
     // Based on the source code for the official Loupedeck OBS Studio plugin
     // (https://github.com/Loupedeck-open-source/Loupedeck-ObsStudio-OpenPlugin)
     //
@@ -80,8 +76,8 @@
                 e.AddItem($"{(Int32)ChannelProperty.PropertyType.Solo}", "Solo", $"Solo channel");
                 e.AddItem($"{(Int32)ChannelProperty.PropertyType.Arm}", "Arm/Record", $"Arm channel track for recording");
                 e.AddItem($"{(Int32)ChannelProperty.PropertyType.Monitor}", "Monitor", $"Activate monitoring");
-                e.AddItem("8", "Multi Mute/Solo", $"Property to control is set by selection button (default: Mute)");
-                e.AddItem("9", "Multi Arm/Monitor", $"Property to control is set by selection button (default: Arm)");
+                e.AddItem("8", "Multi Mute/Solo", $"Property to control is set by separate selection button (default: Mute)");
+                e.AddItem("9", "Multi Arm/Monitor", $"Property to control is set by separate selection button (default: Arm)");
             }
             else if (e.ControlName.EqualsNoCase(ChannelSelector))
             {
@@ -94,11 +90,11 @@
             }
             else if (e.ControlName.EqualsNoCase(ButtonTitleSelector))
             {
-                e.AddItem($"{(Int32)PropertyButtonDataBase.TrackNameMode.None}", "None", $"No title");
-                e.AddItem($"{(Int32)PropertyButtonDataBase.TrackNameMode.NoneOffset}", "None With Offset", $"No title with extra space at the top of the button");
-                e.AddItem($"{(Int32)PropertyButtonDataBase.TrackNameMode.ShowFull}", "Full", $"Show the entire title text");
-                e.AddItem($"{(Int32)PropertyButtonDataBase.TrackNameMode.ShowLeftHalf}", "Left Half", $"Show left half of the title text");
-                e.AddItem($"{(Int32)PropertyButtonDataBase.TrackNameMode.ShowRightHalf}", "Right Half", $"Show right half of the title text");
+                e.AddItem($"{(Int32)PropertyButtonData.TrackNameMode.None}", "None", $"No title");
+                e.AddItem($"{(Int32)PropertyButtonData.TrackNameMode.NoneOffset}", "None With Offset", $"No title with extra space at the top of the button");
+                e.AddItem($"{(Int32)PropertyButtonData.TrackNameMode.ShowFull}", "Full", $"Show the entire title text");
+                e.AddItem($"{(Int32)PropertyButtonData.TrackNameMode.ShowLeftHalf}", "Left Half", $"Show left half of the title text");
+                e.AddItem($"{(Int32)PropertyButtonData.TrackNameMode.ShowRightHalf}", "Right Half", $"Show right half of the title text");
             }
             else
             {
@@ -121,10 +117,10 @@
                     icon = this.IconMonitor;
 
                 MackieChannelData cd = this.plugin.channelData[channelIndex.ToString()];
-                return PropertyButtonDataBase.drawImage(new BitmapBuilder(imageWidth, imageHeight),
+                return PropertyButtonData.drawImage(new BitmapBuilder(imageWidth, imageHeight),
                                                     (ChannelProperty.PropertyType)controlProperty,
                                                     cd.BoolProperty[controlProperty],
-                                                    (PropertyButtonDataBase.TrackNameMode)trackNameMode,
+                                                    (PropertyButtonData.TrackNameMode)trackNameMode,
                                                     cd.Label,
                                                     icon);
             }

@@ -58,6 +58,10 @@
 		<Control name="flipButton"       type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#35" channel="0"/> </Control>
 		<Control name="globalviewButton" type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#36" channel="0"/> </Control>
 
+		<!-- Cursor -->
+		<Control name="snapStepFwd"      type="trigger" options="receive"> <MidiMessage status="#90" address="#37" channel="0"/> </Control>
+		<Control name="snapStepRev"      type="trigger" options="receive"> <MidiMessage status="#90" address="#38" channel="0"/> </Control>
+
 		<!-- Mixer Bank Selectors -->
 		<Control name="miditracksButton"      type="trigger" options="receive"> <MidiMessage status="#90" address="#3E" channel="0"/> </Control>
 		<Control name="inputsButton"          type="trigger" options="receive"> <MidiMessage status="#90" address="#3F" channel="0"/> </Control>
@@ -427,6 +431,8 @@
 			<Segmented control="timeCode" param="primaryTime"/>
 
 			<Relative control="wheel" param="freeCursorTime"/>
+			<Invoke control="snapStepFwd" onReceive="onSnapStepFwd"/>
+			<Invoke control="snapStepRev" onReceive="onSnapStepRev"/>
 
 			<!-- <Toggle control="cycleButton" param="loop"/> -->
 			<Command control="cycleButton" command.category="Transport" command.name="Toggle Loop"/>

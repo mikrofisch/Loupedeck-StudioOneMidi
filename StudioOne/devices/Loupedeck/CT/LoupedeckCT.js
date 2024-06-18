@@ -56,6 +56,21 @@ class LoupedeckCTComponent extends LoupedeckSharedComponent {
         else
             this.assignMode.setValue(ChannelAssignmentMode.kPanMode, true);
     }
+    onSnapStepFwd(value) {
+        if (!value) return;
+        Host.Console.writeLine("Snap Step Fwd " + value)
+        Host.GUI.Commands.deferCommand("Edit", "Create Range from Cursor");               
+        Host.GUI.Commands.deferCommand("Transport", "Locate Selection End");
+        Host.GUI.Commands.deferCommand("Edit", "Deselect All");
+    }
+    onSnapStepRev(value) {
+        if (!value) return;
+        Host.Console.writeLine("Snap Step Rev " + value)
+        Host.GUI.Commands.deferCommand("Edit", "Create Range from Cursor");               
+        Host.GUI.Commands.deferCommand("Edit", "Move Range Back");
+        Host.GUI.Commands.deferCommand("Transport", "Locate Selection");
+        Host.GUI.Commands.deferCommand("Edit", "Deselect All");
+    }
     updateModeParams() {
         this.assignMode.value = this.assignment.mode;
         this.assignString.string = this.assignment.getModeString();

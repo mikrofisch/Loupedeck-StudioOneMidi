@@ -16,6 +16,8 @@
             this.AddButton(new CommandButtonData(0x57, "Preroll", "preroll"), "Transport");
             this.AddButton(new CommandButtonData(0x58, "Autopunch", "autopunch"), "Transport");
             this.AddButton(new CommandButtonData(0x56, "Precount", "precount"), "Transport");
+            this.AddButton(new CommandButtonData(0x37, "Snap Step Fwd"), "Transport");
+            this.AddButton(new CommandButtonData(0x38, "Snap Step Rev"), "Transport");
             this.AddButton(new OneWayCommandButtonData(0x00, "Mix"), "View");
             this.AddButton(new OneWayCommandButtonData(0x01, "Browse", "browser"), "View");
             this.AddButton(new OneWayCommandButtonData(0x02, "Edit"), "View");

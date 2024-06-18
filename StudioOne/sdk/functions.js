@@ -129,7 +129,6 @@ function getTracksByName(vName, vCaseMatching) {
             }
         };
         return vOutTrack;
-        break;
     case 1:
         for (i = 0; i < vTrackList.numTracks; i++) {
             var vTrack = vTrackList.getTrack(i);
@@ -139,7 +138,6 @@ function getTracksByName(vName, vCaseMatching) {
             }
         };
         return vOutTrack;
-        break
     }
 }
 

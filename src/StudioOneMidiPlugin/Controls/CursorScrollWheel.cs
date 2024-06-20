@@ -9,18 +9,16 @@
 
     using Melanchall.DryWetMidi.Core;
 
-    // This class implements control of the wheel function in Studio One based on the functionality
-    // of a Mackie MCU device.
+    // This class implements control of the play cursor in Studio One based via the
+    // 'freecursortime' function which moves the cursor in 2s increments independent
+    // of the zoom level. Basically not very useful.
 
-    public class Wheel : PluginDynamicAdjustment
+    public class CursorScrollWheel : PluginDynamicAdjustment
     {
-        // This variable holds the current value of the counter.
-        private Int32 Counter = 0;
-
         // Initializes the adjustment class.
         // When `hasReset` is set to true, a reset command is automatically created for this adjustment.
-        public Wheel()
-            : base(displayName: "Wheel", description: "Counts rotation ticks", groupName: "Control", hasReset: false)
+        public CursorScrollWheel()
+            : base(displayName: "Cursor Scroll Wheel", description: "Moves the cursor position", groupName: "Transport", hasReset: false)
         {
         }
 
@@ -49,7 +47,7 @@
         }
 
         // Returns the adjustment value that is shown next to the dial.
-        protected override String GetAdjustmentValue(String actionParameter) => this.Counter.ToString();
+        // protected override String GetAdjustmentValue(String actionParameter) => this.Counter.ToString();
     }
     
 

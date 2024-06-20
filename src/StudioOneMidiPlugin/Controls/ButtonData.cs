@@ -462,9 +462,31 @@
         }
     }
 
+    public class SnapStepCommandButtonData : CommandButtonData
+    {
+        public enum StepDir { StepFwd, StepRev };
+        private StepDir DirMode;
+        public SnapStepCommandButtonData(StepDir stepDir) : base(stepDir == StepDir.StepFwd ? 0x37 : 0x38, 
+                                                                 "Snap Step " + (stepDir == StepDir.StepFwd ? "Fwd" : "Rev"))
+        {
+            this.DirMode = stepDir;
+        }
+        public override void runCommand()
+        {
+            if ((Control.ModifierKeys & Keys.Shift) == Keys.Shift)
+            {
+                this.Plugin.SendMidiNote(15, this.DirMode == StepDir.StepFwd ? 0x00 : 0x01);
+            }
+            else
+            {
+                base.runCommand();
+            }
+        }
+    }
+
     public class FlipPanVolCommandButtonData : CommandButtonData
     {
-        public FlipPanVolCommandButtonData(int code) : base(code, "Flip Vol/Pan")
+        public FlipPanVolCommandButtonData(Int32 code) : base(code, "Flip Vol/Pan")
         {
         }
 
@@ -503,26 +525,26 @@
     //
     public class OneWayCommandButtonData : CommandButtonData
     {
-        public OneWayCommandButtonData(int code, string name, string iconName = null) : base(code, name, iconName)
+        public OneWayCommandButtonData(Int32 channel, Int32 code, String name, String iconName = null) : base(code, name, iconName)
         {
-            this.MidiChannel = 14;
+            this.MidiChannel = channel;
         }
 
-        public OneWayCommandButtonData(int code, string name, string iconName, BitmapColor bgColor) : base(code, name, iconName, bgColor)
+        public OneWayCommandButtonData(Int32 channel, Int32 code, String name, String iconName, BitmapColor bgColor) : base(code, name, iconName, bgColor)
         {
-            this.MidiChannel = 14;
+            this.MidiChannel = channel;
         }
 
-        public OneWayCommandButtonData(int code, string name, BitmapColor textColor) : base(code, name, null)
+        public OneWayCommandButtonData(Int32 channel, Int32 code, String name, BitmapColor textColor) : base(code, name, null)
         {
-            this.MidiChannel = 14;
+            this.MidiChannel = channel;
             this.TextColor = textColor;
         }
 
-        public OneWayCommandButtonData(int code, string name, BitmapColor onColor, BitmapColor textOnColor, Boolean isActivatedByDefault = false)
+        public OneWayCommandButtonData(Int32 channel, Int32 code, String name, BitmapColor onColor, BitmapColor textOnColor, Boolean isActivatedByDefault = false)
             : base(code, name, onColor, textOnColor, isActivatedByDefault)
         {
-            this.MidiChannel = 14;
+            this.MidiChannel = channel;
         }
 
         // The code below is an alternative method for invoking commands by setting
@@ -548,7 +570,7 @@
     public class GroupSuspendButtonData : OneWayCommandButtonData
     {
         private readonly Int32 GroupNumber;
-        public GroupSuspendButtonData(Int32 groupNumber) : base(0x21 + groupNumber, $"Group {groupNumber}", "group_suspend_no")
+        public GroupSuspendButtonData(Int32 groupNumber) : base(14, 0x21 + groupNumber, $"Group {groupNumber}", "group_suspend_no")
         {
             this.OffColor = new BitmapColor(191, 255, 144, 80);
             this.GroupNumber = groupNumber;
@@ -568,7 +590,7 @@
     {
         public static readonly BitmapColor BgColor = new BitmapColor(169, 146, 255, 80);
         private readonly Int32 MarkerNumber;
-        public MarkerGotoButtonData(Int32 markerNumber) : base(0x65 + markerNumber, $"Marker {markerNumber}", "marker_goto_no")
+        public MarkerGotoButtonData(Int32 markerNumber) : base(14, 0x65 + markerNumber, $"Marker {markerNumber}", "marker_goto_no")
         {
             this.MarkerNumber = markerNumber;
             this.OffColor = BgColor;
@@ -652,12 +674,12 @@
         protected String PluginName;
         protected ColorFinder UserColorFinder = new ColorFinder();
 
-        public ModeTopCommandButtonData(int code, string name, Location bl, string iconName = null) : base(code, name, iconName)
+        public ModeTopCommandButtonData(Int32 channel, Int32 code, String name, Location bl, String iconName = null) : base(channel, code, name, iconName)
         {
             this.ButtonLocation = bl;
         }
 
-        public ModeTopCommandButtonData(int code, string name, Location bl, string iconName, BitmapColor offColor) : base(code, name, iconName)
+        public ModeTopCommandButtonData(Int32 channel, Int32 code, String name, Location bl, String iconName, BitmapColor offColor) : base(channel, code, name, iconName)
         {
             this.ButtonLocation = bl;
             this.OffColor = offColor;
@@ -730,7 +752,7 @@
 
     public class ModeTopUserButtonData : ModeTopCommandButtonData
     {
-        public ModeTopUserButtonData(int code, string name, Location bl) : base(code, name, bl)
+        public ModeTopUserButtonData(Int32 channel, Int32 code, String name, Location bl) : base(channel, code, name, bl)
         {
             this.IsUserButton = true;
             this.UserColorFinder.DefaultColorSettings.OnColor = SelectButtonData.BgColorAssigned;
@@ -932,7 +954,7 @@
 
         public class SendsCommandButtonData : CommandButtonData
     {
-        public SendsCommandButtonData(int code) : base(code, "SENDS")
+        public SendsCommandButtonData(Int32 code) : base(code, "SENDS")
         {
             this.Activated = true;
         }

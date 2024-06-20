@@ -109,6 +109,19 @@
 		<Control name="browserShowFiles"            type="trigger" options="receive"> <MidiMessage status="#90" address="#7E" channel="14"/> </Control>
 		<Control name="browserShowPool"             type="trigger" options="receive"> <MidiMessage status="#90" address="#7F" channel="14"/> </Control>
 		
+		<Control name="editNudgeFwd"                type="trigger" options="receive"> <MidiMessage status="#90" address="#00" channel="15"/> </Control>
+		<Control name="editNudgeRev"                type="trigger" options="receive"> <MidiMessage status="#90" address="#01" channel="15"/> </Control>
+		<Control name="editToggleSnap"              type="trigger" options="receive"> <MidiMessage status="#90" address="#02" channel="15"/> </Control>
+		<Control name="editToggleRipple"            type="trigger" options="receive"> <MidiMessage status="#90" address="#03" channel="15"/> </Control>
+		<Control name="editTool1"                   type="trigger" options="receive"> <MidiMessage status="#90" address="#04" channel="15"/> </Control>
+		<Control name="editTool2"                   type="trigger" options="receive"> <MidiMessage status="#90" address="#05" channel="15"/> </Control>
+		<Control name="editTool3"                   type="trigger" options="receive"> <MidiMessage status="#90" address="#06" channel="15"/> </Control>
+		<Control name="editTool4"                   type="trigger" options="receive"> <MidiMessage status="#90" address="#07" channel="15"/> </Control>
+		<Control name="editTool5"                   type="trigger" options="receive"> <MidiMessage status="#90" address="#08" channel="15"/> </Control>
+		<Control name="editTool6"                   type="trigger" options="receive"> <MidiMessage status="#90" address="#09" channel="15"/> </Control>
+		<Control name="editTool7"                   type="trigger" options="receive"> <MidiMessage status="#90" address="#0A" channel="15"/> </Control>
+		<Control name="editTool8"                   type="trigger" options="receive"> <MidiMessage status="#90" address="#0B" channel="15"/> </Control>
+
 	</Controls>
 
 	<Templates>
@@ -220,6 +233,19 @@
 			<Command control="browserShowLoops"              command.category="Browser"    command.name="Show Loops"/>
 			<Command control="browserShowFiles"              command.category="Browser"    command.name="Show Files"/>
 			<Command control="browserShowPool"               command.category="Browser"    command.name="Show Pool"/>
+			<Command control="editNudgeFwd"                  command.category="Edit"       command.name="Nudge"/>
+			<Command control="editNudgeRev"                  command.category="Edit"       command.name="Nudge Back"/>
+			<Command control="editToggleSnap"                command.category="Edit"       command.name="Toggle Snap"/>
+			<Command control="editToggleRipple"              command.category="Edit"       command.name="Toggle Ripple Edit"/>
+			<Command control="editTool1"                     command.category="Toolbar"    command.name="Tool 1"/>
+			<Command control="editTool2"                     command.category="Toolbar"    command.name="Tool 2"/>
+			<Command control="editTool3"                     command.category="Toolbar"    command.name="Tool 3"/>
+			<Command control="editTool4"                     command.category="Toolbar"    command.name="Tool 4"/>
+			<Command control="editTool5"                     command.category="Toolbar"    command.name="Tool 5"/>
+			<Command control="editTool6"                     command.category="Toolbar"    command.name="Tool 6"/>
+			<Command control="editTool7"                     command.category="Toolbar"    command.name="Tool 7"/>
+			<Command control="editTool8"                     command.category="Toolbar"    command.name="Tool 8"/>
+
 		</Template>
     </Templates>
 

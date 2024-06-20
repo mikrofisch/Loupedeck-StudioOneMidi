@@ -79,7 +79,7 @@
     <Compile Include="Controls\CommandButton.cs" />
     <Compile Include="Controls\ChannelFader.cs" />
     <Compile Include="Controls\MidiPadFolder.cs" />
-    <Compile Include="Controls\Wheel.cs" />
+    <Compile Include="Controls\CursorScrollWheel.cs" />
     <Compile Include="MackieChannelData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StudioOneMidiApplication.cs" />

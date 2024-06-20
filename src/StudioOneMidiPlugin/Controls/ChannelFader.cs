@@ -152,17 +152,11 @@
             }
 
             // Check for selected channel volume & pan
-            var isSelectedChannel = false;
-            if (cd.ChannelID == StudioOneMidiPlugin.ChannelCount)
-            {
-                this.FaderMode = FaderMode.Volume;
-                isSelectedChannel = true;
-            }
-            else if (cd.ChannelID == StudioOneMidiPlugin.ChannelCount + 1)
-            {
-                this.FaderMode = FaderMode.Pan;
-                isSelectedChannel = true;
-            }
+            var isSelectedChannel = cd.ChannelID >= StudioOneMidiPlugin.ChannelCount;
+            var isVolume = cd.ChannelID == StudioOneMidiPlugin.ChannelCount ||
+                           cd.ChannelID == StudioOneMidiPlugin.ChannelCount + 1 ? false : this.FaderMode == FaderMode.Volume;
+
+
             if (this.SelectMode == SelectButtonMode.Select)
             {
                 if (cd.Muted || cd.Solo)
@@ -187,7 +181,7 @@
             }
 
             var ValueColor = BitmapColor.White;
-            if (this.FaderMode == FaderMode.Volume)
+            if (isVolume)
             {
                 var volBarColor = UserColorFinder.getOnColor(this.PluginName, cd.Label);
 

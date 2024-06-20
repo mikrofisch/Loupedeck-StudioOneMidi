@@ -278,7 +278,7 @@
     <EmbeddedResource Include="Resources\tool_mute_52px.png" />
     <EmbeddedResource Include="Resources\tool_paint_52px.png" />
     <EmbeddedResource Include="Resources\tool_range_52px.png" />
-    <EmbeddedResource Include="Resources\tool_ripple_52px.png" />
+    <EmbeddedResource Include="Resources\toggle_ripple_52px.png" />
     <EmbeddedResource Include="Resources\tool_split_52px.png" />
   </ItemGroup>
   <ItemGroup>

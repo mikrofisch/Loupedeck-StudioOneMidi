@@ -313,8 +313,9 @@
 			<Radio control="sendLED" param="assignMode" value="$MODE_SEND"/>
 
 			<!-- kPanMode, kPanFocusMode -->
+			<Radio control="panButton" param="assignMode" value="$MODE_PAN"/>
 			<Value control="panLED" param="panModeLED"/>
-			<Invoke control="panButton" onReceive="onPanButtonPressed"/>
+			<!-- <Invoke control="panButton" onReceive="onPanButtonPressed"/> -->
 
 						<!-- kUser1Mode, kUser2Mode, kUser3Mode -->
 			<Radio control="user1Button" param="assignMode" value="$MODE_USER1"/>
@@ -431,6 +432,7 @@
 			<Segmented control="timeCode" param="primaryTime"/>
 
 			<Relative control="wheel" param="freeCursorTime"/>
+			<!-- <Command control="wheel" command.category="Edit" command.name="Nudge" command2.category="Edit" command2.name="Nudge Back"/> -->
 			<Invoke control="snapStepFwd" onReceive="onSnapStepFwd"/>
 			<Invoke control="snapStepRev" onReceive="onSnapStepRev"/>
 

@@ -153,9 +153,11 @@
 
             // Check for selected channel volume & pan
             var isSelectedChannel = cd.ChannelID >= StudioOneMidiPlugin.ChannelCount;
-            var isVolume = cd.ChannelID == StudioOneMidiPlugin.ChannelCount ||
-                           cd.ChannelID == StudioOneMidiPlugin.ChannelCount + 1 ? false : this.FaderMode == FaderMode.Volume;
-
+            var isVolume = cd.ChannelID == StudioOneMidiPlugin.ChannelCount || 
+                           (cd.ChannelID == StudioOneMidiPlugin.ChannelCount + 1 ? false :
+                           this.SelectMode == SelectButtonMode.Send ||
+                           this.SelectMode == SelectButtonMode.User ? true :
+                           this.FaderMode == FaderMode.Volume);
 
             if (this.SelectMode == SelectButtonMode.Select)
             {

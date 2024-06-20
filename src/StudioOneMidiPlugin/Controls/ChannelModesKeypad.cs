@@ -70,6 +70,7 @@
         private static readonly String idxRecPanelsButton = $"{(Int32)ButtonLayer.channelPropertiesRec}:3";
         private static readonly String idxUserSendsPluginsButton = $"{(Int32)ButtonLayer.faderModesSend}:2-1";
         private static readonly String idxUserSendsUserModeButton = $"{(Int32)ButtonLayer.faderModesSend}:3";
+        private static readonly String idxUserSendsViewsButton = $"{(Int32)ButtonLayer.faderModesSend}:4";
         private static readonly String idxUserSendsU1Button = $"{(Int32)ButtonLayer.faderModesSend}:0-1";
         private static readonly String idxUserSendsU2Button = $"{(Int32)ButtonLayer.faderModesSend}:1-1";
 
@@ -119,9 +120,9 @@
             this.addButton(ButtonLayer.channelPropertiesPlay, "1", new ModeChannelSelectButtonData(activated: false));
             var arrangerBgColor = new BitmapColor(60, 60, 60);
             this.addButton(ButtonLayer.channelPropertiesPlay, "2", new ModeButtonData("ARRANGER", "arranger", new BitmapColor(arrangerBgColor, 190)));
-            this.addButton(ButtonLayer.channelPropertiesPlay, "0-4", new OneWayCommandButtonData(0x06, "Track List", "track_list", arrangerBgColor));
-            this.addButton(ButtonLayer.channelPropertiesPlay, "1-4", new OneWayCommandButtonData(0x04, "Inspector", "inspector", arrangerBgColor));
-            this.addButton(ButtonLayer.channelPropertiesPlay, "3-4", new OneWayCommandButtonData(0x38, "Show Automation", "show_automation", arrangerBgColor));
+            this.addButton(ButtonLayer.channelPropertiesPlay, "0-4", new OneWayCommandButtonData(14, 0x06, "Track List", "track_list", arrangerBgColor));
+            this.addButton(ButtonLayer.channelPropertiesPlay, "1-4", new OneWayCommandButtonData(14, 0x04, "Inspector", "inspector", arrangerBgColor));
+            this.addButton(ButtonLayer.channelPropertiesPlay, "3-4", new OneWayCommandButtonData(14, 0x38, "Show Automation", "show_automation", arrangerBgColor));
             this.addButton(ButtonLayer.channelPropertiesPlay, "2-1", new AutomationModeButtonData());
             this.addButton(ButtonLayer.channelPropertiesPlay, "0-2", new AutomationModeCommandButtonData(AutomationMode.Off, ButtonData.DefaultSelectionBgColor));
             this.addButton(ButtonLayer.channelPropertiesPlay, "1-2", new AutomationModeCommandButtonData(AutomationMode.Read, ButtonData.DefaultSelectionBgColor));
@@ -130,44 +131,44 @@
             this.addButton(ButtonLayer.channelPropertiesPlay, "4-2", new AutomationModeCommandButtonData(AutomationMode.Write, ButtonData.DefaultSelectionBgColor));
             var consoleBgColor = new BitmapColor(60, 60, 60);
             this.addButton(ButtonLayer.channelPropertiesPlay, "3", new ModeButtonData("PANELS", "panels", new BitmapColor(consoleBgColor, 190)));
-            this.addButton(ButtonLayer.channelPropertiesPlay, "0-5", new OneWayCommandButtonData(0x1D, "Toggle Height", "console_height", consoleBgColor));
-            this.addButton(ButtonLayer.channelPropertiesPlay, "2-5", new OneWayCommandButtonData(0x1E, "Toggle Width", "console_width", consoleBgColor));
-            this.addButton(ButtonLayer.channelPropertiesPlay, "1-5", new OneWayCommandButtonData(0x00, "Mix", null, consoleBgColor));
-            this.addButton(ButtonLayer.channelPropertiesPlay, "4-5", new OneWayCommandButtonData(0x10, "Show Inputs", "show_inputs", consoleBgColor));
-            this.addButton(ButtonLayer.channelPropertiesPlay, "5-5", new OneWayCommandButtonData(0x1F, "Show Outputs", "show_outputs", consoleBgColor));
+            this.addButton(ButtonLayer.channelPropertiesPlay, "0-5", new OneWayCommandButtonData(14, 0x1D, "Toggle Height", "console_height", consoleBgColor));
+            this.addButton(ButtonLayer.channelPropertiesPlay, "2-5", new OneWayCommandButtonData(14, 0x1E, "Toggle Width", "console_width", consoleBgColor));
+            this.addButton(ButtonLayer.channelPropertiesPlay, "1-5", new OneWayCommandButtonData(14, 0x00, "Mix", null, consoleBgColor));
+            this.addButton(ButtonLayer.channelPropertiesPlay, "4-5", new OneWayCommandButtonData(14, 0x10, "Show Inputs", "show_inputs", consoleBgColor));
+            this.addButton(ButtonLayer.channelPropertiesPlay, "5-5", new OneWayCommandButtonData(14, 0x1F, "Show Outputs", "show_outputs", consoleBgColor));
             this.addButton(ButtonLayer.channelPropertiesPlay, "3-1", new ModeButtonData("LAYERS", "layers"));
             var layersBgColor = new BitmapColor(180, 180, 180);
             this.addButton(ButtonLayer.channelPropertiesPlay, "3-3", new ModeButtonData("LAYERS", "layers_52px", new BitmapColor(layersBgColor, 128)));
-            this.addButton(ButtonLayer.channelPropertiesPlay, "0-3", new OneWayCommandButtonData(0x30, "LAY UP", "layer_up_inv", layersBgColor));
-            this.addButton(ButtonLayer.channelPropertiesPlay, "2-3", new OneWayCommandButtonData(0x31, "LAY DN", "layer_dn_inv", layersBgColor));
-            this.addButton(ButtonLayer.channelPropertiesPlay, "1-3", new OneWayCommandButtonData(0x34, "LAY EXP", "layers_expand_inv", layersBgColor));
-            this.addButton(ButtonLayer.channelPropertiesPlay, "4-3", new OneWayCommandButtonData(0x32, "LAY +", "layer_add_inv", layersBgColor));
-            this.addButton(ButtonLayer.channelPropertiesPlay, "5-3", new OneWayCommandButtonData(0x33, "LAY -", "layer_remove_inv", layersBgColor));
+            this.addButton(ButtonLayer.channelPropertiesPlay, "0-3", new OneWayCommandButtonData(14, 0x30, "LAY UP", "layer_up_inv", layersBgColor));
+            this.addButton(ButtonLayer.channelPropertiesPlay, "2-3", new OneWayCommandButtonData(14, 0x31, "LAY DN", "layer_dn_inv", layersBgColor));
+            this.addButton(ButtonLayer.channelPropertiesPlay, "1-3", new OneWayCommandButtonData(14, 0x34, "LAY EXP", "layers_expand_inv", layersBgColor));
+            this.addButton(ButtonLayer.channelPropertiesPlay, "4-3", new OneWayCommandButtonData(14, 0x32, "LAY +", "layer_add_inv", layersBgColor));
+            this.addButton(ButtonLayer.channelPropertiesPlay, "5-3", new OneWayCommandButtonData(14, 0x33, "LAY -", "layer_remove_inv", layersBgColor));
             this.addButton(ButtonLayer.channelPropertiesPlay, "4", new ModeButtonData("VIEWS"));
             this.addButton(ButtonLayer.channelPropertiesPlay, "5", new FlipPanVolCommandButtonData(0x35), true);
             var addBgColor = new BitmapColor(60, 60, 60);
             this.addButton(ButtonLayer.channelPropertiesPlay, "5-1", new ModeButtonData("ADD", "button_add", new BitmapColor(addBgColor, 190)));
-            this.addButton(ButtonLayer.channelPropertiesPlay, "0-6", new OneWayCommandButtonData(0x15, "Add Insert", "add_insert", addBgColor));
-            this.addButton(ButtonLayer.channelPropertiesPlay, "1-6", new OneWayCommandButtonData(0x16, "Add Send", "add_send", addBgColor));
-            this.addButton(ButtonLayer.channelPropertiesPlay, "2-6", new OneWayCommandButtonData(0x18, "Add FX Channel", "add_fx", addBgColor));
-            this.addButton(ButtonLayer.channelPropertiesPlay, "3-6", new OneWayCommandButtonData(0x17, "Add Bus Channel", "add_bus", addBgColor));
-            this.addButton(ButtonLayer.channelPropertiesPlay, "4-6", new OneWayCommandButtonData(0x3C, "Add Track", null, addBgColor));
+            this.addButton(ButtonLayer.channelPropertiesPlay, "0-6", new OneWayCommandButtonData(14, 0x15, "Add Insert", "add_insert", addBgColor));
+            this.addButton(ButtonLayer.channelPropertiesPlay, "1-6", new OneWayCommandButtonData(14, 0x16, "Add Send", "add_send", addBgColor));
+            this.addButton(ButtonLayer.channelPropertiesPlay, "2-6", new OneWayCommandButtonData(14, 0x18, "Add FX Channel", "add_fx", addBgColor));
+            this.addButton(ButtonLayer.channelPropertiesPlay, "3-6", new OneWayCommandButtonData(14, 0x17, "Add Bus Channel", "add_bus", addBgColor));
+            this.addButton(ButtonLayer.channelPropertiesPlay, "4-6", new OneWayCommandButtonData(14, 0x3C, "Add Track", null, addBgColor));
 
             this.addButton(ButtonLayer.channelPropertiesRec, "0", new PropertySelectionButtonData(ChannelProperty.PropertyType.Arm,
                                                                                                 ChannelProperty.PropertyType.Monitor,
                                                                                                 "select-arm", "select-monitor", "select-arm-monitor",
                                                                                                 activated: true));
-            this.addButton(ButtonLayer.channelPropertiesRec, "1", new OneWayCommandButtonData(0x0B, "Time", "time_display"));
+            this.addButton(ButtonLayer.channelPropertiesRec, "1", new OneWayCommandButtonData(14, 0x0B, "Time", "time_display"));
             this.addButton(ButtonLayer.channelPropertiesRec, "2", new RecPreModeButtonData());
             this.addButton(ButtonLayer.channelPropertiesRec, "1-1", new CommandButtonData(0x57, "Preroll", "preroll", ButtonData.DefaultSelectionBgColor), isNoteReceiver: true);
             this.addButton(ButtonLayer.channelPropertiesRec, "3-1", new CommandButtonData(0x58, "Autopunch", "autopunch", ButtonData.DefaultSelectionBgColor), isNoteReceiver: true);
             this.addButton(ButtonLayer.channelPropertiesRec, "5-1", new CommandButtonData(0x56, "Precount", "precount", ButtonData.DefaultSelectionBgColor), isNoteReceiver: true);
             this.addButton(ButtonLayer.channelPropertiesRec, "3", new ModeButtonData("PANELS", "panels"));
-            this.addButton(ButtonLayer.channelPropertiesRec, "0-2", new OneWayCommandButtonData(0x1D, "Toggle Height", "console_height", ButtonData.DefaultSelectionBgColor));
-            this.addButton(ButtonLayer.channelPropertiesRec, "2-2", new OneWayCommandButtonData(0x1E, "Toggle Width", "console_width", ButtonData.DefaultSelectionBgColor));
-            this.addButton(ButtonLayer.channelPropertiesRec, "1-2", new OneWayCommandButtonData(0x05, "Rec Panel", "rec_panel", ButtonData.DefaultSelectionBgColor));
-            this.addButton(ButtonLayer.channelPropertiesRec, "4-2", new OneWayCommandButtonData(0x10, "Show Inputs", "show_inputs", ButtonData.DefaultSelectionBgColor));
-            this.addButton(ButtonLayer.channelPropertiesRec, "5-2", new OneWayCommandButtonData(0x09, "Show Groups", "show_groups", ButtonData.DefaultSelectionBgColor));
+            this.addButton(ButtonLayer.channelPropertiesRec, "0-2", new OneWayCommandButtonData(14, 0x1D, "Toggle Height", "console_height", ButtonData.DefaultSelectionBgColor));
+            this.addButton(ButtonLayer.channelPropertiesRec, "2-2", new OneWayCommandButtonData(14, 0x1E, "Toggle Width", "console_width", ButtonData.DefaultSelectionBgColor));
+            this.addButton(ButtonLayer.channelPropertiesRec, "1-2", new OneWayCommandButtonData(14, 0x05, "Rec Panel", "rec_panel", ButtonData.DefaultSelectionBgColor));
+            this.addButton(ButtonLayer.channelPropertiesRec, "4-2", new OneWayCommandButtonData(14, 0x10, "Show Inputs", "show_inputs", ButtonData.DefaultSelectionBgColor));
+            this.addButton(ButtonLayer.channelPropertiesRec, "5-2", new OneWayCommandButtonData(14, 0x09, "Show Groups", "show_groups", ButtonData.DefaultSelectionBgColor));
             this.addButton(ButtonLayer.channelPropertiesRec, "4", new ModeButtonData("VIEWS"));
             this.addButton(ButtonLayer.channelPropertiesRec, "5", new CommandButtonData(0x59, "Click", "click"), isNoteReceiver: true);
 
@@ -178,16 +179,16 @@
             this.addButton(ButtonLayer.faderModesShow, "4", new ModeButtonData("VIEWS"));
             this.addButton(ButtonLayer.faderModesShow, "5", new CommandButtonData(0x36, "ALL", new BitmapColor(60, 60, 20), BitmapColor.White, true), true);
 
-            this.addButton(ButtonLayer.faderModesSend, "0", new OneWayCommandButtonData(0x1D, "Toggle Height", "console_height"));
-            this.addButton(ButtonLayer.faderModesSend, "2", new OneWayCommandButtonData(0x1E, "Toggle Width", "console_width"));
-            this.addButton(ButtonLayer.faderModesSend, "1", new OneWayCommandButtonData(0x00, "Mix"));
+            this.addButton(ButtonLayer.faderModesSend, "0", new OneWayCommandButtonData(14, 0x1D, "Toggle Height", "console_height"));
+            this.addButton(ButtonLayer.faderModesSend, "2", new OneWayCommandButtonData(14, 0x1E, "Toggle Width", "console_width"));
+            this.addButton(ButtonLayer.faderModesSend, "1", new OneWayCommandButtonData(14, 0x00, "Mix"));
             var pluginBgColor = new BitmapColor(60, 60, 60);
-            this.addButton(ButtonLayer.faderModesSend, "0-1", new ModeTopUserButtonData(0x76, "", ModeTopCommandButtonData.Location.Left), isNoteReceiver: true);
-            this.addButton(ButtonLayer.faderModesSend, "1-1", new ModeTopUserButtonData(0x77, "", ModeTopCommandButtonData.Location.Right), isNoteReceiver: true);
+            this.addButton(ButtonLayer.faderModesSend, "0-1", new ModeTopUserButtonData(0, 0x76, "", ModeTopCommandButtonData.Location.Left), isNoteReceiver: true);
+            this.addButton(ButtonLayer.faderModesSend, "1-1", new ModeTopUserButtonData(0, 0x77, "", ModeTopCommandButtonData.Location.Right), isNoteReceiver: true);
             this.addButton(ButtonLayer.faderModesSend, "2-1", new ModeButtonData("Plugins", "plugins", new BitmapColor(pluginBgColor, 190)));
-            this.addButton(ButtonLayer.faderModesSend, "0-2", new ModeTopCommandButtonData(0x74, "Previous Plugin", ModeTopCommandButtonData.Location.Left, "plugin_prev", pluginBgColor));
-            this.addButton(ButtonLayer.faderModesSend, "1-2", new ModeTopCommandButtonData(0x75, "Next Plugin", ModeTopCommandButtonData.Location.Right, "plugin_next", pluginBgColor));
-            this.addButton(ButtonLayer.faderModesSend, "3-2", new OneWayCommandButtonData(0x12, "Channel Editor", "channel_editor", pluginBgColor));
+            this.addButton(ButtonLayer.faderModesSend, "0-2", new ModeTopCommandButtonData(14, 0x74, "Previous Plugin", ModeTopCommandButtonData.Location.Left, "plugin_prev", pluginBgColor));
+            this.addButton(ButtonLayer.faderModesSend, "1-2", new ModeTopCommandButtonData(14, 0x75, "Next Plugin", ModeTopCommandButtonData.Location.Right, "plugin_next", pluginBgColor));
+            this.addButton(ButtonLayer.faderModesSend, "3-2", new OneWayCommandButtonData(14, 0x12, "Channel Editor", "channel_editor", pluginBgColor));
             this.addButton(ButtonLayer.faderModesSend, "3", new UserModeButtonData());
             this.addButton(ButtonLayer.faderModesSend, "4", new CommandButtonData(0x2A, "VIEWS"));
             this.addButton(ButtonLayer.faderModesSend, "5", new SendsCommandButtonData(0x29), isNoteReceiver: true);
@@ -308,6 +309,7 @@
                     {
                         case 0: // PLAY
                             this.CurrentLayer = ButtonLayer.channelPropertiesPlay;
+                            this.buttonData[idxUserSendsViewsButton].runCommand(); // Ensure we're showing pan/vol data
                             selectMode = (this.buttonData[idxPlaySelButton] as ModeChannelSelectButtonData).Activated ? SelectButtonMode.Select
                                                                                                                       : SelectButtonMode.Property;
                             this.plugin.EmitSelectModeChanged(selectMode);
@@ -315,12 +317,14 @@
                             break;
                         case 1: // REC
                             this.CurrentLayer = ButtonLayer.channelPropertiesRec;
+                            this.buttonData[idxUserSendsViewsButton].runCommand(); // Ensure we're showing pan/vol data
                             this.plugin.EmitSelectModeChanged(SelectButtonMode.Property);
                             this.plugin.EmitPropertySelectionChanged((this.buttonData[idxRecArmMonitorButton] as PropertySelectionButtonData).CurrentType);
                             break;
                         case 2: // SHOW
-                            this.plugin.EmitPropertySelectionChanged(ChannelProperty.PropertyType.Select);
                             this.CurrentLayer = ButtonLayer.faderModesShow;
+                            this.buttonData[idxUserSendsViewsButton].runCommand(); // Ensure we're showing pan/vol data
+                            this.plugin.EmitPropertySelectionChanged(ChannelProperty.PropertyType.Select);
                             break;
                         case 3: // USER/SENDS
                             this.CurrentLayer = ButtonLayer.faderModesSend;

@@ -46,16 +46,20 @@ class LoupedeckCTComponent extends LoupedeckSharedComponent {
         if (!value) return;
         getAllPropertyNames(Host.Objects.getObjectByUrl("://hostapp/DocumentManager/ActiveDocument/Environment/MixerConsole"));
     }
-    onPanButtonPressed(value) {
-        if (!value) return;
-        let currentMode = this.assignment.mode;
-        if (currentMode == ChannelAssignmentMode.kPanMode) {
-            this.assignMode.setValue(ChannelAssignmentMode.kPanFocusMode, true);
-            return;
-        }
-        else
-            this.assignMode.setValue(ChannelAssignmentMode.kPanMode, true);
-    }
+
+    // onPanButtonPressed(value) {
+    //    if (!value) return;
+    //    let currentMode = this.assignment.mode;
+    //    if (currentMode == ChannelAssignmentMode.kPanMode) {
+    //        this.assignMode.setValue(ChannelAssignmentMode.kPanFocusMode, true);
+    //        return;
+    //    }
+    //    else
+    //        this.assignMode.setValue(ChannelAssignmentMode.kPanMode, true);
+    // }
+
+    // These functions implement cursor control via stepping in snap increments which
+    // automatically adapt to zoom level.
     onSnapStepFwd(value) {
         if (!value) return;
         Host.Console.writeLine("Snap Step Fwd " + value)

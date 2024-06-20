@@ -404,4 +404,3 @@ class LoupedeckSharedComponent extends FocusChannelPanComponent {
             this.updateAll();
     }
 }
-;

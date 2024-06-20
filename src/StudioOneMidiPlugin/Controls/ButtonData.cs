@@ -692,17 +692,20 @@
         }
 
         public void setTopDisplay(String text) => this.TopDisplayText = text;
-        public void setPluginName(String text) => this.PluginName = text;
+        public void setPluginName(String text)
+        {
+            this.PluginName = text;
+
+            if (this.IsUserButton && this.Name.Length > 0)
+            {
+                this.Icon = this.UserColorFinder.getIcon(this.PluginName, this.Name);
+                this.IconOn = this.UserColorFinder.getIconOn(this.PluginName, this.Name);
+            }
+        }
 
         public override BitmapImage getImage(PluginImageSize imageSize)
         {
             var bb = new BitmapBuilder(imageSize);
-
-            if (this.IsUserButton && this.Name.Length > 0)
-            {
-                if (this.Icon == null) this.Icon = this.UserColorFinder.getIcon(this.PluginName, this.Name);
-                if (this.IconOn == null) this.IconOn = this.UserColorFinder.getIconOn(this.PluginName, this.Name);
-            }
 
             var dispTxtH = 24;
             var bgX = this.IsUserButton ? dispTxtH + 4 : 0;

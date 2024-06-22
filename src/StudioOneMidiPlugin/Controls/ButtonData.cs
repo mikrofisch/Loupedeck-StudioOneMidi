@@ -249,6 +249,8 @@
             {
                 var ubh = bb.Height / 3;
                 var uby = bb.Height - ubh;
+
+                bb.FillRectangle(0, 0, bb.Width, uby, new BitmapColor(UserColorFinder.getOnColor(pluginName, cd.Label), 80));
                 bb.DrawText(cd.Description, 0, 0, bb.Width, TitleHeight, TextDescColor);
                 bb.DrawText(UserColorFinder.getLabelShort(pluginName, cd.Label), 0, bb.Height / 2 - TitleHeight / 2, bb.Width, TitleHeight, 
                             UserColorFinder.DefaultColorSettings.TextOnColor);
@@ -274,7 +276,9 @@
                     tx = ubh;
                     tw = bb.Width - ubh * 2;
                 }
-                bb.DrawText(UserColorFinder.getLabelShort(pluginName, cd.UserLabel), tx, uby, tw, TitleHeight, tc);
+                bb.DrawText(userButtonActive ? UserColorFinder.getLabelOnShort(pluginName, cd.UserLabel)
+                                             : UserColorFinder.getLabelShort(pluginName, cd.UserLabel),
+                            tx, uby, tw, TitleHeight, tc);
             }
             else
             {
@@ -672,7 +676,10 @@
         String TopDisplayText;
         protected Boolean IsUserButton = false;
         protected String PluginName;
-        protected ColorFinder UserColorFinder = new ColorFinder();
+        protected ColorFinder UserColorFinder = new ColorFinder(new ColorFinder.ColorSettings { OnColor = FinderColor.Transparent,
+                                                                                                OffColor = FinderColor.Transparent,
+                                                                                                TextOnColor = FinderColor.White,
+                                                                                                TextOffColor = FinderColor.Black});
 
         public ModeTopCommandButtonData(Int32 channel, Int32 code, String name, Location bl, String iconName = null) : base(channel, code, name, iconName)
         {
@@ -955,9 +962,10 @@
         }
     }
 
-        public class SendsCommandButtonData : CommandButtonData
+    public class SendsCommandButtonData : CommandButtonData
     {
-        public SendsCommandButtonData(Int32 code) : base(code, "SENDS")
+        public const Int32 Note = 0x29;
+        public SendsCommandButtonData() : base(Note, "SENDS")
         {
             this.Activated = true;
         }
@@ -977,7 +985,17 @@
 
             return bb.ToImage();
         }
+        public override void runCommand() => this.Plugin.SetChannelFaderMode(ChannelFaderMode.Send);
+    }
 
+    public class PanCommandButtonData : CommandButtonData
+    {
+        public const Int32 Note = 0x2A;
+        public PanCommandButtonData(String name = "PAN") : base(Note, name)
+        {
+            this.Activated = true;
+        }
+        public override void runCommand() => this.Plugin.SetChannelFaderMode(ChannelFaderMode.Pan);
     }
 
     public class UserModeButtonData : ButtonData
@@ -1014,7 +1032,10 @@
         public void resetUserPage()
         {
             this.UserPage = 0;
-            this.runCommand();
+            if (this.Plugin.CurrentChannelFaderMode == ChannelFaderMode.User)
+            {
+                this.runCommand();
+            }
         }
 
         public override BitmapImage getImage(PluginImageSize imageSize)
@@ -1085,8 +1106,7 @@
                 ? this.UserPage <= 1 ? this.ActiveUserPages : this.UserPage - 1
                 : this.UserPage > this.ActiveUserPages - 1 ? 1 : this.UserPage + 1;
 
-            this.Plugin.SendMidiNote(0, BaseNote - 1 + this.UserPage);
+            this.Plugin.SetChannelFaderMode(ChannelFaderMode.User, this.UserPage);
         }
-
     }
 }

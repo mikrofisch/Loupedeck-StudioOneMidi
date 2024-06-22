@@ -1,11 +1,9 @@
 ﻿namespace Loupedeck.StudioOneMidiPlugin
 {
     using System;
-    using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
     using System.Text.RegularExpressions;
-    using System.Windows.Media.Media3D;
 
     // BitmapColor objects that have not been explicitly assigned to a
     // color are automatically replaced by the currently defined default color.
@@ -50,12 +48,15 @@
             public FinderColor TextOffColor;
             public String IconName, IconNameOn;
             public String Label;
+            public String LabelOn;
             public String LinkedParameter;
             public Boolean LinkReversed = false;
+            public Int32 DialSteps = 100;                // Number of steps for a mode dial
 
             // For plugin settings
             public const String strOnColor = "OnColor";
             public const String strLabel = "Label";
+            public const String strLabelOn = "LabelOn";
             public const String strLinkedParameter = "LinkedParameter";
             public const String strMode = "Mode";
             public const String strShowCircle = "ShowCircle";
@@ -81,9 +82,9 @@
             this.DefaultColorSettings = defaultColorSettings;
         }
 
-        internal class ProEqTopControlColors : ColorSettings
+        internal class S1TopControlColors : ColorSettings
         {
-            public ProEqTopControlColors(String label = null)
+            public S1TopControlColors(String label = null)
             {
                 this.OnColor = new FinderColor(54, 84, 122);
                 this.OffColor = new FinderColor(27, 34, 37);
@@ -99,117 +100,7 @@
             }
             if (ColorDict.Count == 0)
             {
-                ColorDict.Add(("", "Bypass"), new ColorSettings { OnColor = new FinderColor(204, 156, 107), IconName = "bypass" });
-                ColorDict.Add(("Pro EQ", "Show Controls"), new ProEqTopControlColors(label: "Band Controls"));
-                ColorDict.Add(("Pro EQ", "Show Dynamics"), new ProEqTopControlColors(label: "Dynamics"));
-                ColorDict.Add(("Pro EQ", "High Quality"), new ProEqTopControlColors());
-                ColorDict.Add(("Pro EQ", "View Mode"), new ProEqTopControlColors(label: "Curves"));
-                ColorDict.Add(("Pro EQ", "LF-Active"),   new ColorSettings { OnColor = new FinderColor(255, 120, 38),  Label = "LF", ShowUserButtonCircle = true });
-                ColorDict.Add(("Pro EQ", "MF-Active"),   new ColorSettings { OnColor = new FinderColor(107, 224, 44),  Label = "MF", ShowUserButtonCircle = true });
-                ColorDict.Add(("Pro EQ", "HF-Active"),   new ColorSettings { OnColor = new FinderColor( 75, 212, 250), Label = "HF", ShowUserButtonCircle = true });
-                ColorDict.Add(("Pro EQ", "LMF-Active"),  new ColorSettings { OnColor = new FinderColor(245, 205, 58),  Label = "LMF", ShowUserButtonCircle = true });
-                ColorDict.Add(("Pro EQ", "HMF-Active"),  new ColorSettings { OnColor = new FinderColor(70, 183, 130),  Label = "HMF", ShowUserButtonCircle = true });
-                ColorDict.Add(("Pro EQ", "LC-Active"),   new ColorSettings { OnColor = new FinderColor(255,  74,  61), Label = "LC", ShowUserButtonCircle = true });
-                ColorDict.Add(("Pro EQ", "HC-Active"), new ColorSettings { OnColor = new FinderColor(158, 98, 255), Label = "HC", ShowUserButtonCircle = true });
-                ColorDict.Add(("Pro EQ", "LLC-Active"), new ColorSettings { OnColor = FinderColor.White, Label = "LLC", ShowUserButtonCircle = true });
-                ColorDict.Add(("Pro EQ", "Global Gain"), new ColorSettings { OnColor = new FinderColor(200, 200, 200), Label = "Gain", Mode = ColorSettings.PotMode.Symmetric });
-                ColorDict.Add(("Pro EQ", "Auto Gain"), new ColorSettings { Label = "Auto" });
-                this.addLinked("Pro EQ", "LF-Gain", "LF-Active", label: "LF Gain", mode: ColorSettings.PotMode.Symmetric);
-                this.addLinked("Pro EQ", "LF-Frequency", "LF-Active", label: "LF Freq");
-                this.addLinked("Pro EQ", "LF-Q", "LF-Active", label: "LF Q");
-                this.addLinked("Pro EQ", "MF-Gain", "MF-Active", label: "MF Gain", mode: ColorSettings.PotMode.Symmetric);
-                this.addLinked("Pro EQ", "MF-Frequency", "MF-Active", label: "MF Freq");
-                this.addLinked("Pro EQ", "MF-Q", "MF-Active", label: "MF Q");
-                this.addLinked("Pro EQ", "HF-Gain", "HF-Active", label: "HF Gain", mode: ColorSettings.PotMode.Symmetric);
-                this.addLinked("Pro EQ", "HF-Frequency", "HF-Active", label: "HF Freq");
-                this.addLinked("Pro EQ", "HF-Q", "HF-Active", label: "HF Q");
-                this.addLinked("Pro EQ", "LMF-Gain", "LMF-Active", label: "LMF Gain", mode: ColorSettings.PotMode.Symmetric);
-                this.addLinked("Pro EQ", "LMF-Frequency", "LMF-Active", label: "LMF Freq");
-                this.addLinked("Pro EQ", "LMF-Q", "LMF-Active", label: "LMF Q");
-                this.addLinked("Pro EQ", "HMF-Gain", "HMF-Active", label: "HMF Gain", mode: ColorSettings.PotMode.Symmetric);
-                this.addLinked("Pro EQ", "HMF-Frequency", "HMF-Active", label: "HMF Freq");
-                this.addLinked("Pro EQ", "HMF-Q", "HMF-Active", label: "HMF Q");
-                this.addLinked("Pro EQ", "LC-Frequency", "LC-Active", label: "LC Freq");
-                this.addLinked("Pro EQ", "HC-Frequency", "HC-Active", label: "HC Freq");
-                ColorDict.Add(("Pro EQ", "LF-Solo"), new ColorSettings { OnColor = new FinderColor(224, 182, 69), Label = "LF Solo" });
-                ColorDict.Add(("Pro EQ", "MF-Solo"), new ColorSettings { OnColor = new FinderColor(224, 182, 69), Label = "MF Solo" });
-                ColorDict.Add(("Pro EQ", "HF-Solo"), new ColorSettings { OnColor = new FinderColor(224, 182, 69), Label = "HF Solo" });
-                ColorDict.Add(("Pro EQ", "LMF-Solo"), new ColorSettings { OnColor = new FinderColor(224, 182, 69), Label = "LMF Solo" });
-                ColorDict.Add(("Pro EQ", "HMF-Solo"), new ColorSettings { OnColor = new FinderColor(224, 182, 69), Label = "HMF Solo" });
-
-                ColorDict.Add(("Fat Channel", "Hi Pass Filter"), new ColorSettings { Label = "Hi Pass" });
-                ColorDict.Add(("Fat Channel", "Gate On"), new ColorSettings { OnColor = new FinderColor(250, 250, 193), TextOnColor = FinderColor.Black, Label = "Gate ON" });
-                ColorDict.Add(("Fat Channel", "Range"), new ColorSettings { OffColor = FinderColor.Transparent, LinkedParameter = "Expander", LinkReversed = true });
-                ColorDict.Add(("Fat Channel", "Expander"), new ColorSettings { OnColor = new FinderColor(193, 202, 214), TextOnColor = FinderColor.Black });
-                ColorDict.Add(("Fat Channel", "Key Listen"), new ColorSettings { OnColor = new FinderColor(193, 202, 214), TextOnColor = FinderColor.Black });
-                ColorDict.Add(("Fat Channel", "Compressor On"), new ColorSettings { OnColor = new FinderColor(250, 250, 193), TextOnColor = FinderColor.Black, Label = "Cmpr ON" });
-                ColorDict.Add(("Fat Channel", "Attack"), new ColorSettings { OffColor = FinderColor.Transparent, LinkedParameter = "Auto", LinkReversed = true });
-                ColorDict.Add(("Fat Channel", "Release"), new ColorSettings { OffColor = FinderColor.Transparent, LinkedParameter = "Auto", LinkReversed = true });
-                ColorDict.Add(("Fat Channel", "Auto"), new ColorSettings { OnColor = new FinderColor(193, 202, 214), TextOnColor = FinderColor.Black });
-                ColorDict.Add(("Fat Channel", "Peak Reduction"), new ColorSettings { Label = "Pk Reductn" });
-                ColorDict.Add(("Fat Channel", "EQ On"), new ColorSettings { OnColor = new FinderColor(250, 250, 193), TextOnColor = FinderColor.Black, Label = "EQ ON" });
-                ColorDict.Add(("Fat Channel", "Low On"), new ColorSettings { OnColor = new FinderColor(241, 84, 220), Label = "LF", ShowUserButtonCircle = true });
-                ColorDict.Add(("Fat Channel", "Low-Mid On"), new ColorSettings { OnColor = new FinderColor(89, 236, 236), Label = "LMF", ShowUserButtonCircle = true });
-                ColorDict.Add(("Fat Channel", "Hi-Mid On"), new ColorSettings { OnColor = new FinderColor(241, 178, 84), Label = "HMF", ShowUserButtonCircle = true });
-                ColorDict.Add(("Fat Channel", "High On"), new ColorSettings { OnColor = new FinderColor(122, 240, 79), Label = "HF", ShowUserButtonCircle = true });
-                this.addLinked("Fat Channel", "Low Gain", "Low On", label: "LF Gain", mode: ColorSettings.PotMode.Symmetric);
-                this.addLinked("Fat Channel", "Low Freq", "Low On", label: "LF Freq");
-                this.addLinked("Fat Channel", "Low Q", "Low On", label: "LMF Q");
-                this.addLinked("Fat Channel", "Low-Mid Gain", "Low-Mid On", label: "LMF Gain", mode: ColorSettings.PotMode.Symmetric);
-                this.addLinked("Fat Channel", "Low-Mid Freq", "Low-Mid On", label: "LMF Freq");
-                this.addLinked("Fat Channel", "Low-Mid Q", "Low-Mid On", label: "LMF Q");
-                this.addLinked("Fat Channel", "Hi-Mid Gain", "Hi-Mid On", label: "HMF Gain", mode: ColorSettings.PotMode.Symmetric);
-                this.addLinked("Fat Channel", "Hi-Mid Freq", "Hi-Mid On", label: "HMF Freq");
-                this.addLinked("Fat Channel", "Hi-Mid Q", "Hi-Mid On", label: "HMF Q");
-                this.addLinked("Fat Channel", "High Gain", "High On", label: "HF Gain", mode: ColorSettings.PotMode.Symmetric);
-                this.addLinked("Fat Channel", "High Freq", "High On", label: "HF Freq");
-                this.addLinked("Fat Channel", "High Q", "High On", label: "HF Q");
-                ColorDict.Add(("Fat Channel", "Limiter On"), new ColorSettings { OnColor = new FinderColor(250, 250, 193), TextOnColor = FinderColor.Black, Label = "Limiter ON" });
-
-                ColorDict.Add(("SSLGChannel", "HP Frq"), new ColorSettings { OnColor = new FinderColor(220, 216, 207) });
-                ColorDict.Add(("SSLGChannel", "LP Frq"), new ColorSettings { OnColor = new FinderColor(220, 216, 207) });
-                ColorDict.Add(("SSLGChannel", "FilterSplit"), new ColorSettings { OnColor = new FinderColor(204, 191, 46), Label = "SPLIT" });
-                ColorDict.Add(("SSLGChannel", "HF Gain"), new ColorSettings { OnColor = new FinderColor(177, 53, 63), Mode = ColorSettings.PotMode.Symmetric });
-                ColorDict.Add(("SSLGChannel", "HF Frq"), new ColorSettings { OnColor = new FinderColor(177, 53, 63) });
-                ColorDict.Add(("SSLGChannel", "HMF X3"), new ColorSettings { OnColor = new FinderColor(27, 92, 64), Label = "HMFx3" });
-                ColorDict.Add(("SSLGChannel", "LF Gain"), new ColorSettings { OnColor = new FinderColor(180, 180, 180), Mode = ColorSettings.PotMode.Symmetric });
-                ColorDict.Add(("SSLGChannel", "LF Frq"), new ColorSettings { OnColor = new FinderColor(180, 180, 180) });
-                ColorDict.Add(("SSLGChannel", "LMF div3"), new ColorSettings { OnColor = new FinderColor(22, 97, 120), Label = "LMF/3" });
-                ColorDict.Add(("SSLGChannel", "HMF Gain"), new ColorSettings { OnColor = new FinderColor(27, 92, 64), Mode = ColorSettings.PotMode.Symmetric });
-                ColorDict.Add(("SSLGChannel", "HMF Frq"), new ColorSettings { OnColor = new FinderColor(27, 92, 64) });
-                ColorDict.Add(("SSLGChannel", "HMF Q"), new ColorSettings { OnColor = new FinderColor(27, 92, 64), Mode = ColorSettings.PotMode.Symmetric });
-                ColorDict.Add(("SSLGChannel", "LMF Gain"), new ColorSettings { OnColor = new FinderColor(22, 97, 120), Mode = ColorSettings.PotMode.Symmetric });
-                ColorDict.Add(("SSLGChannel", "LMF Frq"), new ColorSettings { OnColor = new FinderColor(22, 97, 120) });
-                ColorDict.Add(("SSLGChannel", "LMF Q"), new ColorSettings { OnColor = new FinderColor(22, 97, 120), Mode = ColorSettings.PotMode.Symmetric });
-                ColorDict.Add(("SSLGChannel", "EQBypass"), new ColorSettings { OnColor = new FinderColor(226, 61, 80), Label = "EQ BYP" });
-                ColorDict.Add(("SSLGChannel", "EQDynamic"), new ColorSettings { OnColor = new FinderColor(241, 171, 53), Label = "FLT DYN SC" });
-                ColorDict.Add(("SSLGChannel", "CompRatio"), new ColorSettings { OnColor = new FinderColor(220, 216, 207), Label = "COMP Ratio" });
-                ColorDict.Add(("SSLGChannel", "CompThresh"), new ColorSettings { OnColor = new FinderColor(220, 216, 207), Label = "COMP Thresh" });
-                ColorDict.Add(("SSLGChannel", "CompRelease"), new ColorSettings { OnColor = new FinderColor(220, 216, 207), Label = "COMP Release" });
-                ColorDict.Add(("SSLGChannel", "CompFast"), new ColorSettings { Label = "F.ATK" });
-                ColorDict.Add(("SSLGChannel", "ExpRange"), new ColorSettings { OnColor = new FinderColor(27, 92, 64), Label = "EXP Range" });
-                ColorDict.Add(("SSLGChannel", "ExpThresh"), new ColorSettings { OnColor = new FinderColor(27, 92, 64), Label = "EXP Thresh" });
-                ColorDict.Add(("SSLGChannel", "ExpRelease"), new ColorSettings { OnColor = new FinderColor(27, 92, 64), Label = "EXP Release" });
-                ColorDict.Add(("SSLGChannel", "ExpAttack"), new ColorSettings { Label = "F.ATK" });
-                ColorDict.Add(("SSLGChannel", "ExpGate"), new ColorSettings { Label = "GATE" });
-                ColorDict.Add(("SSLGChannel", "DynamicBypass"), new ColorSettings { OnColor = new FinderColor(226, 61, 80), Label = "DYN BYP" });
-                ColorDict.Add(("SSLGChannel", "DynaminCHOut"), new ColorSettings { OnColor = new FinderColor(241, 171, 53), Label = "DYN CH OUT" });
-                ColorDict.Add(("SSLGChannel", "VUInOut"), new ColorSettings { OnColor = new FinderColor(241, 171, 53), Label = "VU OUT" });
-
-                ColorDict.Add(("Flanger", ""), new ColorSettings { OnColor = new FinderColor(238, 204, 103)});
-                ColorDict.Add(("Flanger", "Feedback"), new ColorSettings { OnColor = new FinderColor(238, 204, 103), Mode = ColorSettings.PotMode.Symmetric });
-                ColorDict.Add(("Flanger", "LFO Sync"), new ColorSettings { OnColor = new FinderColor(188, 198, 206), TextOnColor = FinderColor.Black });
-                ColorDict.Add(("Flanger", "Depth"), new ColorSettings { OnColor = new FinderColor(238, 204, 103), Label = "Mix" });
-
-                ColorDict.Add(("Phaser", ""), new ColorSettings { OnColor = new FinderColor(238, 204, 103) });
-                ColorDict.Add(("Phaser", "Center Frequency"), new ColorSettings { OnColor = new FinderColor(238, 204, 103), Label = "Center" });
-                ColorDict.Add(("Phaser", "Sweep Range"), new ColorSettings { OnColor = new FinderColor(238, 204, 103), Label = "Range" });
-                ColorDict.Add(("Phaser", "Stereo Spread"), new ColorSettings { OnColor = new FinderColor(238, 204, 103), Label = "Spread" });
-                ColorDict.Add(("Phaser", "Depth"), new ColorSettings { OnColor = new FinderColor(238, 204, 103), Label = "Mix" });
-                ColorDict.Add(("Phaser", "LFO Sync"), new ColorSettings { OnColor = new FinderColor(188, 198, 206), TextOnColor = FinderColor.Black });
-                ColorDict.Add(("Phaser", "Log. Sweep"), new ColorSettings { OnColor = new FinderColor(188, 198, 206), TextOnColor = FinderColor.Black });
-                ColorDict.Add(("Phaser", "Soft"), new ColorSettings { OnColor = new FinderColor(188, 198, 206), TextOnColor = FinderColor.Black });
-
+                this.InitColorDict();
 
                 var settingsList = plugin.ListPluginSettings();
 
@@ -297,16 +188,17 @@
                                                                                                      this.DefaultColorSettings.TextOnColor);
         public BitmapColor getTextOffColor(String pluginName, String parameterName) => this.findColor(this.getColorSettings(pluginName, parameterName).TextOffColor,
                                                                                                       this.DefaultColorSettings.TextOffColor);
-        public String getLabel(String pluginName, String parameterName)
+        public String getLabel(String pluginName, String parameterName) => this.getColorSettings(pluginName, parameterName).Label ?? parameterName;
+        public String getLabelOn(String pluginName, String parameterName)
         {
-            var label = this.getColorSettings(pluginName, parameterName).Label;
-            if (label == null) label = parameterName;
-            return label;
+            var cs = this.getColorSettings(pluginName, parameterName);
+            return cs.LabelOn ?? cs.Label ?? parameterName;
         }
         public String getLabelShort(String pluginName, String parameterName) => stripLabel(this.getLabel(pluginName, parameterName));
+        public String getLabelOnShort(String pluginName, String parameterName) => stripLabel(this.getLabelOn(pluginName, parameterName));
         public static String stripLabel(String label)
         {
-            if (label.Length <= 10) return label;
+            if (label.Length <= 12) return label;
             return Regex.Replace(label, "(?<!^)[aeiou](?!$)", "");
         }
         public BitmapImage getIcon(String pluginName, String parameterName)
@@ -332,9 +224,163 @@
         public Boolean getLinkReversed(String pluginName, String parameterName) => this.getColorSettings(pluginName, parameterName).LinkReversed;
         public Boolean hideValueBar(String pluginName, String parameterName) => this.getColorSettings(pluginName, parameterName).HideValueBar;
         public Boolean showUserButtonCircle(String pluginName, String parameterName) => this.getColorSettings(pluginName, parameterName).ShowUserButtonCircle;
+        public Int32 getDialSteps(String pluginName, String parameterName) => this.getColorSettings(pluginName, parameterName).DialSteps;
 
 
         public static String settingName(String pluginName, String parameterName, String setting) => 
             strColorSettingsID + pluginName + "|" + parameterName + "|" + setting;
+
+        private void InitColorDict()
+        {
+            ColorDict.Add(("", "Bypass"), new ColorSettings { OnColor = new FinderColor(204, 156, 107), IconName = "bypass" });
+            ColorDict.Add(("Pro EQ", "Show Controls"), new S1TopControlColors(label: "Band Controls"));
+            ColorDict.Add(("Pro EQ", "Show Dynamics"), new S1TopControlColors(label: "Dynamics"));
+            ColorDict.Add(("Pro EQ", "High Quality"), new S1TopControlColors());
+            ColorDict.Add(("Pro EQ", "View Mode"), new S1TopControlColors(label: "Curves"));
+            ColorDict.Add(("Pro EQ", "LF-Active"), new ColorSettings { OnColor = new FinderColor(255, 120, 38), Label = "LF", ShowUserButtonCircle = true });
+            ColorDict.Add(("Pro EQ", "MF-Active"), new ColorSettings { OnColor = new FinderColor(107, 224, 44), Label = "MF", ShowUserButtonCircle = true });
+            ColorDict.Add(("Pro EQ", "HF-Active"), new ColorSettings { OnColor = new FinderColor(75, 212, 250), Label = "HF", ShowUserButtonCircle = true });
+            ColorDict.Add(("Pro EQ", "LMF-Active"), new ColorSettings { OnColor = new FinderColor(245, 205, 58), Label = "LMF", ShowUserButtonCircle = true });
+            ColorDict.Add(("Pro EQ", "HMF-Active"), new ColorSettings { OnColor = new FinderColor(70, 183, 130), Label = "HMF", ShowUserButtonCircle = true });
+            ColorDict.Add(("Pro EQ", "LC-Active"), new ColorSettings { OnColor = new FinderColor(255, 74, 61), Label = "LC", ShowUserButtonCircle = true });
+            ColorDict.Add(("Pro EQ", "HC-Active"), new ColorSettings { OnColor = new FinderColor(158, 98, 255), Label = "HC", ShowUserButtonCircle = true });
+            ColorDict.Add(("Pro EQ", "LLC-Active"), new ColorSettings { OnColor = FinderColor.White, Label = "LLC", ShowUserButtonCircle = true });
+            ColorDict.Add(("Pro EQ", "Global Gain"), new ColorSettings { OnColor = new FinderColor(200, 200, 200), Label = "Gain", Mode = ColorSettings.PotMode.Symmetric });
+            ColorDict.Add(("Pro EQ", "Auto Gain"), new ColorSettings { Label = "Auto" });
+            this.addLinked("Pro EQ", "LF-Gain", "LF-Active", label: "LF Gain", mode: ColorSettings.PotMode.Symmetric);
+            this.addLinked("Pro EQ", "LF-Frequency", "LF-Active", label: "LF Freq");
+            this.addLinked("Pro EQ", "LF-Q", "LF-Active", label: "LF Q");
+            this.addLinked("Pro EQ", "MF-Gain", "MF-Active", label: "MF Gain", mode: ColorSettings.PotMode.Symmetric);
+            this.addLinked("Pro EQ", "MF-Frequency", "MF-Active", label: "MF Freq");
+            this.addLinked("Pro EQ", "MF-Q", "MF-Active", label: "MF Q");
+            this.addLinked("Pro EQ", "HF-Gain", "HF-Active", label: "HF Gain", mode: ColorSettings.PotMode.Symmetric);
+            this.addLinked("Pro EQ", "HF-Frequency", "HF-Active", label: "HF Freq");
+            this.addLinked("Pro EQ", "HF-Q", "HF-Active", label: "HF Q");
+            this.addLinked("Pro EQ", "LMF-Gain", "LMF-Active", label: "LMF Gain", mode: ColorSettings.PotMode.Symmetric);
+            this.addLinked("Pro EQ", "LMF-Frequency", "LMF-Active", label: "LMF Freq");
+            this.addLinked("Pro EQ", "LMF-Q", "LMF-Active", label: "LMF Q");
+            this.addLinked("Pro EQ", "HMF-Gain", "HMF-Active", label: "HMF Gain", mode: ColorSettings.PotMode.Symmetric);
+            this.addLinked("Pro EQ", "HMF-Frequency", "HMF-Active", label: "HMF Freq");
+            this.addLinked("Pro EQ", "HMF-Q", "HMF-Active", label: "HMF Q");
+            this.addLinked("Pro EQ", "LC-Frequency", "LC-Active", label: "LC Freq");
+            this.addLinked("Pro EQ", "HC-Frequency", "HC-Active", label: "HC Freq");
+            ColorDict.Add(("Pro EQ", "LF-Solo"), new ColorSettings { OnColor = new FinderColor(224, 182, 69), Label = "LF Solo" });
+            ColorDict.Add(("Pro EQ", "MF-Solo"), new ColorSettings { OnColor = new FinderColor(224, 182, 69), Label = "MF Solo" });
+            ColorDict.Add(("Pro EQ", "HF-Solo"), new ColorSettings { OnColor = new FinderColor(224, 182, 69), Label = "HF Solo" });
+            ColorDict.Add(("Pro EQ", "LMF-Solo"), new ColorSettings { OnColor = new FinderColor(224, 182, 69), Label = "LMF Solo" });
+            ColorDict.Add(("Pro EQ", "HMF-Solo"), new ColorSettings { OnColor = new FinderColor(224, 182, 69), Label = "HMF Solo" });
+
+            ColorDict.Add(("Fat Channel", "Hi Pass Filter"), new ColorSettings { Label = "Hi Pass" });
+            ColorDict.Add(("Fat Channel", "Gate On"), new ColorSettings { OnColor = new FinderColor(250, 250, 193), TextOnColor = FinderColor.Black, Label = "Gate ON" });
+            ColorDict.Add(("Fat Channel", "Range"), new ColorSettings { OffColor = FinderColor.Transparent, LinkedParameter = "Expander", LinkReversed = true });
+            ColorDict.Add(("Fat Channel", "Expander"), new ColorSettings { OnColor = new FinderColor(193, 202, 214), TextOnColor = FinderColor.Black });
+            ColorDict.Add(("Fat Channel", "Key Listen"), new ColorSettings { OnColor = new FinderColor(193, 202, 214), TextOnColor = FinderColor.Black });
+            ColorDict.Add(("Fat Channel", "Compressor On"), new ColorSettings { OnColor = new FinderColor(250, 250, 193), TextOnColor = FinderColor.Black, Label = "Cmpr ON" });
+            ColorDict.Add(("Fat Channel", "Attack"), new ColorSettings { OffColor = FinderColor.Transparent, LinkedParameter = "Auto", LinkReversed = true });
+            ColorDict.Add(("Fat Channel", "Release"), new ColorSettings { OffColor = FinderColor.Transparent, LinkedParameter = "Auto", LinkReversed = true });
+            ColorDict.Add(("Fat Channel", "Auto"), new ColorSettings { OnColor = new FinderColor(193, 202, 214), TextOnColor = FinderColor.Black });
+            ColorDict.Add(("Fat Channel", "Peak Reduction"), new ColorSettings { Label = "Pk Reductn" });
+            ColorDict.Add(("Fat Channel", "EQ On"), new ColorSettings { OnColor = new FinderColor(250, 250, 193), TextOnColor = FinderColor.Black, Label = "EQ ON" });
+            ColorDict.Add(("Fat Channel", "Low On"), new ColorSettings { OnColor = new FinderColor(241, 84, 220), Label = "LF", ShowUserButtonCircle = true });
+            ColorDict.Add(("Fat Channel", "Low-Mid On"), new ColorSettings { OnColor = new FinderColor(89, 236, 236), Label = "LMF", ShowUserButtonCircle = true });
+            ColorDict.Add(("Fat Channel", "Hi-Mid On"), new ColorSettings { OnColor = new FinderColor(241, 178, 84), Label = "HMF", ShowUserButtonCircle = true });
+            ColorDict.Add(("Fat Channel", "High On"), new ColorSettings { OnColor = new FinderColor(122, 240, 79), Label = "HF", ShowUserButtonCircle = true });
+            this.addLinked("Fat Channel", "Low Gain", "Low On", label: "LF Gain", mode: ColorSettings.PotMode.Symmetric);
+            this.addLinked("Fat Channel", "Low Freq", "Low On", label: "LF Freq");
+            this.addLinked("Fat Channel", "Low Q", "Low On", label: "LMF Q");
+            this.addLinked("Fat Channel", "Low-Mid Gain", "Low-Mid On", label: "LMF Gain", mode: ColorSettings.PotMode.Symmetric);
+            this.addLinked("Fat Channel", "Low-Mid Freq", "Low-Mid On", label: "LMF Freq");
+            this.addLinked("Fat Channel", "Low-Mid Q", "Low-Mid On", label: "LMF Q");
+            this.addLinked("Fat Channel", "Hi-Mid Gain", "Hi-Mid On", label: "HMF Gain", mode: ColorSettings.PotMode.Symmetric);
+            this.addLinked("Fat Channel", "Hi-Mid Freq", "Hi-Mid On", label: "HMF Freq");
+            this.addLinked("Fat Channel", "Hi-Mid Q", "Hi-Mid On", label: "HMF Q");
+            this.addLinked("Fat Channel", "High Gain", "High On", label: "HF Gain", mode: ColorSettings.PotMode.Symmetric);
+            this.addLinked("Fat Channel", "High Freq", "High On", label: "HF Freq");
+            this.addLinked("Fat Channel", "High Q", "High On", label: "HF Q");
+            ColorDict.Add(("Fat Channel", "Limiter On"), new ColorSettings { OnColor = new FinderColor(250, 250, 193), TextOnColor = FinderColor.Black, Label = "Limiter ON" });
+
+            ColorDict.Add(("Compressor", "LookAhead"), new S1TopControlColors());
+            ColorDict.Add(("Compressor", "Link Channels"), new S1TopControlColors(label: "CH Link"));
+            ColorDict.Add(("Compressor", "Attack"), new ColorSettings { OffColor = FinderColor.Transparent, LinkedParameter = "Auto Speed", LinkReversed = true });
+            ColorDict.Add(("Compressor", "Release"), new ColorSettings { OffColor = FinderColor.Transparent, LinkedParameter = "Auto Speed", LinkReversed = true });
+            ColorDict.Add(("Compressor", "Auto Speed"), new ColorSettings { Label = "Auto" });
+            ColorDict.Add(("Compressor", "Adaptive Speed"), new ColorSettings { Label = "Adaptive" });
+            ColorDict.Add(("Compressor", "Gain"), new ColorSettings { Label = "Makeup", OffColor = FinderColor.Transparent, LinkedParameter = "Auto Gain", LinkReversed = true });
+            ColorDict.Add(("Compressor", "Auto Gain"), new ColorSettings { Label = "Auto" });
+            ColorDict.Add(("Compressor", "Sidechain LC-Freq"), new ColorSettings { Label = "Side LC", OffColor = FinderColor.Transparent, LinkedParameter = "Sidechain Filter" });
+            ColorDict.Add(("Compressor", "Sidechain HC-Freq"), new ColorSettings { Label = "Side HC", OffColor = FinderColor.Transparent, LinkedParameter = "Sidechain Filter" });
+            ColorDict.Add(("Compressor", "Sidechain Filter"), new ColorSettings { Label = "Filter" });
+            ColorDict.Add(("Compressor", "Sidechain Listen"), new ColorSettings { Label = "Listen" });
+            ColorDict.Add(("Compressor", "Swap Frequencies"), new ColorSettings { Label = "Swap" });
+
+            ColorDict.Add(("Flanger", ""), new ColorSettings { OnColor = new FinderColor(238, 204, 103) });
+            ColorDict.Add(("Flanger", "Feedback"), new ColorSettings { OnColor = new FinderColor(238, 204, 103), Mode = ColorSettings.PotMode.Symmetric });
+            ColorDict.Add(("Flanger", "LFO Sync"), new ColorSettings { OnColor = new FinderColor(188, 198, 206), TextOnColor = FinderColor.Black });
+            ColorDict.Add(("Flanger", "Depth"), new ColorSettings { OnColor = new FinderColor(238, 204, 103), Label = "Mix" });
+
+            ColorDict.Add(("Phaser", ""), new ColorSettings { OnColor = new FinderColor(238, 204, 103) });
+            ColorDict.Add(("Phaser", "Center Frequency"), new ColorSettings { OnColor = new FinderColor(238, 204, 103), Label = "Center" });
+            ColorDict.Add(("Phaser", "Sweep Range"), new ColorSettings { OnColor = new FinderColor(238, 204, 103), Label = "Range" });
+            ColorDict.Add(("Phaser", "Stereo Spread"), new ColorSettings { OnColor = new FinderColor(238, 204, 103), Label = "Spread" });
+            ColorDict.Add(("Phaser", "Depth"), new ColorSettings { OnColor = new FinderColor(238, 204, 103), Label = "Mix" });
+            ColorDict.Add(("Phaser", "LFO Sync"), new ColorSettings { OnColor = new FinderColor(188, 198, 206), TextOnColor = FinderColor.Black });
+            ColorDict.Add(("Phaser", "Log. Sweep"), new ColorSettings { OnColor = new FinderColor(188, 198, 206), TextOnColor = FinderColor.Black });
+            ColorDict.Add(("Phaser", "Soft"), new ColorSettings { OnColor = new FinderColor(188, 198, 206), TextOnColor = FinderColor.Black });
+
+            ColorDict.Add(("SSLGChannel", "HP Frq"), new ColorSettings { OnColor = new FinderColor(220, 216, 207) });
+            ColorDict.Add(("SSLGChannel", "LP Frq"), new ColorSettings { OnColor = new FinderColor(220, 216, 207) });
+            ColorDict.Add(("SSLGChannel", "FilterSplit"), new ColorSettings { OnColor = new FinderColor(204, 191, 46), Label = "SPLIT" });
+            ColorDict.Add(("SSLGChannel", "HF Gain"), new ColorSettings { OnColor = new FinderColor(177, 53, 63), Mode = ColorSettings.PotMode.Symmetric });
+            ColorDict.Add(("SSLGChannel", "HF Frq"), new ColorSettings { OnColor = new FinderColor(177, 53, 63) });
+            ColorDict.Add(("SSLGChannel", "HMF X3"), new ColorSettings { OnColor = new FinderColor(27, 92, 64), Label = "HMFx3" });
+            ColorDict.Add(("SSLGChannel", "LF Gain"), new ColorSettings { OnColor = new FinderColor(180, 180, 180), Mode = ColorSettings.PotMode.Symmetric });
+            ColorDict.Add(("SSLGChannel", "LF Frq"), new ColorSettings { OnColor = new FinderColor(180, 180, 180) });
+            ColorDict.Add(("SSLGChannel", "LMF div3"), new ColorSettings { OnColor = new FinderColor(22, 97, 120), Label = "LMF/3" });
+            ColorDict.Add(("SSLGChannel", "HMF Gain"), new ColorSettings { OnColor = new FinderColor(27, 92, 64), Mode = ColorSettings.PotMode.Symmetric });
+            ColorDict.Add(("SSLGChannel", "HMF Frq"), new ColorSettings { OnColor = new FinderColor(27, 92, 64) });
+            ColorDict.Add(("SSLGChannel", "HMF Q"), new ColorSettings { OnColor = new FinderColor(27, 92, 64), Mode = ColorSettings.PotMode.Symmetric });
+            ColorDict.Add(("SSLGChannel", "LMF Gain"), new ColorSettings { OnColor = new FinderColor(22, 97, 120), Mode = ColorSettings.PotMode.Symmetric });
+            ColorDict.Add(("SSLGChannel", "LMF Frq"), new ColorSettings { OnColor = new FinderColor(22, 97, 120) });
+            ColorDict.Add(("SSLGChannel", "LMF Q"), new ColorSettings { OnColor = new FinderColor(22, 97, 120), Mode = ColorSettings.PotMode.Symmetric });
+            ColorDict.Add(("SSLGChannel", "EQBypass"), new ColorSettings { OnColor = new FinderColor(226, 61, 80), Label = "EQ BYP" });
+            ColorDict.Add(("SSLGChannel", "EQDynamic"), new ColorSettings { OnColor = new FinderColor(241, 171, 53), Label = "FLT DYN SC" });
+            ColorDict.Add(("SSLGChannel", "CompRatio"), new ColorSettings { OnColor = new FinderColor(220, 216, 207), Label = "COMP Ratio" });
+            ColorDict.Add(("SSLGChannel", "CompThresh"), new ColorSettings { OnColor = new FinderColor(220, 216, 207), Label = "COMP Thresh" });
+            ColorDict.Add(("SSLGChannel", "CompRelease"), new ColorSettings { OnColor = new FinderColor(220, 216, 207), Label = "COMP Release" });
+            ColorDict.Add(("SSLGChannel", "CompFast"), new ColorSettings { Label = "F.ATK" });
+            ColorDict.Add(("SSLGChannel", "ExpRange"), new ColorSettings { OnColor = new FinderColor(27, 92, 64), Label = "EXP Range" });
+            ColorDict.Add(("SSLGChannel", "ExpThresh"), new ColorSettings { OnColor = new FinderColor(27, 92, 64), Label = "EXP Thresh" });
+            ColorDict.Add(("SSLGChannel", "ExpRelease"), new ColorSettings { OnColor = new FinderColor(27, 92, 64), Label = "EXP Release" });
+            ColorDict.Add(("SSLGChannel", "ExpAttack"), new ColorSettings { Label = "F.ATK" });
+            ColorDict.Add(("SSLGChannel", "ExpGate"), new ColorSettings { Label = "GATE" });
+            ColorDict.Add(("SSLGChannel", "DynamicBypass"), new ColorSettings { OnColor = new FinderColor(226, 61, 80), Label = "DYN BYP" });
+            ColorDict.Add(("SSLGChannel", "DynaminCHOut"), new ColorSettings { OnColor = new FinderColor(241, 171, 53), Label = "DYN CH OUT" });
+            ColorDict.Add(("SSLGChannel", "VUInOut"), new ColorSettings { OnColor = new FinderColor(241, 171, 53), Label = "VU OUT" });
+
+            ColorDict.Add(("RCompressor", "Threshold"), new ColorSettings { OnColor = new FinderColor(243, 132, 1) });
+            ColorDict.Add(("RCompressor", "Ratio"), new ColorSettings { OnColor = new FinderColor(243, 132, 1) });
+            ColorDict.Add(("RCompressor", "Attack"), new ColorSettings { OnColor = new FinderColor(243, 132, 1) });
+            ColorDict.Add(("RCompressor", "Release"), new ColorSettings { OnColor = new FinderColor(243, 132, 1) });
+            ColorDict.Add(("RCompressor", "Gain"), new ColorSettings { OnColor = new FinderColor(243, 132, 1), Mode = ColorSettings.PotMode.Symmetric });
+            ColorDict.Add(("RCompressor", "Trim"), new ColorSettings { Mode = ColorSettings.PotMode.Symmetric });
+            ColorDict.Add(("RCompressor", "ARC / Manual"), new ColorSettings { Label = "ARC", LabelOn = "Manual", TextOnColor = new FinderColor(0, 0, 0), TextOffColor = new FinderColor(0, 0, 0) });
+            ColorDict.Add(("RCompressor", "Electro / Opto"), new ColorSettings { Label = "Electro", LabelOn = "Opto", TextOnColor = new FinderColor(0, 0, 0), TextOffColor = new FinderColor(0, 0, 0) });
+            ColorDict.Add(("RCompressor", "Warm / Smooth"), new ColorSettings { Label = "Warm", LabelOn = "Smooth", TextOnColor = new FinderColor(0, 0, 0), TextOffColor = new FinderColor(0, 0, 0) });
+
+            ColorDict.Add(("Smack Attack", "Attack"), new ColorSettings { OnColor = new FinderColor(9, 217, 179), Mode = ColorSettings.PotMode.Symmetric });
+            ColorDict.Add(("Smack Attack", "AttackSensitivity"), new ColorSettings { Label = "Sensitivity", OnColor = new FinderColor(9, 217, 179) });
+            ColorDict.Add(("Smack Attack", "AttackDuration"), new ColorSettings { Label = "Duration", OnColor = new FinderColor(9, 217, 179) });
+            ColorDict.Add(("Smack Attack", "AttackShape"), new ColorSettings { Label = "Shape", OnColor = new FinderColor(9, 217, 179), DialSteps = 2, HideValueBar = true });
+            ColorDict.Add(("Smack Attack", "Sustain"), new ColorSettings { OnColor = new FinderColor(230, 172, 5), Mode = ColorSettings.PotMode.Symmetric });
+            ColorDict.Add(("Smack Attack", "SustainSensitivity"), new ColorSettings { Label = "Sensitivity", OnColor = new FinderColor(230, 172, 5) });
+            ColorDict.Add(("Smack Attack", "SustainDuration"), new ColorSettings { Label = "Duration", OnColor = new FinderColor(230, 172, 5) });
+            ColorDict.Add(("Smack Attack", "SustainShape"), new ColorSettings { Label = "Shape", OnColor = new FinderColor(230, 172, 5), DialSteps = 2, HideValueBar = true });
+            ColorDict.Add(("Smack Attack", "Guard"), new ColorSettings { OnColor = new FinderColor(0, 198, 250), DialSteps = 2, HideValueBar = true });
+            ColorDict.Add(("Smack Attack", "Mix"), new ColorSettings { OnColor = new FinderColor(0, 198, 250) });
+            ColorDict.Add(("Smack Attack", "Output"), new ColorSettings { OnColor = new FinderColor(0, 198, 250), Mode = ColorSettings.PotMode.Symmetric });
+
+            ColorDict.Add(("Sibilance", "Monitor"), new ColorSettings { OnColor = new FinderColor(0, 195, 230) });
+            ColorDict.Add(("Sibilance", "Lookahead"), new ColorSettings { OnColor = new FinderColor(0, 195, 230) });
+        }
     }
 }

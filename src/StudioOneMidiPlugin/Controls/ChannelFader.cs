@@ -120,10 +120,10 @@
 
             MackieChannelData cd = this.GetChannel(channelIndex);
 
-            var stepDivisions = 100;
-            if ((Control.ModifierKeys & Keys.Shift) == Keys.Shift)
+            var stepDivisions = UserColorFinder.getDialSteps(this.PluginName, cd.Label);
+            if (stepDivisions > 50 && (Control.ModifierKeys & Keys.Shift) == Keys.Shift)
             {
-                stepDivisions = 600;
+                stepDivisions *= 6;
             }
             cd.Value = Math.Min(1, Math.Max(0, (float)Math.Round(cd.Value * stepDivisions + diff) / stepDivisions));
 			cd.EmitVolumeUpdate();
@@ -182,7 +182,7 @@
                 }
             }
 
-            var ValueColor = BitmapColor.White;
+            var valueColor = BitmapColor.White;
             if (isVolume)
             {
                 var volBarColor = UserColorFinder.getOnColor(this.PluginName, cd.Label);
@@ -202,7 +202,7 @@
 
                     if (isActive == UserColorFinder.getLinkReversed(this.PluginName, cd.Label))
                     {
-                        ValueColor = new BitmapColor(70, 70, 70);
+                        valueColor = new BitmapColor(70, 70, 70);
                         volBarColor = UserColorFinder.getOffColor(this.PluginName, cd.Label);
                     }
                 }
@@ -236,7 +236,7 @@
 
             // bb.DrawText(cd.TrackName, 0, 0, bb.Width, bb.Height / 2, null, imageSize == PluginImageSize.Width60 ? 12 : 1);
             // bb.DrawText($"{Math.Round(cd.Value * 100.0f)} %", 0, bb.Height / 2, bb.Width, bb.Height / 2);
-            bb.DrawText(cd.ValueStr, 0, bb.Height / 4, bb.Width, bb.Height / 2, ValueColor);
+            bb.DrawText(cd.ValueStr, 0, bb.Height / 4, bb.Width, bb.Height / 2, valueColor);
             return bb.ToImage();
 		}
 

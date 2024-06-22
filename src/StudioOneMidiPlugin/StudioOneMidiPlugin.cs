@@ -95,7 +95,15 @@ namespace Loupedeck.StudioOneMidiPlugin
             Autopunch
         }
         public RecPreMode CurrentRecPreMode = RecPreMode.Off;
-            
+
+        public enum ChannelFaderMode
+        {
+            Send,
+            Pan,
+            User
+        }
+        public ChannelFaderMode CurrentChannelFaderMode = ChannelFaderMode.Pan;
+
         public string MidiInName
         {
 			get => midiInName;
@@ -468,6 +476,23 @@ namespace Loupedeck.StudioOneMidiPlugin
             e.Velocity = (SevenBitNumber)127;
             e.NoteNumber = (SevenBitNumber)note;
             this.mackieMidiOut.SendEvent(e);
+        }
+
+        public void SetChannelFaderMode(ChannelFaderMode mode, Int32 userPage = 1)
+        {
+            switch (mode)
+            {
+                case ChannelFaderMode.Pan:
+                    this.SendMidiNote(0, PanCommandButtonData.Note);
+                    break;
+                case ChannelFaderMode.Send:
+                    this.SendMidiNote(0, SendsCommandButtonData.Note);
+                    break;
+                case ChannelFaderMode.User:
+                    this.SendMidiNote(0, UserModeButtonData.BaseNote - 1 + userPage);
+                    break;
+            }
+            this.CurrentChannelFaderMode = mode;
         }
 
         // public override bool TryProcessTouchEvent(string actionName, string actionParameter, DeviceTouchEvent deviceTouchEvent)

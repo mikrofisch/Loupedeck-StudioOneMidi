@@ -190,8 +190,8 @@
             this.addButton(ButtonLayer.faderModesSend, "1-2", new ModeTopCommandButtonData(14, 0x75, "Next Plugin", ModeTopCommandButtonData.Location.Right, "plugin_next", pluginBgColor));
             this.addButton(ButtonLayer.faderModesSend, "3-2", new OneWayCommandButtonData(14, 0x12, "Channel Editor", "channel_editor", pluginBgColor));
             this.addButton(ButtonLayer.faderModesSend, "3", new UserModeButtonData());
-            this.addButton(ButtonLayer.faderModesSend, "4", new CommandButtonData(0x2A, "VIEWS"));
-            this.addButton(ButtonLayer.faderModesSend, "5", new SendsCommandButtonData(0x29), isNoteReceiver: true);
+            this.addButton(ButtonLayer.faderModesSend, "4", new PanCommandButtonData("VIEWS"));
+            this.addButton(ButtonLayer.faderModesSend, "5", new SendsCommandButtonData(), isNoteReceiver: true);
         }
 
         // common
@@ -256,7 +256,6 @@
                 // this.EmitActionImageChanged();
             };
 
-
             return true;
         }
 
@@ -309,7 +308,7 @@
                     {
                         case 0: // PLAY
                             this.CurrentLayer = ButtonLayer.channelPropertiesPlay;
-                            this.buttonData[idxUserSendsViewsButton].runCommand(); // Ensure we're showing pan/vol data
+                            this.plugin.SetChannelFaderMode(ChannelFaderMode.Pan);
                             selectMode = (this.buttonData[idxPlaySelButton] as ModeChannelSelectButtonData).Activated ? SelectButtonMode.Select
                                                                                                                       : SelectButtonMode.Property;
                             this.plugin.EmitSelectModeChanged(selectMode);
@@ -317,13 +316,13 @@
                             break;
                         case 1: // REC
                             this.CurrentLayer = ButtonLayer.channelPropertiesRec;
-                            this.buttonData[idxUserSendsViewsButton].runCommand(); // Ensure we're showing pan/vol data
+                            this.plugin.SetChannelFaderMode(ChannelFaderMode.Pan);
                             this.plugin.EmitSelectModeChanged(SelectButtonMode.Property);
                             this.plugin.EmitPropertySelectionChanged((this.buttonData[idxRecArmMonitorButton] as PropertySelectionButtonData).CurrentType);
                             break;
                         case 2: // SHOW
                             this.CurrentLayer = ButtonLayer.faderModesShow;
-                            this.buttonData[idxUserSendsViewsButton].runCommand(); // Ensure we're showing pan/vol data
+                            this.plugin.SetChannelFaderMode(ChannelFaderMode.Pan);
                             this.plugin.EmitPropertySelectionChanged(ChannelProperty.PropertyType.Select);
                             break;
                         case 3: // USER/SENDS

@@ -151,7 +151,6 @@ class ChannelInfo {
         return true;
     }
     setFader(element, paramName) {
-        // Host.Console.writeLine(" faderValue.default: " + this.faderValue._default);
         return element.connectAliasParam(this.faderValue, paramName);
     }
     clearFader() {
@@ -275,6 +274,7 @@ class LoupedeckSharedComponent extends FocusChannelPanComponent {
             let plugControlElement = channelInfo.plugControlElement;
             let plugButtonElement = channelInfo.plugButtonElement;
             
+            // Host.Console.writeLine("updateChannel(" + index + ") plugControlElement.getParamTitleWithName(): " + plugControlElement.getParamTitleWithName(0));
             channelInfo.setLabel(plugControlElement, PreSonus.ParamID.kTitle);
             channelInfo.setValue(plugControlElement, PreSonus.ParamID.kValue);
             channelInfo.setUser(plugButtonElement, PreSonus.ParamID.kTitle);

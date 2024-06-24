@@ -1,6 +1,7 @@
 ﻿namespace Loupedeck.StudioOneMidiPlugin.Controls
 {
     using System;
+    using System.Web.UI.WebControls;
     using System.Windows.Forms;
 
     using Melanchall.DryWetMidi.Common;
@@ -247,22 +248,29 @@
             }
             else if (buttonMode == SelectButtonMode.User)
             {
+                UserColorFinder.CurrentChannel = cd.ChannelID + 1;
+
                 var ubh = bb.Height / 3;
                 var uby = bb.Height - ubh;
 
-                bb.FillRectangle(0, 0, bb.Width, uby, new BitmapColor(UserColorFinder.getOnColor(pluginName, cd.Label), 80));
+                // User Pot
+                if (UserColorFinder.getLabel(pluginName, cd.Label).Length > 0)
+                {
+                    bb.FillRectangle(0, 0, bb.Width, uby, new BitmapColor(UserColorFinder.getOnColor(pluginName, cd.Label), 80));
+                }
                 bb.DrawText(cd.Description, 0, 0, bb.Width, TitleHeight, TextDescColor);
                 bb.DrawText(UserColorFinder.getLabelShort(pluginName, cd.Label), 0, bb.Height / 2 - TitleHeight / 2, bb.Width, TitleHeight, 
                             UserColorFinder.DefaultColorSettings.TextOnColor);
 
+                // User Button
                 var drawCircle = cd.UserLabel.Length > 0 && UserColorFinder.showUserButtonCircle(pluginName, cd.UserLabel);
                 var tx = 0;
                 var tw = bb.Width;
-                var tc = userButtonActive ? drawCircle ? UserColorFinder.getOnColor(pluginName, cd.UserLabel)
-                                                       : UserColorFinder.getTextOnColor(pluginName, cd.UserLabel)
-                                          : UserColorFinder.getTextOffColor(pluginName, cd.UserLabel);
-                var bc = cd.UserLabel.Length > 0 ? userButtonActive ? UserColorFinder.getOnColor(pluginName, cd.UserLabel)
-                                                                    : UserColorFinder.getOffColor(pluginName, cd.UserLabel)
+                var tc = userButtonActive ? drawCircle ? UserColorFinder.getOnColor(pluginName, cd.UserLabel, isUser: true)
+                                                       : UserColorFinder.getTextOnColor(pluginName, cd.UserLabel, isUser: true)
+                                          : UserColorFinder.getTextOffColor(pluginName, cd.UserLabel, isUser: true);
+                var bc = cd.UserLabel.Length > 0 || UserColorFinder.getLabel(pluginName, cd.UserLabel, isUser: true).Length > 0 ? userButtonActive ? UserColorFinder.getOnColor(pluginName, cd.UserLabel, isUser: true)
+                                                                    : UserColorFinder.getOffColor(pluginName, cd.UserLabel, isUser: true)
                                                  : BgColorUnassigned;
                 bb.FillRectangle(0, uby, bb.Width, ubh, drawCircle ? BgColorUserCircle : bc);
                 if (drawCircle)
@@ -276,8 +284,8 @@
                     tx = ubh;
                     tw = bb.Width - ubh * 2;
                 }
-                bb.DrawText(userButtonActive ? UserColorFinder.getLabelOnShort(pluginName, cd.UserLabel)
-                                             : UserColorFinder.getLabelShort(pluginName, cd.UserLabel),
+                bb.DrawText(userButtonActive ? UserColorFinder.getLabelOnShort(pluginName, cd.UserLabel, isUser: true)
+                                             : UserColorFinder.getLabelShort(pluginName, cd.UserLabel, isUser: true),
                             tx, uby, tw, TitleHeight, tc);
             }
             else
@@ -726,8 +734,8 @@
                 }
                 else
                 {
-                    bb.FillRectangle(0, bgX, bb.Width, bgH, this.Activated ? this.UserColorFinder.getOnColor(this.PluginName, this.Name)
-                                                                           : this.UserColorFinder.getOffColor(this.PluginName, this.Name));
+                    bb.FillRectangle(0, bgX, bb.Width, bgH, this.Activated ? this.UserColorFinder.getOnColor(this.PluginName, this.Name, isUser: true)
+                                                                           : this.UserColorFinder.getOffColor(this.PluginName, this.Name, isUser: true));
                 }
             }
             else
@@ -745,9 +753,11 @@
             }
             else
             {
-                bb.DrawText(this.UserColorFinder.getLabel(this.PluginName, this.Name), 0, dispTxtH, bb.Width, bb.Height - dispTxtH, 
-                            this.Activated ? this.UserColorFinder.getTextOnColor(this.PluginName, this.Name)
-                                           : this.UserColorFinder.getTextOffColor(this.PluginName, this.Name), 16);
+                bb.DrawText(this.Activated ? this.UserColorFinder.getLabelOn(this.PluginName, this.Name, isUser: true) :
+                                             this.UserColorFinder.getLabel(this.PluginName, this.Name, isUser: true), 
+                                             0, dispTxtH, bb.Width, bb.Height - dispTxtH, 
+                            this.Activated ? this.UserColorFinder.getTextOnColor(this.PluginName, this.Name, isUser: true)
+                                           : this.UserColorFinder.getTextOffColor(this.PluginName, this.Name, isUser: true), 16);
             }
 
             int hPos;
@@ -1000,33 +1010,16 @@
 
     public class UserModeButtonData : ButtonData
     {
-        public const Int32 MaxUserPages = 6;
-        public const Int32 BaseNote = 0x2B;
         public Int32 ActiveUserPages { get; set; } = 3;
         public Int32 UserPage { get; private set; } = 0;
-
-        private Boolean[] UserModeActivated { get; set; } = new Boolean[MaxUserPages];
 
         public UserModeButtonData()
         {
         }
 
-        public void setUserPage(Int32 noteNumber, Boolean activated)
+        public void setUserPage(Int32 userPage)
         {
-            if (noteNumber >= BaseNote && noteNumber <= BaseNote + MaxUserPages)
-            {
-                this.UserModeActivated[noteNumber - BaseNote] = activated;
-            }
-
-            this.UserPage = 0;
-            for (Int32 i = 0; i < MaxUserPages; i++)
-            {
-                if (this.UserModeActivated[i])
-                {
-                    this.UserPage = i + 1;
-                    break;
-                }
-            }
+            this.UserPage = userPage;
         }
 
         public void resetUserPage()

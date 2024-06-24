@@ -83,6 +83,8 @@
                 this.ActionImageChanged();
             };
 
+            plugin.UserPageChanged += (object sender, Int32 e) => UserColorFinder.CurrentUserPage = e;
+
             return true;
         }
 
@@ -136,8 +138,10 @@
             if (!actionParameters.TryGetString(ControlOrientationSelector, out var controlOrientation)) return null;
 
             MackieChannelData cd = this.GetChannel(channelIndex);
+            UserColorFinder.CurrentChannel = cd.ChannelID + 1;
 
 			var bb = new BitmapBuilder(imageWidth, imageHeight);
+            if (UserColorFinder.getLabel(this.PluginName, cd.Label).Length == 0) return bb.ToImage();
 
             const int sideBarW = 8;
             int sideBarX = bb.Width - sideBarW;

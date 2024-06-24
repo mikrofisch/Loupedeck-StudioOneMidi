@@ -65,6 +65,9 @@
         private static readonly Dictionary<(String PluginName, String PluginParameter), ColorSettings> ColorDict = new Dictionary<(String, String), ColorSettings>();
         private const String strColorSettingsID = "[cs]";  // for plugin settings
 
+        public Int32 CurrentUserPage = 0;              // For tracking the current user page position
+        public Int32 CurrentChannel = 0;
+
         public ColorSettings DefaultColorSettings { get; private set; } = new ColorSettings
         {
             OnColor = FinderColor.Transparent,
@@ -153,11 +156,14 @@
                                                                            LinkedParameter = linkedParameter
                                                                          });
         }
-        public ColorSettings getColorSettings(String pluginName, String parameterName)
+        public ColorSettings getColorSettings(String pluginName, String parameterName, Boolean isUser)
         {
             if (pluginName == null || parameterName == null) return this.DefaultColorSettings;
 
-            if (ColorDict.TryGetValue((pluginName, parameterName), out var colorSettings) ||
+            var userPagePos = $"{this.CurrentUserPage}:{this.CurrentChannel}" + (isUser ? "U" : "");
+
+            if (ColorDict.TryGetValue((pluginName, userPagePos), out var colorSettings) ||
+                ColorDict.TryGetValue((pluginName, parameterName), out colorSettings) ||
                 ColorDict.TryGetValue((pluginName, ""), out colorSettings) || 
                 ColorDict.TryGetValue(("", parameterName), out colorSettings))
             {
@@ -177,25 +183,25 @@
 
         private BitmapColor findColor(FinderColor settingsColor, BitmapColor defaultColor) => settingsColor ?? defaultColor;
 
-        public ColorSettings.PotMode getMode(String pluginName, String parameterName) => this.getColorSettings(pluginName, parameterName).Mode;
-        public Boolean getShowCircle(String pluginName, String parameterName) => this.getColorSettings(pluginName, parameterName).ShowUserButtonCircle;
+        public ColorSettings.PotMode getMode(String pluginName, String parameterName, Boolean isUser = false) => this.getColorSettings(pluginName, parameterName, isUser).Mode;
+        public Boolean getShowCircle(String pluginName, String parameterName, Boolean isUser = false) => this.getColorSettings(pluginName, parameterName, isUser).ShowUserButtonCircle;
 
-        public BitmapColor getOnColor(String pluginName, String parameterName) => this.findColor(this.getColorSettings(pluginName, parameterName).OnColor,
+        public BitmapColor getOnColor(String pluginName, String parameterName, Boolean isUser = false) => this.findColor(this.getColorSettings(pluginName, parameterName, isUser).OnColor,
                                                                                                  this.DefaultColorSettings.OnColor);
-        public BitmapColor getOffColor(String pluginName, String parameterName) => this.findColor(this.getColorSettings(pluginName, parameterName).OffColor,
+        public BitmapColor getOffColor(String pluginName, String parameterName, Boolean isUser = false) => this.findColor(this.getColorSettings(pluginName, parameterName, isUser).OffColor,
                                                                                                   this.DefaultColorSettings.OffColor);
-        public BitmapColor getTextOnColor(String pluginName, String parameterName) => this.findColor(this.getColorSettings(pluginName, parameterName).TextOnColor,
+        public BitmapColor getTextOnColor(String pluginName, String parameterName, Boolean isUser = false) => this.findColor(this.getColorSettings(pluginName, parameterName, isUser).TextOnColor,
                                                                                                      this.DefaultColorSettings.TextOnColor);
-        public BitmapColor getTextOffColor(String pluginName, String parameterName) => this.findColor(this.getColorSettings(pluginName, parameterName).TextOffColor,
+        public BitmapColor getTextOffColor(String pluginName, String parameterName, Boolean isUser = false) => this.findColor(this.getColorSettings(pluginName, parameterName, isUser).TextOffColor,
                                                                                                       this.DefaultColorSettings.TextOffColor);
-        public String getLabel(String pluginName, String parameterName) => this.getColorSettings(pluginName, parameterName).Label ?? parameterName;
-        public String getLabelOn(String pluginName, String parameterName)
+        public String getLabel(String pluginName, String parameterName, Boolean isUser = false) => this.getColorSettings(pluginName, parameterName, isUser).Label ?? parameterName;
+        public String getLabelOn(String pluginName, String parameterName, Boolean isUser = false)
         {
-            var cs = this.getColorSettings(pluginName, parameterName);
+            var cs = this.getColorSettings(pluginName, parameterName, isUser);
             return cs.LabelOn ?? cs.Label ?? parameterName;
         }
-        public String getLabelShort(String pluginName, String parameterName) => stripLabel(this.getLabel(pluginName, parameterName));
-        public String getLabelOnShort(String pluginName, String parameterName) => stripLabel(this.getLabelOn(pluginName, parameterName));
+        public String getLabelShort(String pluginName, String parameterName, Boolean isUser = false) => stripLabel(this.getLabel(pluginName, parameterName, isUser));
+        public String getLabelOnShort(String pluginName, String parameterName, Boolean isUser = false) => stripLabel(this.getLabelOn(pluginName, parameterName, isUser));
         public static String stripLabel(String label)
         {
             if (label.Length <= 12) return label;
@@ -203,7 +209,7 @@
         }
         public BitmapImage getIcon(String pluginName, String parameterName)
         {
-            var colorSettings = this.getColorSettings(pluginName, parameterName);
+            var colorSettings = this.getColorSettings(pluginName, parameterName, false);
             if (colorSettings.IconName != null)
             {
                 return EmbeddedResources.ReadImage(EmbeddedResources.FindFile($"{colorSettings.IconName}_52px.png"));
@@ -213,18 +219,18 @@
 
         public BitmapImage getIconOn(String pluginName, String parameterName)
         {
-            var colorSettings = this.getColorSettings(pluginName, parameterName);
+            var colorSettings = this.getColorSettings(pluginName, parameterName, false);
             if (colorSettings.IconNameOn != null)
             {
                 return EmbeddedResources.ReadImage(EmbeddedResources.FindFile($"{colorSettings.IconNameOn}_52px.png"));
             }
             return null;
         }
-        public String getLinkedParameter(String pluginName, String parameterName) => this.getColorSettings(pluginName, parameterName).LinkedParameter;
-        public Boolean getLinkReversed(String pluginName, String parameterName) => this.getColorSettings(pluginName, parameterName).LinkReversed;
-        public Boolean hideValueBar(String pluginName, String parameterName) => this.getColorSettings(pluginName, parameterName).HideValueBar;
-        public Boolean showUserButtonCircle(String pluginName, String parameterName) => this.getColorSettings(pluginName, parameterName).ShowUserButtonCircle;
-        public Int32 getDialSteps(String pluginName, String parameterName) => this.getColorSettings(pluginName, parameterName).DialSteps;
+        public String getLinkedParameter(String pluginName, String parameterName, Boolean isUser = false) => this.getColorSettings(pluginName, parameterName, isUser).LinkedParameter;
+        public Boolean getLinkReversed(String pluginName, String parameterName, Boolean isUser = false) => this.getColorSettings(pluginName, parameterName, isUser).LinkReversed;
+        public Boolean hideValueBar(String pluginName, String parameterName, Boolean isUser = false) => this.getColorSettings(pluginName, parameterName, isUser).HideValueBar;
+        public Boolean showUserButtonCircle(String pluginName, String parameterName, Boolean isUser = false) => this.getColorSettings(pluginName, parameterName, isUser).ShowUserButtonCircle;
+        public Int32 getDialSteps(String pluginName, String parameterName, Boolean isUser = false) => this.getColorSettings(pluginName, parameterName, isUser).DialSteps;
 
 
         public static String settingName(String pluginName, String parameterName, String setting) => 
@@ -233,6 +239,7 @@
         private void InitColorDict()
         {
             ColorDict.Add(("", "Bypass"), new ColorSettings { OnColor = new FinderColor(204, 156, 107), IconName = "bypass" });
+
             ColorDict.Add(("Pro EQ", "Show Controls"), new S1TopControlColors(label: "Band Controls"));
             ColorDict.Add(("Pro EQ", "Show Dynamics"), new S1TopControlColors(label: "Dynamics"));
             ColorDict.Add(("Pro EQ", "High Quality"), new S1TopControlColors());
@@ -297,6 +304,13 @@
             this.addLinked("Fat Channel", "High Gain", "High On", label: "HF Gain", mode: ColorSettings.PotMode.Symmetric);
             this.addLinked("Fat Channel", "High Freq", "High On", label: "HF Freq");
             this.addLinked("Fat Channel", "High Q", "High On", label: "HF Q");
+            ColorDict.Add(("Fat Channel", "Low Boost"), new ColorSettings { OnColor = new FinderColor(241, 84, 220) });
+            ColorDict.Add(("Fat Channel", "Low Atten"), new ColorSettings { OnColor = new FinderColor(241, 84, 220) });
+            ColorDict.Add(("Fat Channel", "Low Frequency"), new ColorSettings { Label = "LF Freq", OnColor = new FinderColor(241, 84, 220), DialSteps = 3 });
+            ColorDict.Add(("Fat Channel", "High Boost"), new ColorSettings { OnColor = new FinderColor(122, 240, 79) });
+            ColorDict.Add(("Fat Channel", "High Atten"), new ColorSettings { OnColor = new FinderColor(122, 240, 79) });
+            ColorDict.Add(("Fat Channel", "High Bandwidth"), new ColorSettings { Label = "Bandwidth", OnColor = new FinderColor(122, 240, 79) });
+            ColorDict.Add(("Fat Channel", "Attenuation Select"), new ColorSettings { Label = "Atten Sel", OnColor = new FinderColor(122, 240, 79), DialSteps = 2 });
             ColorDict.Add(("Fat Channel", "Limiter On"), new ColorSettings { OnColor = new FinderColor(250, 250, 193), TextOnColor = FinderColor.Black, Label = "Limiter ON" });
 
             ColorDict.Add(("Compressor", "LookAhead"), new S1TopControlColors());
@@ -327,6 +341,7 @@
             ColorDict.Add(("Phaser", "Log. Sweep"), new ColorSettings { OnColor = new FinderColor(188, 198, 206), TextOnColor = FinderColor.Black });
             ColorDict.Add(("Phaser", "Soft"), new ColorSettings { OnColor = new FinderColor(188, 198, 206), TextOnColor = FinderColor.Black });
 
+            // Waves
             ColorDict.Add(("SSLGChannel", "HP Frq"), new ColorSettings { OnColor = new FinderColor(220, 216, 207) });
             ColorDict.Add(("SSLGChannel", "LP Frq"), new ColorSettings { OnColor = new FinderColor(220, 216, 207) });
             ColorDict.Add(("SSLGChannel", "FilterSplit"), new ColorSettings { OnColor = new FinderColor(204, 191, 46), Label = "SPLIT" });
@@ -344,13 +359,13 @@
             ColorDict.Add(("SSLGChannel", "LMF Q"), new ColorSettings { OnColor = new FinderColor(22, 97, 120), Mode = ColorSettings.PotMode.Symmetric });
             ColorDict.Add(("SSLGChannel", "EQBypass"), new ColorSettings { OnColor = new FinderColor(226, 61, 80), Label = "EQ BYP" });
             ColorDict.Add(("SSLGChannel", "EQDynamic"), new ColorSettings { OnColor = new FinderColor(241, 171, 53), Label = "FLT DYN SC" });
-            ColorDict.Add(("SSLGChannel", "CompRatio"), new ColorSettings { OnColor = new FinderColor(220, 216, 207), Label = "COMP Ratio" });
-            ColorDict.Add(("SSLGChannel", "CompThresh"), new ColorSettings { OnColor = new FinderColor(220, 216, 207), Label = "COMP Thresh" });
-            ColorDict.Add(("SSLGChannel", "CompRelease"), new ColorSettings { OnColor = new FinderColor(220, 216, 207), Label = "COMP Release" });
+            ColorDict.Add(("SSLGChannel", "CompRatio"), new ColorSettings { OnColor = new FinderColor(220, 216, 207), Label = "C RATIO" });
+            ColorDict.Add(("SSLGChannel", "CompThresh"), new ColorSettings { OnColor = new FinderColor(220, 216, 207), Label = "C THRESH" });
+            ColorDict.Add(("SSLGChannel", "CompRelease"), new ColorSettings { OnColor = new FinderColor(220, 216, 207), Label = "C RELEASE" });
             ColorDict.Add(("SSLGChannel", "CompFast"), new ColorSettings { Label = "F.ATK" });
-            ColorDict.Add(("SSLGChannel", "ExpRange"), new ColorSettings { OnColor = new FinderColor(27, 92, 64), Label = "EXP Range" });
-            ColorDict.Add(("SSLGChannel", "ExpThresh"), new ColorSettings { OnColor = new FinderColor(27, 92, 64), Label = "EXP Thresh" });
-            ColorDict.Add(("SSLGChannel", "ExpRelease"), new ColorSettings { OnColor = new FinderColor(27, 92, 64), Label = "EXP Release" });
+            ColorDict.Add(("SSLGChannel", "ExpRange"), new ColorSettings { OnColor = new FinderColor(27, 92, 64), Label = "E RANGE" });
+            ColorDict.Add(("SSLGChannel", "ExpThresh"), new ColorSettings { OnColor = new FinderColor(27, 92, 64), Label = "E THRESH" });
+            ColorDict.Add(("SSLGChannel", "ExpRelease"), new ColorSettings { OnColor = new FinderColor(27, 92, 64), Label = "E RELEASE" });
             ColorDict.Add(("SSLGChannel", "ExpAttack"), new ColorSettings { Label = "F.ATK" });
             ColorDict.Add(("SSLGChannel", "ExpGate"), new ColorSettings { Label = "GATE" });
             ColorDict.Add(("SSLGChannel", "DynamicBypass"), new ColorSettings { OnColor = new FinderColor(226, 61, 80), Label = "DYN BYP" });
@@ -381,6 +396,70 @@
 
             ColorDict.Add(("Sibilance", "Monitor"), new ColorSettings { OnColor = new FinderColor(0, 195, 230) });
             ColorDict.Add(("Sibilance", "Lookahead"), new ColorSettings { OnColor = new FinderColor(0, 195, 230) });
+
+            // Analog Obsession
+            ColorDict.Add(("Rare", "Bypass"), new ColorSettings { Label = "IN", OnColor = new FinderColor(191, 0, 22) });
+            ColorDict.Add(("Rare", "Low Boost"), new ColorSettings { Label = "Low Boost", OnColor = new FinderColor(93, 161, 183) });
+            ColorDict.Add(("Rare", "Low Atten"), new ColorSettings { Label = "Low Atten", OnColor = new FinderColor(93, 161, 183) });
+            ColorDict.Add(("Rare", "High Boost"), new ColorSettings { Label = "High Boost", OnColor = new FinderColor(93, 161, 183) });
+            ColorDict.Add(("Rare", "High Atten"), new ColorSettings { Label = "High Atten", OnColor = new FinderColor(93, 161, 183) });
+            ColorDict.Add(("Rare", "Low Frequency"), new ColorSettings { Label = "Low Freq", OnColor = new FinderColor(93, 161, 183), DialSteps = 3 });
+            ColorDict.Add(("Rare", "High Freqency"), new ColorSettings { Label = "High Freq", OnColor = new FinderColor(93, 161, 183), DialSteps = 6 });
+            ColorDict.Add(("Rare", "High Bandwidth"), new ColorSettings { Label = "Bandwidth", OnColor = new FinderColor(93, 161, 183) });
+            ColorDict.Add(("Rare", "High Atten Freqency"), new ColorSettings { Label = "Atten Sel", OnColor = new FinderColor(93, 161, 183), DialSteps = 2 });
+
+            ColorDict.Add(("LALA", "Bypass"), new ColorSettings { Label = "OFF", LabelOn = "ON", TextOnColor = new FinderColor(0, 0, 0), TextOffColor = new FinderColor(0, 0, 0), OnColor = new FinderColor(185, 182, 163) });
+            ColorDict.Add(("LALA", "Gain"), new ColorSettings { Label = "GAIN", OnColor = new FinderColor(185, 182, 163) });
+            ColorDict.Add(("LALA", "Peak Reduction"), new ColorSettings { Label = "REDUCTION", OnColor = new FinderColor(185, 182, 163) });
+            ColorDict.Add(("LALA", "Mode"), new ColorSettings { Label = "LIMIT", LabelOn = "COMP", TextOnColor = new FinderColor(0, 0, 0), 
+                                                                                                   TextOffColor = new FinderColor(0, 0, 0),
+                                                                                                   OnColor = new FinderColor(185, 182, 163),
+                                                                                                   OffColor = new FinderColor(185, 182, 163) });
+            ColorDict.Add(("LALA", "1:3"), new ColorSettings { Label = "MIX", OnColor = new FinderColor(185, 182, 163) });
+            ColorDict.Add(("LALA", "2:1"), new ColorSettings { Label = "HPF", OnColor = new FinderColor(185, 182, 163) });
+            ColorDict.Add(("LALA", "MF"), new ColorSettings { OnColor = new FinderColor(185, 182, 163) });
+            ColorDict.Add(("LALA", "MG"), new ColorSettings { OnColor = new FinderColor(185, 182, 163), Mode = ColorSettings.PotMode.Symmetric });
+            ColorDict.Add(("LALA", "HF"), new ColorSettings { OnColor = new FinderColor(185, 182, 163) });
+            ColorDict.Add(("LALA", "External Sidechain"), new ColorSettings { Label = "SIDECHAIN", OnColor = new FinderColor(185, 182, 163) });
+
+            ColorDict.Add(("FETish", ""), new ColorSettings { OnColor = new FinderColor(24, 86, 119) });
+            ColorDict.Add(("FETish", "Bypass"), new ColorSettings { Label = "IN", OnColor = new FinderColor(24, 86, 119) });
+            ColorDict.Add(("FETish", "Input"), new ColorSettings { Label = "INPUT", OnColor = new FinderColor(186, 175, 176) });
+            ColorDict.Add(("FETish", "Output"), new ColorSettings { Label = "OUTPUT", OnColor = new FinderColor(186, 175, 176) });
+            ColorDict.Add(("FETish", "Sidechain"), new ColorSettings { Label = "EXT", OnColor = new FinderColor(24, 86, 119) });
+            ColorDict.Add(("FETish", "Mid Frequency"), new ColorSettings { Label = "MF", OnColor = new FinderColor(24, 86, 119) });
+            ColorDict.Add(("FETish", "Mid Gain"), new ColorSettings { Label = "MG", OnColor = new FinderColor(24, 86, 119), Mode = ColorSettings.PotMode.Symmetric });
+
+            ColorDict.Add(("dBComp", ""), new ColorSettings { OnColor = new FinderColor(105, 99, 94) });
+            ColorDict.Add(("dBComp", "Output Gain"), new ColorSettings { Label = "Output", OnColor = new FinderColor(105, 99, 94) });
+            ColorDict.Add(("dBComp", "1:4U"), new ColorSettings { Label = "EXT SC", OnColor = new FinderColor(208, 207, 203), TextOnColor = FinderColor.Black });
+
+            ColorDict.Add(("BUSTERse", "Bypass"), new ColorSettings { Label = "MAIN", OnColor = new FinderColor(255, 254, 228), TextOnColor = FinderColor.Black });
+            ColorDict.Add(("BUSTERse", "Turbo"), new ColorSettings { Label = "TURBO", OnColor = new FinderColor(255, 254, 228), TextOnColor = FinderColor.Black });
+            ColorDict.Add(("BUSTERse", "XFormer"), new ColorSettings { Label = "XFORMER", OnColor = new FinderColor(255, 254, 228), TextOnColor = FinderColor.Black });
+            ColorDict.Add(("BUSTERse", "Threshold"), new ColorSettings { Label = "THRESH", OnColor = new FinderColor(174, 164, 167) });
+            ColorDict.Add(("BUSTERse", "Attack Time"), new ColorSettings { Label = "ATTACK", OnColor = new FinderColor(174, 164, 167), DialSteps = 5 });
+            ColorDict.Add(("BUSTERse", "Ratio"), new ColorSettings { Label = "RATIO", OnColor = new FinderColor(174, 164, 167), DialSteps = 5 });
+            ColorDict.Add(("BUSTERse", "Make-Up Gain"), new ColorSettings { Label = "MAKE-UP", OnColor = new FinderColor(174, 164, 167) });
+            ColorDict.Add(("BUSTERse", "Release Time"), new ColorSettings { Label = "RELEASE", OnColor = new FinderColor(174, 164, 167), DialSteps = 4 });
+            ColorDict.Add(("BUSTERse", "Compressor Mix"), new ColorSettings { Label = "MIX", OnColor = new FinderColor(174, 164, 167) });
+            ColorDict.Add(("BUSTERse", "External Sidechain"), new ColorSettings { Label = "EXT", OnColor = new FinderColor(255, 254, 228), TextOnColor = FinderColor.Black });
+            ColorDict.Add(("BUSTERse", "HF"), new ColorSettings { OnColor = new FinderColor(174, 164, 167) });
+            ColorDict.Add(("BUSTERse", "Mid Gain"), new ColorSettings { Label = "MID", OnColor = new FinderColor(174, 164, 167), Mode = ColorSettings.PotMode.Symmetric });
+            ColorDict.Add(("BUSTERse", "HPF"), new ColorSettings { OnColor = new FinderColor(174, 164, 167) });
+            ColorDict.Add(("BUSTERse", "Boost"), new ColorSettings { Label = "TR BOOST", OnColor = new FinderColor(174, 164, 167) });
+            ColorDict.Add(("BUSTERse", "Transient Tilt"), new ColorSettings { Label = "TR TILT", OnColor = new FinderColor(174, 164, 167), Mode = ColorSettings.PotMode.Symmetric });
+            ColorDict.Add(("BUSTERse", "Transient Mix"), new ColorSettings { Label = "TR MIX", OnColor = new FinderColor(174, 164, 167) });
+
+            ColorDict.Add(("BritChannel", ""), new ColorSettings { OnColor = new FinderColor(141, 134, 137), Mode = ColorSettings.PotMode.Symmetric });
+            ColorDict.Add(("BritChannel", "Bypass"), new ColorSettings { Label = "IN", OnColor = new FinderColor(241, 223, 219), TextOnColor = FinderColor.Black });
+            ColorDict.Add(("BritChannel", "Mic Pre"), new ColorSettings { Label = "MIC", OnColor = new FinderColor(241, 223, 219), TextOnColor = FinderColor.Black });
+            ColorDict.Add(("BritChannel", "Mid Freq"), new ColorSettings { OnColor = new FinderColor(141, 134, 137), DialSteps = 6 });
+            ColorDict.Add(("BritChannel", "Low Freq"), new ColorSettings { OnColor = new FinderColor(141, 134, 137), DialSteps = 4 });
+            ColorDict.Add(("BritChannel", "HighPass"), new ColorSettings { Label = "High Pass", OnColor = new FinderColor(49, 81, 119), DialSteps = 4 });
+            ColorDict.Add(("BritChannel", "Preamp Gain"), new ColorSettings { Label = "PRE GAIN", OnColor = new FinderColor(160, 53, 50), Mode = ColorSettings.PotMode.Symmetric });
+            ColorDict.Add(("BritChannel", "Output Trim"), new ColorSettings { Label = "OUT TRIM", OnColor = new FinderColor(124, 117, 115), Mode = ColorSettings.PotMode.Symmetric });
+
         }
     }
 }

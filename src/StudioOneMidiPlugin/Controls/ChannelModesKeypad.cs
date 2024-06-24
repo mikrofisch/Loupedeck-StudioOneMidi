@@ -207,6 +207,13 @@
                 this.EmitActionImageChanged();
             };
 
+            this.plugin.UserPageChanged += (Object sender, Int32 e) =>
+            {
+                // User mode changed
+                var umbd = this.buttonData[$"{(Int32)ButtonLayer.faderModesSend}:3"] as UserModeButtonData;
+                umbd.setUserPage(e);
+            };
+
             this.plugin.ChannelDataChanged += (Object sender, EventArgs e) =>
             {
                 this.EmitActionImageChanged();
@@ -261,13 +268,7 @@
 
         protected void OnNoteReceived(object sender, NoteOnEvent e)
         {
-            if (e.NoteNumber >= UserModeButtonData.BaseNote && e.NoteNumber < UserModeButtonData.BaseNote + UserModeButtonData.MaxUserPages)
-            {
-                // User mode changed
-                var umbd = this.buttonData[$"{(Int32)ButtonLayer.faderModesSend}:3"] as UserModeButtonData;
-                umbd.setUserPage(e.NoteNumber, e.Velocity > 0);
-            }
-            else if (this.noteReceivers.ContainsKey(e.NoteNumber))
+            if (this.noteReceivers.ContainsKey(e.NoteNumber))
             {
                 // Any other command button
                 var cbd = this.buttonData[this.noteReceivers[e.NoteNumber]] as CommandButtonData;

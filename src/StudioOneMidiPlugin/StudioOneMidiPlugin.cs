@@ -76,6 +76,11 @@ namespace Loupedeck.StudioOneMidiPlugin
         }
         public event EventHandler<UserButtonParams> UserButtonChanged;
 
+        public const Int32 MaxUserPages = 6;
+        private const Int32 UserPageMidiBase = 0x2B;
+        private Boolean[] UserModeActivated { get; set; } = new Boolean[MaxUserPages];
+        public event EventHandler<Int32> UserPageChanged;
+
         public enum AutomationMode
         {
             Off = 0,
@@ -156,7 +161,7 @@ namespace Loupedeck.StudioOneMidiPlugin
 				mackieMidiInName = value;
 				try {
 					mackieMidiIn = InputDevice.GetByName(value);
-					mackieMidiIn.EventReceived += OnMackieMidiEvent;
+					mackieMidiIn.EventReceived += OnMidiEvent;
 					mackieMidiIn.StartEventsListening();
 					SetPluginSetting("MackieMidiIn", value, false);
 				}
@@ -303,7 +308,7 @@ namespace Loupedeck.StudioOneMidiPlugin
             MackieMidiOutName = "Loupedeck S1 Out";
         }
 
-        private void OnMackieMidiEvent(object sender, MidiEventReceivedEventArgs args)
+        private void OnMidiEvent(object sender, MidiEventReceivedEventArgs args)
         {
             MidiEvent e = args.Event;
             // PitchBend -> faders
@@ -386,6 +391,24 @@ namespace Loupedeck.StudioOneMidiPlugin
                             this.CurrentRecPreMode = RecPreMode.Off;
                         }
                         CommandNoteReceived.Invoke(this, ce);
+                    }
+                    else if (ce.NoteNumber >= UserPageMidiBase && ce.NoteNumber < UserPageMidiBase + MaxUserPages)
+                    {
+                        // User page changed
+
+                        this.UserModeActivated[ce.NoteNumber - UserPageMidiBase] = ce.Velocity > 0;
+
+                        var userPage = 0;
+                        for (var i = 0; i < MaxUserPages; i++)
+                        {
+                            if (this.UserModeActivated[i])
+                            {
+                                userPage = i + 1;
+                                break;
+                            }
+                        }
+
+                        UserPageChanged.Invoke(this, userPage);
                     }
                     else
                     {
@@ -489,7 +512,7 @@ namespace Loupedeck.StudioOneMidiPlugin
                     this.SendMidiNote(0, SendsCommandButtonData.Note);
                     break;
                 case ChannelFaderMode.User:
-                    this.SendMidiNote(0, UserModeButtonData.BaseNote - 1 + userPage);
+                    this.SendMidiNote(0, UserPageMidiBase - 1 + userPage);
                     break;
             }
             this.CurrentChannelFaderMode = mode;

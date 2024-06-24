@@ -35,6 +35,7 @@
                 this.buttonData[e.channelIndex.ToString()].UserButtonActive = e.isActive;
                 this.EmitActionImageChanged();
             };
+            plugin.UserPageChanged += (object sender, Int32 e) => SelectButtonData.UserColorFinder.CurrentUserPage = e;
 
             this.plugin.ChannelDataChanged += (object sender, EventArgs e) => 
             {

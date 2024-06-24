@@ -44,7 +44,7 @@ class LoupedeckCTComponent extends LoupedeckSharedComponent {
     }
     onTrackFxButtonPressed(value) {
         if (!value) return;
-        getAllPropertyNames(Host.Objects.getObjectByUrl("://hostapp/DocumentManager/ActiveDocument/Environment/MixerConsole"));
+        // getAllPropertyNames(Host.Objects.getObjectByUrl("://hostapp/DocumentManager/ActiveDocument/Environment/MixerConsole"));
     }
 
     // onPanButtonPressed(value) {

@@ -172,11 +172,17 @@
 
             // Try partial match of plugin name.
             var partialMatchKeys = ColorDict.Keys.Where(currentKey => pluginName.Contains(currentKey.PluginName) && currentKey.PluginParameter == parameterName);
-
             if (partialMatchKeys.Count() > 0 && ColorDict.TryGetValue(partialMatchKeys.First(), out colorSettings))
             {
                 return colorSettings;
             }
+
+            partialMatchKeys = ColorDict.Keys.Where(currentKey => pluginName.Contains(currentKey.PluginName) && currentKey.PluginParameter == "");
+            if (partialMatchKeys.Count() > 0 && ColorDict.TryGetValue(partialMatchKeys.First(), out colorSettings))
+            {
+                return colorSettings;
+            }
+
 
             return this.DefaultColorSettings;
         }
@@ -397,7 +403,16 @@
             ColorDict.Add(("Sibilance", "Monitor"), new ColorSettings { OnColor = new FinderColor(0, 195, 230) });
             ColorDict.Add(("Sibilance", "Lookahead"), new ColorSettings { OnColor = new FinderColor(0, 195, 230) });
 
+            ColorDict.Add(("MondoMod", ""), new ColorSettings { OnColor = new FinderColor(102, 255, 51) });
+            ColorDict.Add(("MondoMod", "AM On/Off"), new ColorSettings { Label = "AM", LabelOn = "AM ON", OnColor = new FinderColor(102, 255, 51), TextOnColor = FinderColor.Black });
+            ColorDict.Add(("MondoMod", "FM On/Off"), new ColorSettings { Label = "FM", LabelOn = "FM ON", OnColor = new FinderColor(102, 255, 51), TextOnColor = FinderColor.Black });
+            ColorDict.Add(("MondoMod", "Pan On/Off"), new ColorSettings { Label = "Pan", LabelOn = "FM ON", OnColor = new FinderColor(102, 255, 51), TextOnColor = FinderColor.Black });
+            ColorDict.Add(("MondoMod", "Sync On/Off"), new ColorSettings { Label = "Manual", LabelOn = "Auto", OnColor = new FinderColor(181, 214, 165), TextOnColor = FinderColor.Black });
+            ColorDict.Add(("MondoMod", "Waveform"), new ColorSettings { OnColor = new FinderColor(102, 255, 51), DialSteps = 4, HideValueBar = true });
+
+
             // Analog Obsession
+
             ColorDict.Add(("Rare", "Bypass"), new ColorSettings { Label = "IN", OnColor = new FinderColor(191, 0, 22) });
             ColorDict.Add(("Rare", "Low Boost"), new ColorSettings { Label = "Low Boost", OnColor = new FinderColor(93, 161, 183) });
             ColorDict.Add(("Rare", "Low Atten"), new ColorSettings { Label = "Low Atten", OnColor = new FinderColor(93, 161, 183) });

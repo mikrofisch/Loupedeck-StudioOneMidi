@@ -187,29 +187,31 @@
             }
 
             var valueColor = BitmapColor.White;
-            if (isVolume)
+            var valBarColor = UserColorFinder.getOnColor(this.PluginName, cd.Label);
+            var linkedParameter = UserColorFinder.getLinkedParameter(this.PluginName, cd.Label);
+
+            if (linkedParameter != null)
             {
-                var volBarColor = UserColorFinder.getOnColor(this.PluginName, cd.Label);
-
-                var linkedParameter = UserColorFinder.getLinkedParameter(this.PluginName, cd.Label);
-                if (linkedParameter != null)
+                var isActive = false;
+                foreach (UserButtonParams ubp in UserButtonInfo)
                 {
-                    var isActive = false;
-                    foreach (UserButtonParams ubp in UserButtonInfo)
+                    if (ubp != null && ubp.userLabel == linkedParameter)
                     {
-                        if (ubp != null && ubp.userLabel == linkedParameter)
-                        {
-                            isActive = ubp.isActive;
-                            break;
-                        }
-                    }
-
-                    if (isActive == UserColorFinder.getLinkReversed(this.PluginName, cd.Label))
-                    {
-                        valueColor = new BitmapColor(70, 70, 70);
-                        volBarColor = UserColorFinder.getOffColor(this.PluginName, cd.Label);
+                        isActive = ubp.isActive;
+                        break;
                     }
                 }
+
+                if (isActive == UserColorFinder.getLinkReversed(this.PluginName, cd.Label))
+                {
+                    valueColor = new BitmapColor(70, 70, 70);
+                    valBarColor = UserColorFinder.getOffColor(this.PluginName, cd.Label);
+                }
+            }
+            if (UserColorFinder.hideValueBar(this.PluginName, cd.Label)) valBarColor = BitmapColor.Transparent;
+
+            if (isVolume)
+            {
                 var volBarH = (Int32)Math.Ceiling(cd.Value * bb.Height);
                 var volBarY = bb.Height - volBarH;
                 if (UserColorFinder.getMode(this.PluginName, cd.Label) == ColorFinder.ColorSettings.PotMode.Symmetric)
@@ -221,7 +223,7 @@
                 {
                     bb.DrawImage(IconVolume, 0, 0);
                 }
-                bb.FillRectangle(volBarX, volBarY, sideBarW, volBarH, volBarColor);
+                bb.FillRectangle(volBarX, volBarY, sideBarW, volBarH, valBarColor);
             }
             else
             {
@@ -234,7 +236,7 @@
                 }
                 if (!cd.ValueStr.IsNullOrEmpty())
                 {
-                    bb.FillRectangle(panBarX, 0, panBarW, piH, new BitmapColor(60, 192, 232));
+                    bb.FillRectangle(panBarX, 0, panBarW, piH, valBarColor);
                 }
             }
 

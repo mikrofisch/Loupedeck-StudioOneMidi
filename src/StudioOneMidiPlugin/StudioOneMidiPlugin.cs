@@ -455,19 +455,25 @@ namespace Loupedeck.StudioOneMidiPlugin
                     {
                         case 0: // Label
                             cd.Label = receivedString;
+                            this.EmitChannelDataChanged();
                             break;
                         case 1: // Value
                             cd.ValueStr = receivedString;
+                            this.EmitChannelDataChanged();
                             break;
                         case 2: // Description
                             cd.Description = receivedString;
+                            this.EmitChannelDataChanged();
                             break;
                         case 3: // User Button Label
                             cd.UserLabel = receivedString;
+                            var ubp = new UserButtonParams();
+                            ubp.channelIndex = displayIndex;
+                            ubp.isActive = cd.UserActive;
+                            ubp.userLabel = cd.UserLabel;
+                            UserButtonChanged.Invoke(this, ubp);
                             break;
                     }
-
-                    this.EmitChannelDataChanged();
                 }
                 // Focus channel name
                 else if (ce.Data.Length > 5 && ce.Data[4] == 0x13)

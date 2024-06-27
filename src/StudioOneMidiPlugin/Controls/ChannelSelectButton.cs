@@ -32,10 +32,20 @@
 
             this.plugin.UserButtonChanged += (object sender, UserButtonParams e) =>
             {
-                this.buttonData[e.channelIndex.ToString()].UserButtonActive = e.isActive;
+                var bd = this.buttonData[e.channelIndex.ToString()];
+                bd.UserButtonActive = e.isActive;
+                bd.UserLabel = e.userLabel;
+
+                foreach (var sbd in this.buttonData.Values)
+                {
+                    if (SelectButtonData.UserColorFinder.getLinkedParameter(SelectButtonData.PluginName, sbd.UserLabel) == e.userLabel)
+                    {
+                        sbd.UserButtonEnabled = SelectButtonData.UserColorFinder.getLinkReversed(SelectButtonData.PluginName, sbd.UserLabel) ? !e.isActive : e.isActive;
+                    }
+                }
                 this.EmitActionImageChanged();
             };
-            plugin.UserPageChanged += (object sender, Int32 e) => SelectButtonData.UserColorFinder.CurrentUserPage = e;
+            this.plugin.UserPageChanged += (object sender, Int32 e) => SelectButtonData.UserColorFinder.CurrentUserPage = e;
 
             this.plugin.ChannelDataChanged += (object sender, EventArgs e) => 
             {

@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Reflection.Emit;
     using System.Text.RegularExpressions;
 
     // BitmapColor objects that have not been explicitly assigned to a
@@ -53,6 +54,8 @@
             public Boolean LinkReversed = false;
             public Int32 DialSteps = 100;                // Number of steps for a mode dial
 
+            public String[] MenuItems;
+
             // For plugin settings
             public const String strOnColor = "OnColor";
             public const String strLabel = "Label";
@@ -64,6 +67,9 @@
         }
         private static readonly Dictionary<(String PluginName, String PluginParameter), ColorSettings> ColorDict = new Dictionary<(String, String), ColorSettings>();
         private const String strColorSettingsID = "[cs]";  // for plugin settings
+
+        private String LastPluginName, LastPluginParameter;
+        private ColorSettings LastColorSettings;
 
         public Int32 CurrentUserPage = 0;              // For tracking the current user page position
         public Int32 CurrentChannel = 0;
@@ -143,7 +149,10 @@
                 }
             }
         }
-        private void addLinked(String pluginName, String parameterName, String linkedParameter, String label = null, ColorSettings.PotMode mode = ColorSettings.PotMode.Positive)
+        private void addLinked(String pluginName, String parameterName, String linkedParameter, 
+                               String label = null, 
+                               ColorSettings.PotMode mode = ColorSettings.PotMode.Positive,
+                               Boolean linkReversed = false)
         {
             if (label == null) label = parameterName;
             var colorSettings = ColorDict[(pluginName, linkedParameter)];
@@ -153,12 +162,23 @@
                                                                            TextOnColor = colorSettings.TextOnColor,
                                                                            TextOffColor = colorSettings.TextOffColor,
                                                                            Label = label,
-                                                                           LinkedParameter = linkedParameter
+                                                                           LinkedParameter = linkedParameter,
+                                                                           LinkReversed = linkReversed
                                                                          });
+        }
+
+        private ColorSettings saveLastSettings(ColorSettings colorSettings)
+        {
+            this.LastColorSettings = colorSettings;
+            return colorSettings;
         }
         public ColorSettings getColorSettings(String pluginName, String parameterName, Boolean isUser)
         {
             if (pluginName == null || parameterName == null) return this.DefaultColorSettings;
+            if (this.LastColorSettings != null && pluginName == this.LastPluginName && parameterName == this.LastPluginParameter) return this.LastColorSettings;
+
+            this.LastPluginName = pluginName;
+            this.LastPluginParameter = parameterName;
 
             var userPagePos = $"{this.CurrentUserPage}:{this.CurrentChannel}" + (isUser ? "U" : "");
 
@@ -167,24 +187,24 @@
                 ColorDict.TryGetValue((pluginName, ""), out colorSettings) || 
                 ColorDict.TryGetValue(("", parameterName), out colorSettings))
             {
-                return colorSettings;
+                return this.saveLastSettings(colorSettings);
             }
 
             // Try partial match of plugin name.
-            var partialMatchKeys = ColorDict.Keys.Where(currentKey => pluginName.Contains(currentKey.PluginName) && currentKey.PluginParameter == parameterName);
+            var partialMatchKeys = ColorDict.Keys.Where(currentKey => pluginName.StartsWith(currentKey.PluginName) && currentKey.PluginParameter == parameterName);
             if (partialMatchKeys.Count() > 0 && ColorDict.TryGetValue(partialMatchKeys.First(), out colorSettings))
             {
-                return colorSettings;
+                return this.saveLastSettings(colorSettings);
             }
 
             partialMatchKeys = ColorDict.Keys.Where(currentKey => pluginName.Contains(currentKey.PluginName) && currentKey.PluginParameter == "");
             if (partialMatchKeys.Count() > 0 && ColorDict.TryGetValue(partialMatchKeys.First(), out colorSettings))
             {
-                return colorSettings;
+                return this.saveLastSettings(colorSettings);
             }
 
 
-            return this.DefaultColorSettings;
+            return this.saveLastSettings(this.DefaultColorSettings);
         }
 
         private BitmapColor findColor(FinderColor settingsColor, BitmapColor defaultColor) => settingsColor ?? defaultColor;
@@ -333,6 +353,12 @@
             ColorDict.Add(("Compressor", "Sidechain Listen"), new ColorSettings { Label = "Listen" });
             ColorDict.Add(("Compressor", "Swap Frequencies"), new ColorSettings { Label = "Swap" });
 
+            ColorDict.Add(("Limiter", "Mode "), new ColorSettings { Label = "A", LabelOn = "B", OnColor = new FinderColor(40, 40, 40), OffColor = new FinderColor(40, 40, 40),
+                                                                   TextOnColor = new FinderColor(171, 197, 226), TextOffColor = new FinderColor(171, 197, 226) });
+            ColorDict.Add(("Limiter", "True Peak Limiting"), new S1TopControlColors(label: "True Peak"));
+            this.addLinked("Limiter", "SoftClipper", "True Peak Limiting", label: " Soft Clip", linkReversed: true);
+            ColorDict.Add(("Limiter", "Attack"), new ColorSettings { DialSteps = 2, HideValueBar = true } );
+
             ColorDict.Add(("Flanger", ""), new ColorSettings { OnColor = new FinderColor(238, 204, 103) });
             ColorDict.Add(("Flanger", "Feedback"), new ColorSettings { OnColor = new FinderColor(238, 204, 103), Mode = ColorSettings.PotMode.Symmetric });
             ColorDict.Add(("Flanger", "LFO Sync"), new ColorSettings { OnColor = new FinderColor(188, 198, 206), TextOnColor = FinderColor.Black });
@@ -348,6 +374,7 @@
             ColorDict.Add(("Phaser", "Soft"), new ColorSettings { OnColor = new FinderColor(188, 198, 206), TextOnColor = FinderColor.Black });
 
             // Waves
+
             ColorDict.Add(("SSLGChannel", "HP Frq"), new ColorSettings { OnColor = new FinderColor(220, 216, 207) });
             ColorDict.Add(("SSLGChannel", "LP Frq"), new ColorSettings { OnColor = new FinderColor(220, 216, 207) });
             ColorDict.Add(("SSLGChannel", "FilterSplit"), new ColorSettings { OnColor = new FinderColor(204, 191, 46), Label = "SPLIT" });
@@ -388,6 +415,28 @@
             ColorDict.Add(("RCompressor", "Electro / Opto"), new ColorSettings { Label = "Electro", LabelOn = "Opto", TextOnColor = new FinderColor(0, 0, 0), TextOffColor = new FinderColor(0, 0, 0) });
             ColorDict.Add(("RCompressor", "Warm / Smooth"), new ColorSettings { Label = "Warm", LabelOn = "Smooth", TextOnColor = new FinderColor(0, 0, 0), TextOffColor = new FinderColor(0, 0, 0) });
 
+            ColorDict.Add(("RBass", "Orig. In-Out"), new ColorSettings { Label = "ORIG IN", OffColor = new FinderColor(230, 230, 230), TextOnColor = FinderColor.Black  });
+            ColorDict.Add(("RBass", "Intensity"), new ColorSettings { OnColor = new FinderColor(243, 132, 1), Mode = ColorSettings.PotMode.Symmetric });
+            ColorDict.Add(("RBass", "Frequency"), new ColorSettings { OnColor = new FinderColor(243, 132, 1) });
+            ColorDict.Add(("RBass", "Out Gain"), new ColorSettings { Label = "Gain", OnColor = new FinderColor(243, 132, 1) });
+
+            ColorDict.Add(("L1 limiter", "Threshold"), new ColorSettings { OnColor = new FinderColor(243, 132, 1) });
+            ColorDict.Add(("L1 limiter", "Ceiling"), new ColorSettings { OnColor = new FinderColor(255, 172, 66) });
+            ColorDict.Add(("L1 limiter", "Release"), new ColorSettings { OnColor = new FinderColor(54, 206, 206) });
+            ColorDict.Add(("L1 limiter", "Auto Release"), new ColorSettings { Label = "AUTO", OnColor = new FinderColor(54, 206, 206) });
+
+            ColorDict.Add(("PuigTec EQP1A", "OnOff"), new ColorSettings { Label = "IN", OnColor = new FinderColor(203, 53, 53) });
+            ColorDict.Add(("PuigTec EQP1A", "LowBoost"), new ColorSettings { Label = "Low Boost", OnColor = new FinderColor(96, 116, 115) });
+            ColorDict.Add(("PuigTec EQP1A", "LowAtten"), new ColorSettings { Label = "Low Atten", OnColor = new FinderColor(96, 116, 115) });
+            ColorDict.Add(("PuigTec EQP1A", "HiBoost"), new ColorSettings { Label = "High Boost", OnColor = new FinderColor(96, 116, 115) });
+            ColorDict.Add(("PuigTec EQP1A", "HiAtten"), new ColorSettings { Label = "High Atten", OnColor = new FinderColor(96, 116, 115) });
+            ColorDict.Add(("PuigTec EQP1A", "LowFrequency"), new ColorSettings { Label = "Low Freq", OnColor = new FinderColor(96, 116, 115), DialSteps = 3 });
+            ColorDict.Add(("PuigTec EQP1A", "HiFrequency"), new ColorSettings { Label = "High Freq", OnColor = new FinderColor(96, 116, 115), DialSteps = 6 });
+            ColorDict.Add(("PuigTec EQP1A", "Bandwidth"), new ColorSettings { Label = "Bandwidth", OnColor = new FinderColor(96, 116, 115) });
+            ColorDict.Add(("PuigTec EQP1A", "AttenSelect"), new ColorSettings { Label = "Atten Sel", OnColor = new FinderColor(96, 116, 115), DialSteps = 2 });
+            ColorDict.Add(("PuigTec EQP1A", "Mains"), new ColorSettings { OnColor = new FinderColor(96, 116, 115), DialSteps = 2 });
+            ColorDict.Add(("PuigTec EQP1A", "Gain"), new ColorSettings { OnColor = new FinderColor(96, 116, 115), Mode = ColorSettings.PotMode.Symmetric });
+
             ColorDict.Add(("Smack Attack", "Attack"), new ColorSettings { OnColor = new FinderColor(9, 217, 179), Mode = ColorSettings.PotMode.Symmetric });
             ColorDict.Add(("Smack Attack", "AttackSensitivity"), new ColorSettings { Label = "Sensitivity", OnColor = new FinderColor(9, 217, 179) });
             ColorDict.Add(("Smack Attack", "AttackDuration"), new ColorSettings { Label = "Duration", OnColor = new FinderColor(9, 217, 179) });
@@ -409,6 +458,26 @@
             ColorDict.Add(("MondoMod", "Pan On/Off"), new ColorSettings { Label = "Pan", LabelOn = "FM ON", OnColor = new FinderColor(102, 255, 51), TextOnColor = FinderColor.Black });
             ColorDict.Add(("MondoMod", "Sync On/Off"), new ColorSettings { Label = "Manual", LabelOn = "Auto", OnColor = new FinderColor(181, 214, 165), TextOnColor = FinderColor.Black });
             ColorDict.Add(("MondoMod", "Waveform"), new ColorSettings { OnColor = new FinderColor(102, 255, 51), DialSteps = 4, HideValueBar = true });
+
+            ColorDict.Add(("LoAir", "LoAir"), new ColorSettings { Mode = ColorSettings.PotMode.Symmetric });
+            ColorDict.Add(("LoAir", "Lo"), new ColorSettings { Mode = ColorSettings.PotMode.Symmetric });
+            ColorDict.Add(("LoAir", "Align"), new ColorSettings { OnColor = new FinderColor(206, 175, 43), TextOnColor = FinderColor.Black });
+
+            ColorDict.Add(("CLA Unplugged", "Bass Color"), new ColorSettings { MenuItems = [ "OFF", "SUB", "LOWER", "UPPER" ] });
+            ColorDict.Add(("CLA Unplugged", "Bass"), new ColorSettings { OnColor = new FinderColor(210, 209, 96), Mode = ColorSettings.PotMode.Symmetric });
+            ColorDict.Add(("CLA Unplugged", "Treble"), new ColorSettings { OnColor = new FinderColor(210, 209, 96), Mode = ColorSettings.PotMode.Symmetric });
+            ColorDict.Add(("CLA Unplugged", "Compress"), new ColorSettings { OnColor = new FinderColor(210, 209, 96), Mode = ColorSettings.PotMode.Symmetric });
+            ColorDict.Add(("CLA Unplugged", "Reverb 1"), new ColorSettings { OnColor = new FinderColor(210, 209, 96), Mode = ColorSettings.PotMode.Symmetric });
+            ColorDict.Add(("CLA Unplugged", "Reverb 2"), new ColorSettings { OnColor = new FinderColor(210, 209, 96), Mode = ColorSettings.PotMode.Symmetric });
+            ColorDict.Add(("CLA Unplugged", "Delay"), new ColorSettings { OnColor = new FinderColor(210, 209, 96), Mode = ColorSettings.PotMode.Symmetric });
+            ColorDict.Add(("CLA Unplugged", "Sensitivity"), new ColorSettings { Label = "Input Sens", OnColor = new FinderColor(210, 209, 96), Mode = ColorSettings.PotMode.Symmetric });
+            ColorDict.Add(("CLA Unplugged", "Output"), new ColorSettings { OnColor = new FinderColor(210, 209, 96), Mode = ColorSettings.PotMode.Symmetric });
+            ColorDict.Add(("CLA Unplugged", "PreDelay 1"), new ColorSettings { Label = "Pre Rvrb 1", OnColor = new FinderColor(210, 209, 96), DialSteps = 13 });
+            ColorDict.Add(("CLA Unplugged", "PreDelay 2"), new ColorSettings { Label = "Pre Rvrb 2", OnColor = new FinderColor(210, 209, 96), DialSteps = 13 });
+            ColorDict.Add(("CLA Unplugged", "PreDelay 1 On"), new ColorSettings { Label = "OFF", LabelOn = "ON", OnColor = new FinderColor(210, 209, 96), TextOnColor = FinderColor.Black });
+            ColorDict.Add(("CLA Unplugged", "PreDelay 2 On"), new ColorSettings { Label = "OFF", LabelOn = "ON", OnColor = new FinderColor(210, 209, 96), TextOnColor = FinderColor.Black });
+            ColorDict.Add(("CLA Unplugged", "Direct"), new ColorSettings { OnColor = new FinderColor(80, 80, 80), OffColor = new FinderColor(240, 228, 87),
+                                                                           TextOnColor = FinderColor.Black, TextOffColor = FinderColor.Black });
 
 
             // Analog Obsession
@@ -441,6 +510,7 @@
             ColorDict.Add(("FETish", "Bypass"), new ColorSettings { Label = "IN", OnColor = new FinderColor(24, 86, 119) });
             ColorDict.Add(("FETish", "Input"), new ColorSettings { Label = "INPUT", OnColor = new FinderColor(186, 175, 176) });
             ColorDict.Add(("FETish", "Output"), new ColorSettings { Label = "OUTPUT", OnColor = new FinderColor(186, 175, 176) });
+            ColorDict.Add(("FETish", "Ratio"), new ColorSettings { OnColor = new FinderColor(186, 175, 176), DialSteps = 16 });
             ColorDict.Add(("FETish", "Sidechain"), new ColorSettings { Label = "EXT", OnColor = new FinderColor(24, 86, 119) });
             ColorDict.Add(("FETish", "Mid Frequency"), new ColorSettings { Label = "MF", OnColor = new FinderColor(24, 86, 119) });
             ColorDict.Add(("FETish", "Mid Gain"), new ColorSettings { Label = "MG", OnColor = new FinderColor(24, 86, 119), Mode = ColorSettings.PotMode.Symmetric });
@@ -475,6 +545,16 @@
             ColorDict.Add(("BritChannel", "Preamp Gain"), new ColorSettings { Label = "PRE GAIN", OnColor = new FinderColor(160, 53, 50), Mode = ColorSettings.PotMode.Symmetric });
             ColorDict.Add(("BritChannel", "Output Trim"), new ColorSettings { Label = "OUT TRIM", OnColor = new FinderColor(124, 117, 115), Mode = ColorSettings.PotMode.Symmetric });
 
+            // Acon Digital
+
+            ColorDict.Add(("Acon Digital Equalize 2", "Solo 1"), new ColorSettings { OnColor = new FinderColor(230, 159, 0), TextOnColor = FinderColor.Black });
+            ColorDict.Add(("Acon Digital Equalize 2", "Bypass 1"), new ColorSettings { OnColor = new FinderColor(230, 159, 0), TextOnColor = FinderColor.Black });
+            ColorDict.Add(("Acon Digital Equalize 2", "Frequency 1"), new ColorSettings { OnColor = new FinderColor(221, 125, 125) });
+            ColorDict.Add(("Acon Digital Equalize 2", "Gain 1"), new ColorSettings { OnColor = new FinderColor(221, 125, 125) });
+            ColorDict.Add(("Acon Digital Equalize 2", "Filter type 1"), new ColorSettings { Label = "Filter 1", OnColor = new FinderColor(221, 125, 125), DialSteps = 7, HideValueBar = true });
+            ColorDict.Add(("Acon Digital Equalize 2", "Band width 1"), new ColorSettings { Label = "Bandwidth 1", OnColor = new FinderColor(221, 125, 125) });
+            ColorDict.Add(("Acon Digital Equalize 2", "Slope 1"), new ColorSettings { OnColor = new FinderColor(221, 125, 125) });
+            ColorDict.Add(("Acon Digital Equalize 2", "Resonance 1"), new ColorSettings { OnColor = new FinderColor(221, 125, 125) });
         }
     }
 }

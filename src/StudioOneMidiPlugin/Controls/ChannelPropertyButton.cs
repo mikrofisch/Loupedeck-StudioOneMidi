@@ -143,7 +143,7 @@
                                                   this.plugin.channelData[channelIndex.ToString()],
                                                   StudioOneMidiPlugin.SelectButtonMode.Select,
                                                   false,
-                                                  (ChannelProperty.PropertyType) controlProperty);
+                                                  commandProperty: (ChannelProperty.PropertyType) controlProperty);
             }
         }
 

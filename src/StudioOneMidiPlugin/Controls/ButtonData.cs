@@ -180,12 +180,14 @@
     public class SelectButtonData : ButtonData
     {
         public SelectButtonMode CurrentMode = SelectButtonMode.Select;
-        public bool UserButtonActive = false;
+        public Boolean UserButtonActive = false;
+        public Boolean UserButtonEnabled = true;
         public static ChannelProperty.PropertyType SelectionPropertyType = ChannelProperty.PropertyType.Select;
 
-        private Int32 ChannelIndex = -1;
+        private readonly Int32 ChannelIndex = -1;
+        public String UserLabel { get; set; }
 
-        private const int TitleHeight = 24;
+        private const Int32 TitleHeight = 24;
         private static BitmapImage IconSelMon, IconSelRec;
         private static readonly BitmapColor CommandPropertyColor = new BitmapColor(40, 40, 40);
         public static readonly BitmapColor TextDescColor = new BitmapColor(175, 175, 175);
@@ -203,7 +205,7 @@
             TextOffColor = FinderColor.Black
         });
 
-        public SelectButtonData(int channelIndex)
+        public SelectButtonData(Int32 channelIndex)
         {
             this.ChannelIndex = channelIndex;
         }
@@ -224,13 +226,14 @@
 
             var bb = new BitmapBuilder(imageSize);
 
-            return SelectButtonData.drawImage(bb, cd, this.CurrentMode, this.UserButtonActive, SelectionPropertyType, PluginName);
+            return SelectButtonData.drawImage(bb, cd, this.CurrentMode, this.UserButtonActive, this.UserButtonEnabled, SelectionPropertyType, PluginName);
         }
 
         public static BitmapImage drawImage(BitmapBuilder bb,
                                             MackieChannelData cd,
                                             SelectButtonMode buttonMode,
                                             Boolean userButtonActive,
+                                            Boolean userButtonEnabled = true,
                                             ChannelProperty.PropertyType commandProperty = ChannelProperty.PropertyType.Select,
                                             String pluginName = "")
         {
@@ -266,10 +269,12 @@
                 var drawCircle = cd.UserLabel.Length > 0 && UserColorFinder.showUserButtonCircle(pluginName, cd.UserLabel);
                 var tx = 0;
                 var tw = bb.Width;
-                var tc = userButtonActive ? drawCircle ? UserColorFinder.getOnColor(pluginName, cd.UserLabel, isUser: true)
-                                                       : UserColorFinder.getTextOnColor(pluginName, cd.UserLabel, isUser: true)
-                                          : UserColorFinder.getTextOffColor(pluginName, cd.UserLabel, isUser: true);
-                var bc = cd.UserLabel.Length > 0 || UserColorFinder.getLabel(pluginName, cd.UserLabel, isUser: true).Length > 0 ? userButtonActive ? UserColorFinder.getOnColor(pluginName, cd.UserLabel, isUser: true)
+                var tc = userButtonEnabled ? userButtonActive ? drawCircle ? UserColorFinder.getOnColor(pluginName, cd.UserLabel, isUser: true)
+                                                                           : UserColorFinder.getTextOnColor(pluginName, cd.UserLabel, isUser: true)
+                                                              : UserColorFinder.getTextOffColor(pluginName, cd.UserLabel, isUser: true)
+                                           : BitmapColor.Black;
+                var bc = (cd.UserLabel.Length > 0 || UserColorFinder.getLabel(pluginName, cd.UserLabel, isUser: true).Length > 0)
+                         && userButtonEnabled ? userButtonActive ? UserColorFinder.getOnColor(pluginName, cd.UserLabel, isUser: true)
                                                                     : UserColorFinder.getOffColor(pluginName, cd.UserLabel, isUser: true)
                                                  : BgColorUnassigned;
                 bb.FillRectangle(0, uby, bb.Width, ubh, drawCircle ? BgColorUserCircle : bc);

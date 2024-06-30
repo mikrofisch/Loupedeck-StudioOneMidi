@@ -121,6 +121,23 @@
 		<Control name="editTool6"                   type="trigger" options="receive"> <MidiMessage status="#90" address="#09" channel="15"/> </Control>
 		<Control name="editTool7"                   type="trigger" options="receive"> <MidiMessage status="#90" address="#0A" channel="15"/> </Control>
 		<Control name="editTool8"                   type="trigger" options="receive"> <MidiMessage status="#90" address="#0B" channel="15"/> </Control>
+		<Control name="zoomIn"                      type="trigger" options="receive"> <MidiMessage status="#90" address="#20" channel="15"/> </Control>
+		<Control name="zoomInFine"                  type="trigger" options="receive"> <MidiMessage status="#90" address="#21" channel="15"/> </Control>
+		<Control name="zoomOut"                     type="trigger" options="receive"> <MidiMessage status="#90" address="#22" channel="15"/> </Control>
+		<Control name="zoomOutFine"                 type="trigger" options="receive"> <MidiMessage status="#90" address="#23" channel="15"/> </Control>
+		<Control name="zoomInVertical"              type="trigger" options="receive"> <MidiMessage status="#90" address="#24" channel="15"/> </Control>
+		<Control name="zoomInVerticalFine"          type="trigger" options="receive"> <MidiMessage status="#90" address="#25" channel="15"/> </Control>
+		<Control name="zoomOutVertical"             type="trigger" options="receive"> <MidiMessage status="#90" address="#26" channel="15"/> </Control>
+		<Control name="zoomOutVerticalFine"         type="trigger" options="receive"> <MidiMessage status="#90" address="#27" channel="15"/> </Control>
+		<Control name="zoomUndo"                    type="trigger" options="receive"> <MidiMessage status="#90" address="#28" channel="15"/> </Control>
+		<Control name="zoomRedo"                    type="trigger" options="receive"> <MidiMessage status="#90" address="#29" channel="15"/> </Control>
+		<Control name="zoomToggle"                  type="trigger" options="receive"> <MidiMessage status="#90" address="#2A" channel="15"/> </Control>
+		<Control name="zoomFull"                    type="trigger" options="receive"> <MidiMessage status="#90" address="#2B" channel="15"/> </Control>
+		<Control name="zoomSelectedTrack"           type="trigger" options="receive"> <MidiMessage status="#90" address="#2C" channel="15"/> </Control>
+		<Control name="zoomLoop"                    type="trigger" options="receive"> <MidiMessage status="#90" address="#2D" channel="15"/> </Control>
+		<Control name="zoomToSelection"             type="trigger" options="receive"> <MidiMessage status="#90" address="#2E" channel="15"/> </Control>
+		<Control name="zoomToSelectionHorizontally" type="trigger" options="receive"> <MidiMessage status="#90" address="#2F" channel="15"/> </Control>
+
 
 	</Controls>
 
@@ -245,6 +262,22 @@
 			<Command control="editTool6"                     command.category="Toolbar"    command.name="Tool 6"/>
 			<Command control="editTool7"                     command.category="Toolbar"    command.name="Tool 7"/>
 			<Command control="editTool8"                     command.category="Toolbar"    command.name="Tool 8"/>
+			<Command control="zoomIn"                        command.category="Zoom"       command.name="Zoom In"/>
+			<Command control="zoomInFine"                    command.category="Zoom"       command.name="Zoom In Fine"/>
+			<Command control="zoomOut"                       command.category="Zoom"       command.name="Zoom Out"/>
+			<Command control="zoomOutFine"                   command.category="Zoom"       command.name="Zoom Out Fine"/>
+			<Command control="zoomInVertical"                command.category="Zoom"       command.name="Zoom In Vertical"/>
+			<Command control="zoomInVerticalFine"            command.category="Zoom"       command.name="Zoom In Vertical Fine"/>
+			<Command control="zoomOutVertical"               command.category="Zoom"       command.name="Zoom Out Vertical"/>
+			<Command control="zoomOutVerticalFine"           command.category="Zoom"       command.name="Zoom Out Vertical Fine"/>
+			<Command control="zoomUndo"                      command.category="Zoom"       command.name="Undo Zoom"/>
+			<Command control="zoomRedo"                      command.category="Zoom"       command.name="Redo Zoom"/>
+			<Command control="zoomToggle"                    command.category="Zoom"       command.name="Toggle Zoom"/>
+			<Command control="zoomFull"                      command.category="Zoom"       command.name="Zoom Full"/>
+			<Command control="zoomSelectedTrack"             command.category="Zoom"       command.name="Zoom Selected Track"/>
+			<Command control="zoomLoop"                      command.category="Zoom"       command.name="Zoom to Loop"/>
+			<Command control="zoomToSelection"               command.category="Zoom"       command.name="Zoom to Selection"/>
+			<Command control="zoomToSelectionHorizontally"   command.category="Zoom"       command.name="Zoom to Selection Horizontally"/>
 
 		</Template>
     </Templates>

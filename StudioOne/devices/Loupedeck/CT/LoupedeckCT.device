@@ -22,4 +22,6 @@
 
 	skinFile="skin/"
 	formName="LoupedeckCt"
+	
+	hostDataFile="LoupedeckCT.surfacedata"
 />

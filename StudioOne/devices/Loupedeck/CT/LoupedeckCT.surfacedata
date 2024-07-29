@@ -222,6 +222,43 @@
 			</SurfaceAssignmentPage>
 		</List>
 	</SurfaceDeviceAssignment>
+	<SurfaceDeviceAssignment deviceID="{56535453-4347-5373-736C-676368616E6E}" friendlyName="Waves SSLGChannel Stereo">
+		<List x:id="pages">
+			<SurfaceAssignmentPage>
+				<Association key="vpot[0][3]" value="{56535453-4347-5373-736C-676368616E6E}/vstp16"/>
+				<Association key="vpot[0][0]" value="{56535453-4347-5373-736C-676368616E6E}/vstp15"/>
+				<Association key="vbut[0][0]" value="{56535453-4347-5373-736C-676368616E6E}/vstp14"/>
+				<Association key="vpot[0][1]" value="{56535453-4347-5373-736C-676368616E6E}/vstp27"/>
+				<Association key="vpot[0][2]" value="{56535453-4347-5373-736C-676368616E6E}/vstp28"/>
+				<Association key="vpot[0][4]" value="{56535453-4347-5373-736C-676368616E6E}/vstp17"/>
+				<Association key="vpot[0][5]" value="{56535453-4347-5373-736C-676368616E6E}/vstp18"/>
+				<Association key="vbut[0][1]" value="{56535453-4347-5373-736C-676368616E6E}/vstp26"/>
+				<Association key="vbut[0][4]" value="{56535453-4347-5373-736C-676368616E6E}/vstp19"/>
+				<Association key="vpot[1][0]" value="{56535453-4347-5373-736C-676368616E6E}/vstp23"/>
+				<Association key="vpot[1][1]" value="{56535453-4347-5373-736C-676368616E6E}/vstp24"/>
+				<Association key="vpot[1][2]" value="{56535453-4347-5373-736C-676368616E6E}/vstp25"/>
+				<Association key="vpot[1][3]" value="{56535453-4347-5373-736C-676368616E6E}/vstp20"/>
+				<Association key="vpot[1][4]" value="{56535453-4347-5373-736C-676368616E6E}/vstp21"/>
+				<Association key="vpot[1][5]" value="{56535453-4347-5373-736C-676368616E6E}/vstp22"/>
+				<Association key="vpot[2][0]" value="{56535453-4347-5373-736C-676368616E6E}/vstp2"/>
+				<Association key="vpot[2][1]" value="{56535453-4347-5373-736C-676368616E6E}/vstp1"/>
+				<Association key="vpot[2][2]" value="{56535453-4347-5373-736C-676368616E6E}/vstp4"/>
+				<Association key="vbut[2][2]" value="{56535453-4347-5373-736C-676368616E6E}/vstp3"/>
+				<Association key="vpot[2][3]" value="{56535453-4347-5373-736C-676368616E6E}/vstp8"/>
+				<Association key="vpot[2][4]" value="{56535453-4347-5373-736C-676368616E6E}/vstp7"/>
+				<Association key="vpot[2][5]" value="{56535453-4347-5373-736C-676368616E6E}/vstp6"/>
+				<Association key="vbut[2][5]" value="{56535453-4347-5373-736C-676368616E6E}/vstp5"/>
+				<Association key="vbut[2][3]" value="{56535453-4347-5373-736C-676368616E6E}/vstp9"/>
+				<Association key="vbut[1][1]" value="{56535453-4347-5373-736C-676368616E6E}/vstp10"/>
+				<Association key="vbut[1][4]" value="{56535453-4347-5373-736C-676368616E6E}/vstp11"/>
+				<Association key="vbut[1][5]" value="{56535453-4347-5373-736C-676368616E6E}/vstp0"/>
+				<Association key="vbut[2][1]" value="{56535453-4347-5373-736C-676368616E6E}/vstp12"/>
+				<Association key="vbut[2][4]" value="{56535453-4347-5373-736C-676368616E6E}/vstp13"/>
+				<Association key="U2" value="{56535453-4347-5373-736C-676368616E6E}/vstp12"/>
+				<Association key="U1" value="{56535453-4347-5373-736C-676368616E6E}/vstp10"/>
+			</SurfaceAssignmentPage>
+		</List>
+	</SurfaceDeviceAssignment>
 	<SurfaceDeviceAssignment deviceID="{54F19B72-352C-4AA5-A2AF-67F86F30D6BE}" friendlyName="Compressor">
 		<List x:id="pages">
 			<SurfaceAssignmentPage>

@@ -137,6 +137,33 @@
 		<Control name="zoomLoop"                    type="trigger" options="receive"> <MidiMessage status="#90" address="#2D" channel="15"/> </Control>
 		<Control name="zoomToSelection"             type="trigger" options="receive"> <MidiMessage status="#90" address="#2E" channel="15"/> </Control>
 		<Control name="zoomToSelectionHorizontally" type="trigger" options="receive"> <MidiMessage status="#90" address="#2F" channel="15"/> </Control>
+		<Control name="scenesShowConsole"           type="trigger" options="receive"> <MidiMessage status="#90" address="#30" channel="15"/> </Control>
+		<Control name="scenesShowTrackList"         type="trigger" options="receive"> <MidiMessage status="#90" address="#31" channel="15"/> </Control>
+		<Control name="sceneAdd"                    type="trigger" options="receive"> <MidiMessage status="#90" address="#32" channel="15"/> </Control>
+		<Control name="sceneRemove"                 type="trigger" options="receive"> <MidiMessage status="#90" address="#33" channel="15"/> </Control>
+		<Control name="sceneRename"                 type="trigger" options="receive"> <MidiMessage status="#90" address="#34" channel="15"/> </Control>
+		<Control name="sceneUpdate"                 type="trigger" options="receive"> <MidiMessage status="#90" address="#35" channel="15"/> </Control>
+		<Control name="scenePrevious"               type="trigger" options="receive"> <MidiMessage status="#90" address="#36" channel="15"/> </Control>
+		<Control name="sceneNext"                   type="trigger" options="receive"> <MidiMessage status="#90" address="#37" channel="15"/> </Control>
+		<Control name="sceneSelect1"                type="trigger" options="receive"> <MidiMessage status="#90" address="#38" channel="15"/> </Control>
+		<Control name="sceneSelect2"                type="trigger" options="receive"> <MidiMessage status="#90" address="#39" channel="15"/> </Control>
+		<Control name="sceneSelect3"                type="trigger" options="receive"> <MidiMessage status="#90" address="#3A" channel="15"/> </Control>
+		<Control name="sceneSelect4"                type="trigger" options="receive"> <MidiMessage status="#90" address="#3B" channel="15"/> </Control>
+		<Control name="sceneSelect5"                type="trigger" options="receive"> <MidiMessage status="#90" address="#3C" channel="15"/> </Control>
+		<Control name="sceneSelect6"                type="trigger" options="receive"> <MidiMessage status="#90" address="#3D" channel="15"/> </Control>
+		<Control name="sceneSelect7"                type="trigger" options="receive"> <MidiMessage status="#90" address="#3E" channel="15"/> </Control>
+		<Control name="sceneSelect8"                type="trigger" options="receive"> <MidiMessage status="#90" address="#3F" channel="15"/> </Control>
+		<Control name="rangesCreate"                type="trigger" options="receive"> <MidiMessage status="#90" address="#40" channel="15"/> </Control>
+		<Control name="rangesCreateOnTracks"        type="trigger" options="receive"> <MidiMessage status="#90" address="#41" channel="15"/> </Control>
+		<Control name="rangeSelectEvents"           type="trigger" options="receive"> <MidiMessage status="#90" address="#42" channel="15"/> </Control>
+		<Control name="rangeCopyEventToTrack"       type="trigger" options="receive"> <MidiMessage status="#90" address="#43" channel="15"/> </Control>
+		<Control name="rangeSplit"                  type="trigger" options="receive"> <MidiMessage status="#90" address="#44" channel="15"/> </Control>
+		<Control name="rangeStartToCursor"          type="trigger" options="receive"> <MidiMessage status="#90" address="#45" channel="15"/> </Control>
+		<Control name="rangeEndToCursor"            type="trigger" options="receive"> <MidiMessage status="#90" address="#46" channel="15"/> </Control>
+		<Control name="rangeStartToHotspot"         type="trigger" options="receive"> <MidiMessage status="#90" address="#47" channel="15"/> </Control>
+		<Control name="rangeStartToHotspotBack"     type="trigger" options="receive"> <MidiMessage status="#90" address="#48" channel="15"/> </Control>
+		<Control name="rangeEndToHotspot"           type="trigger" options="receive"> <MidiMessage status="#90" address="#49" channel="15"/> </Control>
+		<Control name="rangeEndToHotspotBack"       type="trigger" options="receive"> <MidiMessage status="#90" address="#4A" channel="15"/> </Control>
 
 
 	</Controls>
@@ -278,6 +305,33 @@
 			<Command control="zoomLoop"                      command.category="Zoom"       command.name="Zoom to Loop"/>
 			<Command control="zoomToSelection"               command.category="Zoom"       command.name="Zoom to Selection"/>
 			<Command control="zoomToSelectionHorizontally"   command.category="Zoom"       command.name="Zoom to Selection Horizontally"/>
+			<Command control="scenesShowConsole"             command.category="View"       command.name="Show Scenes (Console)"/>
+			<Command control="scenesShowTrackList"           command.category="View"       command.name="Show Scenes (Track List)"/>
+			<Command control="sceneAdd"                      command.category="Console"    command.name="Add Scene"/>
+			<Command control="sceneRemove"                   command.category="Console"    command.name="Remove Scene"/>
+			<Command control="sceneRename"                   command.category="Console"    command.name="Rename Scene"/>
+			<Command control="sceneUpdate"                   command.category="Console"    command.name="Update Scene"/>
+			<Command control="scenePrevious"                 command.category="Console"    command.name="Previous Scene"/>
+			<Command control="sceneNext"                     command.category="Console"    command.name="Next Scene"/>
+			<Command control="sceneSelect1"                  command.category="Console"    command.name="Select Scene 1"/>
+			<Command control="sceneSelect2"                  command.category="Console"    command.name="Select Scene 2"/>
+			<Command control="sceneSelect3"                  command.category="Console"    command.name="Select Scene 3"/>
+			<Command control="sceneSelect4"                  command.category="Console"    command.name="Select Scene 4"/>
+			<Command control="sceneSelect5"                  command.category="Console"    command.name="Select Scene 5"/>
+			<Command control="sceneSelect6"                  command.category="Console"    command.name="Select Scene 6"/>
+			<Command control="sceneSelect7"                  command.category="Console"    command.name="Select Scene 7"/>
+			<Command control="sceneSelect8"                  command.category="Console"    command.name="Select Scene 8"/>
+			<Command control="rangesCreate"                  command.category="Edit"       command.name="Create Ranges"/>
+			<Command control="rangesCreateOnTracks"          command.category="Edit"       command.name="Create Ranges on Tracks"/>
+			<Command control="rangeSelectEvents"             command.category="Edit"       command.name="Select Events in Range"/>
+			<Command control="rangeCopyEventToTrack"         command.category="Event"      command.name="Copy Ranges to Track"/>
+			<Command control="rangeSplit"                    command.category="Edit"       command.name="Split Range"/>
+			<Command control="rangeStartToCursor"            command.category="Edit"       command.name="Range Start to Cursor"/>
+			<Command control="rangeEndToCursor"              command.category="Edit"       command.name="Range End to Cursor"/>
+			<Command control="rangeSizeStartToHotspot"       command.category="Edit"       command.name="Size Range Start to Hotspot"/>
+			<Command control="rangeSizeStartToHotspotBack"   command.category="Edit"       command.name="Size Range Start to Hotspot Back"/>
+			<Command control="rangeSizeEndToHotspot"         command.category="Edit"       command.name="Size Range End to Hotspot"/>
+			<Command control="rangeSizeEndToHotspotBack"     command.category="Edit"       command.name="Size Range End to Hotspot Back"/>
 
 		</Template>
     </Templates>

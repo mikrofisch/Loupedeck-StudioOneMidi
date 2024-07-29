@@ -132,6 +132,29 @@
             this.AddButton(new OneWayCommandButtonData(15, 0x09, "Mute Tool", "tool_mute"), "Edit");
             this.AddButton(new OneWayCommandButtonData(15, 0x0A, "Bend Tool", "tool_bend"), "Edit");
             this.AddButton(new OneWayCommandButtonData(15, 0x0B, "Listen Tool", "tool_listen"), "Edit");
+            this.AddButton(new OneWayCommandButtonData(15, 0x30, "Show Scenes (Console)", "show_scenes"), "Scenes");
+            this.AddButton(new OneWayCommandButtonData(15, 0x31, "Show Scenes (Track List)", "show_scenes"), "Scenes");
+            this.AddButton(new OneWayCommandButtonData(15, 0x32, "Add Scene", "scene_add"), "Scenes");
+            this.AddButton(new OneWayCommandButtonData(15, 0x33, "Remove Scene", "scene_remove"), "Scenes");
+            this.AddButton(new OneWayCommandButtonData(15, 0x34, "Rename Scene", "scene_rename"), "Scenes");
+            this.AddButton(new OneWayCommandButtonData(15, 0x35, "Update Scene", "scene_update"), "Scenes");
+            this.AddButton(new OneWayCommandButtonData(15, 0x36, "Previous Scene", "scene_next"), "Scenes");
+            this.AddButton(new OneWayCommandButtonData(15, 0x37, "Next Scene", "scene_previous"), "Scenes");
+            this.AddButton(new SceneSelectButtonData(1), "Scenes");
+            this.AddButton(new SceneSelectButtonData(2), "Scenes");
+            this.AddButton(new SceneSelectButtonData(3), "Scenes");
+            this.AddButton(new SceneSelectButtonData(4), "Scenes");
+            this.AddButton(new SceneSelectButtonData(5), "Scenes");
+            this.AddButton(new SceneSelectButtonData(6), "Scenes");
+            this.AddButton(new SceneSelectButtonData(7), "Scenes");
+            this.AddButton(new SceneSelectButtonData(8), "Scenes");
+            this.AddButton(new OneWayCommandButtonData(15, 0x40, "Create Ranges", "ranges_create"), "Range");
+            this.AddButton(new OneWayCommandButtonData(15, 0x41, "Create Ranges on Tracks", "ranges_create_on_tracks"), "Range");
+            this.AddButton(new OneWayCommandButtonData(15, 0x42, "Select Events", "range_select_events"), "Range");
+            this.AddButton(new OneWayCommandButtonData(15, 0x43, "Copy Event to Track", "range_copy_event_to_track"), "Range");
+            this.AddButton(new OneWayCommandButtonData(15, 0x44, "Split Range", "range_split"), "Range");
+            this.AddButton(new OneWayCommandButtonData(15, 0x45, "Range Start to Cursor", "range_start_to_cursor"), "Range");
+            this.AddButton(new OneWayCommandButtonData(15, 0x46, "Range End to Cursor", "range_end_to_cursor"), "Range");
         }
 
         protected override bool OnLoad()

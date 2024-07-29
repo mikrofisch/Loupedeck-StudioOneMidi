@@ -179,10 +179,10 @@
 
     public class SelectButtonData : ButtonData
     {
-        public SelectButtonMode CurrentMode = SelectButtonMode.Select;
+        public SelectButtonMode CurrentMode = SelectButtonMode.Property;
         public Boolean UserButtonActive = false;
         public Boolean UserButtonEnabled = true;
-        public static ChannelProperty.PropertyType SelectionPropertyType = ChannelProperty.PropertyType.Select;
+        public static ChannelProperty.PropertyType SelectionPropertyType = ChannelProperty.PropertyType.Mute;
 
         private readonly Int32 ChannelIndex = -1;
         public String UserLabel { get; set; }
@@ -584,13 +584,21 @@
         // }
     }
 
-    public class GroupSuspendButtonData : OneWayCommandButtonData
+    
+    public abstract class NumberedSelectionButtonData : OneWayCommandButtonData
     {
-        private readonly Int32 GroupNumber;
-        public GroupSuspendButtonData(Int32 groupNumber) : base(14, 0x21 + groupNumber, $"Group {groupNumber}", "group_suspend_no")
+        private readonly Int32 SelectionNo;
+        private readonly Int32 OffsetX, OffsetY;
+
+        public NumberedSelectionButtonData(Int32 midiChannel, Int32 midiBaseNote, 
+                                           Int32 selectionNo, String label, String iconName, 
+                                           Int32 offsetX, Int32 offsetY, Int32 bgR, Int32 bgG, Int32 bgB) 
+               : base(midiChannel, midiBaseNote + selectionNo, $"{label} {selectionNo}", iconName)
         {
-            this.OffColor = new BitmapColor(191, 255, 144, 80);
-            this.GroupNumber = groupNumber;
+            this.SelectionNo = selectionNo;
+            this.OffsetX = offsetX;
+            this.OffsetY = offsetY;
+            this.OffColor = new BitmapColor(bgR, bgG, bgB, 80);
         }
         public override BitmapImage getImage(PluginImageSize imageSize)
         {
@@ -598,31 +606,32 @@
             bb.FillRectangle(0, 0, bb.Width, bb.Height, this.OffColor);
 
             bb.DrawImage(this.Icon);
-            bb.DrawText(this.GroupNumber.ToString(), 0, 7, bb.Width, bb.Height, this.TextColor, 14);
+            bb.DrawText(this.SelectionNo.ToString(), this.OffsetX, this.OffsetY, bb.Width, bb.Height, this.TextColor, 14);
 
             return bb.ToImage();
         }
     }
-    public class MarkerGotoButtonData : OneWayCommandButtonData
+
+    public class GroupSuspendButtonData : NumberedSelectionButtonData
+    {
+        public GroupSuspendButtonData(Int32 groupNumber) : base(14, 0x21, groupNumber, "Group", "group_suspend_no", 0, 7, 191, 255, 144)
+        {
+        }
+    }
+    public class MarkerGotoButtonData : NumberedSelectionButtonData
     {
         public static readonly BitmapColor BgColor = new BitmapColor(169, 146, 255, 80);
-        private readonly Int32 MarkerNumber;
-        public MarkerGotoButtonData(Int32 markerNumber) : base(14, 0x65 + markerNumber, $"Marker {markerNumber}", "marker_goto_no")
+        public MarkerGotoButtonData(Int32 markerNumber) : base(14, 0x65, markerNumber, "Marker", "marker_goto_no", 7, 9, BgColor.R, BgColor.G, BgColor.B)
         {
-            this.MarkerNumber = markerNumber;
-            this.OffColor = BgColor;
-        }
-        public override BitmapImage getImage(PluginImageSize imageSize)
-        {
-            var bb = new BitmapBuilder(imageSize);
-            bb.FillRectangle(0, 0, bb.Width, bb.Height, this.OffColor);
-
-            bb.DrawImage(this.Icon);
-            bb.DrawText(this.MarkerNumber.ToString(), 7, 9, bb.Width, bb.Height, this.TextColor, 14);
-
-            return bb.ToImage();
         }
     }
+    public class SceneSelectButtonData : NumberedSelectionButtonData
+    {
+        public SceneSelectButtonData(Int32 sceneNumber) : base(15, 0x37, sceneNumber, "Scene", "scene_select_no", 0, 7, 52, 116, 187)
+        {
+        }
+    }
+
     public class ModeButtonData : ButtonData
     {
         public String Name;

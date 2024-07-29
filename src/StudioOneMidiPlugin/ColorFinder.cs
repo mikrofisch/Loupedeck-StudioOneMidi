@@ -420,6 +420,45 @@
             ColorDict.Add(("RBass", "Frequency"), new ColorSettings { OnColor = new FinderColor(243, 132, 1) });
             ColorDict.Add(("RBass", "Out Gain"), new ColorSettings { Label = "Gain", OnColor = new FinderColor(243, 132, 1) });
 
+            ColorDict.Add(("REQ", "Band1 On/Off"), new ColorSettings { Label = "Band 1", OnColor = new FinderColor(224, 136, 115), TextOnColor = FinderColor.Black });
+            this.addLinked("REQ", "Band1 Gain", "Band1 On/Off", label: "Gain", mode: ColorSettings.PotMode.Symmetric);
+            this.addLinked("REQ", "Band1 Frq", "Band1 On/Off", label: "Freq");
+            this.addLinked("REQ", "Band1 Q", "Band1 On/Off", label: "Q");
+            ColorDict.Add(("REQ", "Band2 On/Off"), new ColorSettings { Label = "Band 2", OnColor = new FinderColor(211, 208, 35), TextOnColor = FinderColor.Black });
+            this.addLinked("REQ", "Band2 Gain", "Band2 On/Off", label: "Gain", mode: ColorSettings.PotMode.Symmetric);
+            this.addLinked("REQ", "Band2 Frq", "Band2 On/Off", label: "Freq");
+            this.addLinked("REQ", "Band2 Q", "Band2 On/Off", label: "Q");
+            ColorDict.Add(("REQ", "Band3 On/Off"), new ColorSettings { Label = "Band 3", OnColor = new FinderColor(57, 181, 74), TextOnColor = FinderColor.Black });
+            this.addLinked("REQ", "Band3 Gain", "Band3 On/Off", label: "Gain", mode: ColorSettings.PotMode.Symmetric);
+            this.addLinked("REQ", "Band3 Frq", "Band3 On/Off", label: "Freq");
+            this.addLinked("REQ", "Band3 Q", "Band3 On/Off", label: "Q");
+            ColorDict.Add(("REQ", "Band4 On/Off"), new ColorSettings { Label = "Band 4", OnColor = new FinderColor(56, 149, 203), TextOnColor = FinderColor.Black });
+            this.addLinked("REQ", "Band4 Gain", "Band4 On/Off", label: "Gain", mode: ColorSettings.PotMode.Symmetric);
+            this.addLinked("REQ", "Band4 Frq", "Band4 On/Off", label: "Freq");
+            this.addLinked("REQ", "Band4 Q", "Band4 On/Off", label: "Q");
+            ColorDict.Add(("REQ", "Band5 On/Off"), new ColorSettings { Label = "Band 5", OnColor = new FinderColor(130, 41, 141), TextOnColor = FinderColor.Black });
+            this.addLinked("REQ", "Band5 Gain", "Band5 On/Off", label: "Gain", mode: ColorSettings.PotMode.Symmetric);
+            this.addLinked("REQ", "Band5 Frq", "Band5 On/Off", label: "Freq");
+            this.addLinked("REQ", "Band5 Q", "Band5 On/Off", label: "Q");
+            ColorDict.Add(("REQ", "Band6 On/Off"), new ColorSettings { Label = "Band 6", OnColor = new FinderColor(199, 48, 105), TextOnColor = FinderColor.Black });
+            this.addLinked("REQ", "Band6 Gain", "Band6 On/Off", label: "Gain", mode: ColorSettings.PotMode.Symmetric);
+            this.addLinked("REQ", "Band6 Frq", "Band6 On/Off", label: "Freq");
+            this.addLinked("REQ", "Band6 Q", "Band6 On/Off", label: "Q");
+            ColorDict.Add(("REQ", "Fader left Out"), new ColorSettings { Label = "Output", OnColor = new FinderColor(242, 101, 34) });
+            ColorDict.Add(("REQ", "Gain-L (link)"), new ColorSettings { Label = "Out L", OnColor = new FinderColor(242, 101, 34) });
+            ColorDict.Add(("REQ", "Gain-R"), new ColorSettings { Label = "Out R", OnColor = new FinderColor(242, 101, 34) });
+
+            ColorDict.Add(("RVerb", ""), new ColorSettings { OnColor = new FinderColor(244, 134, 2), TextOnColor = FinderColor.Black });
+            ColorDict.Add(("RVerb", "Dmp Low-F Ratio"), new ColorSettings { Label = "Dmp Lo Rto", OnColor = new FinderColor(74, 149, 155) });
+            ColorDict.Add(("RVerb", "Dmp Low-F Freq"), new ColorSettings { Label = "Dmp Lo Frq", OnColor = new FinderColor(74, 149, 155) });
+            ColorDict.Add(("RVerb", "Dmp Hi-F Ratio"), new ColorSettings { Label = "Dmp Hi Rto", OnColor = new FinderColor(74, 149, 155) });
+            ColorDict.Add(("RVerb", "Dmp Hi-F Freq"), new ColorSettings { Label = "Dmp Hi Frq", OnColor = new FinderColor(74, 149, 155) });
+            ColorDict.Add(("RVerb", "EQ Low-F Gain"), new ColorSettings { Label = "EQ Lo Gn", OnColor = new FinderColor(74, 149, 155) });
+            ColorDict.Add(("RVerb", "EQ Low-F Freq"), new ColorSettings { Label = "EQ Lo Frq", OnColor = new FinderColor(74, 149, 155) });
+            ColorDict.Add(("RVerb", "EQ Hi-F Gain"), new ColorSettings { Label = "EQ Hi Gn", OnColor = new FinderColor(74, 149, 155) });
+            ColorDict.Add(("RVerb", "EQ Hi-F Freq"), new ColorSettings { Label = "EQ Hi Frq", OnColor = new FinderColor(74, 149, 155) });
+
+
             ColorDict.Add(("L1 limiter", "Threshold"), new ColorSettings { OnColor = new FinderColor(243, 132, 1) });
             ColorDict.Add(("L1 limiter", "Ceiling"), new ColorSettings { OnColor = new FinderColor(255, 172, 66) });
             ColorDict.Add(("L1 limiter", "Release"), new ColorSettings { OnColor = new FinderColor(54, 206, 206) });
@@ -547,14 +586,93 @@
 
             // Acon Digital
 
+            ColorDict.Add(("Acon Digital Equalize 2", "Gain-bandwidth link"), new ColorSettings { Label = "Link", OnColor = new FinderColor(230, 159, 0), TextOnColor = FinderColor.Black });
             ColorDict.Add(("Acon Digital Equalize 2", "Solo 1"), new ColorSettings { OnColor = new FinderColor(230, 159, 0), TextOnColor = FinderColor.Black });
             ColorDict.Add(("Acon Digital Equalize 2", "Bypass 1"), new ColorSettings { OnColor = new FinderColor(230, 159, 0), TextOnColor = FinderColor.Black });
             ColorDict.Add(("Acon Digital Equalize 2", "Frequency 1"), new ColorSettings { OnColor = new FinderColor(221, 125, 125) });
             ColorDict.Add(("Acon Digital Equalize 2", "Gain 1"), new ColorSettings { OnColor = new FinderColor(221, 125, 125) });
-            ColorDict.Add(("Acon Digital Equalize 2", "Filter type 1"), new ColorSettings { Label = "Filter 1", OnColor = new FinderColor(221, 125, 125), DialSteps = 7, HideValueBar = true });
+            ColorDict.Add(("Acon Digital Equalize 2", "Filter type 1"), new ColorSettings { Label = "Filter 1", OnColor = new FinderColor(221, 125, 125), DialSteps = 8, HideValueBar = true });
             ColorDict.Add(("Acon Digital Equalize 2", "Band width 1"), new ColorSettings { Label = "Bandwidth 1", OnColor = new FinderColor(221, 125, 125) });
             ColorDict.Add(("Acon Digital Equalize 2", "Slope 1"), new ColorSettings { OnColor = new FinderColor(221, 125, 125) });
             ColorDict.Add(("Acon Digital Equalize 2", "Resonance 1"), new ColorSettings { OnColor = new FinderColor(221, 125, 125) });
+            ColorDict.Add(("Acon Digital Equalize 2", "Solo 2"), new ColorSettings { OnColor = new FinderColor(230, 159, 0), TextOnColor = FinderColor.Black });
+            ColorDict.Add(("Acon Digital Equalize 2", "Bypass 2"), new ColorSettings { OnColor = new FinderColor(230, 159, 0), TextOnColor = FinderColor.Black });
+            ColorDict.Add(("Acon Digital Equalize 2", "Frequency 2"), new ColorSettings { OnColor = new FinderColor(204, 133, 61) });
+            ColorDict.Add(("Acon Digital Equalize 2", "Gain 2"), new ColorSettings { OnColor = new FinderColor(204, 133, 61) });
+            ColorDict.Add(("Acon Digital Equalize 2", "Filter type 2"), new ColorSettings { Label = "Filter 2", OnColor = new FinderColor(204, 133, 61), DialSteps = 8, HideValueBar = true });
+            ColorDict.Add(("Acon Digital Equalize 2", "Band width 2"), new ColorSettings { Label = "Bandwidth 2", OnColor = new FinderColor(204, 133, 61) });
+            ColorDict.Add(("Acon Digital Equalize 2", "Slope 2"), new ColorSettings { OnColor = new FinderColor(204, 133, 61) });
+            ColorDict.Add(("Acon Digital Equalize 2", "Resonance 2"), new ColorSettings { OnColor = new FinderColor(204, 133, 61) });
+            ColorDict.Add(("Acon Digital Equalize 2", "Solo 3"), new ColorSettings { OnColor = new FinderColor(230, 159, 0), TextOnColor = FinderColor.Black });
+            ColorDict.Add(("Acon Digital Equalize 2", "Bypass 3"), new ColorSettings { OnColor = new FinderColor(230, 159, 0), TextOnColor = FinderColor.Black });
+            ColorDict.Add(("Acon Digital Equalize 2", "Frequency 3"), new ColorSettings { OnColor = new FinderColor(204, 204, 61) });
+            ColorDict.Add(("Acon Digital Equalize 2", "Gain 3"), new ColorSettings { OnColor = new FinderColor(204, 204, 61) });
+            ColorDict.Add(("Acon Digital Equalize 2", "Filter type 3"), new ColorSettings { Label = "Filter 3", OnColor = new FinderColor(204, 204, 61), DialSteps = 8, HideValueBar = true });
+            ColorDict.Add(("Acon Digital Equalize 2", "Band width 3"), new ColorSettings { Label = "Bandwidth 3", OnColor = new FinderColor(204, 204, 61) });
+            ColorDict.Add(("Acon Digital Equalize 2", "Slope 3"), new ColorSettings { OnColor = new FinderColor(204, 204, 61) });
+            ColorDict.Add(("Acon Digital Equalize 2", "Resonance 3"), new ColorSettings { OnColor = new FinderColor(204, 204, 61) });
+            ColorDict.Add(("Acon Digital Equalize 2", "Solo 4"), new ColorSettings { OnColor = new FinderColor(230, 159, 0), TextOnColor = FinderColor.Black });
+            ColorDict.Add(("Acon Digital Equalize 2", "Bypass 4"), new ColorSettings { OnColor = new FinderColor(230, 159, 0), TextOnColor = FinderColor.Black });
+            ColorDict.Add(("Acon Digital Equalize 2", "Frequency 4"), new ColorSettings { OnColor = new FinderColor(61, 204, 61) });
+            ColorDict.Add(("Acon Digital Equalize 2", "Gain 4"), new ColorSettings { OnColor = new FinderColor(61, 204, 61) });
+            ColorDict.Add(("Acon Digital Equalize 2", "Filter type 4"), new ColorSettings { Label = "Filter 4", OnColor = new FinderColor(61, 204, 61), DialSteps = 8, HideValueBar = true });
+            ColorDict.Add(("Acon Digital Equalize 2", "Band width 4"), new ColorSettings { Label = "Bandwidth 4", OnColor = new FinderColor(61, 204, 61) });
+            ColorDict.Add(("Acon Digital Equalize 2", "Slope 4"), new ColorSettings { OnColor = new FinderColor(61, 204, 61) });
+            ColorDict.Add(("Acon Digital Equalize 2", "Resonance 4"), new ColorSettings { OnColor = new FinderColor(61, 204, 61) });
+            ColorDict.Add(("Acon Digital Equalize 2", "Solo 5"), new ColorSettings { OnColor = new FinderColor(230, 159, 0), TextOnColor = FinderColor.Black });
+            ColorDict.Add(("Acon Digital Equalize 2", "Bypass 5"), new ColorSettings { OnColor = new FinderColor(230, 159, 0), TextOnColor = FinderColor.Black });
+            ColorDict.Add(("Acon Digital Equalize 2", "Frequency 5"), new ColorSettings { OnColor = new FinderColor(61, 204, 133) });
+            ColorDict.Add(("Acon Digital Equalize 2", "Gain 5"), new ColorSettings { OnColor = new FinderColor(61, 204, 133) });
+            ColorDict.Add(("Acon Digital Equalize 2", "Filter type 5"), new ColorSettings { Label = "Filter 5", OnColor = new FinderColor(61, 204, 133), DialSteps = 8, HideValueBar = true });
+            ColorDict.Add(("Acon Digital Equalize 2", "Band width 5"), new ColorSettings { Label = "Bandwidth 5", OnColor = new FinderColor(61, 204, 133) });
+            ColorDict.Add(("Acon Digital Equalize 2", "Slope 5"), new ColorSettings { OnColor = new FinderColor(61, 204, 133) });
+            ColorDict.Add(("Acon Digital Equalize 2", "Resonance 5"), new ColorSettings { OnColor = new FinderColor(61, 204, 133) });
+            ColorDict.Add(("Acon Digital Equalize 2", "Solo 6"), new ColorSettings { OnColor = new FinderColor(230, 159, 0), TextOnColor = FinderColor.Black });
+            ColorDict.Add(("Acon Digital Equalize 2", "Bypass 6"), new ColorSettings { OnColor = new FinderColor(230, 159, 0), TextOnColor = FinderColor.Black });
+            ColorDict.Add(("Acon Digital Equalize 2", "Frequency 6"), new ColorSettings { OnColor = new FinderColor(173, 221, 125) });
+            ColorDict.Add(("Acon Digital Equalize 2", "Gain 6"), new ColorSettings { OnColor = new FinderColor(173, 221, 125) });
+            ColorDict.Add(("Acon Digital Equalize 2", "Filter type 6"), new ColorSettings { Label = "Filter 6", OnColor = new FinderColor(173, 221, 125), DialSteps = 8, HideValueBar = true });
+            ColorDict.Add(("Acon Digital Equalize 2", "Band width 6"), new ColorSettings { Label = "Bandwidth 6 ", OnColor = new FinderColor(173, 221, 125) });
+            ColorDict.Add(("Acon Digital Equalize 2", "Slope 6"), new ColorSettings { OnColor = new FinderColor(173, 221, 125) });
+            ColorDict.Add(("Acon Digital Equalize 2", "Resonance 6"), new ColorSettings { OnColor = new FinderColor(173, 221, 125) });
+
+            ColorDict.Add(("Acon Digital Verberate 2", "Dry Mute"), new ColorSettings { Label = "Mute", OnColor = new FinderColor(212, 160, 40), TextOnColor = FinderColor.Black });
+            ColorDict.Add(("Acon Digital Verberate 2", "Reverb Mute"), new ColorSettings { Label = "Mute", OnColor = new FinderColor(212, 160, 40), TextOnColor = FinderColor.Black });
+            ColorDict.Add(("Acon Digital Verberate 2", "ER Mute"), new ColorSettings { Label = "Mute", OnColor = new FinderColor(212, 160, 40), TextOnColor = FinderColor.Black });
+            ColorDict.Add(("Acon Digital Verberate 2", "Freeze"), new ColorSettings { OnColor = new FinderColor(230, 173, 43), TextOnColor = FinderColor.Black });
+            ColorDict.Add(("Acon Digital Verberate 2", "Stereo Spread"), new ColorSettings { Label = "Spread" });
+            ColorDict.Add(("Acon Digital Verberate 2", "EarlyReflectionsType"), new ColorSettings { Label = "ER Type", DialSteps = 14, HideValueBar = true });
+            ColorDict.Add(("Acon Digital Verberate 2", "Algorithm"), new ColorSettings { Label = "Vivid", LabelOn = "Legacy", TextOnColor = FinderColor.White, TextOffColor = FinderColor.White });
+            ColorDict.Add(("Acon Digital Verberate 2", "Decay High Cut Enable"), new ColorSettings { Label = "Decay HC", OnColor = new FinderColor(221, 85, 255) });
+            this.addLinked("Acon Digital Verberate 2", "Decay High Cut Frequency", "Decay High Cut Enable", label: "Freq");
+            this.addLinked("Acon Digital Verberate 2", "Decay High Cut Slope", "Decay High Cut Enable", label: "Slope");
+            ColorDict.Add(("Acon Digital Verberate 2", "EQ High Cut Enable"), new ColorSettings { Label = "EQ HC", OnColor = new FinderColor(221, 85, 255) });
+            this.addLinked("Acon Digital Verberate 2", "EQ High Cut Frequency", "EQ High Cut Enable", label: "Freq");
+            this.addLinked("Acon Digital Verberate 2", "EQ High Cut Slope", "EQ High Cut Enable", label: "Slope");
+
+
+            // AXP
+
+            ColorDict.Add(("AXP SoftAmp PSA", "Enable"), new ColorSettings { Label = "ENABLE" });
+            ColorDict.Add(("AXP SoftAmp PSA", "Preamp"), new ColorSettings { Label = "PRE-AMP", OnColor = new FinderColor(200, 200, 200) });
+            ColorDict.Add(("AXP SoftAmp PSA", "Asymm"), new ColorSettings { Label = "ASYMM", OnColor = new FinderColor(237, 244, 1), TextOnColor = FinderColor.Black });
+            ColorDict.Add(("AXP SoftAmp PSA", "Buzz"), new ColorSettings { Label = "BUZZ", OnColor = new FinderColor(200, 200, 200), Mode = ColorSettings.PotMode.Symmetric });
+            ColorDict.Add(("AXP SoftAmp PSA", "Punch"), new ColorSettings { Label = "PUNCH", OnColor = new FinderColor(200, 200, 200), Mode = ColorSettings.PotMode.Symmetric });
+            ColorDict.Add(("AXP SoftAmp PSA", "Crunch"), new ColorSettings { Label = "CRUNCH", OnColor = new FinderColor(200, 200, 200) });
+            ColorDict.Add(("AXP SoftAmp PSA", "SoftClip"), new ColorSettings { Label = "SOFT CLIP", OnColor = new FinderColor(234, 105, 30), TextOnColor = FinderColor.Black });
+            ColorDict.Add(("AXP SoftAmp PSA", "Drive"), new ColorSettings { Label = "DRIVE", OnColor = new FinderColor(200, 200, 200) });
+            ColorDict.Add(("AXP SoftAmp PSA", "Level"), new ColorSettings { Label = "LEVEL", OnColor = new FinderColor(200, 200, 200) });
+            ColorDict.Add(("AXP SoftAmp PSA", "Limiter"), new ColorSettings { Label = "LIMITER", OnColor = new FinderColor(237, 0, 0), TextOnColor = FinderColor.Black });
+            ColorDict.Add(("AXP SoftAmp PSA", "Low"), new ColorSettings { Label = "LOW", OnColor = new FinderColor(200, 200, 200), Mode = ColorSettings.PotMode.Symmetric });
+            ColorDict.Add(("AXP SoftAmp PSA", "High"), new ColorSettings { Label = "HIGH", OnColor = new FinderColor(200, 200, 200), Mode = ColorSettings.PotMode.Symmetric });
+            ColorDict.Add(("AXP SoftAmp PSA", "SpkReso"), new ColorSettings { Label = "SHAPE", OnColor = new FinderColor(120, 120, 120) });
+            ColorDict.Add(("AXP SoftAmp PSA", "SpkRoll"), new ColorSettings { Label = "ROLL-OFF", OnColor = new FinderColor(120, 120, 120) });
+            ColorDict.Add(("AXP SoftAmp PSA", "PSI_En"), new ColorSettings { Label = "PSI DNS", OnColor = new FinderColor(10, 178, 255), TextOnColor = FinderColor.Black });
+            this.addLinked("AXP SoftAmp PSA", "PSI_Thr", "PSI_En", label: "THRESHOLD");
+            ColorDict.Add(("AXP SoftAmp PSA", "OS_Enab"), new ColorSettings { Label = "SQUEEZO", OnColor = new FinderColor(209, 155, 104), TextOnColor = FinderColor.Black });
+            this.addLinked("AXP SoftAmp PSA", "OS_Gain", "OS_Enab", label: "GAIN");
+            this.addLinked("AXP SoftAmp PSA", "OS_Bias", "OS_Enab", label: "BIAS");
+            this.addLinked("AXP SoftAmp PSA", "OS_Level", "OS_Enab", label: "LEVEL");
         }
     }
 }

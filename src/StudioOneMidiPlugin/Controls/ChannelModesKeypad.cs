@@ -40,7 +40,7 @@
             ConsoleActivated = 5,
             AddActivated = 6
         }
-        private PlayLayerMode CurrentPlayLayerMode = PlayLayerMode.PropertySelect;
+        private PlayLayerMode CurrentPlayLayerMode = PlayLayerMode.PropertySelect;  // Needs to match defaults in SelectButtonData class
 
         private enum RecLayerMode
         {
@@ -56,7 +56,7 @@
             User = 1,
             PluginSelectionActivated = 2
         }
-        private UserSendsLayerMode CurrentUserSendsLayerMode = UserSendsLayerMode.Sends;
+        private UserSendsLayerMode CurrentUserSendsLayerMode = UserSendsLayerMode.User;
 
         private static readonly String idxUserButton = $"{(Int32)ButtonLayer.faderModesSend}:3";
         private static readonly String idxSendButton = $"{(Int32)ButtonLayer.faderModesSend}:5";
@@ -113,11 +113,11 @@
             this.addButton(ButtonLayer.channelPropertiesPlay, "0", new PropertySelectionButtonData(ChannelProperty.PropertyType.Mute,
                                                                                                  ChannelProperty.PropertyType.Solo,
                                                                                                  "select-mute", "select-solo", "select-mute-solo",
-                                                                                                 activated: true));
+                                                                                                 activated: this.CurrentPlayLayerMode == PlayLayerMode.PropertySelect));
             this.addButton(ButtonLayer.channelPropertiesPlay, "0-1", new PropertyButtonData(PropertyButtonData.SelectedChannel,
                                                                                             ChannelProperty.PropertyType.Mute,
                                                                                             PropertyButtonData.TrackNameMode.ShowFull));
-            this.addButton(ButtonLayer.channelPropertiesPlay, "1", new ModeChannelSelectButtonData(activated: false));
+            this.addButton(ButtonLayer.channelPropertiesPlay, "1", new ModeChannelSelectButtonData(activated: this.CurrentPlayLayerMode == PlayLayerMode.ChannelSelect));
             var arrangerBgColor = new BitmapColor(60, 60, 60);
             this.addButton(ButtonLayer.channelPropertiesPlay, "2", new ModeButtonData("ARRANGER", "arranger", new BitmapColor(arrangerBgColor, 190)));
             this.addButton(ButtonLayer.channelPropertiesPlay, "0-4", new OneWayCommandButtonData(14, 0x06, "Track List", "track_list", arrangerBgColor));
@@ -363,7 +363,6 @@
                                 {
                                     (this.buttonData[idxPlayMuteSoloSelectButton] as PropertySelectionButtonData).Activated = false;
                                     this.CurrentPlayLayerMode = PlayLayerMode.ChannelSelect;
-                                    this.plugin.EmitSelectModeChanged(SelectButtonMode.Select);
                                 }
                                 else if (this.CurrentPlayLayerMode == PlayLayerMode.ChannelSelect)
                                 {

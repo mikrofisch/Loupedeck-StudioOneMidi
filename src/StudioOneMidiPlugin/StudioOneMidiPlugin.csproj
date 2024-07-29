@@ -61,6 +61,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Actions\DummyCommand.cs" />
     <Compile Include="ChannelProperty.cs" />
     <Compile Include="ConfigWindow.xaml.cs">
       <DependentUpon>ConfigWindow.xaml</DependentUpon>
@@ -328,6 +329,23 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\arranger_52px.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\ranges_create_52px.png" />
+    <EmbeddedResource Include="Resources\ranges_create_on_tracks_52px.png" />
+    <EmbeddedResource Include="Resources\range_copy_event_to_track_52px.png" />
+    <EmbeddedResource Include="Resources\range_end_to_cursor_52px.png" />
+    <EmbeddedResource Include="Resources\range_select_events_52px.png" />
+    <EmbeddedResource Include="Resources\range_split_52px.png" />
+    <EmbeddedResource Include="Resources\range_start_to_cursor_52px.png" />
+    <EmbeddedResource Include="Resources\scene_add_52px.png" />
+    <EmbeddedResource Include="Resources\scene_next_52px.png" />
+    <EmbeddedResource Include="Resources\scene_previous_52px.png" />
+    <EmbeddedResource Include="Resources\scene_remove_52px.png" />
+    <EmbeddedResource Include="Resources\scene_rename_52px.png" />
+    <EmbeddedResource Include="Resources\scene_select_no_52px.png" />
+    <EmbeddedResource Include="Resources\scene_update_52px.png" />
+    <EmbeddedResource Include="Resources\show_scenes_52px.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

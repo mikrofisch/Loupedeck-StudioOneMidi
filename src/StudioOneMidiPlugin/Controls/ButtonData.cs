@@ -259,7 +259,10 @@
                 // User Pot
                 if (UserColorFinder.getLabel(pluginName, cd.Label).Length > 0)
                 {
-                    bb.FillRectangle(0, 0, bb.Width, uby, new BitmapColor(UserColorFinder.getOnColor(pluginName, cd.Label), 80));
+                    if (UserColorFinder.getPaintLabelBg(pluginName, cd.Label))
+                    {
+                        bb.FillRectangle(0, 0, bb.Width, uby, new BitmapColor(UserColorFinder.getOnColor(pluginName, cd.Label), 80));
+                    }
                 }
                 bb.DrawText(cd.Description, 0, 0, bb.Width, TitleHeight, TextDescColor);
                 bb.DrawText(UserColorFinder.getLabelShort(pluginName, cd.Label), 0, bb.Height / 2 - TitleHeight / 2, bb.Width, TitleHeight, 

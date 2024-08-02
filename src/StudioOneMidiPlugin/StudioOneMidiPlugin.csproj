@@ -241,7 +241,6 @@
     <EmbeddedResource Include="Resources\groups_suspend_52px.png" />
     <EmbeddedResource Include="Resources\tap_tempo_52px.png" />
     <EmbeddedResource Include="Resources\track_list_52px.png" />
-    <EmbeddedResource Include="Resources\zoom_h_52px copy.png" />
     <EmbeddedResource Include="Resources\zoom_v_52px.png" />
   </ItemGroup>
   <ItemGroup>
@@ -346,6 +345,43 @@
     <EmbeddedResource Include="Resources\scene_select_no_52px.png" />
     <EmbeddedResource Include="Resources\scene_update_52px.png" />
     <EmbeddedResource Include="Resources\show_scenes_52px.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\forward_bar_52px.png" />
+    <EmbeddedResource Include="Resources\rewind_bar_52px.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\auto_zoom_toggle_52px.png" />
+    <EmbeddedResource Include="Resources\auto_zoom_toggle_full_52px.png" />
+    <EmbeddedResource Include="Resources\auto_zoom_toggle_h_52px.png" />
+    <EmbeddedResource Include="Resources\auto_zoom_toggle_v_52px.png" />
+    <EmbeddedResource Include="Resources\zoom_full_52px.png" />
+    <EmbeddedResource Include="Resources\zoom_in_h_52px.png" />
+    <EmbeddedResource Include="Resources\zoom_in_v_52px.png" />
+    <EmbeddedResource Include="Resources\zoom_loop_52px.png" />
+    <EmbeddedResource Include="Resources\zoom_out_h_52px.png" />
+    <EmbeddedResource Include="Resources\zoom_out_v_52px.png" />
+    <EmbeddedResource Include="Resources\zoom_selection_52px.png" />
+    <EmbeddedResource Include="Resources\zoom_selection_h_52px.png" />
+    <EmbeddedResource Include="Resources\zoom_toogle_noauto_52px.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\zoom_redo_52px.png" />
+    <EmbeddedResource Include="Resources\zoom_undo_52px.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\zoom_h_52px.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\zoom_full_h_52px.png" />
+    <EmbeddedResource Include="Resources\zoom_full_v_52px.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\ruler_arranger_52px.png" />
+    <EmbeddedResource Include="Resources\ruler_chord_52px.png" />
+    <EmbeddedResource Include="Resources\ruler_lyrics_52px.png" />
+    <EmbeddedResource Include="Resources\ruler_marker_52px.png" />
+    <EmbeddedResource Include="Resources\ruler_video_52px.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

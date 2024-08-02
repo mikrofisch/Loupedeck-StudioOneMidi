@@ -18,10 +18,7 @@
 		<Control name="viewShowGroups"              type="trigger" options="receive"> <MidiMessage status="#90" address="#09" channel="14"/> </Control>
 		<Control name="viewToggleFloatingWindows"   type="trigger" options="receive"> <MidiMessage status="#90" address="#0A" channel="14"/> </Control>
 		<Control name="viewTimeDisplay"             type="trigger" options="receive"> <MidiMessage status="#90" address="#0B" channel="14"/> </Control>
-		<Control name="viewOpenMarkerTrack"         type="trigger" options="receive"> <MidiMessage status="#90" address="#0C" channel="14"/> </Control>
-		<Control name="viewOpenSignatureTrack"      type="trigger" options="receive"> <MidiMessage status="#90" address="#0D" channel="14"/> </Control>
-		<Control name="viewOpenTempoTrack"          type="trigger" options="receive"> <MidiMessage status="#90" address="#0E" channel="14"/> </Control>
-		<Control name="viewFitTimeline"             type="trigger" options="receive"> <MidiMessage status="#90" address="#0F" channel="14"/> </Control>
+		<Control name="viewFitTimeline"             type="trigger" options="receive"> <MidiMessage status="#90" address="#0C" channel="14"/> </Control>
 		<Control name="consoleShowInputs"           type="trigger" options="receive"> <MidiMessage status="#90" address="#10" channel="14"/> </Control>
 		<Control name="consoleShowTrack"            type="trigger" options="receive"> <MidiMessage status="#90" address="#11" channel="14"/> </Control>
 		<Control name="consoleShowChannelEditor"    type="trigger" options="receive"> <MidiMessage status="#90" address="#12" channel="14"/> </Control>
@@ -83,6 +80,8 @@
 		<Control name="transportLoopGotoStart"      type="trigger" options="receive"> <MidiMessage status="#90" address="#5B" channel="14"/> </Control>
 		<Control name="transportLoopGotoEnd"        type="trigger" options="receive"> <MidiMessage status="#90" address="#5C" channel="14"/> </Control>
 		<Control name="transportLocateSelection"    type="trigger" options="receive"> <MidiMessage status="#90" address="#5D" channel="14"/> </Control>
+		<Control name="transportForwardBar"         type="trigger" options="receive"> <MidiMessage status="#90" address="#5E" channel="14"/> </Control>
+		<Control name="transportRewindBar"          type="trigger" options="receive"> <MidiMessage status="#90" address="#5F" channel="14"/> </Control>
 		<Control name="markerDelete"                type="trigger" options="receive"> <MidiMessage status="#90" address="#60" channel="14"/> </Control>
 		<Control name="markerInsert"                type="trigger" options="receive"> <MidiMessage status="#90" address="#61" channel="14"/> </Control>
 		<Control name="markerInsertNamed"           type="trigger" options="receive"> <MidiMessage status="#90" address="#62" channel="14"/> </Control>
@@ -121,22 +120,35 @@
 		<Control name="editTool6"                   type="trigger" options="receive"> <MidiMessage status="#90" address="#09" channel="15"/> </Control>
 		<Control name="editTool7"                   type="trigger" options="receive"> <MidiMessage status="#90" address="#0A" channel="15"/> </Control>
 		<Control name="editTool8"                   type="trigger" options="receive"> <MidiMessage status="#90" address="#0B" channel="15"/> </Control>
-		<Control name="zoomIn"                      type="trigger" options="receive"> <MidiMessage status="#90" address="#20" channel="15"/> </Control>
-		<Control name="zoomInFine"                  type="trigger" options="receive"> <MidiMessage status="#90" address="#21" channel="15"/> </Control>
-		<Control name="zoomOut"                     type="trigger" options="receive"> <MidiMessage status="#90" address="#22" channel="15"/> </Control>
-		<Control name="zoomOutFine"                 type="trigger" options="receive"> <MidiMessage status="#90" address="#23" channel="15"/> </Control>
-		<Control name="zoomInVertical"              type="trigger" options="receive"> <MidiMessage status="#90" address="#24" channel="15"/> </Control>
-		<Control name="zoomInVerticalFine"          type="trigger" options="receive"> <MidiMessage status="#90" address="#25" channel="15"/> </Control>
-		<Control name="zoomOutVertical"             type="trigger" options="receive"> <MidiMessage status="#90" address="#26" channel="15"/> </Control>
-		<Control name="zoomOutVerticalFine"         type="trigger" options="receive"> <MidiMessage status="#90" address="#27" channel="15"/> </Control>
-		<Control name="zoomUndo"                    type="trigger" options="receive"> <MidiMessage status="#90" address="#28" channel="15"/> </Control>
-		<Control name="zoomRedo"                    type="trigger" options="receive"> <MidiMessage status="#90" address="#29" channel="15"/> </Control>
-		<Control name="zoomToggle"                  type="trigger" options="receive"> <MidiMessage status="#90" address="#2A" channel="15"/> </Control>
-		<Control name="zoomFull"                    type="trigger" options="receive"> <MidiMessage status="#90" address="#2B" channel="15"/> </Control>
-		<Control name="zoomSelectedTrack"           type="trigger" options="receive"> <MidiMessage status="#90" address="#2C" channel="15"/> </Control>
-		<Control name="zoomLoop"                    type="trigger" options="receive"> <MidiMessage status="#90" address="#2D" channel="15"/> </Control>
-		<Control name="zoomToSelection"             type="trigger" options="receive"> <MidiMessage status="#90" address="#2E" channel="15"/> </Control>
-		<Control name="zoomToSelectionHorizontally" type="trigger" options="receive"> <MidiMessage status="#90" address="#2F" channel="15"/> </Control>
+		<Control name="zoomIn"                      type="trigger" options="receive"> <MidiMessage status="#90" address="#10" channel="15"/> </Control>
+		<Control name="zoomInFine"                  type="trigger" options="receive"> <MidiMessage status="#90" address="#11" channel="15"/> </Control>
+		<Control name="zoomOut"                     type="trigger" options="receive"> <MidiMessage status="#90" address="#12" channel="15"/> </Control>
+		<Control name="zoomOutFine"                 type="trigger" options="receive"> <MidiMessage status="#90" address="#13" channel="15"/> </Control>
+		<Control name="zoomInVertical"              type="trigger" options="receive"> <MidiMessage status="#90" address="#14" channel="15"/> </Control>
+		<Control name="zoomInVerticalFine"          type="trigger" options="receive"> <MidiMessage status="#90" address="#15" channel="15"/> </Control>
+		<Control name="zoomOutVertical"             type="trigger" options="receive"> <MidiMessage status="#90" address="#16" channel="15"/> </Control>
+		<Control name="zoomOutVerticalFine"         type="trigger" options="receive"> <MidiMessage status="#90" address="#17" channel="15"/> </Control>
+		<Control name="zoomUndo"                    type="trigger" options="receive"> <MidiMessage status="#90" address="#18" channel="15"/> </Control>
+		<Control name="zoomRedo"                    type="trigger" options="receive"> <MidiMessage status="#90" address="#19" channel="15"/> </Control>
+		<Control name="zoomToggle"                  type="trigger" options="receive"> <MidiMessage status="#90" address="#1A" channel="15"/> </Control>
+		<Control name="zoomFull"                    type="trigger" options="receive"> <MidiMessage status="#90" address="#1B" channel="15"/> </Control>
+		<Control name="zoomFullHorizontally"        type="trigger" options="receive"> <MidiMessage status="#90" address="#1C" channel="15"/> </Control>
+		<Control name="zoomFullVertically"          type="trigger" options="receive"> <MidiMessage status="#90" address="#1D" channel="15"/> </Control>
+		<Control name="zoomSelectedTrack"           type="trigger" options="receive"> <MidiMessage status="#90" address="#1E" channel="15"/> </Control>
+		<Control name="zoomLoop"                    type="trigger" options="receive"> <MidiMessage status="#90" address="#1F" channel="15"/> </Control>
+		<Control name="zoomToSelection"             type="trigger" options="receive"> <MidiMessage status="#90" address="#20" channel="15"/> </Control>
+		<Control name="zoomToSelectionHorizontally" type="trigger" options="receive"> <MidiMessage status="#90" address="#21" channel="15"/> </Control>
+		<Control name="zoomAutoToggle"              type="trigger" options="receive"> <MidiMessage status="#90" address="#22" channel="15"/> </Control>
+		<Control name="zoomAutoToggleFull"          type="trigger" options="receive"> <MidiMessage status="#90" address="#23" channel="15"/> </Control>
+		<Control name="zoomAutoToggleHorizontally"  type="trigger" options="receive"> <MidiMessage status="#90" address="#24" channel="15"/> </Control>
+		<Control name="zoomAutoToggleVertically"    type="trigger" options="receive"> <MidiMessage status="#90" address="#25" channel="15"/> </Control>
+		<Control name="viewDisplayLyrics"           type="trigger" options="receive"> <MidiMessage status="#90" address="#29" channel="15"/> </Control>
+		<Control name="viewOpenMarkerTrack"         type="trigger" options="receive"> <MidiMessage status="#90" address="#2A" channel="15"/> </Control>
+		<Control name="viewOpenSignatureTrack"      type="trigger" options="receive"> <MidiMessage status="#90" address="#2B" channel="15"/> </Control>
+		<Control name="viewOpenTempoTrack"          type="trigger" options="receive"> <MidiMessage status="#90" address="#2C" channel="15"/> </Control>
+		<Control name="viewOpenArrangerTrack"       type="trigger" options="receive"> <MidiMessage status="#90" address="#2D" channel="15"/> </Control>
+		<Control name="viewOpenVideoTrack"          type="trigger" options="receive"> <MidiMessage status="#90" address="#2E" channel="15"/> </Control>
+		<Control name="viewOpenChordTrack"          type="trigger" options="receive"> <MidiMessage status="#90" address="#2F" channel="15"/> </Control>
 		<Control name="scenesShowConsole"           type="trigger" options="receive"> <MidiMessage status="#90" address="#30" channel="15"/> </Control>
 		<Control name="scenesShowTrackList"         type="trigger" options="receive"> <MidiMessage status="#90" address="#31" channel="15"/> </Control>
 		<Control name="sceneAdd"                    type="trigger" options="receive"> <MidiMessage status="#90" address="#32" channel="15"/> </Control>
@@ -187,9 +199,6 @@
 			<Command control="viewShowGroups"                command.category="View"       command.name="Show Groups (Channel List)"/>
 			<Command control="viewToggleFloatingWindows"     command.category="View"       command.name="Toggle Floating Windows"/>
 			<Command control="viewTimeDisplay"               command.category="View"       command.name="Time Display"/>
-			<Command control="viewOpenMarkerTrack"           command.category="View"       command.name="Open Marker Track"/>
-			<Command control="viewOpenSignatureTrack"        command.category="View"       command.name="Open Signature Track"/>
-			<Command control="viewOpenTempoTrack"            command.category="View"       command.name="Open Tempo Track"/>
 			<Command control="viewFitTimeline"               command.category="View"       command.name="Fit Timeline to Contents"/>
 			<Command control="consoleShowInputs"             command.category="Console"    command.name="Show Inputs"/>
 			<Command control="consoleShowTrack"              command.category="Console"    command.name="Show Track"/>
@@ -252,6 +261,8 @@
 			<Command control="transportLoopGotoStart"        command.category="Transport"  command.name="Goto Loop Start"/>
 			<Command control="transportLoopGotoEnd"          command.category="Transport"  command.name="Goto Loop End"/>
 			<Command control="transportLocateSelection"      command.category="Transport"  command.name="Locate Selection"/>
+			<Command control="transportForwardBar"           command.category="Transport"  command.name="Forward Bar"/>
+			<Command control="transportRewindBar"            command.category="Transport"  command.name="Rewind Bar"/>
 			<Command control="markerDelete"                  command.category="Marker"     command.name="Delete"/>
 			<Command control="markerInsert"                  command.category="Marker"     command.name="Insert"/>
 			<Command control="markerInsertNamed"             command.category="Marker"     command.name="Insert Named"/>
@@ -301,10 +312,23 @@
 			<Command control="zoomRedo"                      command.category="Zoom"       command.name="Redo Zoom"/>
 			<Command control="zoomToggle"                    command.category="Zoom"       command.name="Toggle Zoom"/>
 			<Command control="zoomFull"                      command.category="Zoom"       command.name="Zoom Full"/>
+			<Command control="zoomFullHorizontally"          command.category="Zoom"       command.name="Zoom Full Horizontally"/>
+			<Command control="zoomFullVertically"            command.category="Zoom"       command.name="Zoom Full Vertically"/>
 			<Command control="zoomSelectedTrack"             command.category="Zoom"       command.name="Zoom Selected Track"/>
 			<Command control="zoomLoop"                      command.category="Zoom"       command.name="Zoom to Loop"/>
 			<Command control="zoomToSelection"               command.category="Zoom"       command.name="Zoom to Selection"/>
 			<Command control="zoomToSelectionHorizontally"   command.category="Zoom"       command.name="Zoom to Selection Horizontally"/>
+			<Command control="zoomAutoToggle"                command.category="Zoom"       command.name="Toggle Auto Zoom"/>
+			<Command control="zoomAutoToggleFull"            command.category="Zoom"       command.name="Toggle Auto Zoom Full"/>
+			<Command control="zoomAutoToggleHorizontally"    command.category="Zoom"       command.name="Toggle Auto Zoom Horizontally"/>
+			<Command control="zoomAutoToggleVertically"      command.category="Zoom"       command.name="Toggle Auto Zoom Vertically"/>
+			<Command control="viewDisplayLyrics"             command.category="View"       command.name="Lyrics Display"/>
+			<Command control="viewOpenMarkerTrack"           command.category="View"       command.name="Open Marker Track"/>
+			<Command control="viewOpenSignatureTrack"        command.category="View"       command.name="Open Signature Track"/>
+			<Command control="viewOpenTempoTrack"            command.category="View"       command.name="Open Tempo Track"/>
+			<Command control="viewOpenArrangerTrack"         command.category="View"       command.name="Open Arranger Track"/>
+			<Command control="viewOpenVideoTrack"            command.category="View"       command.name="Open Video Track"/>
+			<Command control="viewOpenChordTrack"            command.category="View"       command.name="Open Chord Track"/>
 			<Command control="scenesShowConsole"             command.category="View"       command.name="Show Scenes (Console)"/>
 			<Command control="scenesShowTrackList"           command.category="View"       command.name="Show Scenes (Track List)"/>
 			<Command control="sceneAdd"                      command.category="Console"    command.name="Add Scene"/>

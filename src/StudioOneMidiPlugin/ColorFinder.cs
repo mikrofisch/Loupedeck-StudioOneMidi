@@ -42,6 +42,7 @@
             public PotMode Mode = PotMode.Positive;
             public Boolean HideValueBar = false;
             public Boolean ShowUserButtonCircle = false;
+            public Boolean PaintLabelBg = true;
 
             public FinderColor OnColor;
             public FinderColor OffColor;
@@ -63,6 +64,7 @@
             public const String strLinkedParameter = "LinkedParameter";
             public const String strMode = "Mode";
             public const String strShowCircle = "ShowCircle";
+            public const String strPaintLabelBg = "PaintLabelBg";
             //public const String[] strModeValue = { "Positive", "Symmetric" };
         }
         private static readonly Dictionary<(String PluginName, String PluginParameter), ColorSettings> ColorDict = new Dictionary<(String, String), ColorSettings>();
@@ -211,6 +213,7 @@
 
         public ColorSettings.PotMode getMode(String pluginName, String parameterName, Boolean isUser = false) => this.getColorSettings(pluginName, parameterName, isUser).Mode;
         public Boolean getShowCircle(String pluginName, String parameterName, Boolean isUser = false) => this.getColorSettings(pluginName, parameterName, isUser).ShowUserButtonCircle;
+        public Boolean getPaintLabelBg(String pluginName, String parameterName, Boolean isUser = false) => this.getColorSettings(pluginName, parameterName, isUser).PaintLabelBg;
 
         public BitmapColor getOnColor(String pluginName, String parameterName, Boolean isUser = false) => this.findColor(this.getColorSettings(pluginName, parameterName, isUser).OnColor,
                                                                                                  this.DefaultColorSettings.OnColor);
@@ -265,6 +268,7 @@
         private void InitColorDict()
         {
             ColorDict.Add(("", "Bypass"), new ColorSettings { OnColor = new FinderColor(204, 156, 107), IconName = "bypass" });
+            ColorDict.Add(("", "Global Bypass"), new ColorSettings { OnColor = new FinderColor(204, 156, 107), IconName = "bypass" });
 
             ColorDict.Add(("Pro EQ", "Show Controls"), new S1TopControlColors(label: "Band Controls"));
             ColorDict.Add(("Pro EQ", "Show Dynamics"), new S1TopControlColors(label: "Dynamics"));
@@ -673,6 +677,44 @@
             this.addLinked("AXP SoftAmp PSA", "OS_Gain", "OS_Enab", label: "GAIN");
             this.addLinked("AXP SoftAmp PSA", "OS_Bias", "OS_Enab", label: "BIAS");
             this.addLinked("AXP SoftAmp PSA", "OS_Level", "OS_Enab", label: "LEVEL");
+
+            // Izotope
+
+            ColorDict.Add(("Neutron 4 Transient Shaper", "TS B1 Attack"), new ColorSettings { Label = "1: Attack", OnColor = new FinderColor(255, 96, 28), PaintLabelBg = false });
+            ColorDict.Add(("Neutron 4 Transient Shaper", "TS B1 Sustain"), new ColorSettings { Label = "1: Sustain", OnColor = new FinderColor(255, 96, 28), PaintLabelBg = false });
+            ColorDict.Add(("Neutron 4 Transient Shaper", "TS B1 Bypass"), new ColorSettings { Label = "Bypass", OnColor = new FinderColor(255, 96, 28), TextOnColor = FinderColor.Black });
+            ColorDict.Add(("Neutron 4 Transient Shaper", "TS B2 Attack"), new ColorSettings { Label = "2: Attack", OnColor = new FinderColor(63, 191, 173), PaintLabelBg = false });
+            ColorDict.Add(("Neutron 4 Transient Shaper", "TS B2 Sustain"), new ColorSettings { Label = "2: Sustain", OnColor = new FinderColor(63, 191, 173), PaintLabelBg = false });
+            ColorDict.Add(("Neutron 4 Transient Shaper", "TS B2 Bypass"), new ColorSettings { Label = "Bypass", OnColor = new FinderColor(63, 191, 173), TextOnColor = FinderColor.Black });
+            ColorDict.Add(("Neutron 4 Transient Shaper", "TS B3 Attack"), new ColorSettings { Label = "3: Attack", OnColor = new FinderColor(196, 232, 107), PaintLabelBg = false });
+            ColorDict.Add(("Neutron 4 Transient Shaper", "TS B3 Sustain"), new ColorSettings { Label = "3: Sustain", OnColor = new FinderColor(196, 232, 107), PaintLabelBg = false });
+            ColorDict.Add(("Neutron 4 Transient Shaper", "TS B3 Bypass"), new ColorSettings { Label = "Bypass", OnColor = new FinderColor(196, 232, 107), TextOnColor = FinderColor.Black });
+            ColorDict.Add(("Neutron 4 Transient Shaper", "Global Input Gain"), new ColorSettings { Label = "In" });
+            ColorDict.Add(("Neutron 4 Transient Shaper", "Global Output Gain"), new ColorSettings { Label = "Out" });
+            ColorDict.Add(("Neutron 4 Transient Shaper", "Sum to Mono"), new ColorSettings { Label = "Mono", OnColor = new FinderColor(255, 96, 28), TextOnColor = FinderColor.Black });
+            ColorDict.Add(("Neutron 4 Transient Shaper", "Swap Channels"), new ColorSettings { Label = "Swap", OnColor = new FinderColor(255, 96, 28), TextOnColor = FinderColor.Black });
+            ColorDict.Add(("Neutron 4 Transient Shaper", "Invert Phase"), new ColorSettings { OnColor = new FinderColor(255, 96, 28), TextOnColor = FinderColor.Black });
+            ColorDict.Add(("Neutron 4 Transient Shaper", "TS Global Mix"), new ColorSettings { Label = "Mix", OnColor = new FinderColor(255, 96, 28) });
+
+            ColorDict.Add(("Trash", "B2 Trash Drive"), new ColorSettings { Label = "Drive", OnColor = new FinderColor(240, 0, 133), Mode = ColorSettings.PotMode.Symmetric, PaintLabelBg = false });
+            ColorDict.Add(("Trash", "B2 Trash Tilt Gain"), new ColorSettings { Label = "Tilt", OnColor = new FinderColor(240, 0, 133), Mode = ColorSettings.PotMode.Symmetric, PaintLabelBg = false });
+            ColorDict.Add(("Trash", "B2 Trash Tilt Frequency"), new ColorSettings { Label = "Frequency", OnColor = new FinderColor(240, 0, 133), PaintLabelBg = false });
+            ColorDict.Add(("Trash", "B2 Trash Mix"), new ColorSettings { Label = "Mix", OnColor = new FinderColor(240, 0, 133), PaintLabelBg = false });
+            ColorDict.Add(("Trash", "B2 Trash Blend X"), new ColorSettings { Label = "X", OnColor = new FinderColor(240, 0, 133), Mode = ColorSettings.PotMode.Symmetric, PaintLabelBg = false });
+            ColorDict.Add(("Trash", "B2 Trash Blend Y"), new ColorSettings { Label = "Y", OnColor = new FinderColor(240, 0, 133), Mode = ColorSettings.PotMode.Symmetric, PaintLabelBg = false });
+            ColorDict.Add(("Trash", "B2 Trash Top Left Style"), new ColorSettings { Label = "Style", OnColor = new FinderColor(240, 0, 133), Mode = ColorSettings.PotMode.Symmetric, PaintLabelBg = false });
+            ColorDict.Add(("Trash", "B2 Trash Top Right Style"), new ColorSettings { Label = "Style", OnColor = new FinderColor(240, 0, 133), Mode = ColorSettings.PotMode.Symmetric, PaintLabelBg = false });
+            ColorDict.Add(("Trash", "B2 Trash Bottom Left Style"), new ColorSettings { Label = "Style", OnColor = new FinderColor(240, 0, 133), Mode = ColorSettings.PotMode.Symmetric, PaintLabelBg = false });
+            ColorDict.Add(("Trash", "B2 Trash Bottom Right Style"), new ColorSettings { Label = "Style", OnColor = new FinderColor(240, 0, 133), Mode = ColorSettings.PotMode.Symmetric, PaintLabelBg = false });
+            ColorDict.Add(("Trash", "Global Input Gain"), new ColorSettings { Label = "IN" });
+            ColorDict.Add(("Trash", "Global Output Gain"), new ColorSettings { Label = "OUT" });
+            ColorDict.Add(("Trash", "Auto Gain Enabled"), new ColorSettings { Label = "Auto Gain" });
+            ColorDict.Add(("Trash", "Limiter Enabled"), new ColorSettings { Label = "Limiter" });
+
+
+            // Tokio Dawn Labs
+            ColorDict.Add(("TDR Kotelnikov", ""), new ColorSettings { OnColor = new FinderColor(42, 75, 124) });
+            ColorDict.Add(("TDR Kotelnikov", "SC Stereo Diff"), new ColorSettings { Label = "Stereo Diff", OnColor = new FinderColor(42, 75, 124) });
         }
     }
 }

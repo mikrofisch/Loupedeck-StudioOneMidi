@@ -377,6 +377,64 @@
             ColorDict.Add(("Phaser", "Log. Sweep"), new ColorSettings { OnColor = new FinderColor(188, 198, 206), TextOnColor = FinderColor.Black });
             ColorDict.Add(("Phaser", "Soft"), new ColorSettings { OnColor = new FinderColor(188, 198, 206), TextOnColor = FinderColor.Black });
 
+            ColorDict.Add(("Alpine Desk", "Boost"), new ColorSettings { DialSteps = 2, HideValueBar = true });
+            ColorDict.Add(("Alpine Desk", "Preamp On"), new ColorSettings { Label = "ON", OnColor = new FinderColor(0, 154, 144) });
+            ColorDict.Add(("Alpine Desk", "Noise On"), new ColorSettings { Label = "ON", OnColor = new FinderColor(0, 154, 144) });
+            ColorDict.Add(("Alpine Desk", "Noise Gate On"), new ColorSettings { Label = "Noise Gate", OnColor = new FinderColor(0, 154, 144) });
+            ColorDict.Add(("Alpine Desk", "Crosstalk"), new ColorSettings { OnColor = new FinderColor(253, 202, 0) });
+            ColorDict.Add(("Alpine Desk", "Crosstalk On"), new ColorSettings { Label = "ON", OnColor = new FinderColor(0, 154, 144) });
+            ColorDict.Add(("Alpine Desk", "Transformer"), new ColorSettings { OnColor = new FinderColor(224, 22, 36), DialSteps = 1, HideValueBar = true });
+            ColorDict.Add(("Alpine Desk", "Master"), new ColorSettings { Mode = ColorSettings.PotMode.Symmetric });
+            ColorDict.Add(("Alpine Desk", "Compensation"), new ColorSettings { LabelOn = "Channel", Label = "Bus", OnColor = new FinderColor(0, 154, 144), OffColor = new FinderColor(0, 154, 144), TextOffColor = FinderColor.White });
+            ColorDict.Add(("Alpine Desk", "Character Enhancer"), new ColorSettings { Label = "Character" });
+            ColorDict.Add(("Alpine Desk", "Economy"), new ColorSettings { Label = "Eco", OnColor = new FinderColor(0, 154, 144) });
+
+            ColorDict.Add(("Brit Console", "Boost"), new ColorSettings { DialSteps = 2, OnColor = new FinderColor(43, 128, 157), HideValueBar = true });
+            ColorDict.Add(("Brit Console", "Drive"), new ColorSettings { OnColor = new FinderColor(43, 128, 157) });
+            ColorDict.Add(("Brit Console", "Preamp On"), new ColorSettings { Label = "ON", OnColor = new FinderColor(202, 74, 68), ShowUserButtonCircle = true });
+            ColorDict.Add(("Brit Console", "Noise"), new ColorSettings { OnColor = new FinderColor(43, 128, 157) });
+            ColorDict.Add(("Brit Console", "Noise On"), new ColorSettings { Label = "ON", OnColor = new FinderColor(202, 74, 68), ShowUserButtonCircle = true });
+            ColorDict.Add(("Brit Console", "Noise Gate On"), new ColorSettings { Label = "Gate", OnColor = new FinderColor(202, 74, 68), ShowUserButtonCircle = true });
+            ColorDict.Add(("Brit Console", "Crosstalk"), new ColorSettings { OnColor = new FinderColor(43, 128, 157) });
+            ColorDict.Add(("Brit Console", "Crosstalk On"), new ColorSettings { Label = "ON", OnColor = new FinderColor(202, 74, 68), ShowUserButtonCircle = true });
+            ColorDict.Add(("Brit Console", "Style"), new ColorSettings { OnColor = new FinderColor(202, 74, 68), DialSteps = 2, HideValueBar = true });
+            ColorDict.Add(("Brit Console", "Harmonics"), new ColorSettings { OnColor = new FinderColor(202, 74, 68) });
+            ColorDict.Add(("Brit Console", "Compensation"), new ColorSettings { LabelOn = "Channel", Label = "Bus", TextOffColor = FinderColor.White });
+            ColorDict.Add(("Brit Console", "Character Enhancer"), new ColorSettings { Label = "Character", OnColor = new FinderColor(43, 128, 157) });
+            ColorDict.Add(("Brit Console", "Master"), new ColorSettings { OnColor = new FinderColor(43, 128, 157), Mode = ColorSettings.PotMode.Symmetric });
+            ColorDict.Add(("Brit Console", "Economy"), new ColorSettings { Label = "Eco", OnColor = new FinderColor(202, 74, 68), ShowUserButtonCircle = true });
+
+            ColorDict.Add(("CTC-1", "Boost"), new ColorSettings { OnColor = new FinderColor(244, 104, 26) });
+            ColorDict.Add(("CTC-1", "Preamp On"), new ColorSettings { Label = "ON", OnColor = new FinderColor(244, 104, 26) });
+            ColorDict.Add(("CTC-1", "Noise"), new ColorSettings { DialSteps = 4 });
+            ColorDict.Add(("CTC-1", "Noise On"), new ColorSettings { Label = "ON", OnColor = new FinderColor(244, 104, 26) });
+            ColorDict.Add(("CTC-1", "Noise Gate On"), new ColorSettings { Label = "Gate", OnColor = new FinderColor(244, 104, 26) });
+            ColorDict.Add(("CTC-1", "Preamp Type"), new ColorSettings { Label = "Type", DialSteps = 2, HideValueBar = true });
+            ColorDict.Add(("CTC-1", "Crosstalk On"), new ColorSettings { Label = "ON", OnColor = new FinderColor(244, 104, 26) });
+            ColorDict.Add(("CTC-1", "Compensation"), new ColorSettings { LabelOn = "Channel", Label = "Bus", OnColor = new FinderColor(69, 125, 159), OffColor = new FinderColor(69, 125, 159), TextOnColor = FinderColor.White, TextOffColor = FinderColor.White });
+            ColorDict.Add(("CTC-1", "Character Enhancer"), new ColorSettings { Label = "Character" });
+            ColorDict.Add(("CTC-1", "Master"), new ColorSettings { Mode = ColorSettings.PotMode.Symmetric });
+            ColorDict.Add(("CTC-1", "Economy"), new ColorSettings { Label = "Eco", OnColor = new FinderColor(69, 125, 159) });
+
+            ColorDict.Add(("Porta Casstte", "Boost"), new ColorSettings { OnColor = new FinderColor(251, 0, 3) });
+            ColorDict.Add(("Porta Cassette", "Drive"), new ColorSettings { OnColor = new FinderColor(226, 226, 226) });
+            ColorDict.Add(("Porta Cassette", "Preamp On"), new ColorSettings { Label = "ON", OnColor = new FinderColor(251, 0, 3), ShowUserButtonCircle = true });
+            ColorDict.Add(("Porta Cassette", "Noise"), new ColorSettings { OnColor = new FinderColor(226, 226, 226) });
+            ColorDict.Add(("Porta Cassette", "Noise On"), new ColorSettings { Label = "ON", OnColor = new FinderColor(251, 0, 3), ShowUserButtonCircle = true });
+            ColorDict.Add(("Porta Cassette", "Noise Gate On"), new ColorSettings { Label = "Gate", OnColor = new FinderColor(251, 0, 3), ShowUserButtonCircle = true });
+            ColorDict.Add(("Porta Cassette", "Crosstalk"), new ColorSettings { OnColor = new FinderColor(226, 226, 226) });
+            ColorDict.Add(("Porta Cassette", "Crosstalk On"), new ColorSettings { Label = "ON", OnColor = new FinderColor(251, 0, 3), ShowUserButtonCircle = true });
+            ColorDict.Add(("Porta Cassette", "Pitch"), new ColorSettings { OnColor = new FinderColor(144, 153, 153), Mode = ColorSettings.PotMode.Symmetric });
+            ColorDict.Add(("Porta Cassette", "Compensation"), new ColorSettings { LabelOn = "Channel", Label = "Bus", TextOffColor = FinderColor.White });
+            ColorDict.Add(("Porta Cassette", "Character Enhancer"), new ColorSettings { Label = "Character", OnColor = new FinderColor(226, 226, 226) });
+            ColorDict.Add(("Porta Cassette", "Master"), new ColorSettings { OnColor = new FinderColor(226, 226, 226), Mode = ColorSettings.PotMode.Symmetric });
+            ColorDict.Add(("Porta Cassette", "Economy"), new ColorSettings { Label = "Eco" });
+
+            ColorDict.Add(("Console Shaper", "Preamp On"), new ColorSettings { Label = "ON", OnColor = new FinderColor(114, 167, 204) });
+            ColorDict.Add(("Console Shaper", "Noise"), new ColorSettings { DialSteps = 4 });
+            ColorDict.Add(("Console Shaper", "Noise On"), new ColorSettings { Label = "ON", OnColor = new FinderColor(114, 167, 204) });
+            ColorDict.Add(("Console Shaper", "Crosstalk On"), new ColorSettings { Label = "ON", OnColor = new FinderColor(114, 167, 204) });
+
             // Waves
 
             ColorDict.Add(("SSLGChannel", "HP Frq"), new ColorSettings { OnColor = new FinderColor(220, 216, 207) });

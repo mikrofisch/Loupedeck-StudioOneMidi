@@ -3,8 +3,16 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Reflection.Emit;
     using System.Text.RegularExpressions;
+    using System.Text.Json;
+    using System.Diagnostics;
+    using System.Text.Json.Serialization;
+    using System.Windows.Forms;
+    using System.IO;
+    using System.Xml.Serialization;
+    using System.Security.Permissions;
+    using System.Runtime.InteropServices;
+    using System.ComponentModel;
 
     // BitmapColor objects that have not been explicitly assigned to a
     // color are automatically replaced by the currently defined default color.
@@ -12,10 +20,13 @@
     // to a color (BitmapColor.NoColor evaluates to the same values as BitmapColor.White) and
     // it cannot be set to null, we define a new class that can be null.
     //
-    public class FinderColor
+    [JsonConverter(typeof(FinderColorConverter))]
+    [XmlRoot("FinderColor")]
+    public class FinderColor : IXmlSerializable
     {
-        public BitmapColor Color;
+        public BitmapColor Color { get; set; }
 
+        public FinderColor() { }
         public FinderColor(BitmapColor b)
         {
             this.Color = b;
@@ -31,29 +42,75 @@
         public static FinderColor Transparent => new FinderColor(BitmapColor.Transparent);
         public static FinderColor White => new FinderColor(BitmapColor.White);
         public static FinderColor Black => new FinderColor(BitmapColor.Black);
+
+        #region IXmlSerializable members
+
+        public System.Xml.Schema.XmlSchema GetSchema() => null;
+
+        public void ReadXml(System.Xml.XmlReader reader)
+        {
+            var str = reader.ReadString();
+            reader.ReadEndElement();
+        }
+
+        public void WriteXml(System.Xml.XmlWriter writer)
+        {
+            if (this.Color != null)
+            {
+                var str = $"rgb({this.Color.R},{this.Color.G},{this.Color.B})";
+                str = "murks";
+
+                writer.WriteString(str);
+                writer.WriteEndElement();
+            }
+        }
+
+        #endregion
+    }
+    public class FinderColorConverter : JsonConverter<FinderColor>
+    {
+        public override FinderColor Read(
+            ref Utf8JsonReader reader,
+            Type typeToConvert,
+            JsonSerializerOptions options) =>
+                FinderColor.White;
+
+        public override void Write(
+            Utf8JsonWriter writer,
+            FinderColor color,
+            JsonSerializerOptions options) =>
+                writer.WriteStringValue($"{color.Color.R},{color.Color.G},{color.Color.B}");
     }
 
     public class ColorFinder
     {
         public static readonly BitmapColor NoColor = new BitmapColor(-1, -1, -1);
+        [XmlInclude(typeof(S1TopControlColors))]
         public class ColorSettings
         {
             public enum PotMode { Positive, Symmetric };
-            public PotMode Mode = PotMode.Positive;
-            public Boolean HideValueBar = false;
-            public Boolean ShowUserButtonCircle = false;
-            public Boolean PaintLabelBg = true;
+            public PotMode Mode { get; set; } = PotMode.Positive;
+            [DefaultValueAttribute(false)] 
+            public Boolean HideValueBar { get; set; } = false;
+            [DefaultValueAttribute(false)]
+            public Boolean ShowUserButtonCircle { get; set; } = false;
+            [DefaultValueAttribute(true)]
+            public Boolean PaintLabelBg { get; set; } = true;
 
-            public FinderColor OnColor;
-            public FinderColor OffColor;
-            public FinderColor TextOnColor;
-            public FinderColor TextOffColor;
-            public String IconName, IconNameOn;
-            public String Label;
-            public String LabelOn;
-            public String LinkedParameter;
-            public Boolean LinkReversed = false;
-            public Int32 DialSteps = 100;                // Number of steps for a mode dial
+            public FinderColor OnColor { get; set; }
+            public FinderColor OffColor { get; set; }
+//            [XmlElement, DefaultValue(null)]
+            public FinderColor TextOnColor { get; set; }
+            public FinderColor TextOffColor { get; set; }
+            public String IconName { get; set; }
+            public String IconNameOn { get; set; }
+            public String Label { get; set; }
+            public String LabelOn { get; set; }
+            public String LinkedParameter { get; set; }
+            [DefaultValueAttribute(false)]
+            public Boolean LinkReversed { get; set; } = false;
+            [DefaultValueAttribute(100)]
+            public Int32 DialSteps { get; set; } = 100;               // Number of steps for a mode dial
 
             public String[] MenuItems;
 
@@ -76,6 +133,15 @@
         public Int32 CurrentUserPage = 0;              // For tracking the current user page position
         public Int32 CurrentChannel = 0;
 
+        const String ConfigFileName = "AudioPluginConfig.xml";
+
+        public class ConfigEntry
+        {
+            public String key1;
+            public String key2;
+            public ColorSettings colorSettings;
+        }
+
         public ColorSettings DefaultColorSettings { get; private set; } = new ColorSettings
         {
             OnColor = FinderColor.Transparent,
@@ -93,8 +159,9 @@
             this.DefaultColorSettings = defaultColorSettings;
         }
 
-        internal class S1TopControlColors : ColorSettings
+        public class S1TopControlColors : ColorSettings
         {
+            public S1TopControlColors() { }
             public S1TopControlColors(String label = null)
             {
                 this.OnColor = new FinderColor(54, 84, 122);
@@ -113,6 +180,33 @@
             {
                 this.InitColorDict();
 
+                var ConfigFilePath = Path.Combine(Directory.GetParent(Application.LocalUserAppDataPath.TrimEnd(Path.DirectorySeparatorChar)).FullName, ConfigFileName);
+
+                var serializer = new XmlSerializer(typeof(ConfigEntry));
+                TextWriter writer = new StreamWriter(ConfigFilePath);
+
+                foreach (KeyValuePair<(String, String), ColorSettings> entry in ColorDict)
+                {
+                    serializer.Serialize(writer, new ConfigEntry { key1 = entry.Key.Item1,
+                                                                   key2 = entry.Key.Item2,
+                                                                   colorSettings = entry.Value });
+                }
+
+                writer.Close();
+
+                var options = new JsonSerializerOptions { WriteIndented = true, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault };
+                foreach (KeyValuePair<(String, String), ColorSettings> entry in ColorDict)
+                {
+                    var jsonString = "{ \"key1\": \"" + entry.Key.Item1 + "\",\n";
+                    jsonString += "  \"key2\": \"" + entry.Key.Item2 + "\",\n";
+                    jsonString += "  \"colorSettings\": " + JsonSerializer.Serialize(entry.Value, options);
+                    jsonString += "}";
+
+                    Debug.WriteLine(jsonString);
+                }
+
+                // Read Loupedeck plugin settings
+
                 var settingsList = plugin.ListPluginSettings();
 
                 foreach (var setting in settingsList)
@@ -123,6 +217,7 @@
                         if (!ColorDict.TryGetValue((settingsParsed[0], settingsParsed[1]), out var cs))
                         {
                             cs = new ColorSettings { };
+                            ColorDict.Add((settingsParsed[0], settingsParsed[1]), cs);
                         }
                         if (plugin.TryGetPluginSetting(settingName(settingsParsed[0], settingsParsed[1], settingsParsed[2]), out var val))
                         {

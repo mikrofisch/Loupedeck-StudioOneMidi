@@ -17,7 +17,7 @@
             this.DisplayName = "Channel Select Button";
             this.Description = "Button for selecting a channel";
 
-            for (int i = 0; i < StudioOneMidiPlugin.ChannelCount; i++)
+            for (var i = 0; i < StudioOneMidiPlugin.ChannelCount; i++)
             {
                 var idx = $"{i}";
 

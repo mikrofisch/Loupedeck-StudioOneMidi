@@ -31,6 +31,7 @@
             this.AddButton(new OneWayCommandButtonData(14, 0x0A, "Floating Window"), "View");
             this.AddButton(new OneWayCommandButtonData(14, 0x0B, "Time Display", "time_display"), "View");
             this.AddButton(new OneWayCommandButtonData(14, 0x0C, "Fit Timeline"), "View");
+            this.AddButton(new OneWayCommandButtonData(14, 0x0D, "Reset Window Positions", "reset_window_positions"), "View");
             this.AddButton(new OneWayCommandButtonData(14, 0x10, "Show Inputs", "show_inputs"), "Console");
             this.AddButton(new OneWayCommandButtonData(14, 0x11, "Show Track"), "Console");
             this.AddButton(new OneWayCommandButtonData(14, 0x12, "Channel Editor", "channel_editor"), "Console");

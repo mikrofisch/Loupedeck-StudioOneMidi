@@ -14,7 +14,7 @@ namespace Loupedeck.StudioOneMidiPlugin
         public string ValueStr = "";
         public string Description = "";
         public string UserLabel = "";
-        public Boolean UserActive = false;
+        public Int32 UserValue = 0;
 
         public bool[] BoolProperty = new bool[(int)Enum.GetNames(typeof(ChannelProperty.PropertyType)).Length];
 
@@ -83,29 +83,24 @@ namespace Loupedeck.StudioOneMidiPlugin
 		public void EmitVolumeUpdate()
 		{
 			var e = new PitchBendEvent();
-			e.PitchValue = (ushort)(Value * 16383);
+			e.PitchValue = (ushort)(this.Value * 16383);
 			e.Channel = (FourBitNumber)this.ChannelID;
-			plugin.mackieMidiOut.SendEvent(e);
+			this.plugin.mackieMidiOut.SendEvent(e);
 
 			this.plugin.EmitChannelDataChanged();
 		}
 
         public void EmitValueReset()
         {
-            var e = new NoteOnEvent();
-            e.NoteNumber = (SevenBitNumber)(0x20 + this.ChannelID);
-            e.Velocity = (SevenBitNumber)(127);
-            plugin.mackieMidiOut.SendEvent(e);
-
-            this.plugin.EmitChannelDataChanged();
+            this.plugin.SendMidiNote(0, 0x20 + this.ChannelID);
         }
 
         public void EmitChannelPropertyPress(ChannelProperty.PropertyType type)
 		{
 			var e = new NoteOnEvent();
 			e.NoteNumber = (SevenBitNumber)(ChannelProperty.MidiBaseNote[(int)type] + this.ChannelID);
-			e.Velocity = (SevenBitNumber)(127);
-			plugin.mackieMidiOut.SendEvent(e);
+			e.Velocity = (SevenBitNumber)127;
+			this.plugin.mackieMidiOut.SendEvent(e);
 
 			var e2 = new NoteOffEvent();
 			e2.NoteNumber = e.NoteNumber;

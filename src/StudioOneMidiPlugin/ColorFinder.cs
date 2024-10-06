@@ -5,6 +5,7 @@
     using System.Linq;
     using System.Reflection.Emit;
     using System.Text.RegularExpressions;
+    using System.Web.UI.WebControls;
 
     // BitmapColor objects that have not been explicitly assigned to a
     // color are automatically replaced by the currently defined default color.
@@ -53,9 +54,9 @@
             public String LabelOn;
             public String LinkedParameter;
             public Boolean LinkReversed = false;
-            public Int32 DialSteps = 100;                // Number of steps for a mode dial
+            public Int32 DialSteps = 100;               // Number of steps for a mode dial
 
-            public String[] MenuItems;
+            public String[] MenuItems;                  // Items for user button menu
 
             // For plugin settings
             public const String strOnColor = "OnColor";
@@ -260,10 +261,9 @@
         public Boolean hideValueBar(String pluginName, String parameterName, Boolean isUser = false) => this.getColorSettings(pluginName, parameterName, isUser).HideValueBar;
         public Boolean showUserButtonCircle(String pluginName, String parameterName, Boolean isUser = false) => this.getColorSettings(pluginName, parameterName, isUser).ShowUserButtonCircle;
         public Int32 getDialSteps(String pluginName, String parameterName, Boolean isUser = false) => this.getColorSettings(pluginName, parameterName, isUser).DialSteps;
+        public String[] getMenuItems(String pluginName, String parameterName, Boolean isUser = false) => this.getColorSettings(pluginName, parameterName, isUser).MenuItems;
 
-
-        public static String settingName(String pluginName, String parameterName, String setting) => 
-            strColorSettingsID + pluginName + "|" + parameterName + "|" + setting;
+        public static String settingName(String pluginName, String parameterName, String setting) =>      strColorSettingsID + pluginName + "|" + parameterName + "|" + setting;
 
         private void InitColorDict()
         {
@@ -580,6 +580,7 @@
             ColorDict.Add(("CLA Unplugged", "Direct"), new ColorSettings { OnColor = new FinderColor(80, 80, 80), OffColor = new FinderColor(240, 228, 87),
                                                                            TextOnColor = FinderColor.Black, TextOffColor = FinderColor.Black });
 
+            ColorDict.Add(("CLA-76", "Ratio"), new ColorSettings { MenuItems = ["20", "12", "6", "4", "ALL"] });
 
             // Analog Obsession
 

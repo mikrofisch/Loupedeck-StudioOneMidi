@@ -54,7 +54,8 @@
         {
             Sends = 0,
             User = 1,
-            PluginSelectionActivated = 2
+            PluginSelectionActivated = 2,
+            UserMenuActivated = 3       // User defined selection menu for plugin control
         }
         private UserSendsLayerMode CurrentUserSendsLayerMode = UserSendsLayerMode.User;
 
@@ -192,6 +193,13 @@
             this.addButton(ButtonLayer.faderModesSend, "3", new UserModeButtonData());
             this.addButton(ButtonLayer.faderModesSend, "4", new PanCommandButtonData("VIEWS"));
             this.addButton(ButtonLayer.faderModesSend, "5", new SendsCommandButtonData(), isNoteReceiver: true);
+            this.addButton(ButtonLayer.faderModesSend, "0-3", new UserMenuSelectButtonData());
+            this.addButton(ButtonLayer.faderModesSend, "1-3", new UserMenuSelectButtonData());
+            this.addButton(ButtonLayer.faderModesSend, "2-3", new UserMenuSelectButtonData());
+            this.addButton(ButtonLayer.faderModesSend, "3-3", new UserMenuSelectButtonData());
+            this.addButton(ButtonLayer.faderModesSend, "4-3", new UserMenuSelectButtonData());
+            this.addButton(ButtonLayer.faderModesSend, "5-3", new UserMenuSelectButtonData());
+
         }
 
         // common
@@ -261,6 +269,16 @@
             {
                 (this.buttonData[idxPlayMuteSoloButton] as PropertyButtonData).setPropertyType(e);
                 // this.EmitActionImageChanged();
+            };
+            this.plugin.UserButtonMenuActivated += (object sender, UserButtonMenuParams e) =>
+            {
+                for (var i = 0; i < e.MenuItems.Length && i < 6; i++)
+                {
+                    var value = (UInt16)(16383 / (e.MenuItems.Length - 1) * i);
+                    (this.buttonData[$"{(Int32)ButtonLayer.faderModesSend}:{i}-3"] as UserMenuSelectButtonData).init(e.MidiChannel, value, e.MenuItems[i]);
+                }
+                this.CurrentUserSendsLayerMode = UserSendsLayerMode.UserMenuActivated;
+                this.EmitActionImageChanged();
             };
 
             return true;
@@ -483,6 +501,12 @@
                     }
                     break;
                 case ButtonLayer.faderModesSend:
+                    if (this.CurrentUserSendsLayerMode == UserSendsLayerMode.UserMenuActivated)
+                    {
+                        this.CurrentUserSendsLayerMode = UserSendsLayerMode.User;
+                        this.EmitActionImageChanged();
+                        break;
+                    }
                     switch (Int32.Parse(actionParameter))
                     {
                         case 2: // PLUGINS
@@ -594,6 +618,9 @@
                         case UserSendsLayerMode.PluginSelectionActivated:
                             if ("013".Contains(actionParameter)) idx += "-2";
                             if ("2".Contains(actionParameter)) idx += "-1";
+                            break;
+                        case UserSendsLayerMode.UserMenuActivated:
+                            idx += "-3";
                             break;
                     }
                     break;

@@ -197,7 +197,7 @@
                 {
                     if (ubp != null && ubp.userLabel == linkedParameter)
                     {
-                        isActive = ubp.isActive;
+                        isActive = ubp.isActive();
                         break;
                     }
                 }

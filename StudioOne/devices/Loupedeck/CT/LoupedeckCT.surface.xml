@@ -21,7 +21,7 @@
 		<!-- ******************************************************************************************** -->
 
 		<Control name="masterFader" title="Master Fader"  type="fader" options="transmit receive public">
-			<MidiMessage status="#E0" channel="8"/>
+			<MidiMessage status="#E0" channel="14"/>
 		</Control>
 
 		<!-- Virtual master display for editor -->

@@ -4,7 +4,11 @@
     using static Loupedeck.StudioOneMidiPlugin.StudioOneMidiPlugin;
     using System.Threading;
 
-    // This defines 
+    // Button for channel selection functions. These are used in the left and
+    // right columns of the channel modes keypad. Different selection modes allow
+    // the setting of channel states such as selection, mute, solo, as well
+    // as user defined functions for plugin control.
+    //
     // Based on the source code for the official Loupedeck OBS Studio plugin
     // (https://github.com/Loupedeck-open-source/Loupedeck-ObsStudio-OpenPlugin)
     //
@@ -15,7 +19,7 @@
         public ChannelSelectButton()
         {
             this.DisplayName = "Channel Select Button";
-            this.Description = "Button for selecting a channel";
+            this.Description = "Button for channel functions, works together with the modes keypad";
 
             for (var i = 0; i < StudioOneMidiPlugin.ChannelCount; i++)
             {
@@ -33,14 +37,14 @@
             this.plugin.UserButtonChanged += (object sender, UserButtonParams e) =>
             {
                 var bd = this.buttonData[e.channelIndex.ToString()];
-                bd.UserButtonActive = e.isActive;
+                bd.UserButtonActive = e.isActive();
                 bd.UserLabel = e.userLabel;
 
                 foreach (var sbd in this.buttonData.Values)
                 {
                     if (SelectButtonData.UserColorFinder.getLinkedParameter(SelectButtonData.PluginName, sbd.UserLabel) == e.userLabel)
                     {
-                        sbd.UserButtonEnabled = SelectButtonData.UserColorFinder.getLinkReversed(SelectButtonData.PluginName, sbd.UserLabel) ? !e.isActive : e.isActive;
+                        sbd.UserButtonEnabled = SelectButtonData.UserColorFinder.getLinkReversed(SelectButtonData.PluginName, sbd.UserLabel) ? !e.isActive() : e.isActive();
                     }
                 }
                 this.EmitActionImageChanged();
@@ -72,7 +76,7 @@
                 SelectButtonData.PluginName = getPluginName(e);
                 this.EmitActionImageChanged();
             };
-            
+
             return true;
         }
 

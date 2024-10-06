@@ -3,9 +3,11 @@ namespace Loupedeck.StudioOneMidiPlugin
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Runtime.CompilerServices;
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
+    using System.Windows.Navigation;
 
     using Loupedeck.StudioOneMidiPlugin.Controls;
 
@@ -26,15 +28,15 @@ namespace Loupedeck.StudioOneMidiPlugin
 		public InputDevice midiIn = null, mackieMidiIn = null;
 		public OutputDevice midiOut = null, mackieMidiOut = null;
 
-		public const int ChannelCount = 6;
+		public const Int32 ChannelCount = 6;
 
 		public IDictionary<string, MackieChannelData> channelData = new Dictionary<string, MackieChannelData>();
 
-        string midiInName, midiOutName, mackieMidiInName, mackieMidiOutName;
+        String midiInName, midiOutName, mackieMidiInName, mackieMidiOutName;
 
         public ChannelFader channelFader;
 
-        public bool isConfigWindowOpen = false;
+        public Boolean isConfigWindowOpen = false;
 
         public event EventHandler ChannelDataChanged;
         public event EventHandler<NoteOnEvent> CommandNoteReceived;
@@ -70,11 +72,19 @@ namespace Loupedeck.StudioOneMidiPlugin
         public const int UserButtonMidiBase = 0x70;
         public class UserButtonParams
         {
-            public int channelIndex { get; set; }
+            public Int32 channelIndex { get; set; }
+            public Int32 userValue { get; set; } = 0;
             public String userLabel;
-            public bool isActive { get; set; } = false;
+            public Boolean isActive() => this.userValue > 0 ;
         }
         public event EventHandler<UserButtonParams> UserButtonChanged;
+
+        public class UserButtonMenuParams
+        {
+            public Int32 MidiChannel { get; set; }
+            public String[] MenuItems { get; set; }
+        }
+        public event EventHandler<UserButtonMenuParams> UserButtonMenuActivated;
 
         public const Int32 MaxUserPages = 6;
         private const Int32 UserPageMidiBase = 0x2B;
@@ -280,6 +290,9 @@ namespace Loupedeck.StudioOneMidiPlugin
         public void EmitPropertySelectionChanged(ChannelProperty.PropertyType pt) => 
             this.PropertySelectionChanged?.Invoke(this, pt);
 
+        public void EmitUserButtonMenuActivated(UserButtonMenuParams ubmp) =>
+            this.UserButtonMenuActivated?.Invoke(this, ubmp)
+;
         public override void RunCommand(String commandName, String parameter)
         {
 		}
@@ -311,15 +324,37 @@ namespace Loupedeck.StudioOneMidiPlugin
         private void OnMidiEvent(object sender, MidiEventReceivedEventArgs args)
         {
             MidiEvent e = args.Event;
-            // PitchBend -> faders
+            // PitchBend -> faders & user button values
             if (e is PitchBendEvent)
             {
-                if (!this.channelData.TryGetValue(((int)(e as ChannelEvent).Channel).ToString(), out MackieChannelData cd))
-                    return;
+                var pbe = e as PitchBendEvent;
 
-                var ce = e as PitchBendEvent;
-                cd.Value = ce.PitchValue / 16383.0f;
-                this.EmitChannelDataChanged();
+                if (pbe.Channel < ChannelCount + 2)
+                {
+                    // Faders for 6 channels and vol + pan for selected channel
+                    
+                    if (!this.channelData.TryGetValue(((Int32)pbe.Channel).ToString(), out MackieChannelData cd))
+                    {
+                        return;
+                    }
+
+                    cd.Value = pbe.PitchValue / 16383.0f;
+                    this.EmitChannelDataChanged();
+                }
+                else if (pbe.Channel < 2 * ChannelCount + 2)
+                { 
+                    // 6 user buttons
+
+                    var ubp = new UserButtonParams();
+                    ubp.channelIndex = pbe.Channel - ChannelCount - 2;
+                    ubp.userValue = pbe.PitchValue;
+                    if (this.channelData.TryGetValue(ubp.channelIndex.ToString(), out MackieChannelData cd))
+                    {
+                        cd.UserValue = ubp.userValue;
+                        ubp.userLabel = cd.UserLabel;
+                    }
+                    UserButtonChanged.Invoke(this, ubp);
+                }
             }
             // Note event -> toggle settings
             else if (e is NoteOnEvent)
@@ -350,19 +385,7 @@ namespace Loupedeck.StudioOneMidiPlugin
                 }
                 else if (ce.Channel == 0)
                 {
-                    if (ce.NoteNumber >= UserButtonMidiBase && ce.NoteNumber < (UserButtonMidiBase + ChannelCount))
-                    {
-                        var ubp = new UserButtonParams();
-                        ubp.channelIndex = ce.NoteNumber - UserButtonMidiBase;
-                        ubp.isActive = ce.Velocity > 0;
-                        if (this.channelData.TryGetValue(ubp.channelIndex.ToString(), out MackieChannelData cd))
-                        {
-                            cd.UserActive = ubp.isActive;
-                            ubp.userLabel = cd.UserLabel;
-                        }
-                        UserButtonChanged.Invoke(this, ubp);
-                    }
-                    else if (ce.NoteNumber >= 0x4A && ce.NoteNumber <= 0x4D)
+                    if (ce.NoteNumber >= 0x4A && ce.NoteNumber <= 0x4D)
                     {
                         var am = this.CurrentAutomationMode;
                         if (ce.Velocity > 0)
@@ -469,7 +492,7 @@ namespace Loupedeck.StudioOneMidiPlugin
                             cd.UserLabel = receivedString;
                             var ubp = new UserButtonParams();
                             ubp.channelIndex = displayIndex;
-                            ubp.isActive = cd.UserActive;
+                            ubp.userValue = cd.UserValue;
                             ubp.userLabel = cd.UserLabel;
                             UserButtonChanged.Invoke(this, ubp);
                             break;

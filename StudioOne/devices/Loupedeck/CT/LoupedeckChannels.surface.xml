@@ -50,12 +50,13 @@
 		<Control name="stereo[7]" options="transmit"/>
 
 		<!-- User Bank Buttons -->
-		<Control name="userButton[0]" type="fader" options="transmit receive"> <MidiMessage status="#E0" channel="8"/> </Control>
-		<Control name="userButton[1]" type="fader" options="transmit receive"> <MidiMessage status="#E0" channel="9"/> </Control>
-		<Control name="userButton[2]" type="fader" options="transmit receive"> <MidiMessage status="#E0" channel="10"/> </Control>
-		<Control name="userButton[3]" type="fader" options="transmit receive"> <MidiMessage status="#E0" channel="11"/> </Control>
-		<Control name="userButton[4]" type="fader" options="transmit receive"> <MidiMessage status="#E0" channel="12"/> </Control>
-		<Control name="userButton[5]" type="fader" options="transmit receive"> <MidiMessage status="#E0" channel="13"/> </Control>
+		<Control name="userButton[0]" type="fader" options="transmit receive"> <MidiMessage status="#90" address="#70" channel="0"/> </Control>
+		<Control name="userButton[1]" type="fader" options="transmit receive"> <MidiMessage status="#90" address="#71" channel="0"/> </Control>
+		<Control name="userButton[2]" type="fader" options="transmit receive"> <MidiMessage status="#90" address="#72" channel="0"/> </Control>
+		<Control name="userButton[3]" type="fader" options="transmit receive"> <MidiMessage status="#90" address="#73" channel="0"/> </Control>
+		<Control name="userButton[4]" type="fader" options="transmit receive"> <MidiMessage status="#90" address="#74" channel="0"/> </Control>
+		<Control name="userButton[5]" type="fader" options="transmit receive"> <MidiMessage status="#90" address="#75" channel="0"/> </Control>
+
 
 		<!-- ******************************************************************************************** -->
 		<!-- Buttons + LEDs -->

@@ -272,13 +272,16 @@
             };
             this.plugin.UserButtonMenuActivated += (object sender, UserButtonMenuParams e) =>
             {
-                for (var i = 0; i < e.MenuItems.Length && i < 6; i++)
+                if (e.IsActive)
                 {
-                    var value = (UInt16)(16383 / (e.MenuItems.Length - 1) * i);
-                    (this.buttonData[$"{(Int32)ButtonLayer.faderModesSend}:{i}-3"] as UserMenuSelectButtonData).init(e.MidiChannel, value, e.MenuItems[i]);
+                    for (var i = 0; i < e.MenuItems.Length && i < 6; i++)
+                    {
+                        var value = (UInt16)(127 / (e.MenuItems.Length - 1) * i);
+                        (this.buttonData[$"{(Int32)ButtonLayer.faderModesSend}:{i}-3"] as UserMenuSelectButtonData).init(e.ChannelIndex, value, e.MenuItems[i]);
+                    }
+                    this.CurrentUserSendsLayerMode = UserSendsLayerMode.UserMenuActivated;
+                    this.EmitActionImageChanged();
                 }
-                this.CurrentUserSendsLayerMode = UserSendsLayerMode.UserMenuActivated;
-                this.EmitActionImageChanged();
             };
 
             return true;

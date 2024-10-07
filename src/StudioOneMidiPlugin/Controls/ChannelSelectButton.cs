@@ -77,6 +77,15 @@
                 this.EmitActionImageChanged();
             };
 
+            this.plugin.UserButtonMenuActivated += (object sender, UserButtonMenuParams e) =>
+            {
+                if (e.ChannelIndex >= 0)
+                {
+                    this.buttonData[e.ChannelIndex.ToString()].UserButtonMenuActive = e.IsActive;
+                    this.EmitActionImageChanged();
+                }
+            };
+
             return true;
         }
 

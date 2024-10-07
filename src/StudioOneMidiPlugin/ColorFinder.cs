@@ -262,6 +262,7 @@
         public Boolean showUserButtonCircle(String pluginName, String parameterName, Boolean isUser = false) => this.getColorSettings(pluginName, parameterName, isUser).ShowUserButtonCircle;
         public Int32 getDialSteps(String pluginName, String parameterName, Boolean isUser = false) => this.getColorSettings(pluginName, parameterName, isUser).DialSteps;
         public String[] getMenuItems(String pluginName, String parameterName, Boolean isUser = false) => this.getColorSettings(pluginName, parameterName, isUser).MenuItems;
+        public Boolean hasMenu(String pluginName, String parameterName, Boolean isUser = false) => this.getColorSettings(pluginName, parameterName, isUser).MenuItems != null;
 
         public static String settingName(String pluginName, String parameterName, String setting) =>      strColorSettingsID + pluginName + "|" + parameterName + "|" + setting;
 
@@ -564,8 +565,9 @@
             ColorDict.Add(("LoAir", "Lo"), new ColorSettings { Mode = ColorSettings.PotMode.Symmetric });
             ColorDict.Add(("LoAir", "Align"), new ColorSettings { OnColor = new FinderColor(206, 175, 43), TextOnColor = FinderColor.Black });
 
-            ColorDict.Add(("CLA Unplugged", "Bass Color"), new ColorSettings { MenuItems = [ "OFF", "SUB", "LOWER", "UPPER" ] });
+            ColorDict.Add(("CLA Unplugged", "Bass Color"), new ColorSettings { Label = "", MenuItems = [ "OFF", "SUB", "LOWER", "UPPER" ] });
             ColorDict.Add(("CLA Unplugged", "Bass"), new ColorSettings { OnColor = new FinderColor(210, 209, 96), Mode = ColorSettings.PotMode.Symmetric });
+            ColorDict.Add(("CLA Unplugged", "Treble Color"), new ColorSettings { Label = "", MenuItems = ["OFF", "BITE", "TOP", "ROOF"] });
             ColorDict.Add(("CLA Unplugged", "Treble"), new ColorSettings { OnColor = new FinderColor(210, 209, 96), Mode = ColorSettings.PotMode.Symmetric });
             ColorDict.Add(("CLA Unplugged", "Compress"), new ColorSettings { OnColor = new FinderColor(210, 209, 96), Mode = ColorSettings.PotMode.Symmetric });
             ColorDict.Add(("CLA Unplugged", "Reverb 1"), new ColorSettings { OnColor = new FinderColor(210, 209, 96), Mode = ColorSettings.PotMode.Symmetric });
@@ -580,7 +582,12 @@
             ColorDict.Add(("CLA Unplugged", "Direct"), new ColorSettings { OnColor = new FinderColor(80, 80, 80), OffColor = new FinderColor(240, 228, 87),
                                                                            TextOnColor = FinderColor.Black, TextOffColor = FinderColor.Black });
 
-            ColorDict.Add(("CLA-76", "Ratio"), new ColorSettings { MenuItems = ["20", "12", "6", "4", "ALL"] });
+            ColorDict.Add(("CLA-76", "Revision"), new ColorSettings { Label = "Bluey", LabelOn = "Blacky", OffColor = new FinderColor(62, 141, 180), TextOffColor = FinderColor.White, 
+                                                                                                           OnColor = FinderColor.Black, TextOnColor = FinderColor.White });
+            ColorDict.Add(("CLA-76", "Ratio"), new ColorSettings { MenuItems = ["20", "12", "8", "4", "ALL"] });
+            ColorDict.Add(("CLA-76", "Analog"), new ColorSettings { Label = "A", MenuItems = ["50Hz", "60Hz", "Off"], TextOnColor = new FinderColor(254, 246, 212) });
+            ColorDict.Add(("CLA-76", "Meter"), new ColorSettings { MenuItems = ["GR", "IN", "OUT"] });
+            ColorDict.Add(("CLA-76", "Comp Off"), new ColorSettings { OnColor = new FinderColor(162, 38, 38), TextOnColor = FinderColor.White });
 
             // Analog Obsession
 

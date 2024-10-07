@@ -241,7 +241,7 @@
                                             SelectButtonMode buttonMode,
                                             Boolean userButtonActive,
                                             Boolean userButtonEnabled = true,
-                                            Boolean userButtonMenuEnabled = false,
+                                            Boolean userButtonMenuActive = false,
                                             ChannelProperty.PropertyType commandProperty = ChannelProperty.PropertyType.Select,
                                             String pluginName = "")
         {
@@ -282,16 +282,20 @@
                 var drawCircle = cd.UserLabel.Length > 0 && UserColorFinder.showUserButtonCircle(pluginName, cd.UserLabel);
                 var tx = 0;
                 var tw = bb.Width;
+                if (UserColorFinder.hasMenu(pluginName, cd.UserLabel))
+                {
+                    userButtonActive = true;    // Use 'on' colour variants for all menu items
+                }
                 var tc = userButtonEnabled ? userButtonActive ? drawCircle ? UserColorFinder.getOnColor(pluginName, cd.UserLabel, isUser: true)
                                                                            : UserColorFinder.getTextOnColor(pluginName, cd.UserLabel, isUser: true)
                                                               : UserColorFinder.getTextOffColor(pluginName, cd.UserLabel, isUser: true)
                                            : BitmapColor.Black;
-                if (userButtonEnabled) tc = BitmapColor.White;
+                if (userButtonMenuActive) tc = BitmapColor.White;
                 var bc = (cd.UserLabel.Length > 0 || UserColorFinder.getLabel(pluginName, cd.UserLabel, isUser: true).Length > 0)
                                                   && userButtonEnabled ? userButtonActive ? UserColorFinder.getOnColor(pluginName, cd.UserLabel, isUser: true)
                                                                        : UserColorFinder.getOffColor(pluginName, cd.UserLabel, isUser: true)
                                                  : BgColorUnassigned;
-                if (userButtonMenuEnabled)
+                if (userButtonMenuActive)
                 {
                     var stroke = 2;
                     bb.FillRectangle(0, uby, bb.Width, ubh, tc);
@@ -313,11 +317,12 @@
                     tw = bb.Width - ubh * 2;
                 }
                 var labelText = userButtonActive ? UserColorFinder.getLabelOnShort(pluginName, cd.UserLabel, isUser: true)
-                                                    : UserColorFinder.getLabelShort(pluginName, cd.UserLabel, isUser: true);
+                                                 : UserColorFinder.getLabelShort(pluginName, cd.UserLabel, isUser: true);
                 var menuItems = UserColorFinder.getMenuItems(pluginName, cd.UserLabel, isUser: true);
                 if (menuItems != null)
                 {
-                    labelText += ": " + menuItems[cd.UserValue / (127 / (menuItems.Length - 1))];
+                    if (labelText.Length > 0) labelText += ": "; 
+                    labelText += menuItems[cd.UserValue / (127 / (menuItems.Length - 1))];
                 }
                 bb.DrawText(labelText, tx, uby, tw, TitleHeight, tc);
             }
@@ -425,7 +430,7 @@
         {
         }
 
-        public void init(Int32 channelIndex, Int32 value, String label)
+        public void init(Int32 channelIndex = 0, Int32 value = 0, String label = null)
         {
             this.ChannelIndex = channelIndex;
             this.Value = value;
@@ -454,8 +459,8 @@
             if (this.ChannelIndex >= 0 && this.Label != null)
             {
                 this.Plugin.SendMidiNote(0, UserButtonMidiBase + this.ChannelIndex, this.Value);
-                this.Plugin.EmitUserButtonMenuActivated(new UserButtonMenuParams { ChannelIndex = this.ChannelIndex, IsActive = false });
             }
+            this.Plugin.EmitUserButtonMenuActivated(new UserButtonMenuParams { ChannelIndex = this.ChannelIndex, IsActive = false });
         }
 
     }
@@ -720,15 +725,18 @@
         public String Name;
         public BitmapImage Icon = null;
         public Boolean Activated = false;
+        private Boolean IsMenu = false;
         private BitmapColor BgColor = ButtonData.DefaultSelectionBgColor;
 
-        public ModeButtonData(String name, String iconName = null)
+        public ModeButtonData(String name, String iconName = null, Boolean isMenu = false)
         {
             this.init(name, iconName, BitmapColor.Transparent);
+            this.IsMenu = isMenu;
         }
-        public ModeButtonData(String name, String iconName, BitmapColor bgColor)
+        public ModeButtonData(String name, String iconName, BitmapColor bgColor, Boolean isMenu = false)
         {
             this.init(name, iconName, bgColor);
+            this.IsMenu = isMenu;
         }
 
         private void init(String name, String iconName, BitmapColor bgColor)
@@ -752,6 +760,12 @@
 
             bb.FillRectangle(0, 0, bb.Width, bb.Height, this.Activated ? this.BgColor : BitmapColor.Transparent);
 
+            if (this.IsMenu && this.Activated)
+            {
+                bb.FillRectangle(0, 0, bb.Width, 4, BitmapColor.White);
+                bb.FillRectangle(0, bb.Height - 5, bb.Width, 5, BitmapColor.White);
+            }
+            
             if (this.Icon != null)
             {
                 bb.DrawImage(this.Icon);
@@ -1042,7 +1056,9 @@
 
             if (this.SelectionModeActivated)
             {
-                bb.FillRectangle(0, 0, bb.Width, bb.Height, ButtonData.DefaultSelectionBgColor);
+                bb.FillRectangle(0, 0, bb.Width, bb.Height, new BitmapColor(ButtonData.DefaultSelectionBgColor, 190));
+                bb.FillRectangle(0, 0, bb.Width, 4, BitmapColor.White);
+                bb.FillRectangle(0, bb.Height - 5, bb.Width, 5, BitmapColor.White);
             }
 
             for (int i = 0; i < this.Icon.Length; i++)

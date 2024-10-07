@@ -240,11 +240,17 @@ class LoupedeckSharedComponent extends FocusChannelPanComponent {
         if (element.isConnected()) {
             this.activeUserPagesCounter = bank + 1;
         }
-        else if (bank < this.activeUserPagesCounter) {
-            this.activeUserPagesCounter = bank;
+        else {
+            let element = this.root.getGenericMapping().getElement(0).find("vbut[" + bank + "][" + index + "]");
+            if (element.isConnected()) {
+                this.activeUserPagesCounter = bank + 1;
+            }
+            else if (bank < this.activeUserPagesCounter) {
+                this.activeUserPagesCounter = bank;
+            }
         }
-        //Host.Console.writeLine("onConnectPlugControl(" + bank + ", " + index + ") isConnected: " + element.isConnected());
-        //Host.Console.writeLine("activeUserPagesCounter: " + this.activeUserPagesCounter);
+        // Host.Console.writeLine("onConnectPlugControl(" + bank + ", " + index + ") isConnected: " + element.isConnected());
+        // Host.Console.writeLine("activeUserPagesCounter: " + this.activeUserPagesCounter);
 
         // This triggers a MIDI controller message to the Loupedeck. There seems to be a timed buffer for midi messages
         // to limit the update frequency for individual controllers, so this message only gets sent once per plugin change.

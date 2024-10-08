@@ -180,30 +180,30 @@
             {
                 this.InitColorDict();
 
-                var ConfigFilePath = Path.Combine(Directory.GetParent(Application.LocalUserAppDataPath.TrimEnd(Path.DirectorySeparatorChar)).FullName, ConfigFileName);
+//                var ConfigFilePath = Path.Combine(Directory.GetParent(Application.LocalUserAppDataPath.TrimEnd(Path.DirectorySeparatorChar)).FullName, ConfigFileName);
+//
+//                var serializer = new XmlSerializer(typeof(ConfigEntry));
+//                TextWriter writer = new StreamWriter(ConfigFilePath);
+//
+//                foreach (KeyValuePair<(String, String), ColorSettings> entry in ColorDict)
+//                {
+//                    serializer.Serialize(writer, new ConfigEntry { key1 = entry.Key.Item1,
+//                                                                   key2 = entry.Key.Item2,
+//                                                                   colorSettings = entry.Value });
+//                }
+//
+//                writer.Close();
 
-                var serializer = new XmlSerializer(typeof(ConfigEntry));
-                TextWriter writer = new StreamWriter(ConfigFilePath);
-
-                foreach (KeyValuePair<(String, String), ColorSettings> entry in ColorDict)
-                {
-                    serializer.Serialize(writer, new ConfigEntry { key1 = entry.Key.Item1,
-                                                                   key2 = entry.Key.Item2,
-                                                                   colorSettings = entry.Value });
-                }
-
-                writer.Close();
-
-                var options = new JsonSerializerOptions { WriteIndented = true, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault };
-                foreach (KeyValuePair<(String, String), ColorSettings> entry in ColorDict)
-                {
-                    var jsonString = "{ \"key1\": \"" + entry.Key.Item1 + "\",\n";
-                    jsonString += "  \"key2\": \"" + entry.Key.Item2 + "\",\n";
-                    jsonString += "  \"colorSettings\": " + JsonSerializer.Serialize(entry.Value, options);
-                    jsonString += "}";
-
-                    Debug.WriteLine(jsonString);
-                }
+                // var options = new JsonSerializerOptions { WriteIndented = true, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault };
+                // foreach (KeyValuePair<(String, String), ColorSettings> entry in ColorDict)
+                // {
+                //    var jsonString = "{ \"key1\": \"" + entry.Key.Item1 + "\",\n";
+                //    jsonString += "  \"key2\": \"" + entry.Key.Item2 + "\",\n";
+                //    jsonString += "  \"colorSettings\": " + JsonSerializer.Serialize(entry.Value, options);
+                //    jsonString += "}";
+                //
+                //    Debug.WriteLine(jsonString);
+                // }
 
                 // Read Loupedeck plugin settings
 

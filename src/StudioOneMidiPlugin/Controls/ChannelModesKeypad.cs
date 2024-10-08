@@ -191,6 +191,7 @@
             this.addButton(ButtonLayer.faderModesSend, "0-2", new ModeTopCommandButtonData(14, 0x74, "Previous Plugin", ModeTopCommandButtonData.Location.Left, "plugin_prev", pluginBgColor));
             this.addButton(ButtonLayer.faderModesSend, "1-2", new ModeTopCommandButtonData(14, 0x75, "Next Plugin", ModeTopCommandButtonData.Location.Right, "plugin_next", pluginBgColor));
             this.addButton(ButtonLayer.faderModesSend, "3-2", new OneWayCommandButtonData(14, 0x12, "Channel Editor", "channel_editor", pluginBgColor));
+            this.addButton(ButtonLayer.faderModesSend, "5-2", new OneWayCommandButtonData(14, 0x0D, "Reset Window Positions", "reset_window_positions", pluginBgColor));
             this.addButton(ButtonLayer.faderModesSend, "3", new UserModeButtonData());
             this.addButton(ButtonLayer.faderModesSend, "4", new PanCommandButtonData("VIEWS"));
             this.addButton(ButtonLayer.faderModesSend, "5", new SendsCommandButtonData(), isNoteReceiver: true);
@@ -550,9 +551,12 @@
                             this.EmitActionImageChanged();
                             break;
                         case 5: // SENDS
-                            this.CurrentUserSendsLayerMode = UserSendsLayerMode.Sends;
-                            LastUserSendsMode = UserSendsMode.Sends;
-                            this.plugin.EmitSelectModeChanged(SelectButtonMode.Send);
+                            if (this.CurrentUserSendsLayerMode != UserSendsLayerMode.PluginSelectionActivated)
+                            {
+                                this.CurrentUserSendsLayerMode = UserSendsLayerMode.Sends;
+                                LastUserSendsMode = UserSendsMode.Sends;
+                                this.plugin.EmitSelectModeChanged(SelectButtonMode.Send);
+                            }
                             break;
                     }
                     break;
@@ -631,7 +635,7 @@
                             if ("012".Contains(actionParameter)) idx += "-1";
                             break;
                         case UserSendsLayerMode.PluginSelectionActivated:
-                            if ("013".Contains(actionParameter)) idx += "-2";
+                            if ("0135".Contains(actionParameter)) idx += "-2";
                             if ("2".Contains(actionParameter)) idx += "-1";
                             break;
                         case UserSendsLayerMode.UserMenuActivated:

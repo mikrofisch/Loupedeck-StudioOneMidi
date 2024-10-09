@@ -3,6 +3,8 @@
     using System;
     using System.Windows.Forms;
 
+    using Loupedeck.StudioOneMidiPlugin.Helpers;
+
     using Melanchall.DryWetMidi.Common;
     using Melanchall.DryWetMidi.Core;
 
@@ -62,9 +64,11 @@
                                             BitmapImage icon)
         {
             if (isSelected)
+            {
                 bb.FillRectangle(0, 0, bb.Width, bb.Height, ChannelProperty.PropertyColor[(Int32)type]);
+            }
 
-            int yOff = showTrackName == TrackNameMode.None ? 0 : icon == null ? TrackNameH : TrackNameH - 8;
+            var yOff = showTrackName == TrackNameMode.None ? 0 : icon == null ? TrackNameH : TrackNameH - 8;
 
             if (icon != null)
             {
@@ -77,8 +81,8 @@
 
             if (showTrackName != TrackNameMode.None && showTrackName != TrackNameMode.NoneOffset)
             {
-                int hPos = 0;
-                int width = bb.Width;
+                var hPos = 0;
+                var width = bb.Width;
 
                 if (showTrackName == TrackNameMode.ShowLeftHalf)
                 {
@@ -98,7 +102,7 @@
 
         public override BitmapImage getImage(PluginImageSize imageSize)
         {
-            MackieChannelData cd = this.Plugin.channelData[this.ChannelIndex.ToString()];
+            ChannelData cd = this.Plugin.channelData[this.ChannelIndex.ToString()];
             //if (!this.Plugin.mackieChannelData.TryGetValue(this.ChannelIndex.ToString(), out MackieChannelData cd))
             //    return;
 
@@ -113,7 +117,7 @@
 
         public override void runCommand()
         {
-            MackieChannelData cd = this.Plugin.channelData[this.ChannelIndex.ToString()];
+            ChannelData cd = this.Plugin.channelData[this.ChannelIndex.ToString()];
 
             cd.EmitChannelPropertyPress(this.Type);
         }
@@ -220,7 +224,7 @@
 
         public override BitmapImage getImage(PluginImageSize imageSize)
         {
-            MackieChannelData cd = this.Plugin.channelData[this.ChannelIndex.ToString()];
+            ChannelData cd = this.Plugin.channelData[this.ChannelIndex.ToString()];
             //if (!this.Plugin.mackieChannelData.TryGetValue(this.ChannelIndex.ToString(), out MackieChannelData cd))
             //    return;
 
@@ -237,7 +241,7 @@
         }
 
         public static BitmapImage drawImage(BitmapBuilder bb,
-                                            MackieChannelData cd,
+                                            ChannelData cd,
                                             SelectButtonMode buttonMode,
                                             Boolean userButtonActive,
                                             Boolean userButtonEnabled = true,
@@ -275,7 +279,7 @@
                 }
                 bb.DrawText(cd.Description, 0, 0, bb.Width, TitleHeight, TextDescColor);
                 bb.DrawText(UserColorFinder.getLabelShort(pluginName, cd.Label), 0, bb.Height / 2 - TitleHeight / 2, bb.Width, TitleHeight, 
-                            UserColorFinder.DefaultColorSettings.TextOnColor);
+                            UserColorFinder.getTextOnColor(pluginName, cd.Label));
 
                 // User Button
                 //
@@ -324,7 +328,7 @@
                     if (labelText.Length > 0) labelText += ": "; 
                     labelText += menuItems[cd.UserValue / (127 / (menuItems.Length - 1))];
                 }
-                bb.DrawText(labelText, tx, uby, tw, TitleHeight, tc);
+                bb.DrawImage(new LabelImageLoader(labelText).GetImage(tw, TitleHeight, tc), tx, uby);
             }
             else
             {
@@ -386,7 +390,7 @@
 
         public override void runCommand()
         {
-            MackieChannelData cd = this.Plugin.channelData[this.ChannelIndex.ToString()];
+            ChannelData cd = this.Plugin.channelData[this.ChannelIndex.ToString()];
             switch (this.CurrentMode)
             {
                 case SelectButtonMode.Select:
@@ -450,7 +454,7 @@
                 var height = bb.Height / 2;
                 bb.FillRectangle(0, (bb.Height - height - 4) / 2, bb.Width, height + 4, BitmapColor.White);
                 bb.FillRectangle(0, (bb.Height - height) / 2, bb.Width, height, new BitmapColor(40, 40, 40));
-                bb.DrawText(this.Label);
+                bb.DrawImage(new LabelImageLoader(this.Label).GetImage(bb.Width, bb.Height));
             }
             return bb.ToImage();
         }

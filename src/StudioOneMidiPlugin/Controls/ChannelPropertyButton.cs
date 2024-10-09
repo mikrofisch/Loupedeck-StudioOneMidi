@@ -116,7 +116,7 @@
                 if ((ChannelProperty.PropertyType)controlProperty == ChannelProperty.PropertyType.Monitor)
                     icon = this.IconMonitor;
 
-                MackieChannelData cd = this.plugin.channelData[channelIndex.ToString()];
+                ChannelData cd = this.plugin.channelData[channelIndex.ToString()];
                 return PropertyButtonData.drawImage(new BitmapBuilder(imageWidth, imageHeight),
                                                     (ChannelProperty.PropertyType)controlProperty,
                                                     cd.BoolProperty[controlProperty],
@@ -152,7 +152,7 @@
             if (!actionParameters.TryGetInt32(PropertySelector, out var controlProperty)) return false;
             if (!actionParameters.TryGetString(ChannelSelector, out var channelIndex)) return false;
 
-            MackieChannelData cd = this.plugin.channelData[channelIndex];
+            ChannelData cd = this.plugin.channelData[channelIndex];
 
             if (controlProperty >= 8)
             {

@@ -95,7 +95,7 @@
             {
                 if (this.buttonData[actionParameter].CurrentMode == SelectButtonMode.User)
                 {
-                    MackieChannelData cd = this.plugin.channelData[actionParameter];
+                    ChannelData cd = this.plugin.channelData[actionParameter];
 
                     this.OpenUserConfigWindow(cd.UserLabel);
                 }

@@ -1,6 +1,7 @@
 ﻿namespace Loupedeck.StudioOneMidiPlugin.Controls
 {
     using System;
+    using System.Security.Cryptography;
     using System.Windows.Forms;
 
     using Loupedeck.StudioOneMidiPlugin.Helpers;
@@ -427,7 +428,7 @@
     {
         //        Int32 MidiChannel = -1;
         Int32 ChannelIndex = 0;
-        Int32 Value = 0;
+        protected Int32 Value = 0;
         String Label;
 
         public UserMenuSelectButtonData()
@@ -466,9 +467,9 @@
             }
             this.Plugin.EmitUserButtonMenuActivated(new UserButtonMenuParams { ChannelIndex = this.ChannelIndex, IsActive = false });
         }
-
     }
-        public class CommandButtonData : ButtonData
+
+    public class CommandButtonData : ButtonData
     {
         public Int32 Code;
         public Int32 CodeOn = 0;              // alternative code to send when activated
@@ -1124,10 +1125,13 @@
     {
         public Int32 ActiveUserPages { get; set; } = 3;
         public Int32 UserPage { get; private set; } = 0;
+        String[] PageNames;
 
         public UserModeButtonData()
         {
         }
+
+        public void setPageNames(String[] pageNames) => this.PageNames = pageNames;
 
         public void setUserPage(Int32 userPage)
         {
@@ -1148,10 +1152,10 @@
             var bb = new BitmapBuilder(imageSize);
             bb.FillRectangle(0, 0, bb.Width, bb.Height, BitmapColor.Black);
 
-            int rY = 12;
-            int rW = bb.Width - 2 * rY;
-            int rH = (bb.Height - 2 * rY) / 2;
-            int rX = (bb.Width - rW) / 2;
+            var rY = 12;
+            var rW = bb.Width - 2 * rY;
+            var rH = (bb.Height - 2 * rY) / 2;
+            var rX = (bb.Width - rW) / 2;
 
             bb.FillRectangle(rX, rY, rW, rH, this.UserPage == 0 ? CommandButtonData.cRectOff : CommandButtonData.cRectOn);
             bb.DrawText("USER", rX, rY, rW, rH, this.UserPage == 0 ? CommandButtonData.cTextOff : CommandButtonData.cTextOn, 16);
@@ -1159,43 +1163,52 @@
             rY += rH;
             bb.FillRectangle(rX, rY, rW, rH, CommandButtonData.cRectOff);
 
-            int rW2 = rW / 3 + 1;
+            var rW2 = rW / 3 + 1;
 
-            bb.DrawText("1", rX, rY, rW2, rH, CommandButtonData.cTextOff);
-
-            if (this.ActiveUserPages > 1)
+            if (this.UserPage > 0 && this.PageNames != null && this.PageNames.Length >= this.UserPage)
             {
-                if (this.ActiveUserPages > 2)
+                bb.DrawText(this.PageNames[this.UserPage - 1], rX, rY, rW, rH, CommandButtonData.cTextOff);
+            }
+            else
+            {
+                bb.DrawText("1", rX, rY, rW2, rH, CommandButtonData.cTextOff);
+
+                if (this.ActiveUserPages > 1)
                 {
-                    bb.DrawText(this.ActiveUserPages.ToString(), rX + rW - rW2, rY, rW2, rH, CommandButtonData.cTextOff);
-                }
-                if (this.ActiveUserPages < 4)
-                {
-                    bb.DrawText("2", rX + rW2, rY, rW2, rH, CommandButtonData.cTextOff);
-                }
-                else
-                {
-                    var sp = (rW2 + 6) / 3;
-                    for (var i = 0; i < 3; i++)
+                    if (this.ActiveUserPages > 2)
                     {
-                        bb.FillCircle(rX + rW2 + sp * i, rY + rH / 2 + 2, 1, CommandButtonData.cTextOff);
+                        bb.DrawText(this.ActiveUserPages.ToString(), rX + rW - rW2, rY, rW2, rH, CommandButtonData.cTextOff);
+                    }
+                    if (this.ActiveUserPages < 4)
+                    {
+                        bb.DrawText("2", rX + rW2, rY, rW2, rH, CommandButtonData.cTextOff);
+                    }
+                    else
+                    {
+                        var sp = (rW2 + 6) / 3;
+                        for (var i = 0; i < 3; i++)
+                        {
+                            bb.FillCircle(rX + rW2 + sp * i, rY + rH / 2 + 2, 1, CommandButtonData.cTextOff);
+                        }
+                    }
+                    if (this.ActiveUserPages < 3)
+                    {
+                        rX += rW2 * (this.UserPage - 1);
+                    }
+                    else
+                    {
+                        if (this.UserPage == this.ActiveUserPages)
+                            rX = rX + rW - rW2;
+                        else
+                            rX += (rW - rW2) / (this.ActiveUserPages - 1) * (this.UserPage - 1);
                     }
                 }
-                if (this.ActiveUserPages < 3)
-                {
-                    rX += rW2 * (this.UserPage - 1);
-                }
-                else
-                {
-                    if (this.UserPage == this.ActiveUserPages) rX = rX + rW - rW2;
-                    else rX += (rW - rW2) / (this.ActiveUserPages - 1) * (this.UserPage - 1);
-                }
-            }
 
-            if (this.UserPage > 0)
-            {
-                bb.FillRectangle(rX, rY, rW2, rH, CommandButtonData.cRectOn);
-                bb.DrawText(this.UserPage.ToString(), rX, rY, rW2, rH, CommandButtonData.cTextOn);
+                if (this.UserPage > 0)
+                {
+                    bb.FillRectangle(rX, rY, rW2, rH, CommandButtonData.cRectOn);
+                    bb.DrawText(this.UserPage.ToString(), rX, rY, rW2, rH, CommandButtonData.cTextOn);
+                }
             }
 //            for (int i = 1; i <= 3; i++)
 //            {
@@ -1207,11 +1220,32 @@
         }
         public override void runCommand()
         {
-            this.UserPage = (Control.ModifierKeys & Keys.Shift) == Keys.Shift
-                ? this.UserPage <= 1 ? this.ActiveUserPages : this.UserPage - 1
-                : this.UserPage > this.ActiveUserPages - 1 ? 1 : this.UserPage + 1;
+            if (this.PageNames != null)
+            {
+                // Display value selection menu.
+                var ubmp = new UserButtonMenuParams();
+                ubmp.MenuItems = this.PageNames;
+                this.Plugin.EmitUserButtonMenuActivated(ubmp);
+            }
+            else
+            {
+                this.UserPage = (Control.ModifierKeys & Keys.Shift) == Keys.Shift
+                    ? this.UserPage <= 1 ? this.ActiveUserPages : this.UserPage - 1
+                    : this.UserPage > this.ActiveUserPages - 1 ? 1 : this.UserPage + 1;
 
-            this.Plugin.SetChannelFaderMode(ChannelFaderMode.User, this.UserPage);
+                this.Plugin.SetChannelFaderMode(ChannelFaderMode.User, this.UserPage);
+            }
         }
     }
+    public class UserPageMenuSelectButtonData : UserMenuSelectButtonData
+    { 
+//        public UserPageMenuSelectButtonData() { }
+        public override void runCommand()
+        {
+            this.Plugin.SetChannelFaderMode(ChannelFaderMode.User, this.Value);
+
+            this.Plugin.EmitUserButtonMenuActivated(new UserButtonMenuParams { ChannelIndex = -1, IsActive = false });
+        }
+    }
+
 }

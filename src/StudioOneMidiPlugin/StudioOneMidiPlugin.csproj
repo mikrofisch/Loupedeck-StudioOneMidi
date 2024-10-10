@@ -409,6 +409,12 @@
     <EmbeddedResource Include="Resources\lbl_sm_Needle.png" />
     <EmbeddedResource Include="Resources\lbl_sm_NonLinear.png" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\lbl_bm_Saw.png" />
+    <EmbeddedResource Include="Resources\lbl_bm_Sine.png" />
+    <EmbeddedResource Include="Resources\lbl_bm_Square.png" />
+    <EmbeddedResource Include="Resources\lbl_bm_Triangle.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent Condition="$(OS) == 'Windows_NT'">call "$(ProjectDir)BuildEvents\postbuild.cmd" "$(ProjectDir)" "$(TargetDir)"</PostBuildEvent>

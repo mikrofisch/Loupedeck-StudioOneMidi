@@ -187,7 +187,7 @@
             }
 
             var valueColor = BitmapColor.White;
-            var valBarColor = UserColorFinder.getOnColor(this.PluginName, cd.Label);
+            var valBarColor = UserColorFinder.getBarOnColor(this.PluginName, cd.Label);
             var linkedParameter = UserColorFinder.getLinkedParameter(this.PluginName, cd.Label);
 
             if (linkedParameter != null)

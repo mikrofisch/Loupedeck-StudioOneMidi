@@ -55,7 +55,8 @@
             Sends = 0,
             User = 1,
             PluginSelectionActivated = 2,
-            UserMenuActivated = 3       // User defined selection menu for plugin control
+            UserMenuActivated = 3,          // User defined selection menu for plugin control
+            UserPageMenuActivated = 4       // User page switching via menu
         }
         private UserSendsLayerMode CurrentUserSendsLayerMode = UserSendsLayerMode.User;
 
@@ -201,7 +202,12 @@
             this.addButton(ButtonLayer.faderModesSend, "3-3", new UserMenuSelectButtonData());
             this.addButton(ButtonLayer.faderModesSend, "4-3", new UserMenuSelectButtonData());
             this.addButton(ButtonLayer.faderModesSend, "5-3", new UserMenuSelectButtonData());
-
+            this.addButton(ButtonLayer.faderModesSend, "0-4", new UserPageMenuSelectButtonData());
+            this.addButton(ButtonLayer.faderModesSend, "1-4", new UserPageMenuSelectButtonData());
+            this.addButton(ButtonLayer.faderModesSend, "2-4", new UserPageMenuSelectButtonData());
+            this.addButton(ButtonLayer.faderModesSend, "3-4", new UserPageMenuSelectButtonData());
+            this.addButton(ButtonLayer.faderModesSend, "4-4", new UserPageMenuSelectButtonData());
+            this.addButton(ButtonLayer.faderModesSend, "5-4", new UserPageMenuSelectButtonData());
         }
 
         // common
@@ -249,7 +255,9 @@
                     bd.setPluginName(pluginName);
                 }
                 var ubd = this.buttonData[idxUserSendsUserModeButton] as UserModeButtonData;
-                ubd.resetUserPage(); 
+                ubd.resetUserPage();
+                ubd.setPageNames(new ColorFinder().getColorSettings(pluginName, "Loupedeck User Pages", false).MenuItems);
+
                 this.EmitActionImageChanged();
             };
 
@@ -278,10 +286,22 @@
                 {
                     for (var i = 0; i < 6; i++)
                     {
-                        var ubd = this.buttonData[$"{(Int32)ButtonLayer.faderModesSend}:{i}-3"] as UserMenuSelectButtonData;
+                        Int32 value;
+
+                        if (e.ChannelIndex < 0)
+                        {
+                            // Channel index not set, assuming user page menu
+                            value = i;
+                            this.CurrentUserSendsLayerMode = UserSendsLayerMode.UserPageMenuActivated;
+                        }
+                        else
+                        {
+                            value = (UInt16)(127 / (e.MenuItems.Length - 1) * i);
+                            this.CurrentUserSendsLayerMode = UserSendsLayerMode.UserMenuActivated;
+                        }
+                        var ubd = this.buttonData[$"{(Int32)ButtonLayer.faderModesSend}:{i}-{(Int32)this.CurrentUserSendsLayerMode}"] as UserMenuSelectButtonData;
                         if (i < e.MenuItems.Length)
                         {
-                            var value = (UInt16)(127 / (e.MenuItems.Length - 1) * i);
                             ubd.init(e.ChannelIndex, value, e.MenuItems[i]);
                         }
                         else
@@ -292,8 +312,10 @@
                             ubd.init(e.ChannelIndex);
                         }
                     }
-                    this.CurrentUserSendsLayerMode = UserSendsLayerMode.UserMenuActivated;
-                    this.EmitActionImageChanged();
+                }
+                else
+                {
+                    this.CurrentUserSendsLayerMode = UserSendsLayerMode.User;
                 }
             };
 
@@ -517,9 +539,10 @@
                     }
                     break;
                 case ButtonLayer.faderModesSend:
-                    if (this.CurrentUserSendsLayerMode == UserSendsLayerMode.UserMenuActivated)
+                    if (this.CurrentUserSendsLayerMode == UserSendsLayerMode.UserMenuActivated ||
+                        this.CurrentUserSendsLayerMode == UserSendsLayerMode.UserPageMenuActivated)
                     {
-                        this.CurrentUserSendsLayerMode = UserSendsLayerMode.User;
+//                        this.CurrentUserSendsLayerMode = UserSendsLayerMode.User;
                         this.EmitActionImageChanged();
                         break;
                     }
@@ -640,6 +663,9 @@
                             break;
                         case UserSendsLayerMode.UserMenuActivated:
                             idx += "-3";
+                            break;
+                        case UserSendsLayerMode.UserPageMenuActivated:
+                            idx += "-4";
                             break;
                     }
                     break;

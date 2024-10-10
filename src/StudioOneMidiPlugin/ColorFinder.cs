@@ -48,6 +48,7 @@
             public FinderColor OffColor;
             public FinderColor TextOnColor;
             public FinderColor TextOffColor;
+            public FinderColor BarOnColor;
             public String IconName, IconNameOn;
             public String Label;
             public String LabelOn;
@@ -219,6 +220,11 @@
 
         public BitmapColor getOnColor(String pluginName, String parameterName, Boolean isUser = false) => this.findColor(this.getColorSettings(pluginName, parameterName, isUser).OnColor,
                                                                                                  this.DefaultColorSettings.OnColor);
+        public BitmapColor getBarOnColor(String pluginName, String parameterName, Boolean isUser = false)
+        {
+            var cs = this.getColorSettings(pluginName, parameterName, isUser);
+            return cs.BarOnColor ?? this.findColor(cs.OnColor, this.DefaultColorSettings.OnColor);
+        }
         public BitmapColor getOffColor(String pluginName, String parameterName, Boolean isUser = false) => this.findColor(this.getColorSettings(pluginName, parameterName, isUser).OffColor,
                                                                                                   this.DefaultColorSettings.OffColor);
         public BitmapColor getTextOnColor(String pluginName, String parameterName, Boolean isUser = false) => this.findColor(this.getColorSettings(pluginName, parameterName, isUser).TextOnColor,
@@ -558,17 +564,72 @@
             ColorDict.Add(("Smack Attack", "Mix"), new ColorSettings { OnColor = new FinderColor(0, 198, 250) });
             ColorDict.Add(("Smack Attack", "Output"), new ColorSettings { OnColor = new FinderColor(0, 198, 250), Mode = ColorSettings.PotMode.Symmetric });
 
-            ColorDict.Add(("Brauer Motion", "Path 1 A Marker"), new ColorSettings { Label = "A", OnColor = new FinderColor(12, 80, 124), TextOnColor = new FinderColor(139, 195, 74) });
-            ColorDict.Add(("Brauer Motion", "Path 1 B Marker"), new ColorSettings { Label = "B", OnColor = new FinderColor(12, 80, 124), TextOnColor = new FinderColor(139, 195, 74) });
-            ColorDict.Add(("Brauer Motion", "Path 1 Start Marker"), new ColorSettings { Label = "START", OnColor = new FinderColor(12, 80, 124), TextOnColor = new FinderColor(139, 195, 74) });
-            ColorDict.Add(("Brauer Motion", "Path 2 A Marker"), new ColorSettings { Label = "A", OnColor = new FinderColor(12, 80, 124), TextOnColor = new FinderColor(230, 74, 25) });
-            ColorDict.Add(("Brauer Motion", "Path 2 B Marker"), new ColorSettings { Label = "B", OnColor = new FinderColor(12, 80, 124), TextOnColor = new FinderColor(230, 74, 25) });
-            ColorDict.Add(("Brauer Motion", "Path 2 Start Marker"), new ColorSettings { Label = "START", OnColor = new FinderColor(12, 80, 124), TextOnColor = new FinderColor(230, 74, 25) });
-            ColorDict.Add(("Brauer Motion", "Panner 1 Mode"), new ColorSettings { Label = "", OnColor = new FinderColor(3, 18, 31), TextOnColor = new FinderColor(139, 195, 74), MenuItems = ["SYNC", "FREE", "INPUT", "MANUAL"] });
-            ColorDict.Add(("Brauer Motion", "Panner 2 Mode"), new ColorSettings { Label = "", OnColor = new FinderColor(3, 18, 31), TextOnColor = new FinderColor(230, 74, 25), MenuItems = ["SYNC", "FREE", "INPUT", "MANUAL"] });
-            ColorDict.Add(("Brauer Motion", "Link"), new ColorSettings { Label = "LINK", OnColor = new FinderColor(3, 18, 31), TextOnColor = new FinderColor(0, 192, 255), OffColor = new FinderColor(3, 18, 31), TextOffColor = new FinderColor(60, 60, 60) });
-            ColorDict.Add(("Brauer Motion", "Mute 1"), new ColorSettings { Label = "MUTE 1", OnColor = new FinderColor(139, 195, 74), TextOnColor = new FinderColor(3, 18, 31), OffColor = new FinderColor(3, 18, 31), TextOffColor = new FinderColor(139, 195, 74) });
-            ColorDict.Add(("Brauer Motion", "Mute 2"), new ColorSettings { Label = "MUTE 2", OnColor = new FinderColor(230, 74, 25), TextOnColor = new FinderColor(3, 18, 31), OffColor = new FinderColor(3, 18, 31), TextOffColor = new FinderColor(230, 74, 25) });
+            ColorDict.Add(("Brauer Motion", "Loupedeck User Pages"), new ColorSettings { MenuItems = ["MAIN", "PNR 1", "PNR 2", "T/D 1", "T/D 2", "MIX"] });
+            var path1Color = new FinderColor(139, 195, 74);
+            var path2Color = new FinderColor(230, 74, 25);
+            var bgColor = new FinderColor(12, 80, 124);
+            var buttonBgColor = new FinderColor(3, 18, 31);
+            var textColor = new FinderColor(105, 133, 157);
+            var checkOnColor = new FinderColor(7, 152, 202);
+            ColorDict.Add(("Brauer Motion", "Mute 1"), new ColorSettings { Label = "MUTE 1", OnColor = path1Color, TextOnColor = buttonBgColor, OffColor = buttonBgColor, TextOffColor = path1Color });
+            ColorDict.Add(("Brauer Motion", "Mute 2"), new ColorSettings { Label = "MUTE 2", OnColor = path2Color, TextOnColor = buttonBgColor, OffColor = buttonBgColor, TextOffColor = path2Color });
+            ColorDict.Add(("Brauer Motion", "Path 1 A Marker"), new ColorSettings { Label = "A", OnColor = bgColor, TextOnColor = path1Color, BarOnColor = path1Color });
+            ColorDict.Add(("Brauer Motion", "Path 1 B Marker"), new ColorSettings { Label = "B", OnColor = bgColor, TextOnColor = path1Color, BarOnColor = path1Color });
+            ColorDict.Add(("Brauer Motion", "Path 1 Start Marker"), new ColorSettings { Label = "START", OnColor = bgColor, TextOnColor = path1Color, BarOnColor = path1Color });
+            ColorDict.Add(("Brauer Motion", "Path 2 A Marker"), new ColorSettings { Label = "A", OnColor = bgColor, TextOnColor = path2Color, BarOnColor = path2Color });
+            ColorDict.Add(("Brauer Motion", "Path 2 B Marker"), new ColorSettings { Label = "B", OnColor = bgColor, TextOnColor = path2Color, BarOnColor = path2Color });
+            ColorDict.Add(("Brauer Motion", "Path 2 Start Marker"), new ColorSettings { Label = "START", OnColor = bgColor, TextOnColor = path2Color, BarOnColor = path2Color });
+            ColorDict.Add(("Brauer Motion", "Panner 1 Mode"), new ColorSettings { Label = "", OnColor = buttonBgColor, TextOnColor = path1Color, MenuItems = ["SYNC", "FREE", "INPUT", "MANUAL"] });
+            ColorDict.Add(("Brauer Motion", "Panner 2 Mode"), new ColorSettings { Label = "", OnColor = buttonBgColor, TextOnColor = path2Color, MenuItems = ["SYNC", "FREE", "INPUT", "MANUAL"] });
+            ColorDict.Add(("Brauer Motion", "Link"), new ColorSettings { Label = "LINK", OnColor = buttonBgColor, TextOnColor = new FinderColor(0, 192, 255), OffColor = buttonBgColor, TextOffColor = new FinderColor(60, 60, 60) });
+            ColorDict.Add(("Brauer Motion", "Path 1"), new ColorSettings { Label = "", OnColor = buttonBgColor, TextOnColor = new FinderColor(102, 157, 203), MenuItems = ["CLASSIC", "CIRCLE", "CIRC PHASE", "X LIGHTS"] });
+            ColorDict.Add(("Brauer Motion", "Modulator 1"), new ColorSettings { Label = "", OnColor = buttonBgColor, TextOnColor = new FinderColor(102, 157, 203), MenuItems = ["!bm_Sine", "!bm_Triangle", "!bm_Saw", "!bm_Square"] });
+            ColorDict.Add(("Brauer Motion", "Reverse 1"), new ColorSettings { Label = "REVERSE", OffColor = buttonBgColor, TextOffColor = textColor, OnColor = checkOnColor, TextOnColor = FinderColor.Black });
+            ColorDict.Add(("Brauer Motion", "Mod Delay On/Off 1"), new ColorSettings { Label = "OFF", LabelOn = "ON", OffColor = buttonBgColor, TextOffColor = textColor, OnColor = checkOnColor, TextOnColor = FinderColor.Black });
+            ColorDict.Add(("Brauer Motion", "Speed 1"), new ColorSettings { Label = "SPEED 1", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path1Color });
+            ColorDict.Add(("Brauer Motion", "Offset 1"), new ColorSettings { Label = "OFFSET 1", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path1Color });
+            ColorDict.Add(("Brauer Motion", "Depth 1"), new ColorSettings { Label = "DEPTH 1", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path1Color });
+            ColorDict.Add(("Brauer Motion", "Width 1"), new ColorSettings { Label = "WIDTH 1", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path1Color });
+            ColorDict.Add(("Brauer Motion", "Pre Delay 1"), new ColorSettings { Label = "PRE DLY 1", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path1Color });
+            ColorDict.Add(("Brauer Motion", "Mod Delay 1"), new ColorSettings { Label = "MOD DLY 1", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path1Color });
+            ColorDict.Add(("Brauer Motion", "Path 2"), new ColorSettings { Label = "", OnColor = buttonBgColor, TextOnColor = new FinderColor(102, 157, 203), MenuItems = ["CLASSIC", "CIRCLE", "CIRC PHASE", "X LIGHTS"] });
+            ColorDict.Add(("Brauer Motion", "Modulator 2"), new ColorSettings { Label = "", OnColor = buttonBgColor, TextOnColor = new FinderColor(102, 157, 203), MenuItems = ["!bm_Sine", "!bm_Triangle", "!bm_Saw", "!bm_Square"] });
+            ColorDict.Add(("Brauer Motion", "Reverse 2"), new ColorSettings { Label = "REVERSE", OffColor = buttonBgColor, TextOffColor = textColor, OnColor = checkOnColor, TextOnColor = FinderColor.Black });
+            ColorDict.Add(("Brauer Motion", "Mod Delay On/Off 2"), new ColorSettings { Label = "OFF", LabelOn = "ON", OffColor = buttonBgColor, TextOffColor = textColor, OnColor = checkOnColor, TextOnColor = FinderColor.Black });
+            ColorDict.Add(("Brauer Motion", "Speed 2"), new ColorSettings { Label = "SPEED 2", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path2Color });
+            ColorDict.Add(("Brauer Motion", "Offset 2"), new ColorSettings { Label = "OFFSET 2", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path2Color });
+            ColorDict.Add(("Brauer Motion", "Depth 2"), new ColorSettings { Label = "DEPTH 2", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path2Color });
+            ColorDict.Add(("Brauer Motion", "Width 2"), new ColorSettings { Label = "WIDTH 2", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path2Color });
+            ColorDict.Add(("Brauer Motion", "Pre Delay 2"), new ColorSettings { Label = "PRE DLY 2", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path2Color });
+            ColorDict.Add(("Brauer Motion", "Mod Delay 2"), new ColorSettings { Label = "MOD DLY 2", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path2Color });
+            ColorDict.Add(("Brauer Motion", "Trigger Mode 1"), new ColorSettings { Label = "", OnColor = buttonBgColor, TextOnColor = new FinderColor(102, 157, 203), MenuItems = ["OFF", "SIMPLE", "ONE-SHOT", "RETRIGGER", "S-TRIG REV", "A TO B"] });
+            ColorDict.Add(("Brauer Motion", "Trigger A to B 1"), new ColorSettings { Label = "A TO B", LabelOn = "B TO A", OffColor = buttonBgColor, TextOffColor = textColor, OnColor = buttonBgColor, TextOnColor = textColor });
+            ColorDict.Add(("Brauer Motion", "Trigger Sensitivity 1"), new ColorSettings { Label = "SENS 1", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path1Color });
+            ColorDict.Add(("Brauer Motion", "Trigger HP 1"), new ColorSettings { Label = "HOLD 1", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path1Color });
+            ColorDict.Add(("Brauer Motion", "Dynamics 1"), new ColorSettings { Label = "", OnColor = buttonBgColor, TextOnColor = new FinderColor(102, 157, 203), MenuItems = ["OFF", "PANNER 1", "DIRECT", "OUTPUT"] });
+            ColorDict.Add(("Brauer Motion", "Drive 1"), new ColorSettings { Label = "DRIVE 1", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path1Color });
+            ColorDict.Add(("Brauer Motion", "Ratio 1"), new ColorSettings { Label = "RATIO 1", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path1Color });
+            ColorDict.Add(("Brauer Motion", "Dynamics HP 1"), new ColorSettings { Label = "HP 1", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path1Color });
+            ColorDict.Add(("Brauer Motion", "Dynamics LP 1"), new ColorSettings { Label = "LP 1", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path1Color });
+            ColorDict.Add(("Brauer Motion", "Trigger Mode 2"), new ColorSettings { Label = "", OnColor = buttonBgColor, TextOnColor = new FinderColor(102, 157, 203), MenuItems = ["OFF", "SIMPLE", "ONE-SHOT", "RETRIGGER", "S-TRIG REV", "A TO B"] });
+            ColorDict.Add(("Brauer Motion", "Trigger A to B 2"), new ColorSettings { Label = "A TO B", LabelOn = "B TO A", OffColor = buttonBgColor, TextOffColor = textColor, OnColor = buttonBgColor, TextOnColor = textColor });
+            ColorDict.Add(("Brauer Motion", "Trigger Sensitivity 2"), new ColorSettings { Label = "SENS 2", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path2Color });
+            ColorDict.Add(("Brauer Motion", "Trigger HP 2"), new ColorSettings { Label = "HOLD 2", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path2Color });
+            ColorDict.Add(("Brauer Motion", "Dynamics 2"), new ColorSettings { Label = "", OnColor = buttonBgColor, TextOnColor = new FinderColor(102, 157, 203), MenuItems = ["OFF", "PANNER 1", "DIRECT", "OUTPUT"] });
+            ColorDict.Add(("Brauer Motion", "Drive 2"), new ColorSettings { Label = "DRIVE 2", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path2Color });
+            ColorDict.Add(("Brauer Motion", "Ratio 2"), new ColorSettings { Label = "RATIO 2", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path2Color });
+            ColorDict.Add(("Brauer Motion", "Dynamics HP 2"), new ColorSettings { Label = "HP 2", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path2Color });
+            ColorDict.Add(("Brauer Motion", "Dynamics LP 2"), new ColorSettings { Label = "LP 2", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path2Color });
+            ColorDict.Add(("Brauer Motion", "Panner 1 Level"), new ColorSettings { Label = "PANNER 1", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path1Color });
+            ColorDict.Add(("Brauer Motion", "Panner 2 Level"), new ColorSettings { Label = "PANNER 2", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path2Color });
+            ColorDict.Add(("Brauer Motion", "Input"), new ColorSettings { Label = "INPUT", OnColor = bgColor, TextOnColor = textColor });
+            ColorDict.Add(("Brauer Motion", "Output"), new ColorSettings { Label = "OUTPUT", OnColor = bgColor, TextOnColor = textColor });
+            ColorDict.Add(("Brauer Motion", "Mix"), new ColorSettings { Label = "MIX", OnColor = bgColor, TextOnColor = textColor });
+            ColorDict.Add(("Brauer Motion", "Start/Stop 1"), new ColorSettings { Label = "START 1", LabelOn = "STOP 1", OffColor = buttonBgColor, TextOffColor = path1Color, OnColor = path1Color, TextOnColor = FinderColor.Black });
+            ColorDict.Add(("Brauer Motion", "Start/Stop 2"), new ColorSettings { Label = "START 2", LabelOn = "STOP 2", OffColor = buttonBgColor, TextOffColor = path2Color, OnColor = path2Color, TextOnColor = FinderColor.Black });
+            ColorDict.Add(("Brauer Motion", "Ex-SC 1"), new ColorSettings { Label = "EXT SC 1", OffColor = buttonBgColor, TextOffColor = path1Color, OnColor = path1Color, TextOnColor = FinderColor.Black });
+            ColorDict.Add(("Brauer Motion", "Ex-SC 2"), new ColorSettings { Label = "EXT SC 2", OffColor = buttonBgColor, TextOffColor = path2Color, OnColor = path2Color, TextOnColor = FinderColor.Black });
+            ColorDict.Add(("Brauer Motion", "Auto Reset"), new ColorSettings { Label = "AUTO RESET", OffColor = buttonBgColor, TextOffColor = textColor, OnColor = checkOnColor, TextOnColor = FinderColor.Black });
 
 
             ColorDict.Add(("Sibilance", "Monitor"), new ColorSettings { OnColor = new FinderColor(0, 195, 230) });

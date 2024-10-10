@@ -1,5 +1,15 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <SurfaceData surfaceID="{EF427900-E2B0-478A-B17D-4652F0F273A6}">
+	<SurfaceDeviceAssignment deviceID="{11111111-1111-1111-1111-111111111111}" friendlyName="static">
+		<List x:id="pages">
+			<SurfaceAssignmentPage/>
+		</List>
+	</SurfaceDeviceAssignment>
+	<SurfaceDeviceAssignment deviceID="{22222222-2222-2222-2222-222222222222}" friendlyName="Channel Controls">
+		<List x:id="pages">
+			<SurfaceAssignmentPage/>
+		</List>
+	</SurfaceDeviceAssignment>
 	<SurfaceDeviceAssignment deviceID="{073C4094-E062-4FB5-8328-74608DD1A3A4}" friendlyName="Pro EQ">
 		<List x:id="pages">
 			<SurfaceAssignmentPage>
@@ -175,14 +185,98 @@
 			</SurfaceAssignmentPage>
 		</List>
 	</SurfaceDeviceAssignment>
-	<SurfaceDeviceAssignment deviceID="{22222222-2222-2222-2222-222222222222}" friendlyName="Channel Controls">
+	<SurfaceDeviceAssignment deviceID="{A6DA2DE6-2A4D-43DD-A024-B76B6E6ADE70}" friendlyName="Alpine Desk">
 		<List x:id="pages">
-			<SurfaceAssignmentPage/>
+			<SurfaceAssignmentPage>
+				<Association key="U1" value="{A6DA2DE6-2A4D-43DD-A024-B76B6E6ADE70}/bypass"/>
+				<Association key="vpot[0][0]" value="{A6DA2DE6-2A4D-43DD-A024-B76B6E6ADE70}/drive"/>
+				<Association key="vpot[0][1]" value="{A6DA2DE6-2A4D-43DD-A024-B76B6E6ADE70}/noise"/>
+				<Association key="vbut[0][0]" value="{A6DA2DE6-2A4D-43DD-A024-B76B6E6ADE70}/preampOn"/>
+				<Association key="vbut[0][1]" value="{A6DA2DE6-2A4D-43DD-A024-B76B6E6ADE70}/noiseOn"/>
+				<Association key="U2" value="{A6DA2DE6-2A4D-43DD-A024-B76B6E6ADE70}/compensation"/>
+				<Association key="vpot[1][2]" value="{A6DA2DE6-2A4D-43DD-A024-B76B6E6ADE70}/character"/>
+				<Association key="vpot[1][5]" value="{A6DA2DE6-2A4D-43DD-A024-B76B6E6ADE70}/master"/>
+				<Association key="vbut[1][5]" value="{A6DA2DE6-2A4D-43DD-A024-B76B6E6ADE70}/economy"/>
+				<Association key="vpot[0][4]" value="{A6DA2DE6-2A4D-43DD-A024-B76B6E6ADE70}/crosstalk"/>
+				<Association key="vpot[0][5]" value="{A6DA2DE6-2A4D-43DD-A024-B76B6E6ADE70}/atransformer"/>
+				<Association key="vbut[0][4]" value="{A6DA2DE6-2A4D-43DD-A024-B76B6E6ADE70}/crosstalkOn"/>
+				<Association key="vbut[0][2]" value="{A6DA2DE6-2A4D-43DD-A024-B76B6E6ADE70}/noiseGateOn"/>
+				<Association key="vpot[0][2]" value="{A6DA2DE6-2A4D-43DD-A024-B76B6E6ADE70}/preampBoost"/>
+			</SurfaceAssignmentPage>
 		</List>
 	</SurfaceDeviceAssignment>
-	<SurfaceDeviceAssignment deviceID="{5653545A-4E4E-5A4E-6575-74726F6E2050}" friendlyName="Neutron 4">
+	<SurfaceDeviceAssignment deviceID="{BDB3A459-1DA1-4F31-A515-CE08DF10A7C1}" friendlyName="Brit Console">
 		<List x:id="pages">
-			<SurfaceAssignmentPage/>
+			<SurfaceAssignmentPage>
+				<Association key="vpot[0][0]" value="{BDB3A459-1DA1-4F31-A515-CE08DF10A7C1}/drive"/>
+				<Association key="U1" value="{BDB3A459-1DA1-4F31-A515-CE08DF10A7C1}/bypass"/>
+				<Association key="vbut[0][0]" value="{BDB3A459-1DA1-4F31-A515-CE08DF10A7C1}/preampOn"/>
+				<Association key="vpot[0][1]" value="{BDB3A459-1DA1-4F31-A515-CE08DF10A7C1}/noise"/>
+				<Association key="vbut[0][1]" value="{BDB3A459-1DA1-4F31-A515-CE08DF10A7C1}/noiseOn"/>
+				<Association key="vbut[0][2]" value="{BDB3A459-1DA1-4F31-A515-CE08DF10A7C1}/noiseGateOn"/>
+				<Association key="vpot[0][2]" value="{BDB3A459-1DA1-4F31-A515-CE08DF10A7C1}/preampBoost"/>
+				<Association key="vpot[0][4]" value="{BDB3A459-1DA1-4F31-A515-CE08DF10A7C1}/crosstalk"/>
+				<Association key="vbut[0][4]" value="{BDB3A459-1DA1-4F31-A515-CE08DF10A7C1}/crosstalkOn"/>
+				<Association key="vpot[0][5]" value="{BDB3A459-1DA1-4F31-A515-CE08DF10A7C1}/bharmonics"/>
+				<Association key="vpot[0][3]" value="{BDB3A459-1DA1-4F31-A515-CE08DF10A7C1}/btype"/>
+				<Association key="vpot[1][2]" value="{BDB3A459-1DA1-4F31-A515-CE08DF10A7C1}/character"/>
+				<Association key="vpot[1][5]" value="{BDB3A459-1DA1-4F31-A515-CE08DF10A7C1}/master"/>
+				<Association key="U2" value="{BDB3A459-1DA1-4F31-A515-CE08DF10A7C1}/compensation"/>
+				<Association key="vbut[1][5]" value="{BDB3A459-1DA1-4F31-A515-CE08DF10A7C1}/economy"/>
+			</SurfaceAssignmentPage>
+		</List>
+	</SurfaceDeviceAssignment>
+	<SurfaceDeviceAssignment deviceID="{64C0D0A1-F21A-42AF-8E30-40FF97591363}" friendlyName="Console Shaper">
+		<List x:id="pages">
+			<SurfaceAssignmentPage>
+				<Association key="U1" value="{64C0D0A1-F21A-42AF-8E30-40FF97591363}/bypass"/>
+				<Association key="vpot[0][0]" value="{64C0D0A1-F21A-42AF-8E30-40FF97591363}/drive"/>
+				<Association key="vbut[0][0]" value="{64C0D0A1-F21A-42AF-8E30-40FF97591363}/preampOn"/>
+				<Association key="vpot[0][1]" value="{64C0D0A1-F21A-42AF-8E30-40FF97591363}/noise"/>
+				<Association key="vbut[0][1]" value="{64C0D0A1-F21A-42AF-8E30-40FF97591363}/noiseOn"/>
+				<Association key="vbut[0][4]" value="{64C0D0A1-F21A-42AF-8E30-40FF97591363}/crosstalkOn"/>
+				<Association key="vpot[0][4]" value="{64C0D0A1-F21A-42AF-8E30-40FF97591363}/crosstalk"/>
+			</SurfaceAssignmentPage>
+		</List>
+	</SurfaceDeviceAssignment>
+	<SurfaceDeviceAssignment deviceID="{91E6C8D6-0BEA-4A19-BED2-F2694B164B86}" friendlyName="CTC-1">
+		<List x:id="pages">
+			<SurfaceAssignmentPage>
+				<Association key="U1" value="{91E6C8D6-0BEA-4A19-BED2-F2694B164B86}/bypass"/>
+				<Association key="vpot[0][0]" value="{91E6C8D6-0BEA-4A19-BED2-F2694B164B86}/drive"/>
+				<Association key="vbut[0][0]" value="{91E6C8D6-0BEA-4A19-BED2-F2694B164B86}/preampOn"/>
+				<Association key="vpot[0][1]" value="{91E6C8D6-0BEA-4A19-BED2-F2694B164B86}/noise"/>
+				<Association key="vbut[0][1]" value="{91E6C8D6-0BEA-4A19-BED2-F2694B164B86}/noiseOn"/>
+				<Association key="vbut[0][2]" value="{91E6C8D6-0BEA-4A19-BED2-F2694B164B86}/noiseGateOn"/>
+				<Association key="U2" value="{91E6C8D6-0BEA-4A19-BED2-F2694B164B86}/compensation"/>
+				<Association key="vpot[0][4]" value="{91E6C8D6-0BEA-4A19-BED2-F2694B164B86}/crosstalk"/>
+				<Association key="vbut[0][4]" value="{91E6C8D6-0BEA-4A19-BED2-F2694B164B86}/crosstalkOn"/>
+				<Association key="vbut[0][3]" value="{91E6C8D6-0BEA-4A19-BED2-F2694B164B86}/preampBoost"/>
+				<Association key="vpot[0][3]" value="{91E6C8D6-0BEA-4A19-BED2-F2694B164B86}/preampType"/>
+				<Association key="vpot[0][2]" value="{91E6C8D6-0BEA-4A19-BED2-F2694B164B86}/character"/>
+				<Association key="vpot[0][5]" value="{91E6C8D6-0BEA-4A19-BED2-F2694B164B86}/master"/>
+				<Association key="vbut[0][5]" value="{91E6C8D6-0BEA-4A19-BED2-F2694B164B86}/economy"/>
+			</SurfaceAssignmentPage>
+		</List>
+	</SurfaceDeviceAssignment>
+	<SurfaceDeviceAssignment deviceID="{7C4569DF-5408-4148-89BD-7C508E084DE4}" friendlyName="Porta Cassette">
+		<List x:id="pages">
+			<SurfaceAssignmentPage>
+				<Association key="U1" value="{7C4569DF-5408-4148-89BD-7C508E084DE4}/bypass"/>
+				<Association key="U2" value="{7C4569DF-5408-4148-89BD-7C508E084DE4}/compensation"/>
+				<Association key="vpot[0][0]" value="{7C4569DF-5408-4148-89BD-7C508E084DE4}/drive"/>
+				<Association key="vpot[0][1]" value="{7C4569DF-5408-4148-89BD-7C508E084DE4}/noise"/>
+				<Association key="vpot[0][4]" value="{7C4569DF-5408-4148-89BD-7C508E084DE4}/crosstalk"/>
+				<Association key="vpot[0][2]" value="{7C4569DF-5408-4148-89BD-7C508E084DE4}/character"/>
+				<Association key="vpot[0][5]" value="{7C4569DF-5408-4148-89BD-7C508E084DE4}/master"/>
+				<Association key="vbut[0][5]" value="{7C4569DF-5408-4148-89BD-7C508E084DE4}/economy"/>
+				<Association key="vpot[0][3]" value="{7C4569DF-5408-4148-89BD-7C508E084DE4}/jpitch"/>
+				<Association key="vbut[0][0]" value="{7C4569DF-5408-4148-89BD-7C508E084DE4}/preampOn"/>
+				<Association key="vbut[0][1]" value="{7C4569DF-5408-4148-89BD-7C508E084DE4}/noiseOn"/>
+				<Association key="vbut[0][2]" value="{7C4569DF-5408-4148-89BD-7C508E084DE4}/noiseGateOn"/>
+				<Association key="vbut[0][4]" value="{7C4569DF-5408-4148-89BD-7C508E084DE4}/crosstalkOn"/>
+				<Association key="vbut[0][3]" value="{7C4569DF-5408-4148-89BD-7C508E084DE4}/preampBoost"/>
+			</SurfaceAssignmentPage>
 		</List>
 	</SurfaceDeviceAssignment>
 	<SurfaceDeviceAssignment deviceID="{56535453-4347-4D73-736C-676368616E6E}" friendlyName="Waves SSLGChannel Mono">
@@ -367,45 +461,6 @@
 			</SurfaceAssignmentPage>
 		</List>
 	</SurfaceDeviceAssignment>
-	<SurfaceDeviceAssignment deviceID="{56535455-5243-4D72-636F-6D7072657373}" friendlyName="Waves RCompressor Mono">
-		<List x:id="pages">
-			<SurfaceAssignmentPage>
-				<Association key="U1" value="{56535455-5243-4D72-636F-6D7072657373}/vstp10000001"/>
-				<Association key="vpot[0][0]" value="{56535455-5243-4D72-636F-6D7072657373}/vstp1"/>
-				<Association key="vpot[0][1]" value="{56535455-5243-4D72-636F-6D7072657373}/vstp3"/>
-				<Association key="vpot[0][3]" value="{56535455-5243-4D72-636F-6D7072657373}/vstp2"/>
-				<Association key="vpot[0][4]" value="{56535455-5243-4D72-636F-6D7072657373}/vstp6"/>
-				<Association key="vpot[0][5]" value="{56535455-5243-4D72-636F-6D7072657373}/vstp0"/>
-				<Association key="vbut[0][0]" value="{56535455-5243-4D72-636F-6D7072657373}/vstp4"/>
-				<Association key="vbut[0][1]" value="{56535455-5243-4D72-636F-6D7072657373}/vstp7"/>
-				<Association key="vbut[0][2]" value="{56535455-5243-4D72-636F-6D7072657373}/vstp5"/>
-				<Association key="vpot[1][4]" value="{56535455-5243-4D72-636F-6D7072657373}/vstp8"/>
-				<Association key="vpot[1][5]" value="{56535455-5243-4D72-636F-6D7072657373}/vstp9"/>
-			</SurfaceAssignmentPage>
-		</List>
-	</SurfaceDeviceAssignment>
-	<SurfaceDeviceAssignment deviceID="{56535454-5350-4D73-6D61-636B20617474}" friendlyName="Waves Smack Attack Mono">
-		<List x:id="pages">
-			<SurfaceAssignmentPage>
-				<Association key="vpot[0][0]" value="{56535454-5350-4D73-6D61-636B20617474}/vstp0"/>
-				<Association key="vpot[0][1]" value="{56535454-5350-4D73-6D61-636B20617474}/vstp1"/>
-				<Association key="vpot[0][3]" value="{56535454-5350-4D73-6D61-636B20617474}/vstp4"/>
-				<Association key="vpot[0][4]" value="{56535454-5350-4D73-6D61-636B20617474}/vstp5"/>
-				<Association key="vpot[0][2]" value="{56535454-5350-4D73-6D61-636B20617474}/vstp2"/>
-				<Association key="vpot[0][5]" value="{56535454-5350-4D73-6D61-636B20617474}/vstp6"/>
-				<Association key="vpot[1][5]" value="{56535454-5350-4D73-6D61-636B20617474}/vstp9"/>
-				<Association key="vpot[1][4]" value="{56535454-5350-4D73-6D61-636B20617474}/vstp8"/>
-				<Association key="vpot[1][0]" value="{56535454-5350-4D73-6D61-636B20617474}/vstp3"/>
-				<Association key="vpot[1][1]" value="{56535454-5350-4D73-6D61-636B20617474}/vstp10"/>
-				<Association key="vpot[1][3]" value="{56535454-5350-4D73-6D61-636B20617474}/vstp7"/>
-			</SurfaceAssignmentPage>
-		</List>
-	</SurfaceDeviceAssignment>
-	<SurfaceDeviceAssignment deviceID="{5653544E-5853-536E-7820-73746572656F}" friendlyName="Waves NX Stereo">
-		<List x:id="pages">
-			<SurfaceAssignmentPage/>
-		</List>
-	</SurfaceDeviceAssignment>
 	<SurfaceDeviceAssignment deviceID="{F2AEE70D-00DE-4F4E-416E-6F6252534531}" friendlyName="RareSE">
 		<List x:id="pages">
 			<SurfaceAssignmentPage/>
@@ -513,9 +568,85 @@
 			</SurfaceAssignmentPage>
 		</List>
 	</SurfaceDeviceAssignment>
-	<SurfaceDeviceAssignment deviceID="{5653544D-4F44-4D6D-6F6E-646F6D6F6420}" friendlyName="Waves MondoMod Mono">
+	<SurfaceDeviceAssignment deviceID="{56535455-5243-4D72-636F-6D7072657373}" friendlyName="Waves RCompressor Mono">
+		<List x:id="pages">
+			<SurfaceAssignmentPage>
+				<Association key="U1" value="{56535455-5243-4D72-636F-6D7072657373}/vstp10000001"/>
+				<Association key="vpot[0][0]" value="{56535455-5243-4D72-636F-6D7072657373}/vstp1"/>
+				<Association key="vpot[0][1]" value="{56535455-5243-4D72-636F-6D7072657373}/vstp3"/>
+				<Association key="vpot[0][3]" value="{56535455-5243-4D72-636F-6D7072657373}/vstp2"/>
+				<Association key="vpot[0][4]" value="{56535455-5243-4D72-636F-6D7072657373}/vstp6"/>
+				<Association key="vpot[0][5]" value="{56535455-5243-4D72-636F-6D7072657373}/vstp0"/>
+				<Association key="vbut[0][0]" value="{56535455-5243-4D72-636F-6D7072657373}/vstp4"/>
+				<Association key="vbut[0][1]" value="{56535455-5243-4D72-636F-6D7072657373}/vstp7"/>
+				<Association key="vbut[0][2]" value="{56535455-5243-4D72-636F-6D7072657373}/vstp5"/>
+				<Association key="vpot[1][4]" value="{56535455-5243-4D72-636F-6D7072657373}/vstp8"/>
+				<Association key="vpot[1][5]" value="{56535455-5243-4D72-636F-6D7072657373}/vstp9"/>
+			</SurfaceAssignmentPage>
+		</List>
+	</SurfaceDeviceAssignment>
+	<SurfaceDeviceAssignment deviceID="{56535454-5350-4D73-6D61-636B20617474}" friendlyName="Waves Smack Attack Mono">
+		<List x:id="pages">
+			<SurfaceAssignmentPage>
+				<Association key="U1" value="{56535454-5350-4D73-6D61-636B20617474}/vstp10000001"/>
+				<Association key="vpot[0][0]" value="{56535454-5350-4D73-6D61-636B20617474}/vstp0"/>
+				<Association key="vpot[0][1]" value="{56535454-5350-4D73-6D61-636B20617474}/vstp1"/>
+				<Association key="vpot[0][3]" value="{56535454-5350-4D73-6D61-636B20617474}/vstp4"/>
+				<Association key="vpot[0][4]" value="{56535454-5350-4D73-6D61-636B20617474}/vstp5"/>
+				<Association key="vpot[0][2]" value="{56535454-5350-4D73-6D61-636B20617474}/vstp2"/>
+				<Association key="vpot[0][5]" value="{56535454-5350-4D73-6D61-636B20617474}/vstp6"/>
+				<Association key="vpot[1][5]" value="{56535454-5350-4D73-6D61-636B20617474}/vstp9"/>
+				<Association key="vbut[0][0]" value="{56535454-5350-4D73-6D61-636B20617474}/vstp3"/>
+				<Association key="vbut[0][3]" value="{56535454-5350-4D73-6D61-636B20617474}/vstp7"/>
+				<Association key="vbut[1][5]" value="{56535454-5350-4D73-6D61-636B20617474}/vstp10"/>
+				<Association key="vpot[1][2]" value="{56535454-5350-4D73-6D61-636B20617474}/vstp8"/>
+			</SurfaceAssignmentPage>
+		</List>
+	</SurfaceDeviceAssignment>
+	<SurfaceDeviceAssignment deviceID="{56535454-5350-5373-6D61-636B20617474}" friendlyName="Waves Smack Attack Stereo">
+		<List x:id="pages">
+			<SurfaceAssignmentPage>
+				<Association key="U1" value="{56535454-5350-5373-6D61-636B20617474}/vstp10000001"/>
+				<Association key="vpot[0][0]" value="{56535454-5350-5373-6D61-636B20617474}/vstp0"/>
+				<Association key="vpot[0][1]" value="{56535454-5350-5373-6D61-636B20617474}/vstp1"/>
+				<Association key="vpot[0][3]" value="{56535454-5350-5373-6D61-636B20617474}/vstp4"/>
+				<Association key="vpot[0][4]" value="{56535454-5350-5373-6D61-636B20617474}/vstp5"/>
+				<Association key="vpot[0][2]" value="{56535454-5350-5373-6D61-636B20617474}/vstp2"/>
+				<Association key="vpot[0][5]" value="{56535454-5350-5373-6D61-636B20617474}/vstp6"/>
+				<Association key="vpot[1][5]" value="{56535454-5350-5373-6D61-636B20617474}/vstp9"/>
+				<Association key="vbut[0][0]" value="{56535454-5350-5373-6D61-636B20617474}/vstp3"/>
+				<Association key="vbut[0][3]" value="{56535454-5350-5373-6D61-636B20617474}/vstp7"/>
+				<Association key="vbut[1][5]" value="{56535454-5350-5373-6D61-636B20617474}/vstp10"/>
+				<Association key="vpot[1][2]" value="{56535454-5350-5373-6D61-636B20617474}/vstp8"/>
+			</SurfaceAssignmentPage>
+		</List>
+	</SurfaceDeviceAssignment>
+	<SurfaceDeviceAssignment deviceID="{5653544E-5853-536E-7820-73746572656F}" friendlyName="Waves NX Stereo">
 		<List x:id="pages">
 			<SurfaceAssignmentPage/>
+		</List>
+	</SurfaceDeviceAssignment>
+	<SurfaceDeviceAssignment deviceID="{5653544D-4F44-4D6D-6F6E-646F6D6F6420}" friendlyName="Waves MondoMod Mono">
+		<List x:id="pages">
+			<SurfaceAssignmentPage>
+				<Association key="vpot[0][0]" value="{5653544D-4F44-4D6D-6F6E-646F6D6F6420}/vstp4"/>
+				<Association key="vpot[0][3]" value="{5653544D-4F44-4D6D-6F6E-646F6D6F6420}/vstp3"/>
+				<Association key="vpot[0][1]" value="{5653544D-4F44-4D6D-6F6E-646F6D6F6420}/vstp0"/>
+				<Association key="vpot[0][2]" value="{5653544D-4F44-4D6D-6F6E-646F6D6F6420}/vstp1"/>
+				<Association key="vpot[0][5]" value="{5653544D-4F44-4D6D-6F6E-646F6D6F6420}/vstp14"/>
+				<Association key="vpot[0][4]" value="{5653544D-4F44-4D6D-6F6E-646F6D6F6420}/vstp2"/>
+				<Association key="vpot[1][1]" value="{5653544D-4F44-4D6D-6F6E-646F6D6F6420}/vstp5"/>
+				<Association key="vbut[0][0]" value="{5653544D-4F44-4D6D-6F6E-646F6D6F6420}/vstp8"/>
+				<Association key="vbut[0][3]" value="{5653544D-4F44-4D6D-6F6E-646F6D6F6420}/vstp9"/>
+				<Association key="vbut[0][1]" value="{5653544D-4F44-4D6D-6F6E-646F6D6F6420}/vstp15"/>
+				<Association key="vpot[1][2]" value="{5653544D-4F44-4D6D-6F6E-646F6D6F6420}/vstp7"/>
+				<Association key="vbut[1][1]" value="{5653544D-4F44-4D6D-6F6E-646F6D6F6420}/vstp6"/>
+				<Association key="vpot[1][0]" value="{5653544D-4F44-4D6D-6F6E-646F6D6F6420}/vstp10"/>
+				<Association key="vpot[1][3]" value="{5653544D-4F44-4D6D-6F6E-646F6D6F6420}/vstp11"/>
+				<Association key="vpot[1][4]" value="{5653544D-4F44-4D6D-6F6E-646F6D6F6420}/vstp12"/>
+				<Association key="vpot[1][5]" value="{5653544D-4F44-4D6D-6F6E-646F6D6F6420}/vstp13"/>
+				<Association key="U1" value="{5653544D-4F44-4D6D-6F6E-646F6D6F6420}/vstp10000001"/>
+			</SurfaceAssignmentPage>
 		</List>
 	</SurfaceDeviceAssignment>
 	<SurfaceDeviceAssignment deviceID="{5653544D-4F44-586D-6F6E-646F6D6F6420}" friendlyName="Waves MondoMod Mono/Stereo">
@@ -585,7 +716,17 @@
 			</SurfaceAssignmentPage>
 		</List>
 	</SurfaceDeviceAssignment>
-	<SurfaceDeviceAssignment deviceID="{5653544C-494D-316C-312B-20756C747261}" friendlyName="Waves L1+ Ultramaximizer Stereo">
+	<SurfaceDeviceAssignment deviceID="{5653544C-3143-536C-3120-6C696D697465}" friendlyName="Waves L1 limiter Stereo">
+		<List x:id="pages">
+			<SurfaceAssignmentPage>
+				<Association key="vpot[0][0]" value="{5653544C-3143-536C-3120-6C696D697465}/vstp2"/>
+				<Association key="vpot[0][3]" value="{5653544C-3143-536C-3120-6C696D697465}/vstp1"/>
+				<Association key="vpot[0][4]" value="{5653544C-3143-536C-3120-6C696D697465}/vstp0"/>
+				<Association key="vbut[0][4]" value="{5653544C-3143-536C-3120-6C696D697465}/vstp3"/>
+				<Association key="U1" value="{5653544C-3143-536C-3120-6C696D697465}/vstp10000001"/>
+			</SurfaceAssignmentPage>
+		</List>
+	</SurfaceDeviceAssignment>	<SurfaceDeviceAssignment deviceID="{5653544C-494D-316C-312B-20756C747261}" friendlyName="Waves L1+ Ultramaximizer Stereo">
 		<List x:id="pages">
 			<SurfaceAssignmentPage/>
 		</List>
@@ -616,6 +757,294 @@
 				<Association key="vbut[0][3]" value="{5653544C-4F41-4D6C-6F61-6972206D6F6E}/vstp0"/>
 				<Association key="U1" value="{5653544C-4F41-4D6C-6F61-6972206D6F6E}/vstp10000001"/>
 			</SurfaceAssignmentPage>
+		</List>
+	</SurfaceDeviceAssignment>
+	<SurfaceDeviceAssignment deviceID="{56535452-5132-4D72-6571-2032206D6F6E}" friendlyName="Waves REQ 2 Mono">
+		<List x:id="pages">
+			<SurfaceAssignmentPage>
+				<Association key="U1" value="{56535452-5132-4D72-6571-2032206D6F6E}/vstp10000001"/>
+				<Association key="vbut[0][0]" value="{56535452-5132-4D72-6571-2032206D6F6E}/vstp0"/>
+				<Association key="vpot[0][0]" value="{56535452-5132-4D72-6571-2032206D6F6E}/vstp2"/>
+				<Association key="vpot[0][1]" value="{56535452-5132-4D72-6571-2032206D6F6E}/vstp3"/>
+				<Association key="vpot[0][2]" value="{56535452-5132-4D72-6571-2032206D6F6E}/vstp4"/>
+				<Association key="vpot[0][3]" value="{56535452-5132-4D72-6571-2032206D6F6E}/vstp7"/>
+				<Association key="vbut[0][3]" value="{56535452-5132-4D72-6571-2032206D6F6E}/vstp5"/>
+				<Association key="vpot[0][4]" value="{56535452-5132-4D72-6571-2032206D6F6E}/vstp8"/>
+				<Association key="vpot[0][5]" value="{56535452-5132-4D72-6571-2032206D6F6E}/vstp9"/>
+				<Association key="vbut[0][1]" value="{56535452-5132-4D72-6571-2032206D6F6E}/vstp1"/>
+				<Association key="vbut[0][4]" value="{56535452-5132-4D72-6571-2032206D6F6E}/vstp6"/>
+				<Association key="vpot[1][5]" value="{56535452-5132-4D72-6571-2032206D6F6E}/vstp10"/>
+			</SurfaceAssignmentPage>
+		</List>
+	</SurfaceDeviceAssignment>
+	<SurfaceDeviceAssignment deviceID="{56535452-5132-5372-6571-203220737465}" friendlyName="Waves REQ 2 Stereo">
+		<List x:id="pages">
+			<SurfaceAssignmentPage>
+				<Association key="U1" value="{56535452-5132-5372-6571-203220737465}/vstp10000001"/>
+				<Association key="vbut[0][0]" value="{56535452-5132-5372-6571-203220737465}/vstp0"/>
+				<Association key="vpot[0][0]" value="{56535452-5132-5372-6571-203220737465}/vstp2"/>
+				<Association key="vpot[0][1]" value="{56535452-5132-5372-6571-203220737465}/vstp3"/>
+				<Association key="vpot[0][2]" value="{56535452-5132-5372-6571-203220737465}/vstp4"/>
+				<Association key="vpot[0][3]" value="{56535452-5132-5372-6571-203220737465}/vstp7"/>
+				<Association key="vbut[0][3]" value="{56535452-5132-5372-6571-203220737465}/vstp5"/>
+				<Association key="vpot[0][4]" value="{56535452-5132-5372-6571-203220737465}/vstp8"/>
+				<Association key="vpot[0][5]" value="{56535452-5132-5372-6571-203220737465}/vstp9"/>
+				<Association key="vpot[1][5]" value="{56535452-5132-5372-6571-203220737465}/vstp11"/>
+				<Association key="vbut[0][1]" value="{56535452-5132-5372-6571-203220737465}/vstp1"/>
+				<Association key="vbut[0][4]" value="{56535452-5132-5372-6571-203220737465}/vstp6"/>
+				<Association key="vpot[1][2]" value="{56535452-5132-5372-6571-203220737465}/vstp10"/>
+			</SurfaceAssignmentPage>
+		</List>
+	</SurfaceDeviceAssignment>
+	<SurfaceDeviceAssignment deviceID="{56535452-5134-4D72-6571-2034206D6F6E}" friendlyName="Waves REQ 4 Mono">
+		<List x:id="pages">
+			<SurfaceAssignmentPage>
+				<Association key="U1" value="{56535452-5134-4D72-6571-2034206D6F6E}/vstp10000001"/>
+				<Association key="vpot[0][0]" value="{56535452-5134-4D72-6571-2034206D6F6E}/vstp2"/>
+				<Association key="vbut[0][0]" value="{56535452-5134-4D72-6571-2034206D6F6E}/vstp0"/>
+				<Association key="vpot[0][1]" value="{56535452-5134-4D72-6571-2034206D6F6E}/vstp3"/>
+				<Association key="vpot[0][2]" value="{56535452-5134-4D72-6571-2034206D6F6E}/vstp4"/>
+				<Association key="vpot[0][3]" value="{56535452-5134-4D72-6571-2034206D6F6E}/vstp7"/>
+				<Association key="vbut[0][3]" value="{56535452-5134-4D72-6571-2034206D6F6E}/vstp5"/>
+				<Association key="vpot[0][4]" value="{56535452-5134-4D72-6571-2034206D6F6E}/vstp8"/>
+				<Association key="vpot[0][5]" value="{56535452-5134-4D72-6571-2034206D6F6E}/vstp9"/>
+				<Association key="vpot[1][0]" value="{56535452-5134-4D72-6571-2034206D6F6E}/vstp12"/>
+				<Association key="vbut[1][0]" value="{56535452-5134-4D72-6571-2034206D6F6E}/vstp10"/>
+				<Association key="vpot[1][1]" value="{56535452-5134-4D72-6571-2034206D6F6E}/vstp13"/>
+				<Association key="vpot[1][2]" value="{56535452-5134-4D72-6571-2034206D6F6E}/vstp14"/>
+				<Association key="vpot[1][3]" value="{56535452-5134-4D72-6571-2034206D6F6E}/vstp17"/>
+				<Association key="vbut[1][3]" value="{56535452-5134-4D72-6571-2034206D6F6E}/vstp15"/>
+				<Association key="vpot[1][4]" value="{56535452-5134-4D72-6571-2034206D6F6E}/vstp18"/>
+				<Association key="vpot[1][5]" value="{56535452-5134-4D72-6571-2034206D6F6E}/vstp19"/>
+				<Association key="vbut[0][1]" value="{56535452-5134-4D72-6571-2034206D6F6E}/vstp1"/>
+				<Association key="vbut[0][4]" value="{56535452-5134-4D72-6571-2034206D6F6E}/vstp6"/>
+				<Association key="vbut[1][1]" value="{56535452-5134-4D72-6571-2034206D6F6E}/vstp11"/>
+				<Association key="vbut[1][4]" value="{56535452-5134-4D72-6571-2034206D6F6E}/vstp16"/>
+				<Association key="vpot[2][5]" value="{56535452-5134-4D72-6571-2034206D6F6E}/vstp20"/>
+			</SurfaceAssignmentPage>
+		</List>
+	</SurfaceDeviceAssignment>
+	<SurfaceDeviceAssignment deviceID="{56535452-5134-5372-6571-203420737465}" friendlyName="Waves REQ 4 Stereo">
+		<List x:id="pages">
+			<SurfaceAssignmentPage>
+				<Association key="U1" value="{56535452-5134-5372-6571-203420737465}/vstp10000001"/>
+				<Association key="vpot[0][0]" value="{56535452-5134-5372-6571-203420737465}/vstp2"/>
+				<Association key="vbut[0][0]" value="{56535452-5134-5372-6571-203420737465}/vstp0"/>
+				<Association key="vpot[0][1]" value="{56535452-5134-5372-6571-203420737465}/vstp3"/>
+				<Association key="vpot[0][2]" value="{56535452-5134-5372-6571-203420737465}/vstp4"/>
+				<Association key="vpot[0][3]" value="{56535452-5134-5372-6571-203420737465}/vstp7"/>
+				<Association key="vbut[0][3]" value="{56535452-5134-5372-6571-203420737465}/vstp5"/>
+				<Association key="vpot[0][4]" value="{56535452-5134-5372-6571-203420737465}/vstp8"/>
+				<Association key="vpot[0][5]" value="{56535452-5134-5372-6571-203420737465}/vstp9"/>
+				<Association key="vpot[1][0]" value="{56535452-5134-5372-6571-203420737465}/vstp12"/>
+				<Association key="vbut[1][0]" value="{56535452-5134-5372-6571-203420737465}/vstp10"/>
+				<Association key="vpot[1][1]" value="{56535452-5134-5372-6571-203420737465}/vstp13"/>
+				<Association key="vpot[1][2]" value="{56535452-5134-5372-6571-203420737465}/vstp14"/>
+				<Association key="vpot[1][3]" value="{56535452-5134-5372-6571-203420737465}/vstp17"/>
+				<Association key="vbut[1][3]" value="{56535452-5134-5372-6571-203420737465}/vstp15"/>
+				<Association key="vpot[1][4]" value="{56535452-5134-5372-6571-203420737465}/vstp18"/>
+				<Association key="vpot[1][5]" value="{56535452-5134-5372-6571-203420737465}/vstp19"/>
+				<Association key="vpot[2][5]" value="{56535452-5134-5372-6571-203420737465}/vstp21"/>
+				<Association key="vbut[0][1]" value="{56535452-5134-5372-6571-203420737465}/vstp1"/>
+				<Association key="vbut[0][4]" value="{56535452-5134-5372-6571-203420737465}/vstp6"/>
+				<Association key="vbut[1][1]" value="{56535452-5134-5372-6571-203420737465}/vstp11"/>
+				<Association key="vbut[1][4]" value="{56535452-5134-5372-6571-203420737465}/vstp16"/>
+				<Association key="vpot[2][2]" value="{56535452-5134-5372-6571-203420737465}/vstp20"/>
+			</SurfaceAssignmentPage>
+		</List>
+	</SurfaceDeviceAssignment>
+	<SurfaceDeviceAssignment deviceID="{56535452-5136-4D72-6571-2036206D6F6E}" friendlyName="Waves REQ 6 Mono">
+		<List x:id="pages">
+			<SurfaceAssignmentPage>
+				<Association key="U1" value="{56535452-5136-4D72-6571-2036206D6F6E}/vstp10000001"/>
+				<Association key="vpot[0][0]" value="{56535452-5136-4D72-6571-2036206D6F6E}/vstp2"/>
+				<Association key="vbut[0][0]" value="{56535452-5136-4D72-6571-2036206D6F6E}/vstp0"/>
+				<Association key="vpot[0][1]" value="{56535452-5136-4D72-6571-2036206D6F6E}/vstp3"/>
+				<Association key="vpot[0][2]" value="{56535452-5136-4D72-6571-2036206D6F6E}/vstp4"/>
+				<Association key="vpot[0][3]" value="{56535452-5136-4D72-6571-2036206D6F6E}/vstp7"/>
+				<Association key="vbut[0][3]" value="{56535452-5136-4D72-6571-2036206D6F6E}/vstp5"/>
+				<Association key="vpot[0][4]" value="{56535452-5136-4D72-6571-2036206D6F6E}/vstp8"/>
+				<Association key="vpot[0][5]" value="{56535452-5136-4D72-6571-2036206D6F6E}/vstp9"/>
+				<Association key="vpot[1][0]" value="{56535452-5136-4D72-6571-2036206D6F6E}/vstp12"/>
+				<Association key="vbut[1][0]" value="{56535452-5136-4D72-6571-2036206D6F6E}/vstp10"/>
+				<Association key="vpot[1][1]" value="{56535452-5136-4D72-6571-2036206D6F6E}/vstp13"/>
+				<Association key="vpot[1][2]" value="{56535452-5136-4D72-6571-2036206D6F6E}/vstp14"/>
+				<Association key="vpot[1][3]" value="{56535452-5136-4D72-6571-2036206D6F6E}/vstp17"/>
+				<Association key="vbut[1][3]" value="{56535452-5136-4D72-6571-2036206D6F6E}/vstp20"/>
+				<Association key="vpot[1][4]" value="{56535452-5136-4D72-6571-2036206D6F6E}/vstp18"/>
+				<Association key="vpot[1][5]" value="{56535452-5136-4D72-6571-2036206D6F6E}/vstp19"/>
+				<Association key="vpot[2][0]" value="{56535452-5136-4D72-6571-2036206D6F6E}/vstp22"/>
+				<Association key="vbut[2][0]" value="{56535452-5136-4D72-6571-2036206D6F6E}/vstp20"/>
+				<Association key="vpot[2][1]" value="{56535452-5136-4D72-6571-2036206D6F6E}/vstp23"/>
+				<Association key="vpot[2][2]" value="{56535452-5136-4D72-6571-2036206D6F6E}/vstp24"/>
+				<Association key="vpot[2][3]" value="{56535452-5136-4D72-6571-2036206D6F6E}/vstp27"/>
+				<Association key="vpot[2][4]" value="{56535452-5136-4D72-6571-2036206D6F6E}/vstp28"/>
+				<Association key="vpot[2][5]" value="{56535452-5136-4D72-6571-2036206D6F6E}/vstp29"/>
+				<Association key="vbut[2][3]" value="{56535452-5136-4D72-6571-2036206D6F6E}/vstp25"/>
+				<Association key="vbut[0][1]" value="{56535452-5136-4D72-6571-2036206D6F6E}/vstp1"/>
+				<Association key="vbut[0][4]" value="{56535452-5136-4D72-6571-2036206D6F6E}/vstp6"/>
+				<Association key="vbut[1][1]" value="{56535452-5136-4D72-6571-2036206D6F6E}/vstp11"/>
+				<Association key="vbut[1][4]" value="{56535452-5136-4D72-6571-2036206D6F6E}/vstp16"/>
+				<Association key="vbut[2][1]" value="{56535452-5136-4D72-6571-2036206D6F6E}/vstp21"/>
+				<Association key="vbut[2][4]" value="{56535452-5136-4D72-6571-2036206D6F6E}/vstp26"/>
+				<Association key="vpot[3][5]" value="{56535452-5136-4D72-6571-2036206D6F6E}/vstp30"/>
+			</SurfaceAssignmentPage>
+		</List>
+	</SurfaceDeviceAssignment>
+	<SurfaceDeviceAssignment deviceID="{56535452-5136-5372-6571-203620737465}" friendlyName="Waves REQ 6 Stereo">
+		<List x:id="pages">
+			<SurfaceAssignmentPage>
+				<Association key="vpot[0][0]" value="{56535452-5136-5372-6571-203620737465}/vstp2"/>
+				<Association key="vbut[0][0]" value="{56535452-5136-5372-6571-203620737465}/vstp0"/>
+				<Association key="vpot[0][1]" value="{56535452-5136-5372-6571-203620737465}/vstp3"/>
+				<Association key="vpot[0][2]" value="{56535452-5136-5372-6571-203620737465}/vstp4"/>
+				<Association key="vpot[0][3]" value="{56535452-5136-5372-6571-203620737465}/vstp7"/>
+				<Association key="vbut[0][3]" value="{56535452-5136-5372-6571-203620737465}/vstp5"/>
+				<Association key="vpot[0][4]" value="{56535452-5136-5372-6571-203620737465}/vstp8"/>
+				<Association key="vpot[0][5]" value="{56535452-5136-5372-6571-203620737465}/vstp9"/>
+				<Association key="vpot[1][0]" value="{56535452-5136-5372-6571-203620737465}/vstp12"/>
+				<Association key="vbut[1][0]" value="{56535452-5136-5372-6571-203620737465}/vstp10"/>
+				<Association key="vpot[1][1]" value="{56535452-5136-5372-6571-203620737465}/vstp13"/>
+				<Association key="vpot[1][2]" value="{56535452-5136-5372-6571-203620737465}/vstp14"/>
+				<Association key="vpot[1][3]" value="{56535452-5136-5372-6571-203620737465}/vstp17"/>
+				<Association key="vbut[1][3]" value="{56535452-5136-5372-6571-203620737465}/vstp20"/>
+				<Association key="vpot[1][4]" value="{56535452-5136-5372-6571-203620737465}/vstp18"/>
+				<Association key="vpot[1][5]" value="{56535452-5136-5372-6571-203620737465}/vstp19"/>
+				<Association key="vpot[2][0]" value="{56535452-5136-5372-6571-203620737465}/vstp22"/>
+				<Association key="vbut[2][0]" value="{56535452-5136-5372-6571-203620737465}/vstp20"/>
+				<Association key="vpot[2][1]" value="{56535452-5136-5372-6571-203620737465}/vstp23"/>
+				<Association key="vpot[2][2]" value="{56535452-5136-5372-6571-203620737465}/vstp24"/>
+				<Association key="vpot[2][3]" value="{56535452-5136-5372-6571-203620737465}/vstp27"/>
+				<Association key="vpot[2][4]" value="{56535452-5136-5372-6571-203620737465}/vstp28"/>
+				<Association key="vpot[2][5]" value="{56535452-5136-5372-6571-203620737465}/vstp29"/>
+				<Association key="vbut[2][3]" value="{56535452-5136-5372-6571-203620737465}/vstp25"/>
+				<Association key="U1" value="{56535452-5136-5372-6571-203620737465}/vstp10000001"/>
+				<Association key="vbut[0][1]" value="{56535452-5136-5372-6571-203620737465}/vstp1"/>
+				<Association key="vbut[0][4]" value="{56535452-5136-5372-6571-203620737465}/vstp6"/>
+				<Association key="vbut[1][1]" value="{56535452-5136-5372-6571-203620737465}/vstp11"/>
+				<Association key="vbut[1][4]" value="{56535452-5136-5372-6571-203620737465}/vstp16"/>
+				<Association key="vbut[2][1]" value="{56535452-5136-5372-6571-203620737465}/vstp21"/>
+				<Association key="vbut[2][4]" value="{56535452-5136-5372-6571-203620737465}/vstp26"/>
+				<Association key="vpot[3][2]" value="{56535452-5136-5372-6571-203620737465}/vstp30"/>
+				<Association key="vpot[3][5]" value="{56535452-5136-5372-6571-203620737465}/vstp31"/>
+			</SurfaceAssignmentPage>
+		</List>
+	</SurfaceDeviceAssignment>
+	<SurfaceDeviceAssignment deviceID="{56535452-5246-5872-7665-7262206D6F6E}" friendlyName="Waves RVerb Mono/Stereo">
+		<List x:id="pages">
+			<SurfaceAssignmentPage>
+				<Association key="U1" value="{56535452-5246-5872-7665-7262206D6F6E}/vstp10000001"/>
+				<Association key="vpot[0][0]" value="{56535452-5246-5872-7665-7262206D6F6E}/vstp0"/>
+				<Association key="vpot[0][1]" value="{56535452-5246-5872-7665-7262206D6F6E}/vstp1"/>
+				<Association key="vpot[0][2]" value="{56535452-5246-5872-7665-7262206D6F6E}/vstp2"/>
+				<Association key="vpot[0][3]" value="{56535452-5246-5872-7665-7262206D6F6E}/vstp3"/>
+				<Association key="vpot[0][4]" value="{56535452-5246-5872-7665-7262206D6F6E}/vstp4"/>
+				<Association key="vpot[1][0]" value="{56535452-5246-5872-7665-7262206D6F6E}/vstp5"/>
+				<Association key="vpot[1][1]" value="{56535452-5246-5872-7665-7262206D6F6E}/vstp6"/>
+				<Association key="vpot[1][2]" value="{56535452-5246-5872-7665-7262206D6F6E}/vstp7"/>
+				<Association key="vpot[1][5]" value="{56535452-5246-5872-7665-7262206D6F6E}/vstp8"/>
+				<Association key="vpot[2][0]" value="{56535452-5246-5872-7665-7262206D6F6E}/vstp9"/>
+				<Association key="vpot[2][1]" value="{56535452-5246-5872-7665-7262206D6F6E}/vstp11"/>
+				<Association key="vpot[2][3]" value="{56535452-5246-5872-7665-7262206D6F6E}/vstp10"/>
+				<Association key="vpot[2][4]" value="{56535452-5246-5872-7665-7262206D6F6E}/vstp12"/>
+				<Association key="vpot[3][0]" value="{56535452-5246-5872-7665-7262206D6F6E}/vstp13"/>
+				<Association key="vpot[3][1]" value="{56535452-5246-5872-7665-7262206D6F6E}/vstp15"/>
+				<Association key="vpot[3][4]" value="{56535452-5246-5872-7665-7262206D6F6E}/vstp16"/>
+				<Association key="vpot[3][3]" value="{56535452-5246-5872-7665-7262206D6F6E}/vstp14"/>
+			</SurfaceAssignmentPage>
+		</List>
+	</SurfaceDeviceAssignment>
+	<SurfaceDeviceAssignment deviceID="{56535437-3643-4D63-6C61-2D3736206D6F}" friendlyName="Waves CLA-76 Mono">
+		<List x:id="pages">
+			<SurfaceAssignmentPage>
+				<Association key="U1" value="{56535437-3643-4D63-6C61-2D3736206D6F}/vstp10000001"/>
+				<Association key="vpot[0][0]" value="{56535437-3643-4D63-6C61-2D3736206D6F}/vstp0"/>
+				<Association key="vpot[0][1]" value="{56535437-3643-4D63-6C61-2D3736206D6F}/vstp1"/>
+				<Association key="vpot[0][3]" value="{56535437-3643-4D63-6C61-2D3736206D6F}/vstp2"/>
+				<Association key="vpot[0][4]" value="{56535437-3643-4D63-6C61-2D3736206D6F}/vstp3"/>
+				<Association key="vpot[0][2]" value="{56535437-3643-4D63-6C61-2D3736206D6F}/vstp9"/>
+				<Association key="vpot[0][5]" value="{56535437-3643-4D63-6C61-2D3736206D6F}/vstp10"/>
+				<Association key="vbut[0][0]" value="{56535437-3643-4D63-6C61-2D3736206D6F}/vstp4"/>
+				<Association key="U2" value="{56535437-3643-4D63-6C61-2D3736206D6F}/vstp6"/>
+				<Association key="vbut[0][5]" value="{56535437-3643-4D63-6C61-2D3736206D6F}/vstp5"/>
+				<Association key="vbut[0][3]" value="{56535437-3643-4D63-6C61-2D3736206D6F}/vstp7"/>
+				<Association key="vbut[0][2]" value="{56535437-3643-4D63-6C61-2D3736206D6F}/vstp8"/>
+			</SurfaceAssignmentPage>
+		</List>
+	</SurfaceDeviceAssignment>
+	<SurfaceDeviceAssignment deviceID="{56535437-3643-5363-6C61-2D3736207374}" friendlyName="Waves CLA-76 Stereo">
+		<List x:id="pages">
+			<SurfaceAssignmentPage>
+				<Association key="U1" value="{56535437-3643-5363-6C61-2D3736207374}/vstp10000001"/>
+				<Association key="vpot[0][0]" value="{56535437-3643-5363-6C61-2D3736207374}/vstp0"/>
+				<Association key="vpot[0][1]" value="{56535437-3643-5363-6C61-2D3736207374}/vstp1"/>
+				<Association key="vpot[0][3]" value="{56535437-3643-5363-6C61-2D3736207374}/vstp2"/>
+				<Association key="vpot[0][4]" value="{56535437-3643-5363-6C61-2D3736207374}/vstp3"/>
+				<Association key="vpot[0][2]" value="{56535437-3643-5363-6C61-2D3736207374}/vstp9"/>
+				<Association key="vpot[0][5]" value="{56535437-3643-5363-6C61-2D3736207374}/vstp10"/>
+				<Association key="vbut[0][0]" value="{56535437-3643-5363-6C61-2D3736207374}/vstp4"/>
+				<Association key="U2" value="{56535437-3643-5363-6C61-2D3736207374}/vstp6"/>
+				<Association key="vbut[0][5]" value="{56535437-3643-5363-6C61-2D3736207374}/vstp5"/>
+				<Association key="vbut[0][3]" value="{56535437-3643-5363-6C61-2D3736207374}/vstp7"/>
+				<Association key="vbut[0][2]" value="{56535437-3643-5363-6C61-2D3736207374}/vstp8"/>
+			</SurfaceAssignmentPage>
+		</List>
+	</SurfaceDeviceAssignment>
+	<SurfaceDeviceAssignment deviceID="{56535443-554E-5863-6C61-20756E706C75}" friendlyName="Waves CLA Unplugged Mono/Stereo">
+		<List x:id="pages">
+			<SurfaceAssignmentPage>
+				<Association key="vpot[0][0]" value="{56535443-554E-5863-6C61-20756E706C75}/vstp5"/>
+				<Association key="vpot[0][1]" value="{56535443-554E-5863-6C61-20756E706C75}/vstp7"/>
+				<Association key="vpot[0][2]" value="{56535443-554E-5863-6C61-20756E706C75}/vstp9"/>
+				<Association key="vpot[0][3]" value="{56535443-554E-5863-6C61-20756E706C75}/vstp11"/>
+				<Association key="vpot[0][4]" value="{56535443-554E-5863-6C61-20756E706C75}/vstp13"/>
+				<Association key="vpot[0][5]" value="{56535443-554E-5863-6C61-20756E706C75}/vstp15"/>
+				<Association key="vpot[1][0]" value="{56535443-554E-5863-6C61-20756E706C75}/vstp2"/>
+				<Association key="vpot[1][3]" value="{56535443-554E-5863-6C61-20756E706C75}/vstp4"/>
+				<Association key="vpot[1][2]" value="{56535443-554E-5863-6C61-20756E706C75}/vstp0"/>
+				<Association key="vpot[1][5]" value="{56535443-554E-5863-6C61-20756E706C75}/vstp17"/>
+				<Association key="vbut[1][5]" value="{56535443-554E-5863-6C61-20756E706C75}/vstp18"/>
+				<Association key="vbut[1][0]" value="{56535443-554E-5863-6C61-20756E706C75}/vstp1"/>
+				<Association key="vbut[1][3]" value="{56535443-554E-5863-6C61-20756E706C75}/vstp3"/>
+				<Association key="vbut[0][0]" value="{56535443-554E-5863-6C61-20756E706C75}/vstp6"/>
+				<Association key="vbut[0][1]" value="{56535443-554E-5863-6C61-20756E706C75}/vstp8"/>
+				<Association key="vbut[0][2]" value="{56535443-554E-5863-6C61-20756E706C75}/vstp10"/>
+				<Association key="vbut[0][3]" value="{56535443-554E-5863-6C61-20756E706C75}/vstp12"/>
+				<Association key="vbut[0][4]" value="{56535443-554E-5863-6C61-20756E706C75}/vstp14"/>
+				<Association key="vbut[0][5]" value="{56535443-554E-5863-6C61-20756E706C75}/vstp16"/>
+				<Association key="U1" value="{56535443-554E-5863-6C61-20756E706C75}/vstp10000001"/>
+			</SurfaceAssignmentPage>
+		</List>
+	</SurfaceDeviceAssignment>
+	<SurfaceDeviceAssignment deviceID="{56535443-554E-5363-6C61-20756E706C75}" friendlyName="Waves CLA Unplugged Stereo">
+		<List x:id="pages">
+			<SurfaceAssignmentPage>
+				<Association key="vpot[0][0]" value="{56535443-554E-5363-6C61-20756E706C75}/vstp5"/>
+				<Association key="vpot[0][1]" value="{56535443-554E-5363-6C61-20756E706C75}/vstp7"/>
+				<Association key="vpot[0][2]" value="{56535443-554E-5363-6C61-20756E706C75}/vstp9"/>
+				<Association key="vpot[0][3]" value="{56535443-554E-5363-6C61-20756E706C75}/vstp11"/>
+				<Association key="vpot[0][4]" value="{56535443-554E-5363-6C61-20756E706C75}/vstp13"/>
+				<Association key="vpot[0][5]" value="{56535443-554E-5363-6C61-20756E706C75}/vstp15"/>
+				<Association key="vpot[1][0]" value="{56535443-554E-5363-6C61-20756E706C75}/vstp2"/>
+				<Association key="vpot[1][3]" value="{56535443-554E-5363-6C61-20756E706C75}/vstp4"/>
+				<Association key="vpot[1][2]" value="{56535443-554E-5363-6C61-20756E706C75}/vstp0"/>
+				<Association key="vpot[1][5]" value="{56535443-554E-5363-6C61-20756E706C75}/vstp17"/>
+				<Association key="vbut[1][5]" value="{56535443-554E-5363-6C61-20756E706C75}/vstp18"/>
+				<Association key="vbut[1][0]" value="{56535443-554E-5363-6C61-20756E706C75}/vstp1"/>
+				<Association key="vbut[1][3]" value="{56535443-554E-5363-6C61-20756E706C75}/vstp3"/>
+				<Association key="vbut[0][0]" value="{56535443-554E-5363-6C61-20756E706C75}/vstp6"/>
+				<Association key="vbut[0][1]" value="{56535443-554E-5363-6C61-20756E706C75}/vstp8"/>
+				<Association key="vbut[0][2]" value="{56535443-554E-5363-6C61-20756E706C75}/vstp10"/>
+				<Association key="vbut[0][3]" value="{56535443-554E-5363-6C61-20756E706C75}/vstp12"/>
+				<Association key="vbut[0][4]" value="{56535443-554E-5363-6C61-20756E706C75}/vstp14"/>
+				<Association key="vbut[0][5]" value="{56535443-554E-5363-6C61-20756E706C75}/vstp16"/>
+				<Association key="U1" value="{56535443-554E-5363-6C61-20756E706C75}/vstp10000001"/>
+			</SurfaceAssignmentPage>
+		</List>
+	</SurfaceDeviceAssignment>
+	<SurfaceDeviceAssignment deviceID="{56535450-5345-4D70-7332-322073707265}" friendlyName="Waves PS22 Spread Mono/Stereo">
+		<List x:id="pages">
+			<SurfaceAssignmentPage/>
 		</List>
 	</SurfaceDeviceAssignment>
 	<SurfaceDeviceAssignment deviceID="{56535445-5155-3261-636F-6E2064696769}" friendlyName="Acon Digital Acon Digital Equalize 2">
@@ -658,30 +1087,6 @@
 			</SurfaceAssignmentPage>
 		</List>
 	</SurfaceDeviceAssignment>
-	<SurfaceDeviceAssignment deviceID="{56535443-554E-5863-6C61-20756E706C75}" friendlyName="Waves CLA Unplugged Mono/Stereo">
-		<List x:id="pages">
-			<SurfaceAssignmentPage>
-				<Association key="vpot[0][0]" value="{56535443-554E-5863-6C61-20756E706C75}/vstp5"/>
-				<Association key="vpot[0][1]" value="{56535443-554E-5863-6C61-20756E706C75}/vstp7"/>
-				<Association key="vpot[0][2]" value="{56535443-554E-5863-6C61-20756E706C75}/vstp9"/>
-				<Association key="vpot[0][3]" value="{56535443-554E-5863-6C61-20756E706C75}/vstp11"/>
-				<Association key="vpot[0][4]" value="{56535443-554E-5863-6C61-20756E706C75}/vstp13"/>
-				<Association key="vpot[0][5]" value="{56535443-554E-5863-6C61-20756E706C75}/vstp15"/>
-				<Association key="vpot[1][0]" value="{56535443-554E-5863-6C61-20756E706C75}/vstp2"/>
-				<Association key="vpot[1][3]" value="{56535443-554E-5863-6C61-20756E706C75}/vstp4"/>
-				<Association key="vpot[1][2]" value="{56535443-554E-5863-6C61-20756E706C75}/vstp0"/>
-				<Association key="vpot[1][5]" value="{56535443-554E-5863-6C61-20756E706C75}/vstp17"/>
-				<Association key="vbut[1][5]" value="{56535443-554E-5863-6C61-20756E706C75}/vstp18"/>
-				<Association key="vbut[1][0]" value="{56535443-554E-5863-6C61-20756E706C75}/vstp1"/>
-				<Association key="vbut[1][3]" value="{56535443-554E-5863-6C61-20756E706C75}/vstp3"/>
-			</SurfaceAssignmentPage>
-		</List>
-	</SurfaceDeviceAssignment>
-	<SurfaceDeviceAssignment deviceID="{11111111-1111-1111-1111-111111111111}" friendlyName="static">
-		<List x:id="pages">
-			<SurfaceAssignmentPage/>
-		</List>
-	</SurfaceDeviceAssignment>
 	<SurfaceDeviceAssignment deviceID="{56535441-5853-3161-7870-20736F667461}" friendlyName="AXP AXP SoftAmp PSA x64">
 		<List x:id="pages">
 			<SurfaceAssignmentPage>
@@ -709,176 +1114,7 @@
 			</SurfaceAssignmentPage>
 		</List>
 	</SurfaceDeviceAssignment>
-	<SurfaceDeviceAssignment deviceID="{56535452-5136-4D72-6571-2036206D6F6E}" friendlyName="Waves REQ 6 Mono">
-		<List x:id="pages">
-			<SurfaceAssignmentPage>
-				<Association key="U1" value="{56535452-5136-4D72-6571-2036206D6F6E}/vstp10000001"/>
-				<Association key="vpot[0][0]" value="{56535452-5136-4D72-6571-2036206D6F6E}/vstp2"/>
-				<Association key="vpot[0][1]" value="{56535452-5136-4D72-6571-2036206D6F6E}/vstp3"/>
-				<Association key="vpot[0][2]" value="{56535452-5136-4D72-6571-2036206D6F6E}/vstp4"/>
-				<Association key="vpot[0][3]" value="{56535452-5136-4D72-6571-2036206D6F6E}/vstp7"/>
-				<Association key="vpot[0][4]" value="{56535452-5136-4D72-6571-2036206D6F6E}/vstp8"/>
-				<Association key="vpot[0][5]" value="{56535452-5136-4D72-6571-2036206D6F6E}/vstp9"/>
-				<Association key="vbut[0][0]" value="{56535452-5136-4D72-6571-2036206D6F6E}/vstp0"/>
-				<Association key="vbut[0][3]" value="{56535452-5136-4D72-6571-2036206D6F6E}/vstp5"/>
-				<Association key="vbut[1][0]" value="{56535452-5136-4D72-6571-2036206D6F6E}/vstp10"/>
-				<Association key="vbut[1][3]" value="{56535452-5136-4D72-6571-2036206D6F6E}/vstp15"/>
-				<Association key="vpot[1][0]" value="{56535452-5136-4D72-6571-2036206D6F6E}/vstp12"/>
-				<Association key="vpot[1][1]" value="{56535452-5136-4D72-6571-2036206D6F6E}/vstp13"/>
-				<Association key="vpot[1][2]" value="{56535452-5136-4D72-6571-2036206D6F6E}/vstp14"/>
-				<Association key="vpot[1][3]" value="{56535452-5136-4D72-6571-2036206D6F6E}/vstp17"/>
-				<Association key="vpot[1][4]" value="{56535452-5136-4D72-6571-2036206D6F6E}/vstp18"/>
-				<Association key="vpot[1][5]" value="{56535452-5136-4D72-6571-2036206D6F6E}/vstp19"/>
-				<Association key="vbut[2][0]" value="{56535452-5136-4D72-6571-2036206D6F6E}/vstp20"/>
-				<Association key="vbut[2][3]" value="{56535452-5136-4D72-6571-2036206D6F6E}/vstp25"/>
-				<Association key="vpot[2][0]" value="{56535452-5136-4D72-6571-2036206D6F6E}/vstp22"/>
-				<Association key="vpot[2][1]" value="{56535452-5136-4D72-6571-2036206D6F6E}/vstp23"/>
-				<Association key="vpot[2][2]" value="{56535452-5136-4D72-6571-2036206D6F6E}/vstp24"/>
-				<Association key="vpot[2][3]" value="{56535452-5136-4D72-6571-2036206D6F6E}/vstp27"/>
-				<Association key="vpot[2][4]" value="{56535452-5136-4D72-6571-2036206D6F6E}/vstp28"/>
-				<Association key="vpot[2][5]" value="{56535452-5136-4D72-6571-2036206D6F6E}/vstp29"/>
-				<Association key="vpot[3][5]" value="{56535452-5136-4D72-6571-2036206D6F6E}/vstp30"/>
-			</SurfaceAssignmentPage>
-		</List>
-	</SurfaceDeviceAssignment>
-	<SurfaceDeviceAssignment deviceID="{56535452-5132-4D72-6571-2032206D6F6E}" friendlyName="Waves REQ 2 Mono">
-		<List x:id="pages">
-			<SurfaceAssignmentPage>
-				<Association key="U1" value="{56535452-5132-4D72-6571-2032206D6F6E}/vstp10000001"/>
-				<Association key="vbut[0][0]" value="{56535452-5132-4D72-6571-2032206D6F6E}/vstp0"/>
-				<Association key="vpot[0][0]" value="{56535452-5132-4D72-6571-2032206D6F6E}/vstp2"/>
-				<Association key="vpot[0][1]" value="{56535452-5132-4D72-6571-2032206D6F6E}/vstp3"/>
-				<Association key="vpot[0][2]" value="{56535452-5132-4D72-6571-2032206D6F6E}/vstp4"/>
-				<Association key="vbut[0][3]" value="{56535452-5132-4D72-6571-2032206D6F6E}/vstp5"/>
-				<Association key="vpot[0][3]" value="{56535452-5132-4D72-6571-2032206D6F6E}/vstp7"/>
-				<Association key="vpot[0][4]" value="{56535452-5132-4D72-6571-2032206D6F6E}/vstp8"/>
-				<Association key="vpot[0][5]" value="{56535452-5132-4D72-6571-2032206D6F6E}/vstp9"/>
-				<Association key="vpot[1][5]" value="{56535452-5132-4D72-6571-2032206D6F6E}/vstp10"/>
-			</SurfaceAssignmentPage>
-		</List>
-	</SurfaceDeviceAssignment>
-	<SurfaceDeviceAssignment deviceID="{56535452-5134-5372-6571-203420737465}" friendlyName="Waves REQ 4 Stereo">
-		<List x:id="pages">
-			<SurfaceAssignmentPage>
-				<Association key="vpot[2][4]" value="{56535452-5134-5372-6571-203420737465}/vstp20"/>
-				<Association key="vpot[2][5]" value="{56535452-5134-5372-6571-203420737465}/vstp21"/>
-				<Association key="vbut[0][0]" value="{56535452-5134-5372-6571-203420737465}/vstp0"/>
-				<Association key="vbut[0][3]" value="{56535452-5134-5372-6571-203420737465}/vstp5"/>
-				<Association key="vpot[0][0]" value="{56535452-5134-5372-6571-203420737465}/vstp2"/>
-				<Association key="vpot[0][1]" value="{56535452-5134-5372-6571-203420737465}/vstp3"/>
-				<Association key="vpot[0][2]" value="{56535452-5134-5372-6571-203420737465}/vstp4"/>
-				<Association key="vpot[0][3]" value="{56535452-5134-5372-6571-203420737465}/vstp7"/>
-				<Association key="vpot[0][4]" value="{56535452-5134-5372-6571-203420737465}/vstp8"/>
-				<Association key="vpot[0][5]" value="{56535452-5134-5372-6571-203420737465}/vstp9"/>
-				<Association key="vbut[1][0]" value="{56535452-5134-5372-6571-203420737465}/vstp10"/>
-				<Association key="vpot[1][0]" value="{56535452-5134-5372-6571-203420737465}/vstp12"/>
-				<Association key="vpot[1][1]" value="{56535452-5134-5372-6571-203420737465}/vstp13"/>
-				<Association key="vpot[1][2]" value="{56535452-5134-5372-6571-203420737465}/vstp14"/>
-				<Association key="vpot[1][3]" value="{56535452-5134-5372-6571-203420737465}/vstp17"/>
-				<Association key="vbut[1][3]" value="{56535452-5134-5372-6571-203420737465}/vstp15"/>
-				<Association key="vpot[1][4]" value="{56535452-5134-5372-6571-203420737465}/vstp18"/>
-				<Association key="vpot[1][5]" value="{56535452-5134-5372-6571-203420737465}/vstp19"/>
-				<Association key="U1" value="{56535452-5134-5372-6571-203420737465}/vstp10000001"/>
-			</SurfaceAssignmentPage>
-		</List>
-	</SurfaceDeviceAssignment>
-	<SurfaceDeviceAssignment deviceID="{56535452-5136-5372-6571-203620737465}" friendlyName="Waves REQ 6 Stereo">
-		<List x:id="pages">
-			<SurfaceAssignmentPage>
-				<Association key="vbut[0][0]" value="{56535452-5136-5372-6571-203620737465}/vstp0"/>
-				<Association key="vpot[0][0]" value="{56535452-5136-5372-6571-203620737465}/vstp2"/>
-				<Association key="vpot[0][1]" value="{56535452-5136-5372-6571-203620737465}/vstp3"/>
-				<Association key="vpot[0][2]" value="{56535452-5136-5372-6571-203620737465}/vstp4"/>
-				<Association key="vpot[0][3]" value="{56535452-5136-5372-6571-203620737465}/vstp7"/>
-				<Association key="vpot[0][4]" value="{56535452-5136-5372-6571-203620737465}/vstp8"/>
-				<Association key="vpot[0][5]" value="{56535452-5136-5372-6571-203620737465}/vstp9"/>
-				<Association key="vbut[0][3]" value="{56535452-5136-5372-6571-203620737465}/vstp5"/>
-				<Association key="vbut[1][0]" value="{56535452-5136-5372-6571-203620737465}/vstp10"/>
-				<Association key="vpot[1][0]" value="{56535452-5136-5372-6571-203620737465}/vstp12"/>
-				<Association key="vpot[1][1]" value="{56535452-5136-5372-6571-203620737465}/vstp13"/>
-				<Association key="vpot[1][2]" value="{56535452-5136-5372-6571-203620737465}/vstp14"/>
-				<Association key="vpot[1][3]" value="{56535452-5136-5372-6571-203620737465}/vstp17"/>
-				<Association key="vpot[1][4]" value="{56535452-5136-5372-6571-203620737465}/vstp18"/>
-				<Association key="vpot[1][5]" value="{56535452-5136-5372-6571-203620737465}/vstp19"/>
-				<Association key="vbut[1][3]" value="{56535452-5136-5372-6571-203620737465}/vstp20"/>
-				<Association key="vbut[2][0]" value="{56535452-5136-5372-6571-203620737465}/vstp20"/>
-				<Association key="vpot[2][0]" value="{56535452-5136-5372-6571-203620737465}/vstp22"/>
-				<Association key="vpot[2][1]" value="{56535452-5136-5372-6571-203620737465}/vstp23"/>
-				<Association key="vpot[2][2]" value="{56535452-5136-5372-6571-203620737465}/vstp24"/>
-				<Association key="vpot[2][3]" value="{56535452-5136-5372-6571-203620737465}/vstp27"/>
-				<Association key="vpot[2][4]" value="{56535452-5136-5372-6571-203620737465}/vstp28"/>
-				<Association key="vpot[2][5]" value="{56535452-5136-5372-6571-203620737465}/vstp29"/>
-				<Association key="vbut[2][3]" value="{56535452-5136-5372-6571-203620737465}/vstp25"/>
-				<Association key="vpot[3][4]" value="{56535452-5136-5372-6571-203620737465}/vstp30"/>
-				<Association key="vpot[3][5]" value="{56535452-5136-5372-6571-203620737465}/vstp31"/>
-				<Association key="U1" value="{56535452-5136-5372-6571-203620737465}/vstp10000001"/>
-			</SurfaceAssignmentPage>
-		</List>
-	</SurfaceDeviceAssignment>
-	<SurfaceDeviceAssignment deviceID="{56535452-5132-5372-6571-203220737465}" friendlyName="Waves REQ 2 Stereo">
-		<List x:id="pages">
-			<SurfaceAssignmentPage>
-				<Association key="vbut[0][0]" value="{56535452-5132-5372-6571-203220737465}/vstp0"/>
-				<Association key="vpot[0][0]" value="{56535452-5132-5372-6571-203220737465}/vstp2"/>
-				<Association key="vpot[0][1]" value="{56535452-5132-5372-6571-203220737465}/vstp3"/>
-				<Association key="vpot[0][2]" value="{56535452-5132-5372-6571-203220737465}/vstp4"/>
-				<Association key="vbut[0][3]" value="{56535452-5132-5372-6571-203220737465}/vstp7"/>
-				<Association key="vpot[0][4]" value="{56535452-5132-5372-6571-203220737465}/vstp8"/>
-				<Association key="vpot[0][5]" value="{56535452-5132-5372-6571-203220737465}/vstp9"/>
-				<Association key="vpot[0][3]" value="{56535452-5132-5372-6571-203220737465}/vstp7"/>
-				<Association key="vpot[1][4]" value="{56535452-5132-5372-6571-203220737465}/vstp10"/>
-				<Association key="U1" value="{56535452-5132-5372-6571-203220737465}/vstp10000001"/>
-				<Association key="vpot[1][5]" value="{56535452-5132-5372-6571-203220737465}/vstp11"/>
-			</SurfaceAssignmentPage>
-		</List>
-	</SurfaceDeviceAssignment>
-	<SurfaceDeviceAssignment deviceID="{56535452-5134-4D72-6571-2034206D6F6E}" friendlyName="Waves REQ 4 Mono">
-		<List x:id="pages">
-			<SurfaceAssignmentPage>
-				<Association key="U1" value="{56535452-5134-4D72-6571-2034206D6F6E}/vstp10000001"/>
-				<Association key="vbut[0][0]" value="{56535452-5134-4D72-6571-2034206D6F6E}/vstp0"/>
-				<Association key="vpot[0][0]" value="{56535452-5134-4D72-6571-2034206D6F6E}/vstp2"/>
-				<Association key="vpot[0][1]" value="{56535452-5134-4D72-6571-2034206D6F6E}/vstp3"/>
-				<Association key="vpot[0][2]" value="{56535452-5134-4D72-6571-2034206D6F6E}/vstp4"/>
-				<Association key="vpot[0][5]" value="{56535452-5134-4D72-6571-2034206D6F6E}/vstp9"/>
-				<Association key="vpot[0][4]" value="{56535452-5134-4D72-6571-2034206D6F6E}/vstp9"/>
-				<Association key="vpot[0][3]" value="{56535452-5134-4D72-6571-2034206D6F6E}/vstp5"/>
-				<Association key="vbut[1][0]" value="{56535452-5134-4D72-6571-2034206D6F6E}/vstp10"/>
-				<Association key="vpot[1][0]" value="{56535452-5134-4D72-6571-2034206D6F6E}/vstp12"/>
-				<Association key="vpot[1][1]" value="{56535452-5134-4D72-6571-2034206D6F6E}/vstp13"/>
-				<Association key="vpot[1][2]" value="{56535452-5134-4D72-6571-2034206D6F6E}/vstp14"/>
-				<Association key="vpot[1][5]" value="{56535452-5134-4D72-6571-2034206D6F6E}/vstp19"/>
-				<Association key="vpot[1][4]" value="{56535452-5134-4D72-6571-2034206D6F6E}/vstp18"/>
-				<Association key="vpot[1][3]" value="{56535452-5134-4D72-6571-2034206D6F6E}/vstp17"/>
-				<Association key="vbut[1][3]" value="{56535452-5134-4D72-6571-2034206D6F6E}/vstp15"/>
-				<Association key="vpot[2][5]" value="{56535452-5134-4D72-6571-2034206D6F6E}/vstp20"/>
-			</SurfaceAssignmentPage>
-		</List>
-	</SurfaceDeviceAssignment>
-	<SurfaceDeviceAssignment deviceID="{56535452-5246-5872-7665-7262206D6F6E}" friendlyName="Waves RVerb Mono/Stereo">
-		<List x:id="pages">
-			<SurfaceAssignmentPage>
-				<Association key="U1" value="{56535452-5246-5872-7665-7262206D6F6E}/vstp10000001"/>
-				<Association key="vpot[0][0]" value="{56535452-5246-5872-7665-7262206D6F6E}/vstp0"/>
-				<Association key="vpot[0][1]" value="{56535452-5246-5872-7665-7262206D6F6E}/vstp1"/>
-				<Association key="vpot[0][2]" value="{56535452-5246-5872-7665-7262206D6F6E}/vstp2"/>
-				<Association key="vpot[0][3]" value="{56535452-5246-5872-7665-7262206D6F6E}/vstp3"/>
-				<Association key="vpot[0][4]" value="{56535452-5246-5872-7665-7262206D6F6E}/vstp4"/>
-				<Association key="vpot[1][0]" value="{56535452-5246-5872-7665-7262206D6F6E}/vstp5"/>
-				<Association key="vpot[1][1]" value="{56535452-5246-5872-7665-7262206D6F6E}/vstp6"/>
-				<Association key="vpot[1][2]" value="{56535452-5246-5872-7665-7262206D6F6E}/vstp7"/>
-				<Association key="vpot[1][5]" value="{56535452-5246-5872-7665-7262206D6F6E}/vstp8"/>
-				<Association key="vpot[2][0]" value="{56535452-5246-5872-7665-7262206D6F6E}/vstp9"/>
-				<Association key="vpot[2][1]" value="{56535452-5246-5872-7665-7262206D6F6E}/vstp11"/>
-				<Association key="vpot[2][3]" value="{56535452-5246-5872-7665-7262206D6F6E}/vstp10"/>
-				<Association key="vpot[2][4]" value="{56535452-5246-5872-7665-7262206D6F6E}/vstp12"/>
-				<Association key="vpot[3][0]" value="{56535452-5246-5872-7665-7262206D6F6E}/vstp13"/>
-				<Association key="vpot[3][1]" value="{56535452-5246-5872-7665-7262206D6F6E}/vstp15"/>
-				<Association key="vpot[3][4]" value="{56535452-5246-5872-7665-7262206D6F6E}/vstp16"/>
-				<Association key="vpot[3][3]" value="{56535452-5246-5872-7665-7262206D6F6E}/vstp14"/>
-			</SurfaceAssignmentPage>
-		</List>
-	</SurfaceDeviceAssignment>
+
 	<SurfaceDeviceAssignment deviceID="{72DB8F36-4B16-4CF7-8BCB-4FA7BB75551D}" friendlyName="IR Maker">
 		<List x:id="pages">
 			<SurfaceAssignmentPage/>
@@ -889,9 +1125,27 @@
 			<SurfaceAssignmentPage/>
 		</List>
 	</SurfaceDeviceAssignment>
-	<SurfaceDeviceAssignment deviceID="{56535450-5345-4D70-7332-322073707265}" friendlyName="Waves PS22 Spread Mono/Stereo">
+	<SurfaceDeviceAssignment deviceID="{5653545A-4E54-5A4E-6575-74726F6E2050}" friendlyName="Neutron 4 Transient Shaper">
 		<List x:id="pages">
-			<SurfaceAssignmentPage/>
+			<SurfaceAssignmentPage>
+				<Association key="U1" value="{5653545A-4E54-5A4E-6575-74726F6E2050}/vstp0"/>
+				<Association key="vbut[0][0]" value="{5653545A-4E54-5A4E-6575-74726F6E2050}/vstp12"/>
+				<Association key="vpot[0][0]" value="{5653545A-4E54-5A4E-6575-74726F6E2050}/vstp11"/>
+				<Association key="vpot[0][3]" value="{5653545A-4E54-5A4E-6575-74726F6E2050}/vstp14"/>
+				<Association key="vpot[0][1]" value="{5653545A-4E54-5A4E-6575-74726F6E2050}/vstp15"/>
+				<Association key="vpot[0][4]" value="{5653545A-4E54-5A4E-6575-74726F6E2050}/vstp18"/>
+				<Association key="vpot[0][2]" value="{5653545A-4E54-5A4E-6575-74726F6E2050}/vstp19"/>
+				<Association key="vpot[0][5]" value="{5653545A-4E54-5A4E-6575-74726F6E2050}/vstp22"/>
+				<Association key="vbut[0][1]" value="{5653545A-4E54-5A4E-6575-74726F6E2050}/vstp16"/>
+				<Association key="vbut[0][2]" value="{5653545A-4E54-5A4E-6575-74726F6E2050}/vstp20"/>
+				<Association key="vpot[1][5]" value="{5653545A-4E54-5A4E-6575-74726F6E2050}/vstp24"/>
+				<Association key="vpot[1][0]" value="{5653545A-4E54-5A4E-6575-74726F6E2050}/vstp2"/>
+				<Association key="vpot[1][3]" value="{5653545A-4E54-5A4E-6575-74726F6E2050}/vstp3"/>
+				<Association key="vbut[1][3]" value="{5653545A-4E54-5A4E-6575-74726F6E2050}/vstp8"/>
+				<Association key="vbut[1][0]" value="{5653545A-4E54-5A4E-6575-74726F6E2050}/vstp6"/>
+				<Association key="vbut[1][1]" value="{5653545A-4E54-5A4E-6575-74726F6E2050}/vstp7"/>
+				<Association key="vbut[0][3]" value="{5653545A-4E54-5A4E-6575-74726F6E2050}/vstp8"/>
+			</SurfaceAssignmentPage>
 		</List>
 	</SurfaceDeviceAssignment>
 	<SurfaceDeviceAssignment deviceID="{5653545A-4E54-5A4E-6575-74726F6E2050}" friendlyName="Neutron 4 Transient Shaper">
@@ -927,40 +1181,6 @@
 			</SurfaceAssignmentPage>
 		</List>
 	</SurfaceDeviceAssignment>
-	<SurfaceDeviceAssignment deviceID="{5653545A-4E56-344E-6575-74726F6E2034}" friendlyName="Neutron 4 Visual Mixer">
-		<List x:id="pages">
-			<SurfaceAssignmentPage/>
-		</List>
-	</SurfaceDeviceAssignment>
-	<SurfaceDeviceAssignment deviceID="{5653545A-4E44-5A4E-6575-74726F6E2050}" friendlyName="Neutron 4 Compressor">
-		<List x:id="pages">
-			<SurfaceAssignmentPage/>
-		</List>
-	</SurfaceDeviceAssignment>
-	<SurfaceDeviceAssignment deviceID="{56535454-6439-3674-6472-206B6F74656C}" friendlyName="Tokyo Dawn Labs TDR Kotelnikov">
-		<List x:id="pages">
-			<SurfaceAssignmentPage>
-				<Association key="U1" value="{56535454-6439-3674-6472-206B6F74656C}/vstp1573"/>
-				<Association key="vpot[0][0]" value="{56535454-6439-3674-6472-206B6F74656C}/vstp48"/>
-				<Association key="vpot[0][3]" value="{56535454-6439-3674-6472-206B6F74656C}/vstp51"/>
-				<Association key="vpot[0][1]" value="{56535454-6439-3674-6472-206B6F74656C}/vstp49"/>
-				<Association key="vpot[0][4]" value="{56535454-6439-3674-6472-206B6F74656C}/vstp50"/>
-				<Association key="vpot[1][0]" value="{56535454-6439-3674-6472-206B6F74656C}/vstp52"/>
-				<Association key="vpot[1][1]" value="{56535454-6439-3674-6472-206B6F74656C}/vstp53"/>
-				<Association key="vpot[1][2]" value="{56535454-6439-3674-6472-206B6F74656C}/vstp54"/>
-				<Association key="vpot[1][5]" value="{56535454-6439-3674-6472-206B6F74656C}/vstp1568"/>
-				<Association key="U2" value="{56535454-6439-3674-6472-206B6F74656C}/vstp1572"/>
-				<Association key="vpot[0][2]" value="{56535454-6439-3674-6472-206B6F74656C}/vstp55"/>
-				<Association key="vpot[0][5]" value="{56535454-6439-3674-6472-206B6F74656C}/vstp56"/>
-				<Association key="vpot[1][3]" value="{56535454-6439-3674-6472-206B6F74656C}/vstp1571"/>
-			</SurfaceAssignmentPage>
-		</List>
-	</SurfaceDeviceAssignment>
-	<SurfaceDeviceAssignment deviceID="{5653544C-3143-536C-3120-6C696D697465}" friendlyName="Waves L1 limiter Stereo">
-		<List x:id="pages">
-			<SurfaceAssignmentPage/>
-		</List>
-	</SurfaceDeviceAssignment>
 	<SurfaceDeviceAssignment deviceID="{56535454-7273-6854-7261-736800000000}" friendlyName="Trash">
 		<List x:id="pages">
 			<SurfaceAssignmentPage>
@@ -979,6 +1199,26 @@
 				<Association key="vpot[1][5]" value="{56535454-7273-6854-7261-736800000000}/vstp4"/>
 				<Association key="vbut[1][2]" value="{56535454-7273-6854-7261-736800000000}/vstp0"/>
 				<Association key="vbut[1][5]" value="{56535454-7273-6854-7261-736800000000}/vstp5"/>
+			</SurfaceAssignmentPage>
+		</List>
+	</SurfaceDeviceAssignment>
+	<SurfaceDeviceAssignment deviceID="{56535454-6439-3674-6472-206B6F74656C}" friendlyName="Tokyo Dawn Labs TDR Kotelnikov">
+		<List x:id="pages">
+			<SurfaceAssignmentPage>
+				<Association key="U1" value="{56535454-6439-3674-6472-206B6F74656C}/vstp1573"/>
+				<Association key="vpot[0][0]" value="{56535454-6439-3674-6472-206B6F74656C}/vstp48"/>
+				<Association key="vpot[0][3]" value="{56535454-6439-3674-6472-206B6F74656C}/vstp51"/>
+				<Association key="vpot[0][1]" value="{56535454-6439-3674-6472-206B6F74656C}/vstp49"/>
+				<Association key="vpot[0][4]" value="{56535454-6439-3674-6472-206B6F74656C}/vstp50"/>
+				<Association key="vpot[1][0]" value="{56535454-6439-3674-6472-206B6F74656C}/vstp52"/>
+				<Association key="vpot[1][1]" value="{56535454-6439-3674-6472-206B6F74656C}/vstp53"/>
+				<Association key="vpot[1][2]" value="{56535454-6439-3674-6472-206B6F74656C}/vstp54"/>
+				<Association key="vpot[1][5]" value="{56535454-6439-3674-6472-206B6F74656C}/vstp1568"/>
+				<Association key="U2" value="{56535454-6439-3674-6472-206B6F74656C}/vstp1572"/>
+				<Association key="vpot[0][2]" value="{56535454-6439-3674-6472-206B6F74656C}/vstp55"/>
+				<Association key="vpot[0][5]" value="{56535454-6439-3674-6472-206B6F74656C}/vstp56"/>
+				<Association key="vpot[1][3]" value="{56535454-6439-3674-6472-206B6F74656C}/vstp1571"/>
+				<Association key="F2" value="{56535454-6439-3674-6472-206B6F74656C}/vstp1572"/>
 			</SurfaceAssignmentPage>
 		</List>
 	</SurfaceDeviceAssignment>

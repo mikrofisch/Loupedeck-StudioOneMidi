@@ -54,7 +54,8 @@
         {
             Sends = 0,
             User = 1,
-            PluginSelectionActivated = 2
+            PluginSelectionActivated = 2,
+            UserMenuActivated = 3       // User defined selection menu for plugin control
         }
         private UserSendsLayerMode CurrentUserSendsLayerMode = UserSendsLayerMode.User;
 
@@ -119,7 +120,7 @@
                                                                                             PropertyButtonData.TrackNameMode.ShowFull));
             this.addButton(ButtonLayer.channelPropertiesPlay, "1", new ModeChannelSelectButtonData(activated: this.CurrentPlayLayerMode == PlayLayerMode.ChannelSelect));
             var arrangerBgColor = new BitmapColor(60, 60, 60);
-            this.addButton(ButtonLayer.channelPropertiesPlay, "2", new ModeButtonData("ARRANGER", "arranger", new BitmapColor(arrangerBgColor, 190)));
+            this.addButton(ButtonLayer.channelPropertiesPlay, "2", new ModeButtonData("ARRANGER", "arranger", new BitmapColor(arrangerBgColor, 190), isMenu: true));
             this.addButton(ButtonLayer.channelPropertiesPlay, "0-4", new OneWayCommandButtonData(14, 0x06, "Track List", "track_list", arrangerBgColor));
             this.addButton(ButtonLayer.channelPropertiesPlay, "1-4", new OneWayCommandButtonData(14, 0x04, "Inspector", "inspector", arrangerBgColor));
             this.addButton(ButtonLayer.channelPropertiesPlay, "3-4", new OneWayCommandButtonData(14, 0x38, "Show Automation", "show_automation", arrangerBgColor));
@@ -130,7 +131,7 @@
             this.addButton(ButtonLayer.channelPropertiesPlay, "5-2", new AutomationModeCommandButtonData(AutomationMode.Latch, ButtonData.DefaultSelectionBgColor));
             this.addButton(ButtonLayer.channelPropertiesPlay, "4-2", new AutomationModeCommandButtonData(AutomationMode.Write, ButtonData.DefaultSelectionBgColor));
             var consoleBgColor = new BitmapColor(60, 60, 60);
-            this.addButton(ButtonLayer.channelPropertiesPlay, "3", new ModeButtonData("PANELS", "panels", new BitmapColor(consoleBgColor, 190)));
+            this.addButton(ButtonLayer.channelPropertiesPlay, "3", new ModeButtonData("PANELS", "panels", new BitmapColor(consoleBgColor, 190), isMenu: true));
             this.addButton(ButtonLayer.channelPropertiesPlay, "0-5", new OneWayCommandButtonData(14, 0x1D, "Toggle Height", "console_height", consoleBgColor));
             this.addButton(ButtonLayer.channelPropertiesPlay, "2-5", new OneWayCommandButtonData(14, 0x1E, "Toggle Width", "console_width", consoleBgColor));
             this.addButton(ButtonLayer.channelPropertiesPlay, "1-5", new OneWayCommandButtonData(14, 0x00, "Mix", null, consoleBgColor));
@@ -138,7 +139,7 @@
             this.addButton(ButtonLayer.channelPropertiesPlay, "5-5", new OneWayCommandButtonData(14, 0x1F, "Show Outputs", "show_outputs", consoleBgColor));
             this.addButton(ButtonLayer.channelPropertiesPlay, "3-1", new ModeButtonData("LAYERS", "layers"));
             var layersBgColor = new BitmapColor(180, 180, 180);
-            this.addButton(ButtonLayer.channelPropertiesPlay, "3-3", new ModeButtonData("LAYERS", "layers_52px", new BitmapColor(layersBgColor, 128)));
+            this.addButton(ButtonLayer.channelPropertiesPlay, "3-3", new ModeButtonData("LAYERS", "layers_52px", new BitmapColor(layersBgColor, 128), isMenu: true));
             this.addButton(ButtonLayer.channelPropertiesPlay, "0-3", new OneWayCommandButtonData(14, 0x30, "LAY UP", "layer_up_inv", layersBgColor));
             this.addButton(ButtonLayer.channelPropertiesPlay, "2-3", new OneWayCommandButtonData(14, 0x31, "LAY DN", "layer_dn_inv", layersBgColor));
             this.addButton(ButtonLayer.channelPropertiesPlay, "1-3", new OneWayCommandButtonData(14, 0x34, "LAY EXP", "layers_expand_inv", layersBgColor));
@@ -147,7 +148,7 @@
             this.addButton(ButtonLayer.channelPropertiesPlay, "4", new ModeButtonData("VIEWS"));
             this.addButton(ButtonLayer.channelPropertiesPlay, "5", new FlipPanVolCommandButtonData(0x35), true);
             var addBgColor = new BitmapColor(60, 60, 60);
-            this.addButton(ButtonLayer.channelPropertiesPlay, "5-1", new ModeButtonData("ADD", "button_add", new BitmapColor(addBgColor, 190)));
+            this.addButton(ButtonLayer.channelPropertiesPlay, "5-1", new ModeButtonData("ADD", "button_add", new BitmapColor(addBgColor, 190), isMenu: true));
             this.addButton(ButtonLayer.channelPropertiesPlay, "0-6", new OneWayCommandButtonData(14, 0x15, "Add Insert", "add_insert", addBgColor));
             this.addButton(ButtonLayer.channelPropertiesPlay, "1-6", new OneWayCommandButtonData(14, 0x16, "Add Send", "add_send", addBgColor));
             this.addButton(ButtonLayer.channelPropertiesPlay, "2-6", new OneWayCommandButtonData(14, 0x18, "Add FX Channel", "add_fx", addBgColor));
@@ -163,12 +164,13 @@
             this.addButton(ButtonLayer.channelPropertiesRec, "1-1", new CommandButtonData(0x57, "Preroll", "preroll", ButtonData.DefaultSelectionBgColor), isNoteReceiver: true);
             this.addButton(ButtonLayer.channelPropertiesRec, "3-1", new CommandButtonData(0x58, "Autopunch", "autopunch", ButtonData.DefaultSelectionBgColor), isNoteReceiver: true);
             this.addButton(ButtonLayer.channelPropertiesRec, "5-1", new CommandButtonData(0x56, "Precount", "precount", ButtonData.DefaultSelectionBgColor), isNoteReceiver: true);
-            this.addButton(ButtonLayer.channelPropertiesRec, "3", new ModeButtonData("PANELS", "panels"));
-            this.addButton(ButtonLayer.channelPropertiesRec, "0-2", new OneWayCommandButtonData(14, 0x1D, "Toggle Height", "console_height", ButtonData.DefaultSelectionBgColor));
-            this.addButton(ButtonLayer.channelPropertiesRec, "2-2", new OneWayCommandButtonData(14, 0x1E, "Toggle Width", "console_width", ButtonData.DefaultSelectionBgColor));
-            this.addButton(ButtonLayer.channelPropertiesRec, "1-2", new OneWayCommandButtonData(14, 0x05, "Rec Panel", "rec_panel", ButtonData.DefaultSelectionBgColor));
-            this.addButton(ButtonLayer.channelPropertiesRec, "4-2", new OneWayCommandButtonData(14, 0x10, "Show Inputs", "show_inputs", ButtonData.DefaultSelectionBgColor));
-            this.addButton(ButtonLayer.channelPropertiesRec, "5-2", new OneWayCommandButtonData(14, 0x09, "Show Groups", "show_groups", ButtonData.DefaultSelectionBgColor));
+            var panelsBgColor = new BitmapColor(60, 60, 60);
+            this.addButton(ButtonLayer.channelPropertiesRec, "3", new ModeButtonData("PANELS", "panels", new BitmapColor(panelsBgColor, 190), isMenu: true));
+            this.addButton(ButtonLayer.channelPropertiesRec, "0-2", new OneWayCommandButtonData(14, 0x1D, "Toggle Height", "console_height", panelsBgColor));
+            this.addButton(ButtonLayer.channelPropertiesRec, "2-2", new OneWayCommandButtonData(14, 0x1E, "Toggle Width", "console_width", panelsBgColor));
+            this.addButton(ButtonLayer.channelPropertiesRec, "1-2", new OneWayCommandButtonData(14, 0x05, "Rec Panel", "rec_panel", panelsBgColor));
+            this.addButton(ButtonLayer.channelPropertiesRec, "4-2", new OneWayCommandButtonData(14, 0x10, "Show Inputs", "show_inputs", panelsBgColor));
+            this.addButton(ButtonLayer.channelPropertiesRec, "5-2", new OneWayCommandButtonData(14, 0x09, "Show Groups", "show_groups", panelsBgColor));
             this.addButton(ButtonLayer.channelPropertiesRec, "4", new ModeButtonData("VIEWS"));
             this.addButton(ButtonLayer.channelPropertiesRec, "5", new CommandButtonData(0x59, "Click", "click"), isNoteReceiver: true);
 
@@ -185,13 +187,21 @@
             var pluginBgColor = new BitmapColor(60, 60, 60);
             this.addButton(ButtonLayer.faderModesSend, "0-1", new ModeTopUserButtonData(0, 0x76, "", ModeTopCommandButtonData.Location.Left), isNoteReceiver: true);
             this.addButton(ButtonLayer.faderModesSend, "1-1", new ModeTopUserButtonData(0, 0x77, "", ModeTopCommandButtonData.Location.Right), isNoteReceiver: true);
-            this.addButton(ButtonLayer.faderModesSend, "2-1", new ModeButtonData("Plugins", "plugins", new BitmapColor(pluginBgColor, 190)));
+            this.addButton(ButtonLayer.faderModesSend, "2-1", new ModeButtonData("Plugins", "plugins", new BitmapColor(pluginBgColor, 190), isMenu: true));
             this.addButton(ButtonLayer.faderModesSend, "0-2", new ModeTopCommandButtonData(14, 0x74, "Previous Plugin", ModeTopCommandButtonData.Location.Left, "plugin_prev", pluginBgColor));
             this.addButton(ButtonLayer.faderModesSend, "1-2", new ModeTopCommandButtonData(14, 0x75, "Next Plugin", ModeTopCommandButtonData.Location.Right, "plugin_next", pluginBgColor));
             this.addButton(ButtonLayer.faderModesSend, "3-2", new OneWayCommandButtonData(14, 0x12, "Channel Editor", "channel_editor", pluginBgColor));
+            this.addButton(ButtonLayer.faderModesSend, "5-2", new OneWayCommandButtonData(14, 0x0D, "Reset Window Positions", "reset_window_positions", pluginBgColor));
             this.addButton(ButtonLayer.faderModesSend, "3", new UserModeButtonData());
             this.addButton(ButtonLayer.faderModesSend, "4", new PanCommandButtonData("VIEWS"));
             this.addButton(ButtonLayer.faderModesSend, "5", new SendsCommandButtonData(), isNoteReceiver: true);
+            this.addButton(ButtonLayer.faderModesSend, "0-3", new UserMenuSelectButtonData());
+            this.addButton(ButtonLayer.faderModesSend, "1-3", new UserMenuSelectButtonData());
+            this.addButton(ButtonLayer.faderModesSend, "2-3", new UserMenuSelectButtonData());
+            this.addButton(ButtonLayer.faderModesSend, "3-3", new UserMenuSelectButtonData());
+            this.addButton(ButtonLayer.faderModesSend, "4-3", new UserMenuSelectButtonData());
+            this.addButton(ButtonLayer.faderModesSend, "5-3", new UserMenuSelectButtonData());
+
         }
 
         // common
@@ -261,6 +271,30 @@
             {
                 (this.buttonData[idxPlayMuteSoloButton] as PropertyButtonData).setPropertyType(e);
                 // this.EmitActionImageChanged();
+            };
+            this.plugin.UserButtonMenuActivated += (object sender, UserButtonMenuParams e) =>
+            {
+                if (e.IsActive)
+                {
+                    for (var i = 0; i < 6; i++)
+                    {
+                        var ubd = this.buttonData[$"{(Int32)ButtonLayer.faderModesSend}:{i}-3"] as UserMenuSelectButtonData;
+                        if (i < e.MenuItems.Length)
+                        {
+                            var value = (UInt16)(127 / (e.MenuItems.Length - 1) * i);
+                            ubd.init(e.ChannelIndex, value, e.MenuItems[i]);
+                        }
+                        else
+                        {
+                            // Initializing with channel index only will result in empty
+                            // buttons to be drawn which will still trigger the UserButtonMenuActivated
+                            // event with IsActive set to false so that the menu torn down properly.
+                            ubd.init(e.ChannelIndex);
+                        }
+                    }
+                    this.CurrentUserSendsLayerMode = UserSendsLayerMode.UserMenuActivated;
+                    this.EmitActionImageChanged();
+                }
             };
 
             return true;
@@ -483,6 +517,12 @@
                     }
                     break;
                 case ButtonLayer.faderModesSend:
+                    if (this.CurrentUserSendsLayerMode == UserSendsLayerMode.UserMenuActivated)
+                    {
+                        this.CurrentUserSendsLayerMode = UserSendsLayerMode.User;
+                        this.EmitActionImageChanged();
+                        break;
+                    }
                     switch (Int32.Parse(actionParameter))
                     {
                         case 2: // PLUGINS
@@ -511,9 +551,12 @@
                             this.EmitActionImageChanged();
                             break;
                         case 5: // SENDS
-                            this.CurrentUserSendsLayerMode = UserSendsLayerMode.Sends;
-                            LastUserSendsMode = UserSendsMode.Sends;
-                            this.plugin.EmitSelectModeChanged(SelectButtonMode.Send);
+                            if (this.CurrentUserSendsLayerMode != UserSendsLayerMode.PluginSelectionActivated)
+                            {
+                                this.CurrentUserSendsLayerMode = UserSendsLayerMode.Sends;
+                                LastUserSendsMode = UserSendsMode.Sends;
+                                this.plugin.EmitSelectModeChanged(SelectButtonMode.Send);
+                            }
                             break;
                     }
                     break;
@@ -592,8 +635,11 @@
                             if ("012".Contains(actionParameter)) idx += "-1";
                             break;
                         case UserSendsLayerMode.PluginSelectionActivated:
-                            if ("013".Contains(actionParameter)) idx += "-2";
+                            if ("0135".Contains(actionParameter)) idx += "-2";
                             if ("2".Contains(actionParameter)) idx += "-1";
+                            break;
+                        case UserSendsLayerMode.UserMenuActivated:
+                            idx += "-3";
                             break;
                     }
                     break;

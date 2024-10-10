@@ -21,7 +21,7 @@
 		<!-- ******************************************************************************************** -->
 
 		<Control name="masterFader" title="Master Fader"  type="fader" options="transmit receive public">
-			<MidiMessage status="#E0" channel="8"/>
+			<MidiMessage status="#E0" channel="14"/>
 		</Control>
 
 		<!-- Virtual master display for editor -->
@@ -261,7 +261,7 @@
 			<!-- Command Mapping -->
 			<!-- **************************************************************************************** -->
 
-			<!-- Used by the Loupedeck modes keypad -->
+			<!-- Removing default function key assignements because they don't get sent to the host
 			<Command control="F1" command.category="Console"   	command.name="Show Inputs"/>
 			<Command control="F2" command.category="Console"   	command.name="Show Track"/>
 			<Command control="F3" command.category="View"      	command.name="Console"/>
@@ -270,6 +270,7 @@
 			<Command control="F6" command.category="Console"   	command.name="Add Send"/>
 			<Command control="F7" command.category="Console"   	command.name="Show Channel Editor"/>
 			<Command control="F8" command.category="View"   	command.name="Toggle Floating Windows"/>
+			-->
 
 			<!--
 			<PlainValue control="commandControlSet" param="commandControlValue"/>

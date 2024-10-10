@@ -3,9 +3,11 @@ namespace Loupedeck.StudioOneMidiPlugin
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Runtime.CompilerServices;
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
+    using System.Windows.Navigation;
 
     using Loupedeck.StudioOneMidiPlugin.Controls;
 
@@ -26,15 +28,15 @@ namespace Loupedeck.StudioOneMidiPlugin
 		public InputDevice midiIn = null, mackieMidiIn = null;
 		public OutputDevice midiOut = null, mackieMidiOut = null;
 
-		public const int ChannelCount = 6;
+		public const Int32 ChannelCount = 6;
 
 		public IDictionary<string, MackieChannelData> channelData = new Dictionary<string, MackieChannelData>();
 
-        string midiInName, midiOutName, mackieMidiInName, mackieMidiOutName;
+        String midiInName, midiOutName, mackieMidiInName, mackieMidiOutName;
 
         public ChannelFader channelFader;
 
-        public bool isConfigWindowOpen = false;
+        public Boolean isConfigWindowOpen = false;
 
         public event EventHandler ChannelDataChanged;
         public event EventHandler<NoteOnEvent> CommandNoteReceived;
@@ -70,11 +72,20 @@ namespace Loupedeck.StudioOneMidiPlugin
         public const int UserButtonMidiBase = 0x70;
         public class UserButtonParams
         {
-            public int channelIndex { get; set; }
+            public Int32 channelIndex { get; set; }
+            public Int32 userValue { get; set; } = 0;
             public String userLabel;
-            public bool isActive { get; set; } = false;
+            public Boolean isActive() => this.userValue > 0 ;
         }
         public event EventHandler<UserButtonParams> UserButtonChanged;
+
+        public class UserButtonMenuParams
+        {
+            public Int32 ChannelIndex { get; set; } = -1;
+            public String[] MenuItems { get; set; }
+            public Boolean IsActive { get; set; } = true;
+        }
+        public event EventHandler<UserButtonMenuParams> UserButtonMenuActivated;
 
         public const Int32 MaxUserPages = 6;
         private const Int32 UserPageMidiBase = 0x2B;
@@ -111,84 +122,84 @@ namespace Loupedeck.StudioOneMidiPlugin
 
         public string MidiInName
         {
-			get => midiInName;
+			get => this.midiInName;
 			set {
-				if (midiIn != null) {
-					midiIn.StopEventsListening();
-					midiIn.Dispose();
+				if (this.midiIn != null) {
+                    this.midiIn.StopEventsListening();
+                    this.midiIn.Dispose();
 				}
 
-				midiInName = value;
+                this.midiInName = value;
 				try {
-					midiIn = InputDevice.GetByName(value);
-					midiIn.StartEventsListening();
-					SetPluginSetting("MidiIn", value, false);
+                    this.midiIn = InputDevice.GetByName(value);
+                    this.midiIn.StartEventsListening();
+                    this.SetPluginSetting("MidiIn", value, false);
 				}
 				catch (Exception) {
-					midiIn = null;
+                    this.midiIn = null;
 				}
 			}
 		}
 
-		public string MidiOutName
+		public String MidiOutName
         {
-			get => midiOutName;
+			get => this.midiOutName;
 			set {
-				if (midiOut != null) {
-					midiOut.Dispose();
+				if (this.midiOut != null) {
+                    this.midiOut.Dispose();
 				}
 
-				midiOutName = value;
+                this.midiOutName = value;
 				try {
-					midiOut = OutputDevice.GetByName(value);
-					SetPluginSetting("MidiOut", value, false);
+                    this.midiOut = OutputDevice.GetByName(value);
+                    this.SetPluginSetting("MidiOut", value, false);
 				}
 				catch (Exception) {
-					midiOut = null;
+                    this.midiOut = null;
 				}
 			}
 		}
 
-		public string MackieMidiInName
+		public String MackieMidiInName
         {
-			get => mackieMidiInName;
+			get => this.mackieMidiInName;
 			set {
-				if (mackieMidiIn != null) {
-					mackieMidiIn.StopEventsListening();
-					mackieMidiIn.Dispose();
+				if (this.mackieMidiIn != null) {
+                    this.mackieMidiIn.StopEventsListening();
+                    this.mackieMidiIn.Dispose();
 				}
 
-				mackieMidiInName = value;
+                this.mackieMidiInName = value;
 				try {
-					mackieMidiIn = InputDevice.GetByName(value);
-					mackieMidiIn.EventReceived += OnMidiEvent;
-					mackieMidiIn.StartEventsListening();
-					SetPluginSetting("MackieMidiIn", value, false);
+                    this.mackieMidiIn = InputDevice.GetByName(value);
+                    this.mackieMidiIn.EventReceived += OnMidiEvent;
+                    this.mackieMidiIn.StartEventsListening();
+                    this.SetPluginSetting("MackieMidiIn", value, false);
 				}
 				catch (Exception) {
-					mackieMidiIn = null;
+                    this.mackieMidiIn = null;
 				}
 			}
 		}
 
-		public string MackieMidiOutName
+		public String MackieMidiOutName
         {
-			get => mackieMidiOutName;
+			get => this.mackieMidiOutName;
 			set {
-				if (mackieMidiOut != null)
+				if (this.mackieMidiOut != null)
                 {
-					mackieMidiOut.Dispose();
+                    this.mackieMidiOut.Dispose();
 				}
 
-				mackieMidiOutName = value;
+                this.mackieMidiOutName = value;
 				try
                 {
-					mackieMidiOut = OutputDevice.GetByName(value);
-					SetPluginSetting("MackieMidiOut", value, false);
+                    this.mackieMidiOut = OutputDevice.GetByName(value);
+                    this.SetPluginSetting("MackieMidiOut", value, false);
 				}
 				catch (Exception)
                 {
-					mackieMidiOut = null;
+                    this.mackieMidiOut = null;
 				}
 			}
 		}
@@ -280,6 +291,9 @@ namespace Loupedeck.StudioOneMidiPlugin
         public void EmitPropertySelectionChanged(ChannelProperty.PropertyType pt) => 
             this.PropertySelectionChanged?.Invoke(this, pt);
 
+        public void EmitUserButtonMenuActivated(UserButtonMenuParams ubmp) =>
+            this.UserButtonMenuActivated?.Invoke(this, ubmp)
+;
         public override void RunCommand(String commandName, String parameter)
         {
 		}
@@ -298,28 +312,36 @@ namespace Loupedeck.StudioOneMidiPlugin
 //
 //			if (TryGetPluginSetting("MackieMidiIn", out mackieMidiInName))
 //                MackieMidiInName = mackieMidiInName;
-            MackieMidiInName = "Loupedeck S1 In";
+            this.MackieMidiInName = "Loupedeck S1 In";
 
 //            if (TryGetPluginSetting("MidiOut", out midiOutName))
 //				MidiOutName = midiOutName;
 
 //			if (TryGetPluginSetting("MackieMidiOut", out mackieMidiOutName))
 //				MackieMidiOutName = mackieMidiOutName;
-            MackieMidiOutName = "Loupedeck S1 Out";
+            this.MackieMidiOutName = "Loupedeck S1 Out";
         }
 
         private void OnMidiEvent(object sender, MidiEventReceivedEventArgs args)
         {
             MidiEvent e = args.Event;
-            // PitchBend -> faders
+            // PitchBend -> faders & user button values
             if (e is PitchBendEvent)
             {
-                if (!this.channelData.TryGetValue(((int)(e as ChannelEvent).Channel).ToString(), out MackieChannelData cd))
-                    return;
+                var pbe = e as PitchBendEvent;
 
-                var ce = e as PitchBendEvent;
-                cd.Value = ce.PitchValue / 16383.0f;
-                this.EmitChannelDataChanged();
+                if (pbe.Channel < ChannelCount + 2)
+                {
+                    // Faders for 6 channels and vol + pan for selected channel
+                    
+                    if (!this.channelData.TryGetValue(((Int32)pbe.Channel).ToString(), out MackieChannelData cd))
+                    {
+                        return;
+                    }
+
+                    cd.Value = pbe.PitchValue / 16383.0f;
+                    this.EmitChannelDataChanged();
+                }
             }
             // Note event -> toggle settings
             else if (e is NoteOnEvent)
@@ -352,12 +374,13 @@ namespace Loupedeck.StudioOneMidiPlugin
                 {
                     if (ce.NoteNumber >= UserButtonMidiBase && ce.NoteNumber < (UserButtonMidiBase + ChannelCount))
                     {
+                        // 6 user buttons
                         var ubp = new UserButtonParams();
                         ubp.channelIndex = ce.NoteNumber - UserButtonMidiBase;
-                        ubp.isActive = ce.Velocity > 0;
+                        ubp.userValue = ce.Velocity;
                         if (this.channelData.TryGetValue(ubp.channelIndex.ToString(), out MackieChannelData cd))
                         {
-                            cd.UserActive = ubp.isActive;
+                            cd.UserValue = ubp.userValue;
                             ubp.userLabel = cd.UserLabel;
                         }
                         UserButtonChanged.Invoke(this, ubp);
@@ -469,7 +492,7 @@ namespace Loupedeck.StudioOneMidiPlugin
                             cd.UserLabel = receivedString;
                             var ubp = new UserButtonParams();
                             ubp.channelIndex = displayIndex;
-                            ubp.isActive = cd.UserActive;
+                            ubp.userValue = cd.UserValue;
                             ubp.userLabel = cd.UserLabel;
                             UserButtonChanged.Invoke(this, ubp);
                             break;
@@ -498,11 +521,11 @@ namespace Loupedeck.StudioOneMidiPlugin
             }
         }
 
-        public void SendMidiNote(Int32 midiChannel, Int32 note)
+        public void SendMidiNote(Int32 midiChannel, Int32 note, Int32 velocity = 127)
         {
             var e = new NoteOnEvent();
             e.Channel = (FourBitNumber)midiChannel;
-            e.Velocity = (SevenBitNumber)127;
+            e.Velocity = (SevenBitNumber)velocity;
             e.NoteNumber = (SevenBitNumber)note;
             this.mackieMidiOut.SendEvent(e);
         }

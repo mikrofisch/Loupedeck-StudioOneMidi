@@ -50,12 +50,13 @@
 		<Control name="stereo[7]" options="transmit"/>
 
 		<!-- User Bank Buttons -->
-		<Control name="userButton[0]" type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#70" channel="0"/> </Control>
-		<Control name="userButton[1]" type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#71" channel="0"/> </Control>
-		<Control name="userButton[2]" type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#72" channel="0"/> </Control>
-		<Control name="userButton[3]" type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#73" channel="0"/> </Control>
-		<Control name="userButton[4]" type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#74" channel="0"/> </Control>
-		<Control name="userButton[5]" type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#75" channel="0"/> </Control>
+		<Control name="userButton[0]" type="fader" options="transmit receive"> <MidiMessage status="#90" address="#70" channel="0"/> </Control>
+		<Control name="userButton[1]" type="fader" options="transmit receive"> <MidiMessage status="#90" address="#71" channel="0"/> </Control>
+		<Control name="userButton[2]" type="fader" options="transmit receive"> <MidiMessage status="#90" address="#72" channel="0"/> </Control>
+		<Control name="userButton[3]" type="fader" options="transmit receive"> <MidiMessage status="#90" address="#73" channel="0"/> </Control>
+		<Control name="userButton[4]" type="fader" options="transmit receive"> <MidiMessage status="#90" address="#74" channel="0"/> </Control>
+		<Control name="userButton[5]" type="fader" options="transmit receive"> <MidiMessage status="#90" address="#75" channel="0"/> </Control>
+
 
 		<!-- ******************************************************************************************** -->
 		<!-- Buttons + LEDs -->
@@ -260,7 +261,7 @@
 				<String control="descText[$ch]" param="descString$ch"/>
 				<String control="userText[$ch]" param="userString$ch"/>
 				<Value control="fader[$ch]" param="faderValue$ch"/>
-				<Toggle control="userButton[$ch]" param="buttonValue$ch"/>
+				<Value control="userButton[$ch]" param="buttonValue$ch"/>
 				<Value control="userLED[$ch]" param="buttonValue$ch"/>
 				<DefaultValue control="faderReset[$ch]" param="faderValue$ch"/>
 			</foreach>

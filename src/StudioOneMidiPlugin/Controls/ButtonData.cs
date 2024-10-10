@@ -1,7 +1,6 @@
 ﻿namespace Loupedeck.StudioOneMidiPlugin.Controls
 {
     using System;
-    using System.Web.UI.WebControls;
     using System.Windows.Forms;
 
     using Melanchall.DryWetMidi.Common;
@@ -63,7 +62,7 @@
                                             BitmapImage icon)
         {
             if (isSelected)
-                bb.FillRectangle(0, 0, bb.Width, bb.Height, ChannelProperty.PropertyColor[(int)type]);
+                bb.FillRectangle(0, 0, bb.Width, bb.Height, ChannelProperty.PropertyColor[(Int32)type]);
 
             int yOff = showTrackName == TrackNameMode.None ? 0 : icon == null ? TrackNameH : TrackNameH - 8;
 
@@ -182,6 +181,7 @@
         public SelectButtonMode CurrentMode = SelectButtonMode.Property;
         public Boolean UserButtonActive = false;
         public Boolean UserButtonEnabled = true;
+        public Boolean UserButtonMenuActive = false;
         public static ChannelProperty.PropertyType SelectionPropertyType = ChannelProperty.PropertyType.Mute;
 
         private readonly Int32 ChannelIndex = -1;
@@ -226,7 +226,14 @@
 
             var bb = new BitmapBuilder(imageSize);
 
-            return SelectButtonData.drawImage(bb, cd, this.CurrentMode, this.UserButtonActive, this.UserButtonEnabled, SelectionPropertyType, PluginName);
+            return SelectButtonData.drawImage(bb, 
+                                              cd,
+                                              this.CurrentMode,
+                                              this.UserButtonActive,
+                                              this.UserButtonEnabled,
+                                              this.UserButtonMenuActive,
+                                              SelectionPropertyType,
+                                              PluginName);
         }
 
         public static BitmapImage drawImage(BitmapBuilder bb,
@@ -234,6 +241,7 @@
                                             SelectButtonMode buttonMode,
                                             Boolean userButtonActive,
                                             Boolean userButtonEnabled = true,
+                                            Boolean userButtonMenuActive = false,
                                             ChannelProperty.PropertyType commandProperty = ChannelProperty.PropertyType.Select,
                                             String pluginName = "")
         {
@@ -257,6 +265,7 @@
                 var uby = bb.Height - ubh;
 
                 // User Pot
+                //
                 if (UserColorFinder.getLabel(pluginName, cd.Label).Length > 0)
                 {
                     if (UserColorFinder.getPaintLabelBg(pluginName, cd.Label))
@@ -269,18 +278,33 @@
                             UserColorFinder.DefaultColorSettings.TextOnColor);
 
                 // User Button
+                //
                 var drawCircle = cd.UserLabel.Length > 0 && UserColorFinder.showUserButtonCircle(pluginName, cd.UserLabel);
                 var tx = 0;
                 var tw = bb.Width;
+                if (UserColorFinder.hasMenu(pluginName, cd.UserLabel))
+                {
+                    userButtonActive = true;    // Use 'on' colour variants for all menu items
+                }
                 var tc = userButtonEnabled ? userButtonActive ? drawCircle ? UserColorFinder.getOnColor(pluginName, cd.UserLabel, isUser: true)
                                                                            : UserColorFinder.getTextOnColor(pluginName, cd.UserLabel, isUser: true)
                                                               : UserColorFinder.getTextOffColor(pluginName, cd.UserLabel, isUser: true)
                                            : BitmapColor.Black;
+                if (userButtonMenuActive) tc = BitmapColor.White;
                 var bc = (cd.UserLabel.Length > 0 || UserColorFinder.getLabel(pluginName, cd.UserLabel, isUser: true).Length > 0)
-                         && userButtonEnabled ? userButtonActive ? UserColorFinder.getOnColor(pluginName, cd.UserLabel, isUser: true)
-                                                                    : UserColorFinder.getOffColor(pluginName, cd.UserLabel, isUser: true)
+                                                  && userButtonEnabled ? userButtonActive ? UserColorFinder.getOnColor(pluginName, cd.UserLabel, isUser: true)
+                                                                       : UserColorFinder.getOffColor(pluginName, cd.UserLabel, isUser: true)
                                                  : BgColorUnassigned;
-                bb.FillRectangle(0, uby, bb.Width, ubh, drawCircle ? BgColorUserCircle : bc);
+                if (userButtonMenuActive)
+                {
+                    var stroke = 2;
+                    bb.FillRectangle(0, uby, bb.Width, ubh, tc);
+                    bb.FillRectangle(0, uby + stroke, bb.Width, ubh - 2 * stroke, new BitmapColor(40, 40, 40));
+                }
+                else
+                {
+                    bb.FillRectangle(0, uby, bb.Width, ubh, drawCircle ? BgColorUserCircle : bc);
+                }
                 if (drawCircle)
                 {
                     var cx = ubh/2;
@@ -292,9 +316,15 @@
                     tx = ubh;
                     tw = bb.Width - ubh * 2;
                 }
-                bb.DrawText(userButtonActive ? UserColorFinder.getLabelOnShort(pluginName, cd.UserLabel, isUser: true)
-                                             : UserColorFinder.getLabelShort(pluginName, cd.UserLabel, isUser: true),
-                            tx, uby, tw, TitleHeight, tc);
+                var labelText = userButtonActive ? UserColorFinder.getLabelOnShort(pluginName, cd.UserLabel, isUser: true)
+                                                 : UserColorFinder.getLabelShort(pluginName, cd.UserLabel, isUser: true);
+                var menuItems = UserColorFinder.getMenuItems(pluginName, cd.UserLabel, isUser: true);
+                if (menuItems != null)
+                {
+                    if (labelText.Length > 0) labelText += ": "; 
+                    labelText += menuItems[cd.UserValue / (127 / (menuItems.Length - 1))];
+                }
+                bb.DrawText(labelText, tx, uby, tw, TitleHeight, tc);
             }
             else
             {
@@ -302,20 +332,20 @@
 
                 if (cd.Selected)
                 {
-                    bb.FillRectangle(0, 0, bb.Width, bb.Height, ChannelProperty.PropertyColor[(int)ChannelProperty.PropertyType.Select]);
+                    bb.FillRectangle(0, 0, bb.Width, bb.Height, ChannelProperty.PropertyColor[(Int32)ChannelProperty.PropertyType.Select]);
                 }
                 else
                 {
                     bb.FillRectangle(0, 0, bb.Width, bb.Height, new BitmapColor(20, 20, 20));
                 }
 
-                int rX = 8;
-                int rY = 4;
-                int rS = 8;
-                int rW = (bb.Width - rS) / 2 - rX;
-                int rH = (bb.Height - rY - TitleHeight) / 2 - rS;
-                int rX2 = rX + rW + rS;
-                int rY2 = rY + rH + rS + TitleHeight;
+                var rX = 8;
+                var rY = 4;
+                var rS = 8;
+                var rW = (bb.Width - rS) / 2 - rX;
+                var rH = (bb.Height - rY - TitleHeight) / 2 - rS;
+                var rX2 = rX + rW + rS;
+                var rY2 = rY + rH + rS + TitleHeight;
 
                 bb.FillRectangle(rX2 - 5, rY, 2, rH, new BitmapColor(40, 40, 40));
                 bb.FillRectangle(rX2 - 5, rY2, 2, rH, new BitmapColor(40, 40, 40));
@@ -323,29 +353,29 @@
                 if (cd.Muted || commandProperty == ChannelProperty.PropertyType.Mute)
                 {
                     bb.FillRectangle(rX - 2, rY - 2, rW + 4, rH + 4,
-                        cd.Muted ? ChannelProperty.PropertyColor[(int)ChannelProperty.PropertyType.Mute]
+                        cd.Muted ? ChannelProperty.PropertyColor[(Int32)ChannelProperty.PropertyType.Mute]
                                  : SelectButtonData.CommandPropertyColor);
                 }
                 if (cd.Solo || commandProperty == ChannelProperty.PropertyType.Solo)
                 {
                     bb.FillRectangle(rX2 - 2, rY - 2, rW + 4, rH + 4,
-                        cd.Solo ? ChannelProperty.PropertyColor[(int)ChannelProperty.PropertyType.Solo]
+                        cd.Solo ? ChannelProperty.PropertyColor[(Int32)ChannelProperty.PropertyType.Solo]
                                 : SelectButtonData.CommandPropertyColor);
                 }
                 if (cd.Armed || commandProperty == ChannelProperty.PropertyType.Arm)
                 {
                     bb.FillRectangle(rX - 2, rY2 - 2, rW + 4, rH + 4,
-                        cd.Armed ? ChannelProperty.PropertyColor[(int)ChannelProperty.PropertyType.Arm]
+                        cd.Armed ? ChannelProperty.PropertyColor[(Int32)ChannelProperty.PropertyType.Arm]
                                 : SelectButtonData.CommandPropertyColor);
                 }
                 if (cd.Monitor || commandProperty == ChannelProperty.PropertyType.Monitor)
                 {
                     bb.FillRectangle(rX2 - 2, rY2 - 2, rW + 4, rH + 4,
-                        cd.Monitor ? ChannelProperty.PropertyColor[(int)ChannelProperty.PropertyType.Monitor]
+                        cd.Monitor ? ChannelProperty.PropertyColor[(Int32)ChannelProperty.PropertyType.Monitor]
                                 : SelectButtonData.CommandPropertyColor);
                 }
-                bb.DrawText(ChannelProperty.PropertyLetter[(int)ChannelProperty.PropertyType.Mute], rX, rY, rW, rH, new BitmapColor(175, 175, 175), rH - 4);
-                bb.DrawText(ChannelProperty.PropertyLetter[(int)ChannelProperty.PropertyType.Solo], rX2, rY, rW, rH, new BitmapColor(175, 175, 175), rH - 4);
+                bb.DrawText(ChannelProperty.PropertyLetter[(Int32)ChannelProperty.PropertyType.Mute], rX, rY, rW, rH, new BitmapColor(175, 175, 175), rH - 4);
+                bb.DrawText(ChannelProperty.PropertyLetter[(Int32)ChannelProperty.PropertyType.Solo], rX2, rY, rW, rH, new BitmapColor(175, 175, 175), rH - 4);
                 bb.DrawImage(SelectButtonData.IconSelRec, rX + rW / 2 - SelectButtonData.IconSelRec.Width / 2, rY2 + rH / 2 - SelectButtonData.IconSelRec.Height / 2);
                 bb.DrawImage(SelectButtonData.IconSelMon, rX2 + rW / 2 - SelectButtonData.IconSelMon.Width / 2, rY2 + rH / 2 - SelectButtonData.IconSelRec.Height / 2);
 
@@ -370,20 +400,75 @@
                     cd.EmitChannelPropertyPress(SelectButtonData.SelectionPropertyType);
                     break;
                 case SelectButtonMode.User:
-                    var e = new NoteOnEvent();
-                    e.Velocity = (SevenBitNumber)127;
-                    e.NoteNumber = (SevenBitNumber)(UserButtonMidiBase + this.ChannelIndex);
-                    this.Plugin.mackieMidiOut.SendEvent(e);
+                    var menuItems = UserColorFinder .getMenuItems(PluginName, cd.UserLabel, isUser: true);
+                    if (menuItems != null)
+                    {
+                        // Display value selection menu.
+                        var ubmp = new UserButtonMenuParams();
+                        ubmp.ChannelIndex = this.ChannelIndex;
+                        ubmp.MenuItems = menuItems;
+                        this.Plugin.EmitUserButtonMenuActivated(ubmp);
+                    }
+                    else
+                    {
+                        // Toggle the button value.
+                        this.Plugin.SendMidiNote(0, UserButtonMidiBase + this.ChannelIndex, this.UserButtonActive ? 0 : 127);
+                    }
                     break;
             }
         }
     }
 
-    public class CommandButtonData : ButtonData
+    public class UserMenuSelectButtonData : ButtonData
     {
-        public int Code;
-        public int CodeOn = 0;              // alternative code to send when activated
-        public string Name;
+        //        Int32 MidiChannel = -1;
+        Int32 ChannelIndex = 0;
+        Int32 Value = 0;
+        String Label;
+
+        public UserMenuSelectButtonData()
+        {
+        }
+
+        public void init(Int32 channelIndex = 0, Int32 value = 0, String label = null)
+        {
+            this.ChannelIndex = channelIndex;
+            this.Value = value;
+            this.Label = label;
+        }
+
+        public override BitmapImage getImage(PluginImageSize imageSize)
+        {
+            var bb = new BitmapBuilder(imageSize);
+
+
+            if (this.Label != null)
+            {
+                //            bb.FillRectangle(0, 0, bb.Width, bb.Height, BitmapColor.White);
+                //            bb.FillRectangle(stroke, stroke, bb.Width - 2 * stroke, bb.Height - 2 * stroke, BitmapColor.Black);
+
+                var height = bb.Height / 2;
+                bb.FillRectangle(0, (bb.Height - height - 4) / 2, bb.Width, height + 4, BitmapColor.White);
+                bb.FillRectangle(0, (bb.Height - height) / 2, bb.Width, height, new BitmapColor(40, 40, 40));
+                bb.DrawText(this.Label);
+            }
+            return bb.ToImage();
+        }
+        public override void runCommand()
+        {
+            if (this.ChannelIndex >= 0 && this.Label != null)
+            {
+                this.Plugin.SendMidiNote(0, UserButtonMidiBase + this.ChannelIndex, this.Value);
+            }
+            this.Plugin.EmitUserButtonMenuActivated(new UserButtonMenuParams { ChannelIndex = this.ChannelIndex, IsActive = false });
+        }
+
+    }
+        public class CommandButtonData : ButtonData
+    {
+        public Int32 Code;
+        public Int32 CodeOn = 0;              // alternative code to send when activated
+        public String Name;
 
         public virtual Boolean Activated { get; set; } = false;
 
@@ -405,24 +490,24 @@
         }
 
 
-        public CommandButtonData(int code, string name, string iconName = null)
+        public CommandButtonData(Int32 code, String name, String iconName = null)
         {
             this.init(code, name, iconName);
         }
 
-        public CommandButtonData(int code, string name, string iconName, BitmapColor bgColor)
+        public CommandButtonData(Int32 code, String name, String iconName, BitmapColor bgColor)
         {
             this.init(code, name, iconName);
             this.OnColor = bgColor;
             this.OffColor = bgColor;
         }
 
-        public CommandButtonData(int code, int codeOn, string name, string iconName = null)
+        public CommandButtonData(Int32 code, Int32 codeOn, String name, String iconName = null)
         {
             this.init(code, name, iconName);
             this.CodeOn = codeOn;
         }
-        public CommandButtonData(int code, string name, BitmapColor onColor, BitmapColor textOnColor, bool isActivatedByDefault = false)
+        public CommandButtonData(Int32 code, String name, BitmapColor onColor, BitmapColor textOnColor, bool isActivatedByDefault = false)
         {
             this.init(code, name, null);
             this.OnColor = onColor;
@@ -430,7 +515,7 @@
             this.Activated = isActivatedByDefault;
         }
 
-        private void init(int code, string name, string iconName)
+        private void init(Int32 code, String name, String iconName)
         {
             this.Name = name;
             this.Code = code;
@@ -640,15 +725,18 @@
         public String Name;
         public BitmapImage Icon = null;
         public Boolean Activated = false;
+        private Boolean IsMenu = false;
         private BitmapColor BgColor = ButtonData.DefaultSelectionBgColor;
 
-        public ModeButtonData(String name, String iconName = null)
+        public ModeButtonData(String name, String iconName = null, Boolean isMenu = false)
         {
             this.init(name, iconName, BitmapColor.Transparent);
+            this.IsMenu = isMenu;
         }
-        public ModeButtonData(String name, String iconName, BitmapColor bgColor)
+        public ModeButtonData(String name, String iconName, BitmapColor bgColor, Boolean isMenu = false)
         {
             this.init(name, iconName, bgColor);
+            this.IsMenu = isMenu;
         }
 
         private void init(String name, String iconName, BitmapColor bgColor)
@@ -672,6 +760,12 @@
 
             bb.FillRectangle(0, 0, bb.Width, bb.Height, this.Activated ? this.BgColor : BitmapColor.Transparent);
 
+            if (this.IsMenu && this.Activated)
+            {
+                bb.FillRectangle(0, 0, bb.Width, 4, BitmapColor.White);
+                bb.FillRectangle(0, bb.Height - 5, bb.Width, 5, BitmapColor.White);
+            }
+            
             if (this.Icon != null)
             {
                 bb.DrawImage(this.Icon);
@@ -931,19 +1025,14 @@
                 return;
             }
 
-            var e = new NoteOnEvent();
-            e.Channel = (FourBitNumber)0;
-
             if (this.Mode == AutomationMode.Off)
             {
-                e.NoteNumber = (SevenBitNumber)(0x4A + (Int32)this.Plugin.CurrentAutomationMode - 1);
+                this.Plugin.SendMidiNote(0, 0x4A + (Int32)this.Plugin.CurrentAutomationMode - 1);
             }
             else
             {
-                e.NoteNumber = (SevenBitNumber)(0x4A + (Int32)this.Mode - 1);
+                this.Plugin.SendMidiNote(0, 0x4A + (Int32)this.Mode - 1);
             }
-            e.Velocity = (SevenBitNumber)127;
-            this.Plugin.mackieMidiOut.SendEvent(e);
         }
     }
 
@@ -967,7 +1056,9 @@
 
             if (this.SelectionModeActivated)
             {
-                bb.FillRectangle(0, 0, bb.Width, bb.Height, ButtonData.DefaultSelectionBgColor);
+                bb.FillRectangle(0, 0, bb.Width, bb.Height, new BitmapColor(ButtonData.DefaultSelectionBgColor, 190));
+                bb.FillRectangle(0, 0, bb.Width, 4, BitmapColor.White);
+                bb.FillRectangle(0, bb.Height - 5, bb.Width, 5, BitmapColor.White);
             }
 
             for (int i = 0; i < this.Icon.Length; i++)

@@ -1125,11 +1125,13 @@
         public Int32 ActiveUserPages { get; set; } = 3;
         public Int32 UserPage { get; private set; } = 0;
         String[] PageNames;
+        Boolean IsActive { get; set; } = false;
 
         public UserModeButtonData()
         {
         }
 
+        public void clearActive() => this.IsActive = false;
         public void setPageNames(String[] pageNames) => this.PageNames = pageNames;
 
         public void setUserPage(Int32 userPage)
@@ -1219,21 +1221,29 @@
         }
         public override void runCommand()
         {
-            if (this.PageNames != null)
+            if (this.IsActive)
             {
-                // Display value selection menu.
-                var ubmp = new UserButtonMenuParams();
-                ubmp.MenuItems = this.PageNames;
-                this.Plugin.EmitUserButtonMenuActivated(ubmp);
+                if (this.PageNames != null)
+                {
+                    // Display value selection menu.
+                    var ubmp = new UserButtonMenuParams();
+                    ubmp.MenuItems = this.PageNames;
+                    this.Plugin.EmitUserButtonMenuActivated(ubmp);
+                    return;
+                }
+                else
+                {
+                    this.UserPage = (Control.ModifierKeys & Keys.Shift) == Keys.Shift
+                        ? this.UserPage <= 1 ? this.ActiveUserPages : this.UserPage - 1
+                        : this.UserPage > this.ActiveUserPages - 1 ? 1 : this.UserPage + 1;
+                }
             }
             else
             {
-                this.UserPage = (Control.ModifierKeys & Keys.Shift) == Keys.Shift
-                    ? this.UserPage <= 1 ? this.ActiveUserPages : this.UserPage - 1
-                    : this.UserPage > this.ActiveUserPages - 1 ? 1 : this.UserPage + 1;
-
-                this.Plugin.SetChannelFaderMode(ChannelFaderMode.User, this.UserPage);
+                this.IsActive = true;  // activate on first click
+                this.UserPage = 1;
             }
+            this.Plugin.SetChannelFaderMode(ChannelFaderMode.User, this.UserPage);
         }
     }
     public class UserPageMenuSelectButtonData : UserMenuSelectButtonData

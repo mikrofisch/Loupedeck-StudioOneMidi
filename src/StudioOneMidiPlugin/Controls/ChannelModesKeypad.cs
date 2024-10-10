@@ -59,6 +59,7 @@
             UserPageMenuActivated = 4       // User page switching via menu
         }
         private UserSendsLayerMode CurrentUserSendsLayerMode = UserSendsLayerMode.User;
+        private Boolean DeactivateUserMenu = false;
 
         private static readonly String idxUserButton = $"{(Int32)ButtonLayer.faderModesSend}:3";
         private static readonly String idxSendButton = $"{(Int32)ButtonLayer.faderModesSend}:5";
@@ -312,10 +313,12 @@
                             ubd.init(e.ChannelIndex);
                         }
                     }
+                    this.DeactivateUserMenu = false;
+                    this.EmitActionImageChanged();
                 }
                 else
                 {
-                    this.CurrentUserSendsLayerMode = UserSendsLayerMode.User;
+                    this.DeactivateUserMenu = true;
                 }
             };
 
@@ -542,10 +545,15 @@
                     if (this.CurrentUserSendsLayerMode == UserSendsLayerMode.UserMenuActivated ||
                         this.CurrentUserSendsLayerMode == UserSendsLayerMode.UserPageMenuActivated)
                     {
-//                        this.CurrentUserSendsLayerMode = UserSendsLayerMode.User;
-                        this.EmitActionImageChanged();
+                        if (this.DeactivateUserMenu)
+                        {
+                            this.CurrentUserSendsLayerMode = UserSendsLayerMode.User;
+                            this.DeactivateUserMenu = false;
+                            this.EmitActionImageChanged();
+                        }
                         break;
                     }
+
                     switch (Int32.Parse(actionParameter))
                     {
                         case 2: // PLUGINS
@@ -571,6 +579,7 @@
                         case 4: // VIEWS (BACK)
                             this.CurrentLayer = ButtonLayer.viewSelector;
                             this.plugin.EmitSelectModeChanged(SelectButtonMode.Select);
+                            // (this.buttonData[idxUserSendsUserModeButton] as UserModeButtonData).clearActive();
                             this.EmitActionImageChanged();
                             break;
                         case 5: // SENDS
@@ -578,6 +587,7 @@
                             {
                                 this.CurrentUserSendsLayerMode = UserSendsLayerMode.Sends;
                                 LastUserSendsMode = UserSendsMode.Sends;
+                                (this.buttonData[idxUserSendsUserModeButton] as UserModeButtonData).clearActive();
                                 this.plugin.EmitSelectModeChanged(SelectButtonMode.Send);
                             }
                             break;

@@ -98,6 +98,7 @@
 //            [XmlElement, DefaultValue(null)]
             public FinderColor TextOnColor { get; set; }
             public FinderColor TextOffColor { get; set; }
+            public FinderColor BarOnColor { get; set; }
             public String IconName { get; set; }
             public String IconNameOn { get; set; }
             public String Label { get; set; }
@@ -360,9 +361,7 @@
         public Int32 getDialSteps(String pluginName, String parameterName, Boolean isUser = false) => this.getColorSettings(pluginName, parameterName, isUser).DialSteps;
         public String[] getMenuItems(String pluginName, String parameterName, Boolean isUser = false) => this.getColorSettings(pluginName, parameterName, isUser).MenuItems;
         public Boolean hasMenu(String pluginName, String parameterName, Boolean isUser = false) => this.getColorSettings(pluginName, parameterName, isUser).MenuItems != null;
-        public static String settingName(String pluginName, String parameterName, String setting) =>      strColorSettingsID + pluginName + "|" + parameterName + "|" + setting;
-
-        public static String settingName(String pluginName, String parameterName, String setting) =>      strColorSettingsID + pluginName + "|" + parameterName + "|" + setting;
+        public static String settingName(String pluginName, String parameterName, String setting) => strColorSettingsID + pluginName + "|" + parameterName + "|" + setting;
 
         private void InitColorDict()
         {

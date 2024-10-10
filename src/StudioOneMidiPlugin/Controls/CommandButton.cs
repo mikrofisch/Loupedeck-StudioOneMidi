@@ -63,7 +63,7 @@
             this.AddButton(new OneWayCommandButtonData(14, 0x32, "Add Layer", "layer_add"), "Track");
             this.AddButton(new OneWayCommandButtonData(14, 0x33, "Remove Layer", "layer_remove"), "Track");
             this.AddButton(new OneWayCommandButtonData(14, 0x34, "Expand Layers", "layers_expand"), "Track");
-            this.AddButton(new OneWayCommandButtonData(14, 0x35, "Rename Layer"), "Track");
+            this.AddButton(new OneWayCommandButtonData(14, 0x35, "Rename Layer", "layer_rename"), "Track");
             this.AddButton(new OneWayCommandButtonData(14, 0x36, "Group Selected Tracks", "group_new"), "Track");
             this.AddButton(new OneWayCommandButtonData(14, 0x37, "Dissolve Group", "group_dissolve"), "Track");
             this.AddButton(new OneWayCommandButtonData(14, 0x38, "Show Automation", "show_automation"), "Track");

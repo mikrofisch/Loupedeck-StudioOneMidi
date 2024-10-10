@@ -82,7 +82,8 @@
     <Compile Include="Controls\ChannelFader.cs" />
     <Compile Include="Controls\MidiPadFolder.cs" />
     <Compile Include="Controls\CursorScrollWheel.cs" />
-    <Compile Include="MackieChannelData.cs" />
+    <Compile Include="ChannelData.cs" />
+    <Compile Include="Helpers\LabelImageLoader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StudioOneMidiApplication.cs" />
     <Compile Include="StudioOneMidiPlugin.cs" />
@@ -389,6 +390,34 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\reset_window_positions_52px.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\layer_rename_52px.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\lbl_Bell.png" />
+    <EmbeddedResource Include="Resources\lbl_Hi-Pass.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\lbl_Hi-RShelv.png" />
+    <EmbeddedResource Include="Resources\lbl_Hi-Shelf.png" />
+    <EmbeddedResource Include="Resources\lbl_Low-Pass.png" />
+    <EmbeddedResource Include="Resources\lbl_Low-RShelv.png" />
+    <EmbeddedResource Include="Resources\lbl_Low-Shelf.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\lbl_sm_BluntA.png" />
+    <EmbeddedResource Include="Resources\lbl_sm_BluntS.png" />
+    <EmbeddedResource Include="Resources\lbl_sm_Linear.png" />
+    <EmbeddedResource Include="Resources\lbl_sm_Nail.png" />
+    <EmbeddedResource Include="Resources\lbl_sm_Needle.png" />
+    <EmbeddedResource Include="Resources\lbl_sm_NonLinear.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\lbl_bm_Saw.png" />
+    <EmbeddedResource Include="Resources\lbl_bm_Sine.png" />
+    <EmbeddedResource Include="Resources\lbl_bm_Square.png" />
+    <EmbeddedResource Include="Resources\lbl_bm_Triangle.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

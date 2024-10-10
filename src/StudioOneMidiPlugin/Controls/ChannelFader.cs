@@ -120,7 +120,7 @@
 		{
             if (!actionParameters.TryGetString(ChannelSelector, out var channelIndex)) return false;
 
-            MackieChannelData cd = this.GetChannel(channelIndex);
+            ChannelData cd = this.GetChannel(channelIndex);
 
             var stepDivisions = UserColorFinder.getDialSteps(this.PluginName, cd.Label);
             if (stepDivisions > 50 && (Control.ModifierKeys & Keys.Shift) == Keys.Shift)
@@ -137,7 +137,7 @@
             if (!actionParameters.TryGetString(ChannelSelector, out var channelIndex)) return null;
             if (!actionParameters.TryGetString(ControlOrientationSelector, out var controlOrientation)) return null;
 
-            MackieChannelData cd = this.GetChannel(channelIndex);
+            ChannelData cd = this.GetChannel(channelIndex);
             UserColorFinder.CurrentChannel = cd.ChannelID + 1;
 
 			var bb = new BitmapBuilder(imageWidth, imageHeight);
@@ -187,7 +187,7 @@
             }
 
             var valueColor = BitmapColor.White;
-            var valBarColor = UserColorFinder.getOnColor(this.PluginName, cd.Label);
+            var valBarColor = UserColorFinder.getBarOnColor(this.PluginName, cd.Label);
             var linkedParameter = UserColorFinder.getLinkedParameter(this.PluginName, cd.Label);
 
             if (linkedParameter != null)
@@ -246,7 +246,7 @@
             return bb.ToImage();
 		}
 
-		private MackieChannelData GetChannel(String actionParameter)
+		private ChannelData GetChannel(String actionParameter)
 		{
 			return (this.Plugin as StudioOneMidiPlugin).channelData[actionParameter];
 		}
@@ -268,7 +268,7 @@
             if (!actionParameters.TryGetString(ChannelSelector, out var channelIndex))
                 return false;
 
-            MackieChannelData cd = this.GetChannel(channelIndex);
+            ChannelData cd = this.GetChannel(channelIndex);
 
             if (buttonEvent.EventType.IsPress())
             {

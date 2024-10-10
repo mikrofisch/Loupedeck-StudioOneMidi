@@ -5,7 +5,7 @@ namespace Loupedeck.StudioOneMidiPlugin
 {
     using System;
 
-    public class MackieChannelData : EventArgs
+    public class ChannelData : EventArgs
 	{
 
 		public int ChannelID;
@@ -68,7 +68,7 @@ namespace Loupedeck.StudioOneMidiPlugin
             }
         }
         
-        public MackieChannelData(StudioOneMidiPlugin plugin, int channelID)
+        public ChannelData(StudioOneMidiPlugin plugin, int channelID)
 		{
 			this.plugin = plugin;
 

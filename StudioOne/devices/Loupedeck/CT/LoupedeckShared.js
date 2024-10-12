@@ -51,7 +51,8 @@ var ChannelAssignmentMode;
     ChannelAssignmentMode[ChannelAssignmentMode["kUser5Mode"] = 7] = "kUser5Mode";
     ChannelAssignmentMode[ChannelAssignmentMode["kUser6Mode"] = 8] = "kUser6Mode";
     ChannelAssignmentMode[ChannelAssignmentMode["kPanFocusMode"] = 9] = "kPanFocusMode";
-    ChannelAssignmentMode[ChannelAssignmentMode["kLastMode"] = 10] = "kLastMode";
+    ChannelAssignmentMode[ChannelAssignmentMode["kFXMode"] = 10] = "kFXMode";
+    ChannelAssignmentMode[ChannelAssignmentMode["kLastMode"] = 11] = "kLastMode";
 })(ChannelAssignmentMode || (ChannelAssignmentMode = {}));
 class Assignment {
     constructor() {
@@ -76,6 +77,8 @@ class Assignment {
                 return "PN";
             case ChannelAssignmentMode.kPanFocusMode:
                 return "PX";
+            case ChannelAssignmentMode.kFXMode:
+                return "FX";
             case ChannelAssignmentMode.kUser1Mode:
                 return "U1";
             case ChannelAssignmentMode.kUser2Mode:
@@ -217,7 +220,8 @@ class LoupedeckSharedComponent extends FocusChannelPanComponent {
             this.channelBankElement.scrollTo(position);
         }
         super.onConnectFocusChannel();
-        if (this.assignment.mode == ChannelAssignmentMode.kTrackMode || this.assignment.mode == ChannelAssignmentMode.kFXMode) {
+        if (this.assignment.mode == ChannelAssignmentMode.kTrackMode || 
+            this.assignment.mode == ChannelAssignmentMode.kFXMode) {
             this.updateAll();
         }
     }
@@ -311,8 +315,17 @@ class LoupedeckSharedComponent extends FocusChannelPanComponent {
             channelInfo.setFader(sendElement, PreSonus.ParamID.kSendLevel);
         }
         else if (mode == ChannelAssignmentMode.kTrackMode || mode == ChannelAssignmentMode.kFXMode) {
+            if (index == 0) {
+                channelInfo.setDesc(this.focusChannelElement.getElement(), PreSonus.ParamID.kLabel);
+            } else {
+                channelInfo.setConstantDesc("");
+            }
             let descriptor = mode == ChannelAssignmentMode.kTrackMode ? kTrackModeParams[index] : kFXModeParams[index];
-            channelInfo.setConstantLabel(descriptor.label);
+//            if (mode == ChannelAssignmentMode.kFXMode) {
+//                channelInfo.setLabel(channelInfo.insertSlotElement, PreSonus.ParamID.kInsertName);
+//            } else {
+                channelInfo.setConstantLabel(descriptor.label);
+//            }
             if (!channelInfo.setValue(this.focusChannelElement, descriptor.name) && descriptor.altname.length > 0)
                 channelInfo.setValue(this.focusChannelElement, descriptor.altname);
             channelInfo.setFader(channelElement, PreSonus.ParamID.kVolume);

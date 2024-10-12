@@ -1042,6 +1042,136 @@
 			</SurfaceAssignmentPage>
 		</List>
 	</SurfaceDeviceAssignment>
+	<SurfaceDeviceAssignment deviceID="{56535443-5943-5362-7261-756572206D6F}" friendlyName="Waves Brauer Motion Stereo">
+		<List x:id="pages">
+			<SurfaceAssignmentPage>
+				<Association key="U1" value="{56535443-5943-5362-7261-756572206D6F}/vstp80"/>
+				<Association key="U2" value="{56535443-5943-5362-7261-756572206D6F}/vstp81"/>
+				<Association key="vpot[0][0]" value="{56535443-5943-5362-7261-756572206D6F}/vstp26"/>
+				<Association key="vpot[0][1]" value="{56535443-5943-5362-7261-756572206D6F}/vstp28"/>
+				<Association key="vpot[0][2]" value="{56535443-5943-5362-7261-756572206D6F}/vstp27"/>
+				<Association key="vpot[0][4]" value="{56535443-5943-5362-7261-756572206D6F}/vstp31"/>
+				<Association key="vpot[0][5]" value="{56535443-5943-5362-7261-756572206D6F}/vstp30"/>
+				<Association key="vpot[0][3]" value="{56535443-5943-5362-7261-756572206D6F}/vstp29"/>
+				<Association key="vpot[1][0]" value="{56535443-5943-5362-7261-756572206D6F}/vstp14"/>
+				<Association key="vpot[1][3]" value="{56535443-5943-5362-7261-756572206D6F}/vstp22"/>
+				<Association key="vpot[1][1]" value="{56535443-5943-5362-7261-756572206D6F}/vstp38"/>
+				<Association key="vpot[1][2]" value="{56535443-5943-5362-7261-756572206D6F}/vstp40"/>
+				<Association key="vpot[1][4]" value="{56535443-5943-5362-7261-756572206D6F}/vstp32"/>
+				<Association key="vpot[1][5]" value="{56535443-5943-5362-7261-756572206D6F}/vstp34"/>
+				<Association key="vbut[1][0]" value="{56535443-5943-5362-7261-756572206D6F}/vstp4"/>
+				<Association key="vbut[1][5]" value="{56535443-5943-5362-7261-756572206D6F}/vstp36"/>
+				<Association key="vbut[1][3]" value="{56535443-5943-5362-7261-756572206D6F}/vstp20"/>
+				<Association key="vbut[1][1]" value="{56535443-5943-5362-7261-756572206D6F}/vstp16"/>
+				<Association key="vbut[0][0]" value="{56535443-5943-5362-7261-756572206D6F}/vstp2"/>
+				<Association key="vpot[2][0]" value="{56535443-5943-5362-7261-756572206D6F}/vstp15"/>
+				<Association key="vpot[2][3]" value="{56535443-5943-5362-7261-756572206D6F}/vstp23"/>
+				<Association key="vpot[2][4]" value="{56535443-5943-5362-7261-756572206D6F}/vstp33"/>
+				<Association key="vpot[2][5]" value="{56535443-5943-5362-7261-756572206D6F}/vstp35"/>
+				<Association key="vpot[2][1]" value="{56535443-5943-5362-7261-756572206D6F}/vstp39"/>
+				<Association key="vpot[2][2]" value="{56535443-5943-5362-7261-756572206D6F}/vstp41"/>
+				<Association key="vpot[3][0]" value="{56535443-5943-5362-7261-756572206D6F}/vstp44"/>
+				<Association key="vpot[3][3]" value="{56535443-5943-5362-7261-756572206D6F}/vstp46"/>
+				<Association key="vbut[3][0]" value="{56535443-5943-5362-7261-756572206D6F}/vstp42"/>
+				<Association key="vbut[3][3]" value="{56535443-5943-5362-7261-756572206D6F}/vstp50"/>
+				<Association key="vpot[3][1]" value="{56535443-5943-5362-7261-756572206D6F}/vstp54"/>
+				<Association key="vpot[3][5]" value="{56535443-5943-5362-7261-756572206D6F}/vstp60"/>
+				<Association key="vpot[3][2]" value="{56535443-5943-5362-7261-756572206D6F}/vstp56"/>
+				<Association key="vpot[3][4]" value="{56535443-5943-5362-7261-756572206D6F}/vstp58"/>
+				<Association key="vbut[3][1]" value="{56535443-5943-5362-7261-756572206D6F}/vstp52"/>
+				<Association key="vbut[4][0]" value="{56535443-5943-5362-7261-756572206D6F}/vstp43"/>
+				<Association key="vpot[4][0]" value="{56535443-5943-5362-7261-756572206D6F}/vstp45"/>
+				<Association key="vpot[4][3]" value="{56535443-5943-5362-7261-756572206D6F}/vstp47"/>
+				<Association key="vpot[4][1]" value="{56535443-5943-5362-7261-756572206D6F}/vstp55"/>
+				<Association key="vpot[4][2]" value="{56535443-5943-5362-7261-756572206D6F}/vstp57"/>
+				<Association key="vpot[4][4]" value="{56535443-5943-5362-7261-756572206D6F}/vstp59"/>
+				<Association key="vpot[4][5]" value="{56535443-5943-5362-7261-756572206D6F}/vstp61"/>
+				<Association key="vbut[4][1]" value="{56535443-5943-5362-7261-756572206D6F}/vstp53"/>
+				<Association key="vbut[4][3]" value="{56535443-5943-5362-7261-756572206D6F}/vstp51"/>
+				<Association key="vpot[5][2]" value="{56535443-5943-5362-7261-756572206D6F}/vstp73"/>
+				<Association key="vpot[5][5]" value="{56535443-5943-5362-7261-756572206D6F}/vstp76"/>
+				<Association key="vpot[5][3]" value="{56535443-5943-5362-7261-756572206D6F}/vstp75"/>
+				<Association key="vpot[5][0]" value="{56535443-5943-5362-7261-756572206D6F}/vstp74"/>
+				<Association key="vbut[5][1]" value="{56535443-5943-5362-7261-756572206D6F}/vstp83"/>
+				<Association key="vbut[5][4]" value="{56535443-5943-5362-7261-756572206D6F}/vstp84"/>
+				<Association key="vbut[5][2]" value="{56535443-5943-5362-7261-756572206D6F}/vstp82"/>
+				<Association key="vpot[5][4]" value="{56535443-5943-5362-7261-756572206D6F}/vstp77"/>
+				<Association key="vbut[0][3]" value="{56535443-5943-5362-7261-756572206D6F}/vstp3"/>
+				<Association key="vbut[0][5]" value="{56535443-5943-5362-7261-756572206D6F}/vstp1"/>
+				<Association key="vbut[2][0]" value="{56535443-5943-5362-7261-756572206D6F}/vstp5"/>
+				<Association key="vbut[2][1]" value="{56535443-5943-5362-7261-756572206D6F}/vstp17"/>
+				<Association key="vbut[2][3]" value="{56535443-5943-5362-7261-756572206D6F}/vstp21"/>
+				<Association key="vbut[2][5]" value="{56535443-5943-5362-7261-756572206D6F}/vstp37"/>
+				<Association key="vbut[5][0]" value="{56535443-5943-5362-7261-756572206D6F}/vstp78"/>
+				<Association key="vbut[5][3]" value="{56535443-5943-5362-7261-756572206D6F}/vstp79"/>
+			</SurfaceAssignmentPage>
+		</List>
+	</SurfaceDeviceAssignment>
+	<SurfaceDeviceAssignment deviceID="{56535443-5943-5862-7261-756572206D6F}" friendlyName="Waves Brauer Motion Mono/Stereo">
+		<List x:id="pages">
+			<SurfaceAssignmentPage>
+				<Association key="U1" value="{56535443-5943-5862-7261-756572206D6F}/vstp80"/>
+				<Association key="U2" value="{56535443-5943-5862-7261-756572206D6F}/vstp81"/>
+				<Association key="vpot[0][0]" value="{56535443-5943-5862-7261-756572206D6F}/vstp26"/>
+				<Association key="vpot[0][1]" value="{56535443-5943-5862-7261-756572206D6F}/vstp28"/>
+				<Association key="vpot[0][2]" value="{56535443-5943-5862-7261-756572206D6F}/vstp27"/>
+				<Association key="vpot[0][4]" value="{56535443-5943-5862-7261-756572206D6F}/vstp31"/>
+				<Association key="vpot[0][5]" value="{56535443-5943-5862-7261-756572206D6F}/vstp30"/>
+				<Association key="vpot[0][3]" value="{56535443-5943-5862-7261-756572206D6F}/vstp29"/>
+				<Association key="vpot[1][0]" value="{56535443-5943-5862-7261-756572206D6F}/vstp14"/>
+				<Association key="vpot[1][3]" value="{56535443-5943-5862-7261-756572206D6F}/vstp22"/>
+				<Association key="vpot[1][1]" value="{56535443-5943-5862-7261-756572206D6F}/vstp38"/>
+				<Association key="vpot[1][2]" value="{56535443-5943-5862-7261-756572206D6F}/vstp40"/>
+				<Association key="vpot[1][4]" value="{56535443-5943-5862-7261-756572206D6F}/vstp32"/>
+				<Association key="vpot[1][5]" value="{56535443-5943-5862-7261-756572206D6F}/vstp34"/>
+				<Association key="vbut[1][0]" value="{56535443-5943-5862-7261-756572206D6F}/vstp4"/>
+				<Association key="vbut[1][5]" value="{56535443-5943-5862-7261-756572206D6F}/vstp36"/>
+				<Association key="vbut[1][3]" value="{56535443-5943-5862-7261-756572206D6F}/vstp20"/>
+				<Association key="vbut[1][1]" value="{56535443-5943-5862-7261-756572206D6F}/vstp16"/>
+				<Association key="vbut[0][0]" value="{56535443-5943-5862-7261-756572206D6F}/vstp2"/>
+				<Association key="vpot[2][0]" value="{56535443-5943-5862-7261-756572206D6F}/vstp15"/>
+				<Association key="vpot[2][3]" value="{56535443-5943-5862-7261-756572206D6F}/vstp23"/>
+				<Association key="vpot[2][4]" value="{56535443-5943-5862-7261-756572206D6F}/vstp33"/>
+				<Association key="vpot[2][5]" value="{56535443-5943-5862-7261-756572206D6F}/vstp35"/>
+				<Association key="vpot[2][1]" value="{56535443-5943-5862-7261-756572206D6F}/vstp39"/>
+				<Association key="vpot[2][2]" value="{56535443-5943-5862-7261-756572206D6F}/vstp41"/>
+				<Association key="vpot[3][0]" value="{56535443-5943-5862-7261-756572206D6F}/vstp44"/>
+				<Association key="vpot[3][3]" value="{56535443-5943-5862-7261-756572206D6F}/vstp46"/>
+				<Association key="vbut[3][0]" value="{56535443-5943-5862-7261-756572206D6F}/vstp42"/>
+				<Association key="vbut[3][3]" value="{56535443-5943-5862-7261-756572206D6F}/vstp50"/>
+				<Association key="vpot[3][1]" value="{56535443-5943-5862-7261-756572206D6F}/vstp54"/>
+				<Association key="vpot[3][5]" value="{56535443-5943-5862-7261-756572206D6F}/vstp60"/>
+				<Association key="vpot[3][2]" value="{56535443-5943-5862-7261-756572206D6F}/vstp56"/>
+				<Association key="vpot[3][4]" value="{56535443-5943-5862-7261-756572206D6F}/vstp58"/>
+				<Association key="vbut[3][1]" value="{56535443-5943-5862-7261-756572206D6F}/vstp52"/>
+				<Association key="vbut[4][0]" value="{56535443-5943-5862-7261-756572206D6F}/vstp43"/>
+				<Association key="vpot[4][0]" value="{56535443-5943-5862-7261-756572206D6F}/vstp45"/>
+				<Association key="vpot[4][3]" value="{56535443-5943-5862-7261-756572206D6F}/vstp47"/>
+				<Association key="vpot[4][1]" value="{56535443-5943-5862-7261-756572206D6F}/vstp55"/>
+				<Association key="vpot[4][2]" value="{56535443-5943-5862-7261-756572206D6F}/vstp57"/>
+				<Association key="vpot[4][4]" value="{56535443-5943-5862-7261-756572206D6F}/vstp59"/>
+				<Association key="vpot[4][5]" value="{56535443-5943-5862-7261-756572206D6F}/vstp61"/>
+				<Association key="vbut[4][1]" value="{56535443-5943-5862-7261-756572206D6F}/vstp53"/>
+				<Association key="vbut[4][3]" value="{56535443-5943-5862-7261-756572206D6F}/vstp51"/>
+				<Association key="vpot[5][2]" value="{56535443-5943-5862-7261-756572206D6F}/vstp73"/>
+				<Association key="vpot[5][5]" value="{56535443-5943-5862-7261-756572206D6F}/vstp76"/>
+				<Association key="vpot[5][3]" value="{56535443-5943-5862-7261-756572206D6F}/vstp75"/>
+				<Association key="vpot[5][0]" value="{56535443-5943-5862-7261-756572206D6F}/vstp74"/>
+				<Association key="vbut[5][1]" value="{56535443-5943-5862-7261-756572206D6F}/vstp83"/>
+				<Association key="vbut[5][4]" value="{56535443-5943-5862-7261-756572206D6F}/vstp84"/>
+				<Association key="vbut[5][2]" value="{56535443-5943-5862-7261-756572206D6F}/vstp82"/>
+				<Association key="vpot[5][4]" value="{56535443-5943-5862-7261-756572206D6F}/vstp77"/>
+				<Association key="vbut[0][3]" value="{56535443-5943-5862-7261-756572206D6F}/vstp3"/>
+				<Association key="vbut[0][5]" value="{56535443-5943-5862-7261-756572206D6F}/vstp1"/>
+				<Association key="vbut[2][0]" value="{56535443-5943-5862-7261-756572206D6F}/vstp5"/>
+				<Association key="vbut[2][1]" value="{56535443-5943-5862-7261-756572206D6F}/vstp17"/>
+				<Association key="vbut[2][3]" value="{56535443-5943-5862-7261-756572206D6F}/vstp21"/>
+				<Association key="vbut[2][5]" value="{56535443-5943-5862-7261-756572206D6F}/vstp37"/>
+				<Association key="vbut[5][0]" value="{56535443-5943-5862-7261-756572206D6F}/vstp78"/>
+				<Association key="vbut[5][3]" value="{56535443-5943-5862-7261-756572206D6F}/vstp79"/>
+			</SurfaceAssignmentPage>
+		</List>
+	</SurfaceDeviceAssignment>
 	<SurfaceDeviceAssignment deviceID="{56535450-5345-4D70-7332-322073707265}" friendlyName="Waves PS22 Spread Mono/Stereo">
 		<List x:id="pages">
 			<SurfaceAssignmentPage/>

@@ -179,9 +179,10 @@
             this.addButton(ButtonLayer.faderModesShow, "0", new CommandButtonData(0x40, "AUDIO", new BitmapColor(0, 60, 80), BitmapColor.White));
             this.addButton(ButtonLayer.faderModesShow, "1", new CommandButtonData(0x42, "FX", new BitmapColor(0, 60, 80), BitmapColor.White));
             this.addButton(ButtonLayer.faderModesShow, "2", new CommandButtonData(0x43, "BUS", new BitmapColor(0, 60, 80), BitmapColor.White));
-            this.addButton(ButtonLayer.faderModesShow, "3", new CommandButtonData(0x44, "OUT", new BitmapColor(0, 60, 80), BitmapColor.White));
+             this.addButton(ButtonLayer.faderModesShow, "3", new CommandButtonData(0x44, "OUT", new BitmapColor(0, 60, 80), BitmapColor.White));
+            // this.addButton(ButtonLayer.faderModesShow, "3", new CommandButtonData(0x45, "USER", new BitmapColor(0, 60, 80), BitmapColor.White));
             this.addButton(ButtonLayer.faderModesShow, "4", new ModeButtonData("VIEWS"));
-            this.addButton(ButtonLayer.faderModesShow, "5", new CommandButtonData(0x36, "ALL", new BitmapColor(60, 60, 20), BitmapColor.White, true), true);
+            this.addButton(ButtonLayer.faderModesShow, "5", new ViewAllUserCommandButtonData(), isNoteReceiver: false);
 
             this.addButton(ButtonLayer.faderModesSend, "0", new OneWayCommandButtonData(14, 0x1D, "Toggle Height", "console_height"));
             this.addButton(ButtonLayer.faderModesSend, "2", new OneWayCommandButtonData(14, 0x1E, "Toggle Width", "console_width"));
@@ -193,7 +194,8 @@
             this.addButton(ButtonLayer.faderModesSend, "0-2", new ModeTopCommandButtonData(14, 0x74, "Previous Plugin", ModeTopCommandButtonData.Location.Left, "plugin_prev", pluginBgColor));
             this.addButton(ButtonLayer.faderModesSend, "1-2", new ModeTopCommandButtonData(14, 0x75, "Next Plugin", ModeTopCommandButtonData.Location.Right, "plugin_next", pluginBgColor));
             this.addButton(ButtonLayer.faderModesSend, "3-2", new OneWayCommandButtonData(14, 0x12, "Channel Editor", "channel_editor", pluginBgColor));
-            this.addButton(ButtonLayer.faderModesSend, "5-2", new OneWayCommandButtonData(14, 0x0D, "Reset Window Positions", "reset_window_positions", pluginBgColor));
+//            this.addButton(ButtonLayer.faderModesSend, "5-2", new OneWayCommandButtonData(14, 0x0D, "Reset Window Positions", "reset_window_positions", pluginBgColor));
+            this.addButton(ButtonLayer.faderModesSend, "5-2", new CommandButtonData(0x39, "FX", pluginBgColor, BitmapColor.White));
             this.addButton(ButtonLayer.faderModesSend, "3", new UserModeButtonData());
             this.addButton(ButtonLayer.faderModesSend, "4", new PanCommandButtonData("VIEWS"));
             this.addButton(ButtonLayer.faderModesSend, "5", new SendsCommandButtonData(), isNoteReceiver: true);
@@ -292,7 +294,7 @@
                         if (e.ChannelIndex < 0)
                         {
                             // Channel index not set, assuming user page menu
-                            value = i;
+                            value = i + 1;
                             this.CurrentUserSendsLayerMode = UserSendsLayerMode.UserPageMenuActivated;
                         }
                         else
@@ -300,6 +302,7 @@
                             value = (UInt16)(127 / (e.MenuItems.Length - 1) * i);
                             this.CurrentUserSendsLayerMode = UserSendsLayerMode.UserMenuActivated;
                         }
+
                         var ubd = this.buttonData[$"{(Int32)ButtonLayer.faderModesSend}:{i}-{(Int32)this.CurrentUserSendsLayerMode}"] as UserMenuSelectButtonData;
                         if (i < e.MenuItems.Length)
                         {
@@ -531,9 +534,9 @@
                             this.EmitActionImageChanged();
                             break;
                         default :
-                            for (int i = 0; i <= 5; i++)
+                            for (var i = 0; i <= 5; i++)
                             {
-                                if (i != 4) (this.buttonData[$"{(int)ButtonLayer.faderModesShow}:{i}"] as CommandButtonData).Activated = false;
+                                if (i != 4) (this.buttonData[$"{(Int32)ButtonLayer.faderModesShow}:{i}"] as CommandButtonData).Activated = false;
                             }
                             var cbd = this.buttonData[idx] as CommandButtonData;
                             cbd.Activated = !cbd.Activated;
@@ -579,7 +582,7 @@
                         case 4: // VIEWS (BACK)
                             this.CurrentLayer = ButtonLayer.viewSelector;
                             this.plugin.EmitSelectModeChanged(SelectButtonMode.Select);
-                            // (this.buttonData[idxUserSendsUserModeButton] as UserModeButtonData).clearActive();
+                            (this.buttonData[idxUserSendsUserModeButton] as UserModeButtonData).clearActive();
                             this.EmitActionImageChanged();
                             break;
                         case 5: // SENDS

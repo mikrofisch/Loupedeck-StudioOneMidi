@@ -37,6 +37,7 @@
 		<Control name="trackButton"      type="trigger" options="receive"> <MidiMessage status="#90" address="#28" channel="0"/> </Control>
 		<Control name="sendButton"       type="trigger" options="receive"> <MidiMessage status="#90" address="#29" channel="0"/> </Control>
 		<Control name="panButton"        type="trigger" options="receive"> <MidiMessage status="#90" address="#2A" channel="0"/> </Control>
+		<Control name="fxButton"     type="trigger" options="receive"> <MidiMessage status="#90" address="#39" channel="0"/> </Control>
 		<Control name="user1Button"      type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#2B" channel="0"/> </Control>
 		<Control name="user2Button"      type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#2C" channel="0"/> </Control>
 		<Control name="user3Button"      type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#2D" channel="0"/> </Control>
@@ -47,6 +48,7 @@
 		<Control name="trackLED"         options="transmit"> <MidiMessage status="#90" address="#28" channel="0"/> </Control>
 		<Control name="sendLED"          options="transmit"> <MidiMessage status="#90" address="#29" channel="0"/> </Control>
 		<Control name="panLED"           options="transmit"> <MidiMessage status="#90" address="#2A" channel="0"/> </Control>
+		<Control name="fxLED"        options="transmit"> <MidiMessage status="#90" address="#39" channel="0"/> </Control>
 
 		<!-- Fader Banks -->
 		<Control name="faderBankLeft"  type="trigger" options="receive"> <MidiMessage status="#90" address="#31" channel="0"/> </Control>
@@ -88,7 +90,7 @@
 		<Control name="groupButton"   type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#4F" channel="0"/> </Control>
 
 		<!-- Transport -->
-		<Control name="markerButton"   type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#54" channel="0"/> </Control>
+		<Control name="replaceButton"  type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#54" channel="0"/> </Control>
 		<Control name="cycleButton"    type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#55" channel="0"/> </Control>
 		<Control name="precountButton" type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#56" channel="0"/> </Control>
 		<Control name="prerollButton"  type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#57" channel="0"/> </Control>
@@ -102,6 +104,7 @@
 		<Control name="playButton"   type="trigger" options="receive"> <MidiMessage status="#90" address="#5E" channel="0"/> </Control>
 		<Control name="recordButton" type="trigger" options="receive"> <MidiMessage status="#90" address="#5F" channel="0"/> </Control>
 
+		<Control name="replaceLED"  options="transmit"> <MidiMessage status="#90" address="#54" channel="0"/> </Control>
 		<Control name="cycleLED"    options="transmit"> <MidiMessage status="#90" address="#55" channel="0"/> </Control>
 		<Control name="precountLED" options="transmit"> <MidiMessage status="#90" address="#56" channel="0"/> </Control>
 		<Control name="prerollLED"  options="transmit"> <MidiMessage status="#90" address="#57" channel="0"/> </Control>
@@ -207,6 +210,7 @@
 		<define name="$MODE_USER5"    value="7"/>
 		<define name="$MODE_USER6"    value="8"/>
 		<define name="$MODE_PANFOCUS" value="9"/>
+		<define name="$MODE_FX"       value="10"/>
 
 		<!-- Mixer banks, keep in sync with script kLoupedeckCtMixerBanks. -->
 		<define name="$BANK_ALL"          value="0"/>
@@ -317,6 +321,11 @@
 			<Radio control="panButton" param="assignMode" value="$MODE_PAN"/>
 			<Value control="panLED" param="panModeLED"/>
 			<!-- <Invoke control="panButton" onReceive="onPanButtonPressed"/> -->
+
+			<!-- kPlugMode -->
+			<Radio control="fxButton" param="assignMode" value="$MODE_FX"/>
+			<Value control="fxLED" param="assignMode" value="$MODE_FX"/>
+
 
 						<!-- kUser1Mode, kUser2Mode, kUser3Mode -->
 			<Radio control="user1Button" param="assignMode" value="$MODE_USER1"/>
@@ -442,6 +451,9 @@
 			<Value control="cycleLED"    param="loop"/>
 
 			<!-- <Toggle control="punchButton"  param="punch"/> -->
+			<Command control="replaceButton" command.category="Transport" command.name="Replace"/>
+			<Value  control="replaceLED"   param="replace"/>
+
 			<Command control="punchButton" command.category="Transport" command.name="Autopunch"/>
 			<Value  control="punchLED"   param="punch"/>
 

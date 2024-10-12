@@ -1,6 +1,7 @@
 ﻿namespace Loupedeck.StudioOneMidiPlugin.Controls
 {
     using System;
+    using System.Runtime.InteropServices.ComTypes;
     using System.Windows.Forms;
 
     using Loupedeck.StudioOneMidiPlugin.Helpers;
@@ -302,8 +303,8 @@
                 if (userButtonMenuActive)
                 {
                     var stroke = 2;
-                    bb.FillRectangle(0, uby, bb.Width, ubh, tc);
-                    bb.FillRectangle(0, uby + stroke, bb.Width, ubh - 2 * stroke, new BitmapColor(40, 40, 40));
+                    bb.FillRectangle(0, uby, bb.Width, ubh, new BitmapColor(120, 120, 120));
+                    bb.FillRectangle(0, uby + stroke, bb.Width, ubh - 2 * stroke - 2, new BitmapColor(40, 40, 40));
                 }
                 else
                 {
@@ -328,7 +329,7 @@
                     if (labelText.Length > 0) labelText += ": "; 
                     labelText += menuItems[cd.UserValue / (127 / (menuItems.Length - 1))];
                 }
-                bb.DrawImage(new LabelImageLoader(labelText).GetImage(tw, TitleHeight, tc), tx, uby);
+                bb.DrawImage(LabelImageLoader.GetImage(labelText, tw, TitleHeight, tc), tx, uby);
             }
             else
             {
@@ -428,7 +429,7 @@
         //        Int32 MidiChannel = -1;
         Int32 ChannelIndex = 0;
         protected Int32 Value = 0;
-        String Label;
+        protected String Label;
 
         public UserMenuSelectButtonData()
         {
@@ -452,12 +453,13 @@
                 //            bb.FillRectangle(stroke, stroke, bb.Width - 2 * stroke, bb.Height - 2 * stroke, BitmapColor.Black);
 
                 var height = bb.Height / 2;
-                bb.FillRectangle(0, (bb.Height - height - 4) / 2, bb.Width, height + 4, BitmapColor.White);
+                bb.FillRectangle(0, (bb.Height - height - 4) / 2, bb.Width, height + 4, new BitmapColor(120, 120, 120));
                 bb.FillRectangle(0, (bb.Height - height) / 2, bb.Width, height, new BitmapColor(40, 40, 40));
-                bb.DrawImage(new LabelImageLoader(this.Label).GetImage(bb.Width, bb.Height));
+                bb.DrawImage(LabelImageLoader.GetImage(this.Label, bb.Width, bb.Height));
             }
             return bb.ToImage();
         }
+
         public override void runCommand()
         {
             if (this.ChannelIndex >= 0 && this.Label != null)
@@ -626,6 +628,45 @@
                 base.Activated = value;
                 this.Plugin.EmitFaderModeChanged(value == true ? StudioOneMidiPlugin.FaderMode.Pan : StudioOneMidiPlugin.FaderMode.Volume);
             }
+        }
+    }
+
+    public class ViewAllUserCommandButtonData : CommandButtonData
+    {
+        public ViewAllUserCommandButtonData() : base(0x36, "Show All/User")
+        {
+            this.Activated = true;
+        }
+
+        enum ViewMode { All, User };
+        ViewMode Mode = ViewMode.All;
+
+        public override BitmapImage getImage(PluginImageSize imageSize)
+        {
+            var cTextOn = BitmapColor.Black;
+            var cBgOn = this.Activated ? new BitmapColor(180, 180, 80) : new BitmapColor(40, 40, 40);
+            var cTextOff = this.Activated ? cBgOn : new BitmapColor(80, 80, 80);
+            var cBgOff = new BitmapColor(cBgOn, 80);
+
+            var bb = new BitmapBuilder(imageSize);
+            // bb.FillRectangle(0, 0, bb.Width, bb.Height, BitmapColor.Black);
+
+            bb.FillRectangle(0, 0, bb.Width, bb.Height / 2, this.Mode == ViewMode.User ? cBgOn : cBgOff);
+            bb.DrawText("USER", 0, 0, bb.Width, bb.Height / 2, this.Mode == ViewMode.User ? cTextOn : cTextOff);
+
+            bb.FillRectangle(0, bb.Height / 2, bb.Width, bb.Height / 2, this.Mode == ViewMode.All ? cBgOn : cBgOff);
+            bb.DrawText("ALL", 0, bb.Height / 2, bb.Width, bb.Height / 2, this.Mode == ViewMode.All ? cTextOn : cTextOff);
+
+            return bb.ToImage();
+        }
+
+        public override void runCommand()
+        {
+            if (this.Activated)
+            {
+                this.Mode = this.Mode == ViewMode.All ? ViewMode.User : ViewMode.All;
+            }
+            this.Plugin.SendMidiNote(0, this.Mode == ViewMode.All ? 0x36 : 0x45);
         }
     }
 
@@ -1123,7 +1164,8 @@
     public class UserModeButtonData : ButtonData
     {
         public Int32 ActiveUserPages { get; set; } = 3;
-        public Int32 UserPage { get; private set; } = 0;
+        Int32 UserPage { get; set; } = 0;
+        Int32 LastUserPage { get; set; } = 0;
         String[] PageNames;
         Boolean IsActive { get; set; } = false;
 
@@ -1137,14 +1179,22 @@
         public void setUserPage(Int32 userPage)
         {
             this.UserPage = userPage;
+            if (userPage > 0)
+            {
+                this.LastUserPage = userPage;
+            }
         }
 
+        // Gets called when the focus device changes
         public void resetUserPage()
         {
-            this.UserPage = 0;
-            if (this.Plugin.CurrentChannelFaderMode == ChannelFaderMode.User)
+            this.UserPage = 0;      // current user page in Studio One is unknown
+            this.LastUserPage = 1;
+            this.PageNames = null;
+            if (this.IsActive && this.Plugin.CurrentChannelFaderMode == ChannelFaderMode.User)
             {
-                this.runCommand();
+                this.UserPage = 1;
+                this.Plugin.SetChannelFaderMode(ChannelFaderMode.User, this.UserPage);
             }
         }
 
@@ -1166,9 +1216,9 @@
 
             var rW2 = rW / 3 + 1;
 
-            if (this.UserPage > 0 && this.PageNames != null && this.PageNames.Length >= this.UserPage)
+            if (this.PageNames != null && this.PageNames.Length >= this.UserPage)
             {
-                bb.DrawText(this.PageNames[this.UserPage - 1], rX, rY, rW, rH, CommandButtonData.cTextOff);
+                bb.DrawText(this.PageNames[(this.UserPage > 0 ? this.UserPage : this.LastUserPage) - 1], rX, rY, rW, rH, CommandButtonData.cTextOff);
             }
             else
             {
@@ -1211,10 +1261,6 @@
                     bb.DrawText(this.UserPage.ToString(), rX, rY, rW2, rH, CommandButtonData.cTextOn);
                 }
             }
-//            for (int i = 1; i <= 3; i++)
-//            {
-//                bb.DrawText(i.ToString(), rX + (i - 1) * rW2, rY, rW2, rH, this.UserPage == i ? CommandButtonData.cTextOn : CommandButtonData.cTextOff, 16);
-//            }
 
             return bb.ToImage();
 
@@ -1240,15 +1286,26 @@
             }
             else
             {
-                this.IsActive = true;  // activate on first click
-                this.UserPage = 1;
+                this.IsActive = true;   // activate on first click
+                this.UserPage = this.LastUserPage > 0 ? this.LastUserPage : 1;  // actively set the page if current page is unknown
             }
             this.Plugin.SetChannelFaderMode(ChannelFaderMode.User, this.UserPage);
         }
     }
     public class UserPageMenuSelectButtonData : UserMenuSelectButtonData
-    { 
-//        public UserPageMenuSelectButtonData() { }
+    {
+        public override BitmapImage getImage(PluginImageSize imageSize)
+        {
+            var bb = new BitmapBuilder(imageSize);
+
+            if (this.Label != null)
+            {
+                var height = bb.Height / 2 + 4;
+                bb.FillRectangle(0, (bb.Height - height) / 2, bb.Width, height, CommandButtonData.cRectOff);
+                bb.DrawImage(LabelImageLoader.GetImage(this.Label, bb.Width, bb.Height));
+            }
+            return bb.ToImage();
+        }
         public override void runCommand()
         {
             this.Plugin.SetChannelFaderMode(ChannelFaderMode.User, this.Value);

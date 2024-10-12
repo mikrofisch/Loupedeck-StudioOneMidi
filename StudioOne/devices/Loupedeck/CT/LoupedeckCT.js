@@ -1,7 +1,7 @@
 include_file("resource://com.presonus.musicdevices/sdk/controlsurfacecomponent.js");
 include_file("LoupedeckShared.js");
 const kLoupedeckCTMixerBanks = [
-    PreSonus.MixerConsoleBankID.kAll,
+    PreSonus.MixerConsoleBankID.kRemoteAll,
     PreSonus.MixerConsoleBankID.kAudioInput,
     PreSonus.MixerConsoleBankID.kAudioTrack,
     PreSonus.MixerConsoleBankID.kAudioSynth,
@@ -40,7 +40,7 @@ class LoupedeckCTComponent extends LoupedeckSharedComponent {
         this.bankList = paramList.addList("bankList");
         for (let i in kLoupedeckCTMixerBanks)
             this.bankList.appendString(kLoupedeckCTMixerBanks[i]);
-        this.bankList.value = kLoupedeckCTMixerBanks.indexOf(PreSonus.MixerConsoleBankID.kUser);
+        this.bankList.value = kLoupedeckCTMixerBanks.indexOf(PreSonus.MixerConsoleBankID.kRemoteAll);
     }
     onTrackFxButtonPressed(value) {
         if (!value) return;

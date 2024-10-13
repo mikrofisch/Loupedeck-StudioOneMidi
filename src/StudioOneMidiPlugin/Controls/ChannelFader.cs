@@ -141,6 +141,11 @@
             UserColorFinder.CurrentChannel = cd.ChannelID + 1;
 
 			var bb = new BitmapBuilder(imageWidth, imageHeight);
+            if (this.SelectMode == SelectButtonMode.FX)
+            {
+                return bb.ToImage();
+            }
+
             if (UserColorFinder.getLabel(this.PluginName, cd.Label).Length == 0) return bb.ToImage();
 
             const int sideBarW = 8;

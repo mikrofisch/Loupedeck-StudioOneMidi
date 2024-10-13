@@ -51,7 +51,8 @@ namespace Loupedeck.StudioOneMidiPlugin
             Select,
             Property,
             Send,
-            User
+            User,
+            FX
         }
         public event EventHandler<SelectButtonMode> SelectModeChanged;
 

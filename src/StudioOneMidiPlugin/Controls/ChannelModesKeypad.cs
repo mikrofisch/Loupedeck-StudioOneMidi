@@ -190,12 +190,12 @@
             var pluginBgColor = new BitmapColor(60, 60, 60);
             this.addButton(ButtonLayer.faderModesSend, "0-1", new ModeTopUserButtonData(0, 0x76, "", ModeTopCommandButtonData.Location.Left), isNoteReceiver: true);
             this.addButton(ButtonLayer.faderModesSend, "1-1", new ModeTopUserButtonData(0, 0x77, "", ModeTopCommandButtonData.Location.Right), isNoteReceiver: true);
-            this.addButton(ButtonLayer.faderModesSend, "2-1", new ModeButtonData("Plugins", "plugins", new BitmapColor(pluginBgColor, 190), isMenu: true));
+            this.addButton(ButtonLayer.faderModesSend, "2-1", new ModeButtonData("Plugins", "plugins", new BitmapColor(pluginBgColor, 190), isMenu: true, midiCode: 0x39));
             this.addButton(ButtonLayer.faderModesSend, "0-2", new ModeTopCommandButtonData(14, 0x74, "Previous Plugin", ModeTopCommandButtonData.Location.Left, "plugin_prev", pluginBgColor));
             this.addButton(ButtonLayer.faderModesSend, "1-2", new ModeTopCommandButtonData(14, 0x75, "Next Plugin", ModeTopCommandButtonData.Location.Right, "plugin_next", pluginBgColor));
             this.addButton(ButtonLayer.faderModesSend, "3-2", new OneWayCommandButtonData(14, 0x12, "Channel Editor", "channel_editor", pluginBgColor));
-//            this.addButton(ButtonLayer.faderModesSend, "5-2", new OneWayCommandButtonData(14, 0x0D, "Reset Window Positions", "reset_window_positions", pluginBgColor));
-            this.addButton(ButtonLayer.faderModesSend, "5-2", new CommandButtonData(0x39, "FX", pluginBgColor, BitmapColor.White));
+            this.addButton(ButtonLayer.faderModesSend, "5-2", new OneWayCommandButtonData(14, 0x0D, "Reset Window Positions", "reset_window_positions", pluginBgColor));
+            // this.addButton(ButtonLayer.faderModesSend, "5-2", new CommandButtonData(0x39, "FX", pluginBgColor, BitmapColor.White));
             this.addButton(ButtonLayer.faderModesSend, "3", new UserModeButtonData());
             this.addButton(ButtonLayer.faderModesSend, "4", new PanCommandButtonData("VIEWS"));
             this.addButton(ButtonLayer.faderModesSend, "5", new SendsCommandButtonData(), isNoteReceiver: true);
@@ -240,7 +240,16 @@
 
             this.plugin.SelectButtonPressed += (Object sender, EventArgs e) =>
             {
-                this.CurrentLayer = ButtonLayer.channelPropertiesPlay;
+                if (this.CurrentLayer == ButtonLayer.faderModesSend && this.CurrentUserSendsLayerMode == UserSendsLayerMode.PluginSelectionActivated)
+                {
+                    this.CurrentUserSendsLayerMode = UserSendsLayerMode.User;
+                    (this.buttonData[idxUserSendsPluginsButton] as ModeButtonData).Activated = false;
+                    (this.buttonData[idxUserSendsUserModeButton] as UserModeButtonData).sendUserPage();
+                }
+                else
+                {
+                    this.CurrentLayer = ButtonLayer.channelPropertiesPlay;
+                }
                 this.EmitActionImageChanged();
             };
 
@@ -261,6 +270,12 @@
                 ubd.resetUserPage();
                 ubd.setPageNames(new ColorFinder().getColorSettings(pluginName, "Loupedeck User Pages", false).MenuItems);
 
+                if (this.CurrentLayer == ButtonLayer.faderModesSend && this.CurrentUserSendsLayerMode == UserSendsLayerMode.PluginSelectionActivated)
+                {
+//                    this.CurrentUserSendsLayerMode = UserSendsLayerMode.User;
+//                    (this.buttonData[idxUserSendsPluginsButton] as ModeButtonData).Activated = false;
+                    this.plugin.EmitSelectModeChanged(SelectButtonMode.User);
+                }
                 this.EmitActionImageChanged();
             };
 
@@ -563,10 +578,13 @@
                             if (this.CurrentUserSendsLayerMode == UserSendsLayerMode.User)
                             {
                                 this.CurrentUserSendsLayerMode = UserSendsLayerMode.PluginSelectionActivated;
+                                this.plugin.EmitSelectModeChanged(SelectButtonMode.FX);
                             }
                             else if (this.CurrentUserSendsLayerMode == UserSendsLayerMode.PluginSelectionActivated)
                             {
                                 this.CurrentUserSendsLayerMode = UserSendsLayerMode.User;
+                                this.plugin.EmitSelectModeChanged(SelectButtonMode.User);
+                                (this.buttonData[idxUserSendsUserModeButton] as UserModeButtonData).sendUserPage();
                             }
                             (this.buttonData[idxUserSendsPluginsButton] as ModeButtonData).Activated = this.CurrentUserSendsLayerMode == UserSendsLayerMode.PluginSelectionActivated;
                             this.EmitActionImageChanged();
@@ -580,6 +598,11 @@
                             }
                             break;
                         case 4: // VIEWS (BACK)
+                            if (this.CurrentUserSendsLayerMode == UserSendsLayerMode.PluginSelectionActivated)
+                            {
+                                this.CurrentUserSendsLayerMode = UserSendsLayerMode.User;
+                                (this.buttonData[idxUserSendsPluginsButton] as ModeButtonData).Activated = false;
+                            }
                             this.CurrentLayer = ButtonLayer.viewSelector;
                             this.plugin.EmitSelectModeChanged(SelectButtonMode.Select);
                             (this.buttonData[idxUserSendsUserModeButton] as UserModeButtonData).clearActive();

@@ -189,16 +189,18 @@
         public Boolean UserButtonMenuActive = false;
         public static ChannelProperty.PropertyType SelectionPropertyType = ChannelProperty.PropertyType.Mute;
 
-        private readonly Int32 ChannelIndex = -1;
         public String UserLabel { get; set; }
+        public static String FocusDeviceName;
 
-        private const Int32 TitleHeight = 24;
-        private static BitmapImage IconSelMon, IconSelRec;
         private static readonly BitmapColor CommandPropertyColor = new BitmapColor(40, 40, 40);
         public static readonly BitmapColor TextDescColor = new BitmapColor(175, 175, 175);
         public static readonly FinderColor BgColorAssigned =   new FinderColor(80, 80, 80);
         public static readonly FinderColor BgColorUnassigned = new FinderColor(40, 40, 40);
         public static readonly BitmapColor BgColorUserCircle = new BitmapColor(60, 60, 60);
+
+        private readonly Int32 ChannelIndex = -1;
+        private const Int32 TitleHeight = 24;
+        private static BitmapImage IconSelMon, IconSelRec;
 
         public static String PluginName { get; set; }
 
@@ -256,11 +258,21 @@
                 SelectButtonData.IconSelRec = EmbeddedResources.ReadImage(EmbeddedResources.FindFile("record_24px.png"));
             }
 
-            if (buttonMode == SelectButtonMode.Send)
+            if (buttonMode == SelectButtonMode.Send || buttonMode == SelectButtonMode.FX)
             {
+                var barHeight = 0;
+                if (FocusDeviceName != null && cd.Label == FocusDeviceName.Substring(FocusDeviceName.IndexOf(" - ") + 3))
+                {
+                    barHeight = 4;
+                    var barColor = new BitmapColor(80, 120, 160);
+                    bb.FillRectangle(0, 0, bb.Width, bb.Height, new BitmapColor(barColor, 80));
+                    bb.FillRectangle(0, 0, bb.Width, barHeight, barColor);
+                    bb.FillRectangle(0, bb.Height - barHeight, bb.Width, barHeight, barColor);
+                }
                 //                bb.FillRectangle(0, 0, bb.Width, bb.Height, BitmapColor.Black);
-                bb.DrawText(cd.Description, 0, 0, bb.Width, TitleHeight, TextDescColor);
-                bb.DrawText(ColorFinder.stripLabel(cd.Label), 0, bb.Height / 2 - TitleHeight / 2, bb.Width, TitleHeight);
+                var titleHeight = cd.Description.Length > 0 ? TitleHeight : 0;
+                bb.DrawText(cd.Description, 0, barHeight + 2, bb.Width, titleHeight, TextDescColor);
+                bb.DrawText(cd.Label, 0, titleHeight, bb.Width, bb.Height - titleHeight);
             }
             else if (buttonMode == SelectButtonMode.User)
             {
@@ -333,7 +345,10 @@
             }
             else
             {
-                if (buttonMode == SelectButtonMode.Select) commandProperty = ChannelProperty.PropertyType.Select;
+                if (buttonMode == SelectButtonMode.Select)
+                {
+                    commandProperty = ChannelProperty.PropertyType.Select;
+                }
 
                 if (cd.Selected)
                 {
@@ -397,12 +412,17 @@
                 case SelectButtonMode.Select:
                     if (!cd.Selected)
                     {
-                        cd.EmitChannelPropertyPress(ChannelProperty.PropertyType.Select);
+                        cd.EmitChannelPropertyPress(ChannelProperty.PropertyType.Select);   // Sends MIDI data
                     }
-                    this.Plugin.EmitSelectedButtonPressed();
+                    this.Plugin.EmitSelectedButtonPressed();    // Notifies other components
+                    break;
+                case SelectButtonMode.FX:
+                    cd.EmitChannelPropertyPress(ChannelProperty.PropertyType.Select);   // Sends MIDI data
+                    this.Plugin.EmitSelectModeChanged(SelectButtonMode.User);
+                    this.Plugin.EmitSelectedButtonPressed();    // Notifies other components
                     break;
                 case SelectButtonMode.Property:
-                    cd.EmitChannelPropertyPress(SelectButtonData.SelectionPropertyType);
+                    cd.EmitChannelPropertyPress(SelectButtonData.SelectionPropertyType);    // Sends MIDI data
                     break;
                 case SelectButtonMode.User:
                     var menuItems = UserColorFinder .getMenuItems(PluginName, cd.UserLabel, isUser: true);
@@ -416,7 +436,7 @@
                     }
                     else
                     {
-                        // Toggle the button value.
+                        // Toggle the user button value.
                         this.Plugin.SendMidiNote(0, UserButtonMidiBase + this.ChannelIndex, this.UserButtonActive ? 0 : 127);
                     }
                     break;
@@ -771,23 +791,25 @@
         public BitmapImage Icon = null;
         public Boolean Activated = false;
         private Boolean IsMenu = false;
+        private Int32 MidiCode = 0;
         private BitmapColor BgColor = ButtonData.DefaultSelectionBgColor;
 
-        public ModeButtonData(String name, String iconName = null, Boolean isMenu = false)
+        public ModeButtonData(String name, String iconName = null, Boolean isMenu = false, Int32 midiCode = 0)
         {
-            this.init(name, iconName, BitmapColor.Transparent);
+            this.init(name, iconName, BitmapColor.Transparent, midiCode);
             this.IsMenu = isMenu;
         }
-        public ModeButtonData(String name, String iconName, BitmapColor bgColor, Boolean isMenu = false)
+        public ModeButtonData(String name, String iconName, BitmapColor bgColor, Boolean isMenu = false, Int32 midiCode = 0)
         {
-            this.init(name, iconName, bgColor);
+            this.init(name, iconName, bgColor, midiCode);
             this.IsMenu = isMenu;
         }
 
-        private void init(String name, String iconName, BitmapColor bgColor)
+        private void init(String name, String iconName, BitmapColor bgColor, Int32 midiCode)
         {
             this.Name = name;
             this.BgColor = bgColor;
+            this.MidiCode = midiCode;
 
             if (iconName != null)
             {
@@ -826,6 +848,10 @@
         public override void runCommand()
         {
             this.Activated = !this.Activated;
+            if (this.MidiCode > 0 && this.Activated)
+            {
+                this.Plugin.SendMidiNote(0, this.MidiCode);
+            }
         }
     }
 
@@ -1197,7 +1223,12 @@
                 this.Plugin.SetChannelFaderMode(ChannelFaderMode.User, this.UserPage);
             }
         }
-
+        public void sendUserPage()
+        {
+            // Actively set the page if current page is unknown
+            this.UserPage = this.UserPage > 0 ? this.UserPage : this.LastUserPage > 0 ? this.LastUserPage : 1;
+            this.Plugin.SetChannelFaderMode(ChannelFaderMode.User, this.UserPage);
+        }
         public override BitmapImage getImage(PluginImageSize imageSize)
         {
             var bb = new BitmapBuilder(imageSize);
@@ -1287,9 +1318,8 @@
             else
             {
                 this.IsActive = true;   // activate on first click
-                this.UserPage = this.LastUserPage > 0 ? this.LastUserPage : 1;  // actively set the page if current page is unknown
             }
-            this.Plugin.SetChannelFaderMode(ChannelFaderMode.User, this.UserPage);
+            this.sendUserPage();
         }
     }
     public class UserPageMenuSelectButtonData : UserMenuSelectButtonData

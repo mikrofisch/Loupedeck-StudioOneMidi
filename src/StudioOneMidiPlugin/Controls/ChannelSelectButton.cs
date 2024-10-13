@@ -49,8 +49,8 @@
                 }
                 this.EmitActionImageChanged();
             };
-            this.plugin.UserPageChanged += (object sender, Int32 e) => SelectButtonData.UserColorFinder.CurrentUserPage = e;
-
+            this.plugin.UserPageChanged += (Object sender, Int32 e) => SelectButtonData.UserColorFinder.CurrentUserPage = e;
+            this.plugin.FocusDeviceChanged += (Object sender, String e) => SelectButtonData.FocusDeviceName = e;
             this.plugin.ChannelDataChanged += (object sender, EventArgs e) => 
             {
                 this.EmitActionImageChanged();
@@ -88,6 +88,8 @@
 
             return true;
         }
+
+        private void Plugin_FocusDeviceChanged(Object sender, String e) => throw new NotImplementedException();
 
         protected override Boolean ProcessTouchEvent(String actionParameter, DeviceTouchEvent touchEvent)
         {

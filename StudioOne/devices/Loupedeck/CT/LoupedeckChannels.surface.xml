@@ -268,41 +268,6 @@
 		</Template>
 
 		<!-- ******************************************************************************************** -->
-		<!-- 6 Channel Strips -->
-		<!-- ******************************************************************************************** -->
-
-		<Template name="AllChannelStrips">
-			<foreach variable="$ch" count="6">
-				<Strip onConnect="onConnectChannel($ch)">
-					<!-- Inserts + Sends (used for script interaction) -->
-					<!--
-					<Bank target="Inserts" name="InsertsBankElement">
-						<foreach variable="$insertIndex" count="6">
-							<Strip onConnect="onConnectChannelInsert($ch,$insertIndex)"/>
-						</foreach>
-					</Bank>
-					-->
-					<Bank target="Sends" name="SendsBankElement">
-						<foreach variable="$sendIndex" count="6">
-							<Strip onConnect="onConnectChannelSend($ch,$sendIndex)"/>
-						</foreach>
-					</Bank>
-
-					<!-- Note: faders + vpots are connected to alias parameters -->
-					<Toggle control="recordButton[$ch]" param="recordArmed"/>
-					<Toggle control="soloButton[$ch]" param="solo" options="momentary"/>
-					<Toggle control="muteButton[$ch]" param="mute" options="momentary"/>
-					<Toggle control="monitorButton[$ch]" param="monitor"/>
-					<Toggle control="selectButton[$ch]" param="selected"/>
-
-					<Value control="stereo[$ch]"    param="stereo"/>
-					<Value control="meter[$ch][0]"  param="level1"/>
-					<Value control="meter[$ch][1]"  param="level2"/>
-				</Strip>
-			</foreach>
-		</Template>
-
-		<!-- ******************************************************************************************** -->
 		<!-- Selected Channel Inserts + Sends -->
 		<!-- ******************************************************************************************** -->
 

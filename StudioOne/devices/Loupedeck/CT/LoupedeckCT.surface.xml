@@ -31,13 +31,11 @@
 		<!-- Buttons + LEDs -->
 		<!-- ******************************************************************************************** -->
 
-		<Control name="trackFXButton"    type="trigger" options="receive"> <MidiMessage status="#90" address="#7F" channel="0"/> </Control>
-
 		<!-- Assignment Buttons -->
 		<Control name="trackButton"      type="trigger" options="receive"> <MidiMessage status="#90" address="#28" channel="0"/> </Control>
 		<Control name="sendButton"       type="trigger" options="receive"> <MidiMessage status="#90" address="#29" channel="0"/> </Control>
 		<Control name="panButton"        type="trigger" options="receive"> <MidiMessage status="#90" address="#2A" channel="0"/> </Control>
-		<Control name="fxButton"     type="trigger" options="receive"> <MidiMessage status="#90" address="#39" channel="0"/> </Control>
+		<Control name="fxButton"         type="trigger" options="receive"> <MidiMessage status="#90" address="#39" channel="0"/> </Control>
 		<Control name="user1Button"      type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#2B" channel="0"/> </Control>
 		<Control name="user2Button"      type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#2C" channel="0"/> </Control>
 		<Control name="user3Button"      type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#2D" channel="0"/> </Control>
@@ -48,7 +46,7 @@
 		<Control name="trackLED"         options="transmit"> <MidiMessage status="#90" address="#28" channel="0"/> </Control>
 		<Control name="sendLED"          options="transmit"> <MidiMessage status="#90" address="#29" channel="0"/> </Control>
 		<Control name="panLED"           options="transmit"> <MidiMessage status="#90" address="#2A" channel="0"/> </Control>
-		<Control name="fxLED"        options="transmit"> <MidiMessage status="#90" address="#39" channel="0"/> </Control>
+		<Control name="fxLED"            options="transmit"> <MidiMessage status="#90" address="#39" channel="0"/> </Control>
 
 		<!-- Fader Banks -->
 		<Control name="faderBankLeft"  type="trigger" options="receive"> <MidiMessage status="#90" address="#31" channel="0"/> </Control>
@@ -228,7 +226,7 @@
 		<!-- ******************************************************************************************** -->
 
 		<GenericMapping>
-			<Bank>
+			<Bank onConnect="onConnectPlugMapping">
 				<include template="PlugControlMapping"/>
 
 				<Strip name="masterFader">
@@ -307,8 +305,6 @@
 
 			<String control="assignmentDisplay" param="assignString"/>
 
-			<Invoke control="trackFXButton" onReceive="onTrackFXButtonPressed"/>
-			
 			<!-- kTrackMode -->
 			<Radio control="trackButton" param="assignMode" value="$MODE_TRACK"/>
 			<Radio control="trackLED" param="assignMode" value="$MODE_TRACK"/>
@@ -322,12 +318,11 @@
 			<Value control="panLED" param="panModeLED"/>
 			<!-- <Invoke control="panButton" onReceive="onPanButtonPressed"/> -->
 
-			<!-- kPlugMode -->
+			<!-- kFxMode -->
 			<Radio control="fxButton" param="assignMode" value="$MODE_FX"/>
-			<Value control="fxLED" param="assignMode" value="$MODE_FX"/>
+			<Radio control="fxLED" param="assignMode" value="$MODE_FX"/>
 
-
-						<!-- kUser1Mode, kUser2Mode, kUser3Mode -->
+			<!-- kUser1Mode, kUser2Mode, kUser3Mode -->
 			<Radio control="user1Button" param="assignMode" value="$MODE_USER1"/>
 			<Radio control="user2Button" param="assignMode" value="$MODE_USER2"/>
 			<Radio control="user3Button" param="assignMode" value="$MODE_USER3"/>
@@ -366,7 +361,44 @@
 			<!-- 6 Channel Strips -->
 			<PlacementBank target="RemoteBank" pagesize="6" name="ChannelBankElement">
 
-				<include template="AllChannelStrips"/>
+				<!-- ******************************************************************************************** -->
+				<!-- 6 Channel Strips -->
+				<!-- ******************************************************************************************** -->
+
+				<foreach variable="$ch" count="6">
+					<Strip onConnect="onConnectChannel($ch)">
+						<!-- Inserts + Sends (used for script interaction) -->
+						<!--
+						<Bank target="Inserts" name="InsertsBankElement">
+							<foreach variable="$insertIndex" count="6">
+								<Strip onConnect="onConnectChannelInsert($ch,$insertIndex)"/>
+							</foreach>
+						</Bank>
+						-->
+						<Bank target="Sends" name="SendsBankElement">
+							<foreach variable="$sendIndex" count="6">
+								<Strip onConnect="onConnectChannelSend($ch,$sendIndex)"/>
+							</foreach>
+						</Bank>
+
+						<!-- Note: faders + vpots are connected to alias parameters -->
+						<Toggle control="recordButton[$ch]" param="recordArmed"/>
+						<Toggle control="soloButton[$ch]" param="solo" options="momentary"/>
+						<Toggle control="muteButton[$ch]" param="mute" options="momentary"/>
+						<Toggle control="monitorButton[$ch]" param="monitor"/>
+						<ParamVariant using="@global" param="assignMode">
+							<Group value="$MODE_PAN">
+								<Toggle control="selectButton[$ch]" param="selected"/>
+							</Group>
+							<Group value="$MODE_FX">
+								<Invoke control="selectButton[$ch]" onReceive="onSelectButtonPressed($ch)"/>
+							</Group>
+						</ParamVariant>
+						<Value control="stereo[$ch]"    param="stereo"/>
+						<Value control="meter[$ch][0]"  param="level1"/>
+						<Value control="meter[$ch][1]"  param="level2"/>
+					</Strip>
+				</foreach>
 
 				<!-- Bank Scroll Buttons -->
 

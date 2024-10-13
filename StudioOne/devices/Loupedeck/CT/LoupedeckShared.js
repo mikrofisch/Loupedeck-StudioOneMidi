@@ -60,6 +60,7 @@ class Assignment {
         this.sendIndex = kSendSlotAll;
         this.flipActive = false;
         this.nameValueMode = 0;
+        this.controlLinkFocus = false;
     }
     sync(other) {
         this.mode = other.mode;
@@ -181,6 +182,8 @@ class LoupedeckSharedComponent extends FocusChannelPanComponent {
         this.assignment = new Assignment;
         this.channelBankElement = this.mixerMapping.find("ChannelBankElement");
         this.focusSendsBankElement = this.focusChannelElement.find("SendsBankElement");
+        this.focusInsertsBankElement = this.focusChannelElement.find("InsertsBankElement");
+        this.plugBankElement = this.root.getGenericMapping().getElement(0);
         let paramList = hostComponent.paramList;
 
         this.channels = [];
@@ -195,6 +198,7 @@ class LoupedeckSharedComponent extends FocusChannelPanComponent {
             channelInfo.constantString = paramList.addString("constantString" + i);
             channelInfo.channelElement = this.channelBankElement.getElement(i);
             channelInfo.sendsBankElement = channelInfo.channelElement.find("SendsBankElement");
+            channelInfo.insertSlotElement = this.focusInsertsBankElement.getElement(i);
             // Note: channelInfo.plugControlElement is set according to the user button bank selection in paramChanged().
             channelInfo.setLabel(channelInfo.channelElement, PreSonus.ParamID.kLabel);
             this.channels.push(channelInfo);
@@ -235,6 +239,16 @@ class LoupedeckSharedComponent extends FocusChannelPanComponent {
         else if (this.assignment.mode == ChannelAssignmentMode.kTrackMode)
             this.updateAll();
     }
+    onConnectPlugMapping() {    // from FPComponent.js
+        if (this.assignment.mode == ChannelAssignmentMode.kFXMode) {
+            let hasFocus = this.hasControlLinkFocus();
+            // Host.Console.writeLine("onConnectPlugMapping hasFocus: " + hasFocus);
+            if (this.assignment.controlLinkFocus != hasFocus) {
+                this.assignment.controlLinkFocus = hasFocus;
+                // this.updateAssignment();
+            }
+        }
+    }
     onConnectPlugControl(bank, index) {
         // Determine maximum number of used user banks. This function gets called when the active plugin
         // is changed for each element of vpot and vbut for which the assignemnt changes. Parameters are
@@ -263,6 +277,32 @@ class LoupedeckSharedComponent extends FocusChannelPanComponent {
         if (this.assignment.isUserMode()) {
             this.updateChannel(index);
         }
+    }
+    onSelectButtonPressed(index) {       // from FPComponent.js
+        if (this.assignment.mode == ChannelAssignmentMode.kFXMode) {
+            let element = this.channels[index].insertSlotElement;
+            if (!element.isConnected())
+                return;
+            PreSonus.HostUtils.openEditorAndFocus(this, element);
+            if (this.hasControlLinkFocus() && !this.assignment.controlLinkFocus) {
+                this.assignment.controlLinkFocus = true;
+                this.updateAssignment();
+            }
+        }
+//            else {
+//                Host.Console.writeLine("onSelectButtonPressed(" + index + ") kFXMode = false");
+//                let channel = this.channels[index];
+//                let channelElement = channel.channelElement;
+//                if (channelElement.isAliasConnected(channel.selectValue, PreSonus.ParamID.kSelect)) {
+//                    if (channelElement.getParamValue(PreSonus.ParamID.kSelect)) {
+//                        Host.Console.writeLine("onSelectButtonPressed(" + index + ") makeChannelVisible");
+//                        PreSonus.HostUtils.makeChannelVisible(channelElement);
+//                    }
+//                }
+//            }
+    }
+    hasControlLinkFocus() {     // from FPComponent.js
+        return this.plugBankElement.remapHint == PreSonus.RemapHint.kFocus;
     }
     getFocusChannelIndex() {
         if (!this.focusChannelElement.isConnected())
@@ -321,14 +361,14 @@ class LoupedeckSharedComponent extends FocusChannelPanComponent {
                 channelInfo.setConstantDesc("");
             }
             let descriptor = mode == ChannelAssignmentMode.kTrackMode ? kTrackModeParams[index] : kFXModeParams[index];
-//            if (mode == ChannelAssignmentMode.kFXMode) {
-//                channelInfo.setLabel(channelInfo.insertSlotElement, PreSonus.ParamID.kInsertName);
-//            } else {
+            if (mode == ChannelAssignmentMode.kFXMode) {
+                channelInfo.setLabel(channelInfo.insertSlotElement, PreSonus.ParamID.kInsertName);
+            } else {
                 channelInfo.setConstantLabel(descriptor.label);
-//            }
+                channelInfo.setFader(channelElement, PreSonus.ParamID.kVolume);
+            }
             if (!channelInfo.setValue(this.focusChannelElement, descriptor.name) && descriptor.altname.length > 0)
                 channelInfo.setValue(this.focusChannelElement, descriptor.altname);
-            channelInfo.setFader(channelElement, PreSonus.ParamID.kVolume);
         }
         else if (mode == ChannelAssignmentMode.kPanMode) {
             channelInfo.setLabel(channelElement, PreSonus.ParamID.kLabel);

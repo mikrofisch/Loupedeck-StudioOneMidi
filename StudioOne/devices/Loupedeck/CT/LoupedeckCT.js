@@ -47,40 +47,41 @@ class LoupedeckCTComponent extends LoupedeckSharedComponent {
         // getAllPropertyNames(Host.Objects.getObjectByUrl("://hostapp/DocumentManager/ActiveDocument/Environment/MixerConsole"));
     }
 
-    // onPanButtonPressed(value) {
+    // This switches between mixer pan mode and pan focus mode.
+    // Pan focus mode does not seem particularly useful so it's disabled.
+    //onPanButtonPressed(value) {
     //    if (!value) return;
     //    let currentMode = this.assignment.mode;
     //    if (currentMode == ChannelAssignmentMode.kPanMode) {
     //        this.assignMode.setValue(ChannelAssignmentMode.kPanFocusMode, true);
-    //        return;
+    //          return;
     //    }
     //    else
-    //        this.assignMode.setValue(ChannelAssignmentMode.kPanMode, true);
+    //    this.assignMode.setValue(ChannelAssignmentMode.kPanMode, true);
     // }
 
     // These functions implement cursor control via stepping in snap increments which
     // automatically adapt to zoom level.
     onSnapStepFwd(value) {
         if (!value) return;
-        Host.Console.writeLine("Snap Step Fwd " + value)
         Host.GUI.Commands.deferCommand("Edit", "Create Range from Cursor");               
         Host.GUI.Commands.deferCommand("Transport", "Locate Selection End");
         Host.GUI.Commands.deferCommand("Edit", "Deselect All");
     }
     onSnapStepRev(value) {
         if (!value) return;
-        Host.Console.writeLine("Snap Step Rev " + value)
         Host.GUI.Commands.deferCommand("Edit", "Create Range from Cursor");               
         Host.GUI.Commands.deferCommand("Edit", "Move Range Back");
         Host.GUI.Commands.deferCommand("Transport", "Locate Selection");
         Host.GUI.Commands.deferCommand("Edit", "Deselect All");
     }
     updateModeParams() {
-        this.assignMode.value = this.assignment.mode;
+        this.assignMode.setValue(this.assignment.mode, true);
         this.assignString.string = this.assignment.getModeString();
         this.flipMode.value = this.assignment.flipActive;
         this.panModeLED.value = this.assignment.isPanMode();
     }
+
     getMaxSendSlotCount() {
         if (this.mixerMapping.component)
             return this.mixerMapping.invokeChildMethod("audioMixer", "getMaxSlotCount", PreSonus.FolderID.kSendsFolder);
@@ -103,6 +104,7 @@ class LoupedeckCTComponent extends LoupedeckSharedComponent {
             this.assignment.mode = this.assignMode.value;
 
             this.updateModeParams();
+            // Host.Console.writeLine("LoupedeckCTComponent.paramChanged " + this.assignMode.value);
 
             let mode = this.assignment.mode;
             let userBank = -1;

@@ -1,187 +1,405 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{3A9D6AD3-76EB-46D7-ABC4-2A97A8F023C2}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
     <RootNamespace>Loupedeck.StudioOneMidiPlugin</RootNamespace>
-    <AssemblyName>StudioOneMidiPlugin</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <LangVersion>12</LangVersion>
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
-  </PropertyGroup>
-  <PropertyGroup>
-    <BaseIntermediateOutputPath>$(SolutionDir)..\obj\</BaseIntermediateOutputPath>
-    <BaseOutputPath>$(SolutionDir)..\bin\</BaseOutputPath>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath Condition="$(OS) == 'Windows_NT'">$(LocalAppData)\Loupedeck\Plugins\StudioOneMidi\win\</OutputPath>
-    <OutputPath Condition="$(OS) != 'Windows_NT'">$(HOME)/.local/share/Loupedeck/Plugins/StudioOneMidi/mac/</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+
+    <PluginApiDir Condition="$(OS) == 'Windows_NT'">C:\Program Files\Logi\LogiPluginService\</PluginApiDir>
+    <PluginApiDir Condition="$(OS) != 'Windows_NT'">/Applications/Utilities/LogiPluginService.app/Contents/MonoBundle/</PluginApiDir>
+
+    <PluginDir Condition="$(OS) == 'Windows_NT'">$(LocalAppData)\Logi\LogiPluginService\Plugins\</PluginDir>
+    <PluginDir Condition="$(OS) != 'Windows_NT'">~/Library/Application\ Support/Logi/LogiPluginService/Plugins/</PluginDir>
+    <Platforms>AnyCPU;x64</Platforms>
+    <OutputType>Library</OutputType>
+    <UseWPF>True</UseWPF>
+    <BaseOutputPath>$(SolutionDir)bin</BaseOutputPath>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath Condition="$(OS) == 'Windows_NT'">$(BaseOutputPath)$(Configuration)\win\</OutputPath>
-    <OutputPath Condition="$(OS) != 'Windows_NT'">$(BaseOutputPath)$(Configuration)/mac/</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
+
   <ItemGroup>
-    <Reference Include="PluginApi, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath Condition="$(OS) == 'Windows_NT'">C:\Program Files (x86)\Loupedeck\Loupedeck2\PluginApi.dll</HintPath>
-      <HintPath Condition="$(OS) != 'Windows_NT'">/Applications/Loupedeck.app/Contents/MonoBundle/PluginApi.dll</HintPath>
-    </Reference>
-    <Reference Include="PresentationCore" />
-    <Reference Include="PresentationFramework" />
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Web" />
-    <Reference Include="System.Windows" />
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xaml" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xml" />
-    <Reference Include="WindowsBase" />
+    <None Remove="Resources\add_80px.png" />
+    <None Remove="Resources\add_audio_mono_52px.png" />
+    <None Remove="Resources\add_audio_stereo_52px.png" />
+    <None Remove="Resources\add_audio_surround_52px.png" />
+    <None Remove="Resources\add_automation_52px.png" />
+    <None Remove="Resources\add_aux_52px.png" />
+    <None Remove="Resources\add_bus_52px.png" />
+    <None Remove="Resources\add_folder_52px.png" />
+    <None Remove="Resources\add_fx_52px.png" />
+    <None Remove="Resources\add_insert_52px.png" />
+    <None Remove="Resources\add_instrument_52px.png" />
+    <None Remove="Resources\add_layers_80px.png" />
+    <None Remove="Resources\add_layers_add_80px.png" />
+    <None Remove="Resources\add_layers_layers_80px.png" />
+    <None Remove="Resources\add_send_52px.png" />
+    <None Remove="Resources\add_vca_52px.png" />
+    <None Remove="Resources\arm_52px.png" />
+    <None Remove="Resources\arranger_52px.png" />
+    <None Remove="Resources\arranger_80px.png" />
+    <None Remove="Resources\arranger_pg1_80px.png" />
+    <None Remove="Resources\arranger_pg2_80px.png" />
+    <None Remove="Resources\autopunch_52px.png" />
+    <None Remove="Resources\autopunch_on_52px.png" />
+    <None Remove="Resources\autopunch_sm_52px.png" />
+    <None Remove="Resources\autopunch_sm_on_52px.png" />
+    <None Remove="Resources\auto_80px.png" />
+    <None Remove="Resources\auto_zoom_toggle_52px.png" />
+    <None Remove="Resources\auto_zoom_toggle_full_52px.png" />
+    <None Remove="Resources\auto_zoom_toggle_h_52px.png" />
+    <None Remove="Resources\auto_zoom_toggle_v_52px.png" />
+    <None Remove="Resources\browser_52px.png" />
+    <None Remove="Resources\browser_effects_52px.png" />
+    <None Remove="Resources\browser_files_52px.png" />
+    <None Remove="Resources\browser_instruments_52px.png" />
+    <None Remove="Resources\browser_loops_52px.png" />
+    <None Remove="Resources\browser_pool_52px.png" />
+    <None Remove="Resources\button_add_52px.png" />
+    <None Remove="Resources\bypass_52px.png" />
+    <None Remove="Resources\channel_editor_52px.png" />
+    <None Remove="Resources\click_52px.png" />
+    <None Remove="Resources\click_on_52px.png" />
+    <None Remove="Resources\console_height_52px.png" />
+    <None Remove="Resources\console_width_52px.png" />
+    <None Remove="Resources\dial_52px.png" />
+    <None Remove="Resources\dial_pan_52px.png" />
+    <None Remove="Resources\dial_volume_52px.png" />
+    <None Remove="Resources\fader_bank_left_52px.png" />
+    <None Remove="Resources\fader_bank_right_52px.png" />
+    <None Remove="Resources\fader_channel_next_52px.png" />
+    <None Remove="Resources\fader_channel_prev_52px.png" />
+    <None Remove="Resources\fast_forward_52px.png" />
+    <None Remove="Resources\folder_expand_52px.png" />
+    <None Remove="Resources\forward_bar_52px.png" />
+    <None Remove="Resources\fullscreen_52px.png" />
+    <None Remove="Resources\groups_80px.png" />
+    <None Remove="Resources\groups_suspend_52px.png" />
+    <None Remove="Resources\group_dissolve_52px.png" />
+    <None Remove="Resources\group_new_52px.png" />
+    <None Remove="Resources\group_suspend_no_52px.png" />
+    <None Remove="Resources\icons_24px_s1.psd" />
+    <None Remove="Resources\icons_s1_52px.psd" />
+    <None Remove="Resources\icons_s1_full.psd" />
+    <None Remove="Resources\inspector_52px.png" />
+    <None Remove="Resources\labels.psd" />
+    <None Remove="Resources\layers_52px.png" />
+    <None Remove="Resources\layers_expand_52px.png" />
+    <None Remove="Resources\layers_expand_inv_52px.png" />
+    <None Remove="Resources\layers_inv_52px.png" />
+    <None Remove="Resources\layer_add_52px.png" />
+    <None Remove="Resources\layer_add_inv_52px.png" />
+    <None Remove="Resources\layer_dn_52px.png" />
+    <None Remove="Resources\layer_dn_inv_52px.png" />
+    <None Remove="Resources\layer_remove_52px.png" />
+    <None Remove="Resources\layer_remove_inv_52px.png" />
+    <None Remove="Resources\layer_rename_52px.png" />
+    <None Remove="Resources\layer_up_52px.png" />
+    <None Remove="Resources\layer_up_inv_52px.png" />
+    <None Remove="Resources\lbl_Bell.png" />
+    <None Remove="Resources\lbl_bm_Saw.png" />
+    <None Remove="Resources\lbl_bm_Sine.png" />
+    <None Remove="Resources\lbl_bm_Square.png" />
+    <None Remove="Resources\lbl_bm_Triangle.png" />
+    <None Remove="Resources\lbl_Hi-Pass.png" />
+    <None Remove="Resources\lbl_Hi-RShelv.png" />
+    <None Remove="Resources\lbl_Hi-Shelf.png" />
+    <None Remove="Resources\lbl_Low-Pass.png" />
+    <None Remove="Resources\lbl_Low-RShelv.png" />
+    <None Remove="Resources\lbl_Low-Shelf.png" />
+    <None Remove="Resources\lbl_sm_BluntA.png" />
+    <None Remove="Resources\lbl_sm_BluntS.png" />
+    <None Remove="Resources\lbl_sm_Linear.png" />
+    <None Remove="Resources\lbl_sm_Nail.png" />
+    <None Remove="Resources\lbl_sm_Needle.png" />
+    <None Remove="Resources\lbl_sm_NonLinear.png" />
+    <None Remove="Resources\locate_selection_52px.png" />
+    <None Remove="Resources\logo-studio-one-icon-1024x675.png" />
+    <None Remove="Resources\loop_52px.png" />
+    <None Remove="Resources\loop_80px.png" />
+    <None Remove="Resources\loop_follows_selection_52px.png" />
+    <None Remove="Resources\loop_goto_end_52px.png" />
+    <None Remove="Resources\loop_goto_start_52px.png" />
+    <None Remove="Resources\loop_on_52px.png" />
+    <None Remove="Resources\loop_selection_52px.png" />
+    <None Remove="Resources\loop_selection_snapped_52px.png" />
+    <None Remove="Resources\loop_set_end_52px.png" />
+    <None Remove="Resources\loop_set_start_52px.png" />
+    <None Remove="Resources\LoupedeckCT_bg%402x.psd" />
+    <None Remove="Resources\markers_80px.png" />
+    <None Remove="Resources\marker_delete_52px.png" />
+    <None Remove="Resources\marker_goto_52px.png" />
+    <None Remove="Resources\marker_goto_no_52px.png" />
+    <None Remove="Resources\marker_insert_52px.png" />
+    <None Remove="Resources\marker_insert_named_52px.png" />
+    <None Remove="Resources\marker_next_52px.png" />
+    <None Remove="Resources\marker_previous_52px.png" />
+    <None Remove="Resources\menu_channel_controls_1_80px.png" />
+    <None Remove="Resources\menu_channel_controls_2_80px.png" />
+    <None Remove="Resources\menu_channel_controls_3_80px.png" />
+    <None Remove="Resources\menu_faders_80px.png" />
+    <None Remove="Resources\menu_fkeys_80px.png" />
+    <None Remove="Resources\menu_function_keys_80px.png" />
+    <None Remove="Resources\menu_groups_80px.png" />
+    <None Remove="Resources\menu_loop_80px.png" />
+    <None Remove="Resources\menu_markers_80px.png" />
+    <None Remove="Resources\monitor_24px.png" />
+    <None Remove="Resources\monitor_52px.png" />
+    <None Remove="Resources\panels_52px.png" />
+    <None Remove="Resources\panels_80px.png" />
+    <None Remove="Resources\panels_pg1_80px.png" />
+    <None Remove="Resources\panels_pg2_80px.png" />
+    <None Remove="Resources\playmarker_52px.png" />
+    <None Remove="Resources\play_52px.png" />
+    <None Remove="Resources\play_loop_52px.png" />
+    <None Remove="Resources\play_on_52px.png" />
+    <None Remove="Resources\plugins_52px.png" />
+    <None Remove="Resources\plugin_icon_s1.psd" />
+    <None Remove="Resources\plugin_icon_s1_16px.png" />
+    <None Remove="Resources\plugin_icon_s1_32px.png" />
+    <None Remove="Resources\plugin_icon_s1_48px.png" />
+    <None Remove="Resources\plugin_icon_s1_96px.png" />
+    <None Remove="Resources\plugin_next_52px.png" />
+    <None Remove="Resources\plugin_prev_52px.png" />
+    <None Remove="Resources\plugin_scroll_52px.png" />
+    <None Remove="Resources\precount_52px.png" />
+    <None Remove="Resources\precount_on_52px.png" />
+    <None Remove="Resources\precount_sm_52px.png" />
+    <None Remove="Resources\precount_sm_on_52px.png" />
+    <None Remove="Resources\preroll_52px.png" />
+    <None Remove="Resources\preroll_on_52px.png" />
+    <None Remove="Resources\preroll_sm_52px.png" />
+    <None Remove="Resources\preroll_sm_on_52px.png" />
+    <None Remove="Resources\ranges_create_52px.png" />
+    <None Remove="Resources\ranges_create_on_tracks_52px.png" />
+    <None Remove="Resources\range_copy_event_to_track_52px.png" />
+    <None Remove="Resources\range_end_to_cursor_52px.png" />
+    <None Remove="Resources\range_select_events_52px.png" />
+    <None Remove="Resources\range_split_52px.png" />
+    <None Remove="Resources\range_start_to_cursor_52px.png" />
+    <None Remove="Resources\range_tools_80px.png" />
+    <None Remove="Resources\record_24px.png" />
+    <None Remove="Resources\record_52px.png" />
+    <None Remove="Resources\record_on_52px.png" />
+    <None Remove="Resources\rec_panel_52px.png" />
+    <None Remove="Resources\rec_tools_80px.png" />
+    <None Remove="Resources\replace_52px.png" />
+    <None Remove="Resources\reset_window_positions_52px.png" />
+    <None Remove="Resources\return_to_zero_52px.png" />
+    <None Remove="Resources\rewind_52px.png" />
+    <None Remove="Resources\rewind_bar_52px.png" />
+    <None Remove="Resources\ruler_arranger_52px.png" />
+    <None Remove="Resources\ruler_chord_52px.png" />
+    <None Remove="Resources\ruler_lyrics_52px.png" />
+    <None Remove="Resources\ruler_marker_52px.png" />
+    <None Remove="Resources\ruler_signature_52px.png" />
+    <None Remove="Resources\ruler_tempo_52px.png" />
+    <None Remove="Resources\ruler_video_52px.png" />
+    <None Remove="Resources\scenes_80px.png" />
+    <None Remove="Resources\scenes_scroll_52px.png" />
+    <None Remove="Resources\scene_add_52px.png" />
+    <None Remove="Resources\scene_next_52px.png" />
+    <None Remove="Resources\scene_previous_52px.png" />
+    <None Remove="Resources\scene_remove_52px.png" />
+    <None Remove="Resources\scene_rename_52px.png" />
+    <None Remove="Resources\scene_select_no_52px.png" />
+    <None Remove="Resources\scene_update_52px.png" />
+    <None Remove="Resources\select-arm-monitor_80px.png" />
+    <None Remove="Resources\select-arm_80px.png" />
+    <None Remove="Resources\select-monitor_80px.png" />
+    <None Remove="Resources\select-mute-solo_80px.png" />
+    <None Remove="Resources\select-mute_80px.png" />
+    <None Remove="Resources\select-select_80px.png" />
+    <None Remove="Resources\select-select_on_80px.png" />
+    <None Remove="Resources\select-solo_80px.png" />
+    <None Remove="Resources\show_automation_52px.png" />
+    <None Remove="Resources\show_groups_52px.png" />
+    <None Remove="Resources\show_inputs_52px.png" />
+    <None Remove="Resources\show_markers_52px.png" />
+    <None Remove="Resources\show_outputs_52px.png" />
+    <None Remove="Resources\show_scenes_52px.png" />
+    <None Remove="Resources\stop_52px.png" />
+    <None Remove="Resources\stop_on_52px.png" />
+    <None Remove="Resources\tap_tempo_52px.png" />
+    <None Remove="Resources\time_display_52px.png" />
+    <None Remove="Resources\toggle_ripple_52px.png" />
+    <None Remove="Resources\toggle_snap_52px.png" />
+    <None Remove="Resources\tools_80px.png" />
+    <None Remove="Resources\tool_arrow_52px.png" />
+    <None Remove="Resources\tool_autoscroll_52px.png" />
+    <None Remove="Resources\tool_bend_52px.png" />
+    <None Remove="Resources\tool_cursor_follows_edit_52px.png" />
+    <None Remove="Resources\tool_erase_52px.png" />
+    <None Remove="Resources\tool_link_52px.png" />
+    <None Remove="Resources\tool_listen_52px.png" />
+    <None Remove="Resources\tool_mute_52px.png" />
+    <None Remove="Resources\tool_paint_52px.png" />
+    <None Remove="Resources\tool_range_52px.png" />
+    <None Remove="Resources\tool_split_52px.png" />
+    <None Remove="Resources\tracks_collapse_52px.png" />
+    <None Remove="Resources\track_80px.png" />
+    <None Remove="Resources\track_list_52px.png" />
+    <None Remove="Resources\zoom_80px.png" />
+    <None Remove="Resources\zoom_full_52px.png" />
+    <None Remove="Resources\zoom_full_h_52px.png" />
+    <None Remove="Resources\zoom_full_v_52px.png" />
+    <None Remove="Resources\zoom_h_52px.png" />
+    <None Remove="Resources\zoom_in_h_52px.png" />
+    <None Remove="Resources\zoom_in_v_52px.png" />
+    <None Remove="Resources\zoom_loop_52px.png" />
+    <None Remove="Resources\zoom_out_h_52px.png" />
+    <None Remove="Resources\zoom_out_v_52px.png" />
+    <None Remove="Resources\zoom_redo_52px.png" />
+    <None Remove="Resources\zoom_selection_52px.png" />
+    <None Remove="Resources\zoom_selection_h_52px.png" />
+    <None Remove="Resources\zoom_toogle_noauto_52px.png" />
+    <None Remove="Resources\zoom_undo_52px.png" />
+    <None Remove="Resources\zoom_v_52px.png" />
   </ItemGroup>
+
   <ItemGroup>
-    <Compile Include="Actions\DummyCommand.cs" />
-    <Compile Include="ChannelProperty.cs" />
-    <Compile Include="ConfigWindow.xaml.cs">
-      <DependentUpon>ConfigWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Controls\AutomationButton.cs" />
-    <Compile Include="Controls\ButtonData.cs" />
-    <Compile Include="Controls\ChannelControlButton.cs" />
-    <Compile Include="ColorFinder.cs" />
-    <Compile Include="Controls\ConfigCommand.cs" />
-    <Compile Include="Controls\ChannelPropertyButton.cs" />
-    <Compile Include="Controls\ChannelSelectButton.cs" />
-    <Compile Include="Controls\PropertySelectionButton.cs" />
-    <Compile Include="Controls\StudioOneButton.cs" />
-    <Compile Include="Controls\FunctionKey.cs" />
-    <Compile Include="Controls\ChannelModesKeypad.cs" />
-    <Compile Include="Controls\CommandButton.cs" />
-    <Compile Include="Controls\ChannelFader.cs" />
-    <Compile Include="Controls\MidiPadFolder.cs" />
-    <Compile Include="Controls\CursorScrollWheel.cs" />
-    <Compile Include="ChannelData.cs" />
-    <Compile Include="Helpers\LabelImageLoader.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="StudioOneMidiApplication.cs" />
-    <Compile Include="StudioOneMidiPlugin.cs" />
-    <Compile Include="Helpers\PluginLog.cs" />
-    <Compile Include="Helpers\PluginResources.cs" />
-    <Compile Include="Actions\CounterAdjustment.cs" />
-    <Compile Include="Actions\CounterCommand.cs" />
-    <Compile Include="UserControlConfig.xaml.cs">
-      <DependentUpon>UserControlConfig.xaml</DependentUpon>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="metadata\LoupedeckPackage.yaml" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="LibZ.Tool">
-      <Version>1.2.0</Version>
-    </PackageReference>
-    <PackageReference Include="Melanchall.DryWetMidi">
-      <Version>6.0.1</Version>
-    </PackageReference>
-    <PackageReference Include="System.Text.Json">
-      <Version>8.0.4</Version>
-    </PackageReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Page Include="ConfigWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="UserControlConfig.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\fast_forward_52px.png" />
-    <EmbeddedResource Include="Resources\loop_52px.png" />
-    <EmbeddedResource Include="Resources\loop_on_52px.png" />
-    <EmbeddedResource Include="Resources\play_52px.png" />
-    <EmbeddedResource Include="Resources\play_on_52px.png" />
-    <EmbeddedResource Include="Resources\record_52px.png" />
-    <EmbeddedResource Include="Resources\record_on_52px.png" />
-    <EmbeddedResource Include="Resources\rewind_52px.png" />
-    <EmbeddedResource Include="Resources\stop_52px.png" />
-    <EmbeddedResource Include="Resources\stop_on_52px.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\fader_bank_left_52px.png" />
-    <EmbeddedResource Include="Resources\fader_bank_right_52px.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\fader_channel_prev_52px.png" />
-    <EmbeddedResource Include="Resources\fader_channel_next_52px.png" />
-    <EmbeddedResource Include="Resources\monitor_24px.png" />
-    <EmbeddedResource Include="Resources\monitor_52px.png" />
-    <EmbeddedResource Include="Resources\record_24px.png" />
-  </ItemGroup>
-  <ItemGroup>
+    <EmbeddedResource Include="Resources\add_80px.png" />
+    <EmbeddedResource Include="Resources\add_audio_mono_52px.png" />
+    <EmbeddedResource Include="Resources\add_audio_stereo_52px.png" />
+    <EmbeddedResource Include="Resources\add_audio_surround_52px.png" />
+    <EmbeddedResource Include="Resources\add_automation_52px.png" />
+    <EmbeddedResource Include="Resources\add_aux_52px.png" />
+    <EmbeddedResource Include="Resources\add_bus_52px.png" />
+    <EmbeddedResource Include="Resources\add_folder_52px.png" />
+    <EmbeddedResource Include="Resources\add_fx_52px.png" />
+    <EmbeddedResource Include="Resources\add_insert_52px.png" />
+    <EmbeddedResource Include="Resources\add_instrument_52px.png" />
+    <EmbeddedResource Include="Resources\add_layers_80px.png" />
+    <EmbeddedResource Include="Resources\add_layers_add_80px.png" />
+    <EmbeddedResource Include="Resources\add_layers_layers_80px.png" />
+    <EmbeddedResource Include="Resources\add_send_52px.png" />
+    <EmbeddedResource Include="Resources\add_vca_52px.png" />
     <EmbeddedResource Include="Resources\arm_52px.png" />
-    <EmbeddedResource Include="Resources\plugin_next_52px.png" />
-    <EmbeddedResource Include="Resources\plugin_prev_52px.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\plugin_icon_s1_16px.png" />
-    <EmbeddedResource Include="Resources\plugin_icon_s1_32px.png" />
-    <EmbeddedResource Include="Resources\plugin_icon_s1_48px.png" />
-    <EmbeddedResource Include="Resources\plugin_icon_s1_96px.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\select-arm_80px.png" />
-    <EmbeddedResource Include="Resources\select-monitor_80px.png" />
-    <EmbeddedResource Include="Resources\select-mute_80px.png" />
-    <EmbeddedResource Include="Resources\select-select_80px.png" />
-    <EmbeddedResource Include="Resources\select-select_on_80px.png" />
-    <EmbeddedResource Include="Resources\select-solo_80px.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\select-mute-solo_80px.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\select-arm-monitor_80px.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\click_52px.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\click_on_52px.png" />
-  </ItemGroup>
-  <ItemGroup>
+    <EmbeddedResource Include="Resources\arranger_52px.png" />
+    <EmbeddedResource Include="Resources\arranger_80px.png" />
+    <EmbeddedResource Include="Resources\arranger_pg1_80px.png" />
+    <EmbeddedResource Include="Resources\arranger_pg2_80px.png" />
     <EmbeddedResource Include="Resources\autopunch_52px.png" />
     <EmbeddedResource Include="Resources\autopunch_on_52px.png" />
     <EmbeddedResource Include="Resources\autopunch_sm_52px.png" />
     <EmbeddedResource Include="Resources\autopunch_sm_on_52px.png" />
+    <EmbeddedResource Include="Resources\auto_80px.png" />
+    <EmbeddedResource Include="Resources\auto_zoom_toggle_52px.png" />
+    <EmbeddedResource Include="Resources\auto_zoom_toggle_full_52px.png" />
+    <EmbeddedResource Include="Resources\auto_zoom_toggle_h_52px.png" />
+    <EmbeddedResource Include="Resources\auto_zoom_toggle_v_52px.png" />
+    <EmbeddedResource Include="Resources\browser_52px.png" />
+    <EmbeddedResource Include="Resources\browser_effects_52px.png" />
+    <EmbeddedResource Include="Resources\browser_files_52px.png" />
+    <EmbeddedResource Include="Resources\browser_instruments_52px.png" />
+    <EmbeddedResource Include="Resources\browser_loops_52px.png" />
+    <EmbeddedResource Include="Resources\browser_pool_52px.png" />
+    <EmbeddedResource Include="Resources\button_add_52px.png" />
+    <EmbeddedResource Include="Resources\bypass_52px.png" />
+    <EmbeddedResource Include="Resources\channel_editor_52px.png" />
+    <EmbeddedResource Include="Resources\click_52px.png" />
+    <EmbeddedResource Include="Resources\click_on_52px.png" />
+    <EmbeddedResource Include="Resources\console_height_52px.png" />
+    <EmbeddedResource Include="Resources\console_width_52px.png" />
+    <EmbeddedResource Include="Resources\dial_52px.png" />
+    <EmbeddedResource Include="Resources\dial_pan_52px.png" />
+    <EmbeddedResource Include="Resources\dial_volume_52px.png" />
+    <EmbeddedResource Include="Resources\fader_bank_left_52px.png" />
+    <EmbeddedResource Include="Resources\fader_bank_right_52px.png" />
+    <EmbeddedResource Include="Resources\fader_channel_next_52px.png" />
+    <EmbeddedResource Include="Resources\fader_channel_prev_52px.png" />
+    <EmbeddedResource Include="Resources\fast_forward_52px.png" />
+    <EmbeddedResource Include="Resources\folder_expand_52px.png" />
+    <EmbeddedResource Include="Resources\forward_bar_52px.png" />
+    <EmbeddedResource Include="Resources\fullscreen_52px.png" />
+    <EmbeddedResource Include="Resources\groups_80px.png" />
+    <EmbeddedResource Include="Resources\groups_suspend_52px.png" />
+    <EmbeddedResource Include="Resources\group_dissolve_52px.png" />
+    <EmbeddedResource Include="Resources\group_new_52px.png" />
+    <EmbeddedResource Include="Resources\group_suspend_no_52px.png" />
+    <EmbeddedResource Include="Resources\inspector_52px.png" />
+    <EmbeddedResource Include="Resources\layers_52px.png" />
+    <EmbeddedResource Include="Resources\layers_expand_52px.png" />
+    <EmbeddedResource Include="Resources\layers_expand_inv_52px.png" />
+    <EmbeddedResource Include="Resources\layers_inv_52px.png" />
+    <EmbeddedResource Include="Resources\layer_add_52px.png" />
+    <EmbeddedResource Include="Resources\layer_add_inv_52px.png" />
+    <EmbeddedResource Include="Resources\layer_dn_52px.png" />
+    <EmbeddedResource Include="Resources\layer_dn_inv_52px.png" />
+    <EmbeddedResource Include="Resources\layer_remove_52px.png" />
+    <EmbeddedResource Include="Resources\layer_remove_inv_52px.png" />
+    <EmbeddedResource Include="Resources\layer_rename_52px.png" />
+    <EmbeddedResource Include="Resources\layer_up_52px.png" />
+    <EmbeddedResource Include="Resources\layer_up_inv_52px.png" />
+    <EmbeddedResource Include="Resources\lbl_Bell.png" />
+    <EmbeddedResource Include="Resources\lbl_bm_Saw.png" />
+    <EmbeddedResource Include="Resources\lbl_bm_Sine.png" />
+    <EmbeddedResource Include="Resources\lbl_bm_Square.png" />
+    <EmbeddedResource Include="Resources\lbl_bm_Triangle.png" />
+    <EmbeddedResource Include="Resources\lbl_Hi-Pass.png" />
+    <EmbeddedResource Include="Resources\lbl_Hi-RShelv.png" />
+    <EmbeddedResource Include="Resources\lbl_Hi-Shelf.png" />
+    <EmbeddedResource Include="Resources\lbl_Low-Pass.png" />
+    <EmbeddedResource Include="Resources\lbl_Low-RShelv.png" />
+    <EmbeddedResource Include="Resources\lbl_Low-Shelf.png" />
+    <EmbeddedResource Include="Resources\lbl_sm_BluntA.png" />
+    <EmbeddedResource Include="Resources\lbl_sm_BluntS.png" />
+    <EmbeddedResource Include="Resources\lbl_sm_Linear.png" />
+    <EmbeddedResource Include="Resources\lbl_sm_Nail.png" />
+    <EmbeddedResource Include="Resources\lbl_sm_Needle.png" />
+    <EmbeddedResource Include="Resources\lbl_sm_NonLinear.png" />
+    <EmbeddedResource Include="Resources\locate_selection_52px.png" />
+    <EmbeddedResource Include="Resources\logo-studio-one-icon-1024x675.png" />
+    <EmbeddedResource Include="Resources\loop_52px.png" />
+    <EmbeddedResource Include="Resources\loop_80px.png" />
+    <EmbeddedResource Include="Resources\loop_follows_selection_52px.png" />
+    <EmbeddedResource Include="Resources\loop_goto_end_52px.png" />
+    <EmbeddedResource Include="Resources\loop_goto_start_52px.png" />
+    <EmbeddedResource Include="Resources\loop_on_52px.png" />
+    <EmbeddedResource Include="Resources\loop_selection_52px.png" />
+    <EmbeddedResource Include="Resources\loop_selection_snapped_52px.png" />
+    <EmbeddedResource Include="Resources\loop_set_end_52px.png" />
+    <EmbeddedResource Include="Resources\loop_set_start_52px.png" />
+    <EmbeddedResource Include="Resources\markers_80px.png" />
+    <EmbeddedResource Include="Resources\marker_delete_52px.png" />
+    <EmbeddedResource Include="Resources\marker_goto_52px.png" />
+    <EmbeddedResource Include="Resources\marker_goto_no_52px.png" />
+    <EmbeddedResource Include="Resources\marker_insert_52px.png" />
+    <EmbeddedResource Include="Resources\marker_insert_named_52px.png" />
+    <EmbeddedResource Include="Resources\marker_next_52px.png" />
+    <EmbeddedResource Include="Resources\marker_previous_52px.png" />
+    <EmbeddedResource Include="Resources\menu_channel_controls_1_80px.png" />
+    <EmbeddedResource Include="Resources\menu_channel_controls_2_80px.png" />
+    <EmbeddedResource Include="Resources\menu_channel_controls_3_80px.png" />
+    <EmbeddedResource Include="Resources\menu_faders_80px.png" />
+    <EmbeddedResource Include="Resources\menu_fkeys_80px.png" />
+    <EmbeddedResource Include="Resources\menu_function_keys_80px.png" />
+    <EmbeddedResource Include="Resources\menu_groups_80px.png" />
+    <EmbeddedResource Include="Resources\menu_loop_80px.png" />
+    <EmbeddedResource Include="Resources\menu_markers_80px.png" />
+    <EmbeddedResource Include="Resources\monitor_24px.png" />
+    <EmbeddedResource Include="Resources\monitor_52px.png" />
+    <EmbeddedResource Include="Resources\panels_52px.png" />
+    <EmbeddedResource Include="Resources\panels_80px.png" />
+    <EmbeddedResource Include="Resources\panels_pg1_80px.png" />
+    <EmbeddedResource Include="Resources\panels_pg2_80px.png" />
     <EmbeddedResource Include="Resources\playmarker_52px.png" />
+    <EmbeddedResource Include="Resources\play_52px.png" />
+    <EmbeddedResource Include="Resources\play_loop_52px.png" />
+    <EmbeddedResource Include="Resources\play_on_52px.png" />
+    <EmbeddedResource Include="Resources\plugins_52px.png" />
+    <EmbeddedResource Include="Resources\plugin_icon_s1_16px.png" />
+    <EmbeddedResource Include="Resources\plugin_icon_s1_32px.png" />
+    <EmbeddedResource Include="Resources\plugin_icon_s1_48px.png" />
+    <EmbeddedResource Include="Resources\plugin_icon_s1_96px.png" />
+    <EmbeddedResource Include="Resources\plugin_next_52px.png" />
+    <EmbeddedResource Include="Resources\plugin_prev_52px.png" />
+    <EmbeddedResource Include="Resources\plugin_scroll_52px.png" />
     <EmbeddedResource Include="Resources\precount_52px.png" />
     <EmbeddedResource Include="Resources\precount_on_52px.png" />
     <EmbeddedResource Include="Resources\precount_sm_52px.png" />
@@ -190,89 +408,61 @@
     <EmbeddedResource Include="Resources\preroll_on_52px.png" />
     <EmbeddedResource Include="Resources\preroll_sm_52px.png" />
     <EmbeddedResource Include="Resources\preroll_sm_on_52px.png" />
-    <EmbeddedResource Include="Resources\replace_52px.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\layers_52px.png" />
-    <EmbeddedResource Include="Resources\layers_expand_52px.png" />
-    <EmbeddedResource Include="Resources\layer_add_52px.png" />
-    <EmbeddedResource Include="Resources\layer_dn_52px.png" />
-    <EmbeddedResource Include="Resources\layer_remove_52px.png" />
-    <EmbeddedResource Include="Resources\layer_up_52px.png" />
+    <EmbeddedResource Include="Resources\ranges_create_52px.png" />
+    <EmbeddedResource Include="Resources\ranges_create_on_tracks_52px.png" />
+    <EmbeddedResource Include="Resources\range_copy_event_to_track_52px.png" />
+    <EmbeddedResource Include="Resources\range_end_to_cursor_52px.png" />
+    <EmbeddedResource Include="Resources\range_select_events_52px.png" />
+    <EmbeddedResource Include="Resources\range_split_52px.png" />
+    <EmbeddedResource Include="Resources\range_start_to_cursor_52px.png" />
+    <EmbeddedResource Include="Resources\range_tools_80px.png" />
+    <EmbeddedResource Include="Resources\record_24px.png" />
+    <EmbeddedResource Include="Resources\record_52px.png" />
+    <EmbeddedResource Include="Resources\record_on_52px.png" />
     <EmbeddedResource Include="Resources\rec_panel_52px.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\layer_dn_inv_52px.png" />
-    <EmbeddedResource Include="Resources\layer_up_inv_52px.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\layers_expand_inv_52px.png" />
-    <EmbeddedResource Include="Resources\layer_add_inv_52px.png" />
-    <EmbeddedResource Include="Resources\layer_remove_inv_52px.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\show_groups_52px.png" />
-    <EmbeddedResource Include="Resources\show_inputs_52px.png" />
-    <EmbeddedResource Include="Resources\console_height_52px.png" />
-    <EmbeddedResource Include="Resources\console_width_52px.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\panels_52px.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\time_display_52px.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\channel_editor_52px.png" />
-    <EmbeddedResource Include="Resources\plugins_52px.png" />
-  </ItemGroup>
-  <ItemGroup>
+    <EmbeddedResource Include="Resources\rec_tools_80px.png" />
+    <EmbeddedResource Include="Resources\replace_52px.png" />
+    <EmbeddedResource Include="Resources\reset_window_positions_52px.png" />
     <EmbeddedResource Include="Resources\return_to_zero_52px.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\bypass_52px.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\marker_insert_52px.png" />
-    <EmbeddedResource Include="Resources\dial_52px.png" />
-    <EmbeddedResource Include="Resources\fullscreen_52px.png" />
-    <EmbeddedResource Include="Resources\inspector_52px.png" />
-    <EmbeddedResource Include="Resources\marker_next_52px.png" />
-    <EmbeddedResource Include="Resources\plugin_scroll_52px.png" />
-    <EmbeddedResource Include="Resources\marker_previous_52px.png" />
-    <EmbeddedResource Include="Resources\marker_delete_52px.png" />
-    <EmbeddedResource Include="Resources\show_automation_52px.png" />
-    <EmbeddedResource Include="Resources\show_markers_52px.png" />
-    <EmbeddedResource Include="Resources\groups_suspend_52px.png" />
-    <EmbeddedResource Include="Resources\tap_tempo_52px.png" />
-    <EmbeddedResource Include="Resources\track_list_52px.png" />
-    <EmbeddedResource Include="Resources\zoom_v_52px.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\group_dissolve_52px.png" />
-    <EmbeddedResource Include="Resources\group_new_52px.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\group_suspend_no_52px.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\marker_goto_no_52px.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\button_add_52px.png" />
-    <EmbeddedResource Include="Resources\add_audio_mono_52px.png" />
-    <EmbeddedResource Include="Resources\add_automation_52px.png" />
-    <EmbeddedResource Include="Resources\add_aux_52px.png" />
-    <EmbeddedResource Include="Resources\add_bus_52px.png" />
-    <EmbeddedResource Include="Resources\add_folder_52px.png" />
-    <EmbeddedResource Include="Resources\add_fx_52px.png" />
-    <EmbeddedResource Include="Resources\add_instrument_52px.png" />
-    <EmbeddedResource Include="Resources\add_vca_52px.png" />
+    <EmbeddedResource Include="Resources\rewind_52px.png" />
+    <EmbeddedResource Include="Resources\rewind_bar_52px.png" />
+    <EmbeddedResource Include="Resources\ruler_arranger_52px.png" />
+    <EmbeddedResource Include="Resources\ruler_chord_52px.png" />
+    <EmbeddedResource Include="Resources\ruler_lyrics_52px.png" />
+    <EmbeddedResource Include="Resources\ruler_marker_52px.png" />
     <EmbeddedResource Include="Resources\ruler_signature_52px.png" />
     <EmbeddedResource Include="Resources\ruler_tempo_52px.png" />
-  </ItemGroup>
-  <ItemGroup>
+    <EmbeddedResource Include="Resources\ruler_video_52px.png" />
+    <EmbeddedResource Include="Resources\scenes_80px.png" />
+    <EmbeddedResource Include="Resources\scenes_scroll_52px.png" />
+    <EmbeddedResource Include="Resources\scene_add_52px.png" />
+    <EmbeddedResource Include="Resources\scene_next_52px.png" />
+    <EmbeddedResource Include="Resources\scene_previous_52px.png" />
+    <EmbeddedResource Include="Resources\scene_remove_52px.png" />
+    <EmbeddedResource Include="Resources\scene_rename_52px.png" />
+    <EmbeddedResource Include="Resources\scene_select_no_52px.png" />
+    <EmbeddedResource Include="Resources\scene_update_52px.png" />
+    <EmbeddedResource Include="Resources\select-arm-monitor_80px.png" />
+    <EmbeddedResource Include="Resources\select-arm_80px.png" />
+    <EmbeddedResource Include="Resources\select-monitor_80px.png" />
+    <EmbeddedResource Include="Resources\select-mute-solo_80px.png" />
+    <EmbeddedResource Include="Resources\select-mute_80px.png" />
+    <EmbeddedResource Include="Resources\select-select_80px.png" />
+    <EmbeddedResource Include="Resources\select-select_on_80px.png" />
+    <EmbeddedResource Include="Resources\select-solo_80px.png" />
+    <EmbeddedResource Include="Resources\show_automation_52px.png" />
+    <EmbeddedResource Include="Resources\show_groups_52px.png" />
+    <EmbeddedResource Include="Resources\show_inputs_52px.png" />
+    <EmbeddedResource Include="Resources\show_markers_52px.png" />
+    <EmbeddedResource Include="Resources\show_outputs_52px.png" />
+    <EmbeddedResource Include="Resources\show_scenes_52px.png" />
+    <EmbeddedResource Include="Resources\stop_52px.png" />
+    <EmbeddedResource Include="Resources\stop_on_52px.png" />
+    <EmbeddedResource Include="Resources\tap_tempo_52px.png" />
+    <EmbeddedResource Include="Resources\time_display_52px.png" />
+    <EmbeddedResource Include="Resources\toggle_ripple_52px.png" />
     <EmbeddedResource Include="Resources\toggle_snap_52px.png" />
+    <EmbeddedResource Include="Resources\tools_80px.png" />
     <EmbeddedResource Include="Resources\tool_arrow_52px.png" />
     <EmbeddedResource Include="Resources\tool_autoscroll_52px.png" />
     <EmbeddedResource Include="Resources\tool_bend_52px.png" />
@@ -283,145 +473,56 @@
     <EmbeddedResource Include="Resources\tool_mute_52px.png" />
     <EmbeddedResource Include="Resources\tool_paint_52px.png" />
     <EmbeddedResource Include="Resources\tool_range_52px.png" />
-    <EmbeddedResource Include="Resources\toggle_ripple_52px.png" />
     <EmbeddedResource Include="Resources\tool_split_52px.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\add_insert_52px.png" />
-    <EmbeddedResource Include="Resources\add_send_52px.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\add_audio_stereo_52px.png" />
-    <EmbeddedResource Include="Resources\add_audio_surround_52px.png" />
-    <EmbeddedResource Include="Resources\marker_insert_named_52px.png" />
-    <EmbeddedResource Include="Resources\marker_goto_52px.png" />
-    <EmbeddedResource Include="Resources\dial_pan_52px.png" />
-    <EmbeddedResource Include="Resources\dial_volume_52px.png" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="Resources\tracks_collapse_52px.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\folder_expand_52px.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\layers_inv_52px.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\browser_52px.png" />
-    <EmbeddedResource Include="Resources\browser_effects_52px.png" />
-    <EmbeddedResource Include="Resources\browser_files_52px.png" />
-    <EmbeddedResource Include="Resources\browser_instruments_52px.png" />
-    <EmbeddedResource Include="Resources\browser_loops_52px.png" />
-    <EmbeddedResource Include="Resources\browser_pool_52px.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\locate_selection_52px.png" />
-    <EmbeddedResource Include="Resources\loop_follows_selection_52px.png" />
-    <EmbeddedResource Include="Resources\loop_goto_end_52px.png" />
-    <EmbeddedResource Include="Resources\loop_goto_start_52px.png" />
-    <EmbeddedResource Include="Resources\loop_selection_52px.png" />
-    <EmbeddedResource Include="Resources\loop_selection_snapped_52px.png" />
-    <EmbeddedResource Include="Resources\loop_set_end_52px.png" />
-    <EmbeddedResource Include="Resources\loop_set_start_52px.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\play_loop_52px.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\show_outputs_52px.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\arranger_52px.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\ranges_create_52px.png" />
-    <EmbeddedResource Include="Resources\ranges_create_on_tracks_52px.png" />
-    <EmbeddedResource Include="Resources\range_copy_event_to_track_52px.png" />
-    <EmbeddedResource Include="Resources\range_end_to_cursor_52px.png" />
-    <EmbeddedResource Include="Resources\range_select_events_52px.png" />
-    <EmbeddedResource Include="Resources\range_split_52px.png" />
-    <EmbeddedResource Include="Resources\range_start_to_cursor_52px.png" />
-    <EmbeddedResource Include="Resources\scene_add_52px.png" />
-    <EmbeddedResource Include="Resources\scene_next_52px.png" />
-    <EmbeddedResource Include="Resources\scene_previous_52px.png" />
-    <EmbeddedResource Include="Resources\scene_remove_52px.png" />
-    <EmbeddedResource Include="Resources\scene_rename_52px.png" />
-    <EmbeddedResource Include="Resources\scene_select_no_52px.png" />
-    <EmbeddedResource Include="Resources\scene_update_52px.png" />
-    <EmbeddedResource Include="Resources\show_scenes_52px.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\forward_bar_52px.png" />
-    <EmbeddedResource Include="Resources\rewind_bar_52px.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\auto_zoom_toggle_52px.png" />
-    <EmbeddedResource Include="Resources\auto_zoom_toggle_full_52px.png" />
-    <EmbeddedResource Include="Resources\auto_zoom_toggle_h_52px.png" />
-    <EmbeddedResource Include="Resources\auto_zoom_toggle_v_52px.png" />
+    <EmbeddedResource Include="Resources\track_80px.png" />
+    <EmbeddedResource Include="Resources\track_list_52px.png" />
+    <EmbeddedResource Include="Resources\zoom_80px.png" />
     <EmbeddedResource Include="Resources\zoom_full_52px.png" />
+    <EmbeddedResource Include="Resources\zoom_full_h_52px.png" />
+    <EmbeddedResource Include="Resources\zoom_full_v_52px.png" />
+    <EmbeddedResource Include="Resources\zoom_h_52px.png" />
     <EmbeddedResource Include="Resources\zoom_in_h_52px.png" />
     <EmbeddedResource Include="Resources\zoom_in_v_52px.png" />
     <EmbeddedResource Include="Resources\zoom_loop_52px.png" />
     <EmbeddedResource Include="Resources\zoom_out_h_52px.png" />
     <EmbeddedResource Include="Resources\zoom_out_v_52px.png" />
+    <EmbeddedResource Include="Resources\zoom_redo_52px.png" />
     <EmbeddedResource Include="Resources\zoom_selection_52px.png" />
     <EmbeddedResource Include="Resources\zoom_selection_h_52px.png" />
     <EmbeddedResource Include="Resources\zoom_toogle_noauto_52px.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\zoom_redo_52px.png" />
     <EmbeddedResource Include="Resources\zoom_undo_52px.png" />
+    <EmbeddedResource Include="Resources\zoom_v_52px.png" />
   </ItemGroup>
+
   <ItemGroup>
-    <EmbeddedResource Include="Resources\zoom_h_52px.png" />
+    <PackageReference Include="Melanchall.DryWetMidi" Version="7.2.0" />
+    <PackageReference Include="SharpHook" Version="5.3.8" />
   </ItemGroup>
+
   <ItemGroup>
-    <EmbeddedResource Include="Resources\zoom_full_h_52px.png" />
-    <EmbeddedResource Include="Resources\zoom_full_v_52px.png" />
+    <Reference Include="PluginApi">
+      <HintPath>$(PluginApiDir)PluginApi.dll</HintPath>
+    </Reference>
   </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\ruler_arranger_52px.png" />
-    <EmbeddedResource Include="Resources\ruler_chord_52px.png" />
-    <EmbeddedResource Include="Resources\ruler_lyrics_52px.png" />
-    <EmbeddedResource Include="Resources\ruler_marker_52px.png" />
-    <EmbeddedResource Include="Resources\ruler_video_52px.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\reset_window_positions_52px.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\layer_rename_52px.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\lbl_Bell.png" />
-    <EmbeddedResource Include="Resources\lbl_Hi-Pass.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\lbl_Hi-RShelv.png" />
-    <EmbeddedResource Include="Resources\lbl_Hi-Shelf.png" />
-    <EmbeddedResource Include="Resources\lbl_Low-Pass.png" />
-    <EmbeddedResource Include="Resources\lbl_Low-RShelv.png" />
-    <EmbeddedResource Include="Resources\lbl_Low-Shelf.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\lbl_sm_BluntA.png" />
-    <EmbeddedResource Include="Resources\lbl_sm_BluntS.png" />
-    <EmbeddedResource Include="Resources\lbl_sm_Linear.png" />
-    <EmbeddedResource Include="Resources\lbl_sm_Nail.png" />
-    <EmbeddedResource Include="Resources\lbl_sm_Needle.png" />
-    <EmbeddedResource Include="Resources\lbl_sm_NonLinear.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\lbl_bm_Saw.png" />
-    <EmbeddedResource Include="Resources\lbl_bm_Sine.png" />
-    <EmbeddedResource Include="Resources\lbl_bm_Square.png" />
-    <EmbeddedResource Include="Resources\lbl_bm_Triangle.png" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent Condition="$(OS) == 'Windows_NT'">call "$(ProjectDir)BuildEvents\postbuild.cmd" "$(ProjectDir)" "$(TargetDir)"</PostBuildEvent>
-    <PostBuildEvent Condition="$(OS) != 'Windows_NT'">sh "$(ProjectDir)BuildEvents\postbuild" "$(ProjectDir)" "$(TargetDir)"</PostBuildEvent>
-  </PropertyGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Condition="$(OS) == 'Windows_NT'" Command="echo $(OutputPath) &gt; &quot;$(PluginDir)$(ProjectName).link&quot;&#xD;&#xA;xcopy /d &quot;$(OutputPath)runtimes\$(NETCoreSdkPortableRuntimeIdentifier)\native\*&quot; $(OutputPath)" />
+    <Exec Condition="$(OS) != 'Windows_NT'" Command="echo $(OutputPath) &gt; $(PluginDir)$(ProjectName).link" />
+  </Target>
+
+  <Target Name="CopyMetadata" AfterTargets="PostBuildEvent">
+    <ItemGroup>
+      <MetadataFiles Include="metadata\*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(MetadataFiles)" DestinationFolder="$(OutputPath)metadata" />
+  </Target>
+
+  <Target Name="PluginClean" AfterTargets="CoreClean">
+    <Delete Condition="$(OS) == 'Windows_NT'" Files="$(PluginDir)$(ProjectName).link" />
+    <Exec Condition="$(OS) != 'Windows_NT'" Command="rm -f $(PluginDir)$(ProjectName).link" />
+
+    <RemoveDir Directories="$(OutputPath)metadata" />
+  </Target>
+
 </Project>

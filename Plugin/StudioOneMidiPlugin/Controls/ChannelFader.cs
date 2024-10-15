@@ -2,7 +2,6 @@
 {
     using System;
     using System.Threading;
-    using System.Windows.Forms;
 
     using static Loupedeck.StudioOneMidiPlugin.StudioOneMidiPlugin;
 
@@ -123,7 +122,7 @@
             ChannelData cd = this.GetChannel(channelIndex);
 
             var stepDivisions = UserColorFinder.getDialSteps(this.PluginName, cd.Label);
-            if (stepDivisions > 50 && (Control.ModifierKeys & Keys.Shift) == Keys.Shift)
+            if (stepDivisions > 50 && (this.Plugin as StudioOneMidiPlugin).ShiftPressed)
             {
                 stepDivisions *= 6;
             }
@@ -141,6 +140,8 @@
             UserColorFinder.CurrentChannel = cd.ChannelID + 1;
 
 			var bb = new BitmapBuilder(imageWidth, imageHeight);
+            bb.FillRectangle(0, 0, imageWidth, imageHeight, BitmapColor.Black);
+
             if (this.SelectMode == SelectButtonMode.FX)
             {
                 return bb.ToImage();

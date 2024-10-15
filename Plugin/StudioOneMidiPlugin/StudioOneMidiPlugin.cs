@@ -7,13 +7,14 @@ namespace Loupedeck.StudioOneMidiPlugin
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
-    using System.Windows.Navigation;
 
     using Loupedeck.StudioOneMidiPlugin.Controls;
 
     using Melanchall.DryWetMidi.Common;
     using Melanchall.DryWetMidi.Core;
     using Melanchall.DryWetMidi.Multimedia;
+
+    using SharpHook;
 
     // This class contains the plugin-level logic of the Loupedeck plugin.
 
@@ -45,6 +46,11 @@ namespace Loupedeck.StudioOneMidiPlugin
         public event EventHandler SelectButtonPressed;
         public event EventHandler<string> FocusDeviceChanged;
         public event EventHandler<ChannelProperty.PropertyType> PropertySelectionChanged;
+
+        // Keyboard modifier flags
+        Task KeyHookTask;
+        public Boolean ShiftPressed { get; private set; } = false;
+        public Boolean ControlPressed { get; private set; } = false;
 
         public enum SelectButtonMode
         {
@@ -251,6 +257,13 @@ namespace Loupedeck.StudioOneMidiPlugin
 			this.Info.Icon48x48   = EmbeddedResources.ReadImage(EmbeddedResources.FindFile("plugin_icon_s1_48px.png"));
 			this.Info.Icon256x256 = EmbeddedResources.ReadImage(EmbeddedResources.FindFile("plugin_icon_s1_96px.png"));
 
+            var keyHook = new TaskPoolGlobalHook(globalHookType: GlobalHookType.Keyboard);
+
+            keyHook.KeyPressed += (Object sender, KeyboardHookEventArgs k) => this.SetKeyboardFlags(k.Data.KeyCode, true);
+            keyHook.KeyReleased += (Object sender, KeyboardHookEventArgs k) => this.SetKeyboardFlags(k.Data.KeyCode, false);
+
+            this.KeyHookTask = keyHook.RunAsync();
+
 			this.LoadSettings();
         }
 
@@ -259,7 +272,22 @@ namespace Loupedeck.StudioOneMidiPlugin
         {
         }
 
-		public void OpenConfigWindow()
+        private void SetKeyboardFlags(SharpHook.Native.KeyCode code, Boolean keyPressed)
+        {
+            switch (code)
+            {
+                case SharpHook.Native.KeyCode.VcLeftShift:
+                case SharpHook.Native.KeyCode.VcRightShift:
+                    this.ShiftPressed = keyPressed;
+                    break;
+                case SharpHook.Native.KeyCode.VcLeftControl:
+                case SharpHook.Native.KeyCode.VcRightControl:
+                    this.ControlPressed = keyPressed;
+                    break;
+            }
+        }
+
+        public void OpenConfigWindow()
         {
 			if (this.isConfigWindowOpen)
 				return;

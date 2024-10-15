@@ -1,13 +1,7 @@
 ﻿namespace Loupedeck.StudioOneMidiPlugin.Controls
 {
     using System;
-    using System.Runtime.InteropServices.ComTypes;
-    using System.Windows.Forms;
-
     using Loupedeck.StudioOneMidiPlugin.Helpers;
-
-    using Melanchall.DryWetMidi.Common;
-    using Melanchall.DryWetMidi.Core;
 
     using static Loupedeck.StudioOneMidiPlugin.StudioOneMidiPlugin;
 
@@ -57,6 +51,21 @@
 
         public void setPropertyType(ChannelProperty.PropertyType bt) => this.Type = bt;
 
+        public override BitmapImage getImage(PluginImageSize imageSize)
+        {
+            ChannelData cd = this.Plugin.channelData[this.ChannelIndex.ToString()];
+            //if (!this.Plugin.mackieChannelData.TryGetValue(this.ChannelIndex.ToString(), out MackieChannelData cd))
+            //    return;
+
+            // bb.FillRectangle(0, 0, bb.Width, bb.Height, new BitmapColor(20, 20, 20));
+            return PropertyButtonData.drawImage(new BitmapBuilder(imageSize),
+                                                    this.Type,
+                                                    cd.BoolProperty[(Int32)this.Type],
+                                                    this.ShowTrackName,
+                                                    cd.Label,
+                                                    this.Icon);
+        }
+
         public static BitmapImage drawImage(BitmapBuilder bb,
                                             ChannelProperty.PropertyType type,
                                             Boolean isSelected,
@@ -64,6 +73,8 @@
                                             String trackName,
                                             BitmapImage icon)
         {
+            bb.FillRectangle(0, 0, bb.Width, bb.Height, BitmapColor.Black);
+
             if (isSelected)
             {
                 bb.FillRectangle(0, 0, bb.Width, bb.Height, ChannelProperty.PropertyColor[(Int32)type]);
@@ -101,21 +112,6 @@
             return bb.ToImage();
         }
 
-        public override BitmapImage getImage(PluginImageSize imageSize)
-        {
-            ChannelData cd = this.Plugin.channelData[this.ChannelIndex.ToString()];
-            //if (!this.Plugin.mackieChannelData.TryGetValue(this.ChannelIndex.ToString(), out MackieChannelData cd))
-            //    return;
-
-            // bb.FillRectangle(0, 0, bb.Width, bb.Height, new BitmapColor(20, 20, 20));
-            return PropertyButtonData.drawImage(new BitmapBuilder(imageSize),
-                                                    this.Type,
-                                                    cd.BoolProperty[(Int32)this.Type],
-                                                    this.ShowTrackName,
-                                                    cd.Label,
-                                                    this.Icon);
-        }
-
         public override void runCommand()
         {
             ChannelData cd = this.Plugin.channelData[this.ChannelIndex.ToString()];
@@ -150,6 +146,7 @@
         public override BitmapImage getImage(PluginImageSize imageSize)
         {
             var bb = new BitmapBuilder(imageSize);
+            bb.FillRectangle(0, 0, bb.Width, bb.Height, BitmapColor.Black);
 
             if (!this.Activated)
             {
@@ -252,6 +249,8 @@
                                             ChannelProperty.PropertyType commandProperty = ChannelProperty.PropertyType.Select,
                                             String pluginName = "")
         {
+            bb.FillRectangle(0, 0, bb.Width, bb.Height, BitmapColor.Black);
+
             if (SelectButtonData.IconSelMon == null)
             {
                 SelectButtonData.IconSelMon = EmbeddedResources.ReadImage(EmbeddedResources.FindFile("monitor_24px.png"));
@@ -465,7 +464,7 @@
         public override BitmapImage getImage(PluginImageSize imageSize)
         {
             var bb = new BitmapBuilder(imageSize);
-
+            bb.FillRectangle(0, 0, bb.Width, bb.Height, BitmapColor.Black);
 
             if (this.Label != null)
             {
@@ -498,8 +497,8 @@
 
         public virtual Boolean Activated { get; set; } = false;
 
-        public BitmapColor OffColor = BitmapColor.Transparent;
-        public BitmapColor OnColor = BitmapColor.Transparent;
+        public BitmapColor OffColor = BitmapColor.Black;
+        public BitmapColor OnColor = BitmapColor.Black;
         public BitmapColor TextColor = BitmapColor.White;
         public BitmapColor TextOnColor = BitmapColor.White;
         public BitmapImage Icon, IconOn;
@@ -604,7 +603,7 @@
         }
         public override void runCommand()
         {
-            if ((Control.ModifierKeys & Keys.Shift) == Keys.Shift)
+            if ((this.Plugin as StudioOneMidiPlugin).ShiftPressed)
             {
                 this.Plugin.SendMidiNote(15, this.DirMode == StepDir.StepFwd ? 0x00 : 0x01);
             }
@@ -651,9 +650,9 @@
         }
     }
 
-    public class ViewAllUserCommandButtonData : CommandButtonData
+    public class ViewAllRemoteCommandButtonData : CommandButtonData
     {
-        public ViewAllUserCommandButtonData() : base(0x36, "Show All/User")
+        public ViewAllRemoteCommandButtonData() : base(0x36, "Show All/User")
         {
             this.Activated = true;
         }
@@ -669,10 +668,10 @@
             var cBgOff = new BitmapColor(cBgOn, 80);
 
             var bb = new BitmapBuilder(imageSize);
-            // bb.FillRectangle(0, 0, bb.Width, bb.Height, BitmapColor.Black);
+            bb.FillRectangle(0, 0, bb.Width, bb.Height, BitmapColor.Black);
 
             bb.FillRectangle(0, 0, bb.Width, bb.Height / 2, this.Mode == ViewMode.User ? cBgOn : cBgOff);
-            bb.DrawText("USER", 0, 0, bb.Width, bb.Height / 2, this.Mode == ViewMode.User ? cTextOn : cTextOff);
+            bb.DrawText("REMOTE", 0, 0, bb.Width, bb.Height / 2, this.Mode == ViewMode.User ? cTextOn : cTextOff);
 
             bb.FillRectangle(0, bb.Height / 2, bb.Width, bb.Height / 2, this.Mode == ViewMode.All ? cBgOn : cBgOff);
             bb.DrawText("ALL", 0, bb.Height / 2, bb.Width, bb.Height / 2, this.Mode == ViewMode.All ? cTextOn : cTextOff);
@@ -796,7 +795,7 @@
 
         public ModeButtonData(String name, String iconName = null, Boolean isMenu = false, Int32 midiCode = 0)
         {
-            this.init(name, iconName, BitmapColor.Transparent, midiCode);
+            this.init(name, iconName, BitmapColor.Black, midiCode);
             this.IsMenu = isMenu;
         }
         public ModeButtonData(String name, String iconName, BitmapColor bgColor, Boolean isMenu = false, Int32 midiCode = 0)
@@ -825,7 +824,7 @@
         {
             var bb = new BitmapBuilder(imageSize);
 
-            bb.FillRectangle(0, 0, bb.Width, bb.Height, this.Activated ? this.BgColor : BitmapColor.Transparent);
+            bb.FillRectangle(0, 0, bb.Width, bb.Height, this.Activated ? this.BgColor : BitmapColor.Black);
 
             if (this.IsMenu && this.Activated)
             {
@@ -866,8 +865,8 @@
         String TopDisplayText;
         protected Boolean IsUserButton = false;
         protected String PluginName;
-        protected ColorFinder UserColorFinder = new ColorFinder(new ColorFinder.ColorSettings { OnColor = FinderColor.Transparent,
-                                                                                                OffColor = FinderColor.Transparent,
+        protected ColorFinder UserColorFinder = new ColorFinder(new ColorFinder.ColorSettings { OnColor = FinderColor.Black,
+                                                                                                OffColor = FinderColor.Black,
                                                                                                 TextOnColor = FinderColor.White,
                                                                                                 TextOffColor = FinderColor.Black});
 
@@ -903,6 +902,7 @@
         public override BitmapImage getImage(PluginImageSize imageSize)
         {
             var bb = new BitmapBuilder(imageSize);
+            bb.FillRectangle(0, 0, bb.Width, bb.Height, BitmapColor.Black);
 
             var dispTxtH = 24;
             var bgX = this.IsUserButton ? dispTxtH + 4 : 0;
@@ -977,7 +977,8 @@
 
         public override BitmapImage getImage(PluginImageSize imageSize)
         {
-            BitmapBuilder bb = new BitmapBuilder(imageSize);
+            var bb = new BitmapBuilder(imageSize);
+            bb.FillRectangle(0, 0, bb.Width, bb.Height, BitmapColor.Black);
 
             if (!this.Activated)
             {
@@ -1013,7 +1014,7 @@
 		};
         public static BitmapColor[] AutomationBgColor =
         {
-             BitmapColor.Transparent, // Off
+             BitmapColor.Black, // Off
 			 new BitmapColor(129, 171, 115), // Read
 			 new BitmapColor(216, 176,  82), // Touch
 			 new BitmapColor(194,  90,  95), // Latch
@@ -1034,7 +1035,8 @@
         public override BitmapImage getImage(PluginImageSize imageSize)
         {
             const Int32 fillHeight = 24;
-            BitmapBuilder bb = new BitmapBuilder(imageSize);
+            var bb = new BitmapBuilder(imageSize);
+            bb.FillRectangle(0, 0, bb.Width, bb.Height, BitmapColor.Black);
 
             if (this.SelectionModeActivated)
             {
@@ -1056,7 +1058,7 @@
 
     public class AutomationModeCommandButtonData : ButtonData
     {
-        private readonly BitmapColor BgColor = BitmapColor.Transparent;
+        private readonly BitmapColor BgColor = BitmapColor.Black;
         private readonly AutomationMode Mode;
 
         public AutomationModeCommandButtonData(AutomationMode am, BitmapColor bgColor)
@@ -1072,10 +1074,10 @@
         public override BitmapImage getImage(PluginImageSize imageSize)
         {
             const Int32 fillHeight = 24;
-            BitmapBuilder bb = new BitmapBuilder(imageSize);
+            var bb = new BitmapBuilder(imageSize);
             var bY = (bb.Height - fillHeight) / 2;
 
-            bb.FillRectangle(0, 0, bb.Width, bb.Height, BgColor);
+            bb.FillRectangle(0, 0, bb.Width, bb.Height, this.BgColor);
             bb.FillRectangle(0, bY, bb.Width, fillHeight, AutomationModeButtonData.AutomationBgColor[(Int32)this.Mode]);
             bb.DrawText(this.Mode == AutomationMode.Off ? "Off" : AutomationModeButtonData.AutomationText[(Int32)this.Mode], 
                         0, 0, bb.Width, bb.Height, AutomationModeButtonData.AutomationTextColor[(Int32)this.Mode], 16);
@@ -1123,7 +1125,8 @@
 
         public override BitmapImage getImage(PluginImageSize imageSize)
         {
-            BitmapBuilder bb = new BitmapBuilder(imageSize);
+            var bb = new BitmapBuilder(imageSize);
+            bb.FillRectangle(0, 0, bb.Width, bb.Height, BitmapColor.Black);
 
             if (this.SelectionModeActivated)
             {
@@ -1162,6 +1165,7 @@
         public override BitmapImage getImage(PluginImageSize imageSize)
         {
             var bb = new BitmapBuilder(imageSize);
+            bb.FillRectangle(0, 0, bb.Width, bb.Height, BitmapColor.Black);
 
             int rY = 12;
             int rW = bb.Width - 2 * rY;
@@ -1310,7 +1314,7 @@
                 }
                 else
                 {
-                    this.UserPage = (Control.ModifierKeys & Keys.Shift) == Keys.Shift
+                    this.UserPage = (this.Plugin as StudioOneMidiPlugin).ShiftPressed
                         ? this.UserPage <= 1 ? this.ActiveUserPages : this.UserPage - 1
                         : this.UserPage > this.ActiveUserPages - 1 ? 1 : this.UserPage + 1;
                 }
@@ -1327,6 +1331,7 @@
         public override BitmapImage getImage(PluginImageSize imageSize)
         {
             var bb = new BitmapBuilder(imageSize);
+            bb.FillRectangle(0, 0, bb.Width, bb.Height, BitmapColor.Black);
 
             if (this.Label != null)
             {

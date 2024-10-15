@@ -1,15 +1,6 @@
 namespace Loupedeck.StudioOneMidiPlugin
 {
     using System;
-	using System.Collections.Generic;
-	using System.Linq;
-	using System.Text;
-	using System.Threading;
-	using System.Threading.Tasks;
-	using System.Timers;
-	using Loupedeck.StudioOneMidiPlugin.Controls;
-	using Melanchall.DryWetMidi.Core;
-	using Melanchall.DryWetMidi.Multimedia;
 
     // This class can be used to connect the Loupedeck plugin to an application.
 

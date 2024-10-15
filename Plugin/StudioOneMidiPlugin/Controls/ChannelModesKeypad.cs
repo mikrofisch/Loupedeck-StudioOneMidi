@@ -7,7 +7,6 @@
     using Melanchall.DryWetMidi.Common;
 
     using static Loupedeck.StudioOneMidiPlugin.StudioOneMidiPlugin;
-    using System.Drawing;
 
     // This is a special button class that creates 6 buttons which are then
     // placed in the central area of the button field on the Loupedeck.
@@ -28,7 +27,7 @@
             Sends = 0,
             User = 1
         }
-        private static UserSendsMode LastUserSendsMode = UserSendsMode.Sends;
+        private static UserSendsMode LastUserSendsMode = UserSendsMode.User;
 
         private enum PlayLayerMode
         {
@@ -180,9 +179,8 @@
             this.addButton(ButtonLayer.faderModesShow, "1", new CommandButtonData(0x42, "FX", new BitmapColor(0, 60, 80), BitmapColor.White));
             this.addButton(ButtonLayer.faderModesShow, "2", new CommandButtonData(0x43, "BUS", new BitmapColor(0, 60, 80), BitmapColor.White));
              this.addButton(ButtonLayer.faderModesShow, "3", new CommandButtonData(0x44, "OUT", new BitmapColor(0, 60, 80), BitmapColor.White));
-            // this.addButton(ButtonLayer.faderModesShow, "3", new CommandButtonData(0x45, "USER", new BitmapColor(0, 60, 80), BitmapColor.White));
             this.addButton(ButtonLayer.faderModesShow, "4", new ModeButtonData("VIEWS"));
-            this.addButton(ButtonLayer.faderModesShow, "5", new ViewAllUserCommandButtonData(), isNoteReceiver: false);
+            this.addButton(ButtonLayer.faderModesShow, "5", new ViewAllRemoteCommandButtonData(), isNoteReceiver: false);
 
             this.addButton(ButtonLayer.faderModesSend, "0", new OneWayCommandButtonData(14, 0x1D, "Toggle Height", "console_height"));
             this.addButton(ButtonLayer.faderModesSend, "2", new OneWayCommandButtonData(14, 0x1E, "Toggle Width", "console_width"));

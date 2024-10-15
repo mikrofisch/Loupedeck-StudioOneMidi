@@ -20,14 +20,14 @@ namespace Loupedeck.StudioOneMidiPlugin
         protected override void ApplyAdjustment(String actionParameter, Int32 diff)
         {
             this._counter += diff; // Increase or decrease the counter by the number of ticks.
-            this.AdjustmentValueChanged(); // Notify the Loupedeck service that the adjustment value has changed.
+            this.AdjustmentValueChanged(); // Notify the plugin service that the adjustment value has changed.
         }
 
         // This method is called when the reset command related to the adjustment is executed.
         protected override void RunCommand(String actionParameter)
         {
             this._counter = 0; // Reset the counter.
-            this.AdjustmentValueChanged(); // Notify the Loupedeck service that the adjustment value has changed.
+            this.AdjustmentValueChanged(); // Notify the plugin service that the adjustment value has changed.
         }
 
         // Returns the adjustment value that is shown next to the dial.

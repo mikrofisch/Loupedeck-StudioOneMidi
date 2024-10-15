@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Windows;
-using Melanchall.DryWetMidi.Multimedia;
-
+﻿
 namespace Loupedeck.StudioOneMidiPlugin
 {
+    using Melanchall.DryWetMidi.Multimedia;
+    using System.Windows;
+
     /// <summary>
     /// Interaction logic for ConfigWindow.xaml
     /// </summary>

@@ -1,12 +1,14 @@
 ﻿namespace Loupedeck.StudioOneMidiPlugin.Controls
 {
     using System;
+    using System.Text.RegularExpressions;
     using System.Threading;
 
     using static Loupedeck.StudioOneMidiPlugin.StudioOneMidiPlugin;
 
     public class ChannelFader : ActionEditorAdjustment
 	{
+        public static readonly BitmapColor DefaultBarColor = new BitmapColor(60, 192, 232);
 		// private StudioOneMidiPlugin plugin = null;
 
         private const String ChannelSelector = "channelSelector";
@@ -18,10 +20,18 @@
         private String PluginName;
         private static readonly ColorFinder UserColorFinder = new ColorFinder(new ColorFinder.ColorSettings
         {
-            OnColor =  new FinderColor(60, 192, 232),      // Used for volume bar
+            OnColor =  new FinderColor(DefaultBarColor),      // Used for volume bar
             OffColor = new FinderColor(80, 80, 80)         // Used for volume bar
         });
+        
         private static readonly UserButtonParams[] UserButtonInfo = new UserButtonParams[StudioOneMidiPlugin.ChannelCount];
+
+        private class CustomParams
+        {
+            public BitmapColor BgColor = BitmapColor.Black;
+            public BitmapColor BarColor = DefaultBarColor;
+        }
+        private CustomParams[] CustomSettings = new CustomParams[StudioOneMidiPlugin.ChannelCount];
 
         private Boolean IsUserConfigWindowOpen = false;
 
@@ -54,35 +64,48 @@
             plugin.channelFader = this;
             UserColorFinder.Init( plugin );
 
-            plugin.ChannelDataChanged += (object sender, EventArgs e) => {
+            plugin.ChannelDataChanged += (Object sender, EventArgs e) => {
                 this.ActionImageChanged();
             };
 
-            plugin.SelectModeChanged += (object sender, SelectButtonMode e) =>
+            plugin.SelectModeChanged += (Object sender, SelectButtonMode e) =>
             {
                 this.SelectMode = e;
+                Array.Clear(this.CustomSettings);
+
                 this.ActionImageChanged();
             };
 
-            plugin.FaderModeChanged += (object sender, FaderMode e) =>
+            plugin.SelectButtonCustomModeChanged += (Object sender, SelectButtonCustomParams cp) =>
+            {
+                this.CustomSettings[cp.ButtonIndex] = new CustomParams
+                {
+                    BgColor = cp.BgColor,
+                    BarColor = cp.BarColor
+                };
+
+                this.ActionImageChanged(); 
+            };
+
+            plugin.FaderModeChanged += (Object sender, FaderMode e) =>
             {
                 this.FaderMode = e;
                 this.ActionImageChanged();
             };
 
-            plugin.FocusDeviceChanged += (object sender, string e) =>
+            plugin.FocusDeviceChanged += (Object sender, String e) =>
             {
                 this.PluginName = getPluginName(e);
                 this.ActionImageChanged();
             };
 
-            plugin.UserButtonChanged += (object sender, UserButtonParams e) =>
+            plugin.UserButtonChanged += (Object sender, UserButtonParams e) =>
             {
                 UserButtonInfo[e.channelIndex] = e;
                 this.ActionImageChanged();
             };
 
-            plugin.UserPageChanged += (object sender, Int32 e) => UserColorFinder.CurrentUserPage = e;
+            plugin.UserPageChanged += (Object sender, Int32 e) => UserColorFinder.CurrentUserPage = e;
 
             return true;
         }
@@ -127,6 +150,7 @@
                 stepDivisions *= 6;
             }
             cd.Value = Math.Min(1, Math.Max(0, (float)Math.Round(cd.Value * stepDivisions + diff) / stepDivisions));
+            // cd.Value = 0.51F;
 			cd.EmitVolumeUpdate();
             return true;
 		}
@@ -139,8 +163,12 @@
             ChannelData cd = this.GetChannel(channelIndex);
             UserColorFinder.CurrentChannel = cd.ChannelID + 1;
 
-			var bb = new BitmapBuilder(imageWidth, imageHeight);
-            bb.FillRectangle(0, 0, imageWidth, imageHeight, BitmapColor.Black);
+            var isCustom = this.CustomSettings[cd.ChannelID] != null;
+
+            var bb = new BitmapBuilder(imageWidth, imageHeight);
+            bb.FillRectangle(0, 0, imageWidth, imageHeight, isCustom 
+                                                            ? this.CustomSettings[cd.ChannelID].BgColor
+                                                            : BitmapColor.Black);
 
             if (this.SelectMode == SelectButtonMode.FX)
             {
@@ -163,11 +191,20 @@
 
             // Check for selected channel volume & pan
             var isSelectedChannel = cd.ChannelID >= StudioOneMidiPlugin.ChannelCount;
-            var isVolume = cd.ChannelID == StudioOneMidiPlugin.ChannelCount || 
-                           (cd.ChannelID == StudioOneMidiPlugin.ChannelCount + 1 ? false :
-                           this.SelectMode == SelectButtonMode.Send ||
-                           this.SelectMode == SelectButtonMode.User ? true :
-                           this.FaderMode == FaderMode.Volume);
+            var isVolume = cd.ChannelID == StudioOneMidiPlugin.ChannelCount
+                           || (cd.ChannelID == StudioOneMidiPlugin.ChannelCount + 1
+                           ? false
+                           : this.SelectMode == SelectButtonMode.Send
+                             || this.SelectMode == SelectButtonMode.User
+                             || cd.ValueStr.Contains("dB")
+                             ? true
+                             : this.FaderMode == FaderMode.Volume);
+
+            var valueColor = BitmapColor.White;
+            var valBarColor = this.CustomSettings[cd.ChannelID] != null 
+                              ? this.CustomSettings[cd.ChannelID].BarColor
+                              : UserColorFinder.getBarOnColor(this.PluginName, cd.Label);
+            var linkedParameter = UserColorFinder.getLinkedParameter(this.PluginName, cd.Label);
 
             if (this.SelectMode == SelectButtonMode.Select)
             {
@@ -175,26 +212,22 @@
                 {
                     bb.FillRectangle(
                         sideBarW, piH, bb.Width - 2 * sideBarW, bb.Height - 2 * piH,
-                        ChannelProperty.PropertyColor[cd.Muted ? (int)ChannelProperty.PropertyType.Mute : (int)ChannelProperty.PropertyType.Solo]
+                        ChannelProperty.PropertyColor[cd.Muted ? (Int32)ChannelProperty.PropertyType.Mute : (Int32)ChannelProperty.PropertyType.Solo]
                         );
                 }
                 if (cd.Selected && cd.ChannelID < StudioOneMidiPlugin.ChannelCount)
                 {
-                    bb.FillRectangle(sideBarX, 0, sideBarW, bb.Height, ChannelProperty.PropertyColor[(int)ChannelProperty.PropertyType.Select]);
+                    bb.FillRectangle(sideBarX, 0, sideBarW, bb.Height, ChannelProperty.PropertyColor[(Int32)ChannelProperty.PropertyType.Select]);
                 }
                 if (!isSelectedChannel && cd.Armed)
                 {
-                    bb.FillRectangle(sideBarW, bb.Height - piH, piW, piH, ChannelProperty.PropertyColor[(int)ChannelProperty.PropertyType.Arm]);
+                    bb.FillRectangle(sideBarW, bb.Height - piH, piW, piH, ChannelProperty.PropertyColor[(Int32)ChannelProperty.PropertyType.Arm]);
                 }
                 if (!isSelectedChannel && cd.Monitor)
                 {
-                    bb.FillRectangle(sideBarW + piW, bb.Height - piH, piW, piH, ChannelProperty.PropertyColor[(int)ChannelProperty.PropertyType.Monitor]);
+                    bb.FillRectangle(sideBarW + piW, bb.Height - piH, piW, piH, ChannelProperty.PropertyColor[(Int32)ChannelProperty.PropertyType.Monitor]);
                 }
             }
-
-            var valueColor = BitmapColor.White;
-            var valBarColor = UserColorFinder.getBarOnColor(this.PluginName, cd.Label);
-            var linkedParameter = UserColorFinder.getLinkedParameter(this.PluginName, cd.Label);
 
             if (linkedParameter != null)
             {
@@ -248,7 +281,12 @@
 
             // bb.DrawText(cd.TrackName, 0, 0, bb.Width, bb.Height / 2, null, imageSize == PluginImageSize.Width60 ? 12 : 1);
             // bb.DrawText($"{Math.Round(cd.Value * 100.0f)} %", 0, bb.Height / 2, bb.Width, bb.Height / 2);
-            bb.DrawText(cd.ValueStr, 0, bb.Height / 4, bb.Width, bb.Height / 2, valueColor);
+
+            // In custom mode limit the number of decimal places to 2. Hard wired for now.
+            var valStr = isCustom ? Regex.Replace(cd.ValueStr, @"(\d+)([.,]?)(\d{0,2})\d*\s?(\D*)", "$1$2$3 $4")
+                                  : cd.ValueStr;
+
+            bb.DrawText(valStr.Replace(' ', '\n'), 0, bb.Height / 4, bb.Width, bb.Height / 2, valueColor);
             return bb.ToImage();
 		}
 
@@ -267,8 +305,7 @@
             return true;
         }
 
-        // Gets called when the dial is pressed. Assuming this is how you implement
-        // the value reset command.
+        // Gets called when the dial is pressed.
         protected override Boolean ProcessButtonEvent2(ActionEditorActionParameters actionParameters, DeviceButtonEvent2 buttonEvent)
         {
             if (!actionParameters.TryGetString(ChannelSelector, out var channelIndex))

@@ -3,7 +3,6 @@ namespace Loupedeck.StudioOneMidiPlugin
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Runtime.CompilerServices;
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
@@ -58,9 +57,22 @@ namespace Loupedeck.StudioOneMidiPlugin
             Property,
             Send,
             User,
-            FX
+            FX,
+            Custom
         }
         public event EventHandler<SelectButtonMode> SelectModeChanged;
+
+        public class SelectButtonCustomParams
+        {
+            public Int32 ButtonIndex = -1;
+            public Int32 MidiChannel = 0;
+            public Int32 MidiCode = 0;
+            public String Label;
+            public String IconName;
+            public BitmapColor BgColor = BitmapColor.Black;
+            public BitmapColor BarColor = ChannelFader.DefaultBarColor;
+        }
+        public event EventHandler<SelectButtonCustomParams> SelectButtonCustomModeChanged;
 
         public enum FaderMode
         {
@@ -313,6 +325,9 @@ namespace Loupedeck.StudioOneMidiPlugin
 
         public void EmitSelectModeChanged(SelectButtonMode sm) =>
             this.SelectModeChanged?.Invoke(this, sm);
+
+        public void EmitSelectButtonCustomModeChanged(SelectButtonCustomParams cp) =>
+            this.SelectButtonCustomModeChanged?.Invoke(this, cp);
         
         public void EmitFaderModeChanged(FaderMode fm) =>
             this.FaderModeChanged?.Invoke(this, fm);

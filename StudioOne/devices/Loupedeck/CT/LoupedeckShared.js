@@ -52,7 +52,8 @@ var ChannelAssignmentMode;
     ChannelAssignmentMode[ChannelAssignmentMode["kUser6Mode"] = 8] = "kUser6Mode";
     ChannelAssignmentMode[ChannelAssignmentMode["kPanFocusMode"] = 9] = "kPanFocusMode";
     ChannelAssignmentMode[ChannelAssignmentMode["kFXMode"] = 10] = "kFXMode";
-    ChannelAssignmentMode[ChannelAssignmentMode["kLastMode"] = 11] = "kLastMode";
+    ChannelAssignmentMode[ChannelAssignmentMode["kClickMode"] = 11] = "kClickMode";
+    ChannelAssignmentMode[ChannelAssignmentMode["kLastMode"] = 12] = "kLastMode";
 })(ChannelAssignmentMode || (ChannelAssignmentMode = {}));
 class Assignment {
     constructor() {
@@ -180,6 +181,7 @@ class LoupedeckSharedComponent extends FocusChannelPanComponent {
         super.onInit(hostComponent);
         this.channelLabel = "";
         this.assignment = new Assignment;
+        this.masterBankElement = this.mixerMapping.find("MasterBankElement");
         this.channelBankElement = this.mixerMapping.find("ChannelBankElement");
         this.focusSendsBankElement = this.focusChannelElement.find("SendsBankElement");
         this.focusInsertsBankElement = this.focusChannelElement.find("InsertsBankElement");
@@ -370,10 +372,20 @@ class LoupedeckSharedComponent extends FocusChannelPanComponent {
             if (!channelInfo.setValue(this.focusChannelElement, descriptor.name) && descriptor.altname.length > 0)
                 channelInfo.setValue(this.focusChannelElement, descriptor.altname);
         }
-        else if (mode == ChannelAssignmentMode.kPanMode) {
+        else if (mode == ChannelAssignmentMode.kPanMode || mode == ChannelAssignmentMode.kClickMode) {
             channelInfo.setLabel(channelElement, PreSonus.ParamID.kLabel);
-            channelInfo.setValue(channelElement, flipped ? PreSonus.ParamID.kPan : PreSonus.ParamID.kVolume);
-            channelInfo.setFader(channelElement, flipped ? PreSonus.ParamID.kPan : PreSonus.ParamID.kVolume);
+            if (mode == ChannelAssignmentMode.kClickMode && index == 5) {
+                Host.Console.writeLine("updateChannel(" + index + ") click gain");
+                let masterElement = this.masterBankElement.getElement(0)
+                channelInfo.setValue(masterElement, PreSonus.ParamID.kAudioClickGain);
+                channelInfo.setFader(masterElement, PreSonus.ParamID.kAudioClickGain);
+            } else if (flipped && !this.isPanSupportingChannel(channelElement.getProperty(PreSonus.PropertyID.kChannelType))) {
+                channelInfo.setValue(channelElement, PreSonus.ParamID.kAudioClickGain);
+                channelInfo.setFader(channelElement, PreSonus.ParamID.kAudioClickGain);
+            } else {
+                channelInfo.setValue(channelElement, flipped ? PreSonus.ParamID.kPan : PreSonus.ParamID.kVolume);
+                channelInfo.setFader(channelElement, flipped ? PreSonus.ParamID.kPan : PreSonus.ParamID.kVolume);
+            }
         }
         else if (mode == ChannelAssignmentMode.kPanFocusMode) {
             this.updateChannelForPanFocusMode(channelInfo, index, flipped);
@@ -461,5 +473,9 @@ class LoupedeckSharedComponent extends FocusChannelPanComponent {
     updatePanModeControls() {
         if (this.assignment.mode == ChannelAssignmentMode.kPanFocusMode)
             this.updateAll();
+    }
+    isPanSupportingChannel(channelType) {
+        return channelType != PreSonus.ChannelType.kAudioOutput
+            && channelType != PreSonus.ChannelType.kAudioListenBus;
     }
 }

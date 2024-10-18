@@ -265,6 +265,15 @@
 				<Value control="userLED[$ch]" param="buttonValue$ch"/>
 				<DefaultValue control="faderReset[$ch]" param="faderValue$ch"/>
 			</foreach>
+			<!-- Override fader 4 when click settings are activated -->
+			<ParamVariant using="@global" param="assignMode">
+				<Group value="$MODE_CLICK">
+					<using device="device:///TransportPanel">
+						<Relative control="fader[4]" param="tempo"/>
+						<String control="valueText[4]" param="tempo"/>
+					</using>
+				</Group>
+			</ParamVariant>
 		</Template>
 
 		<!-- ******************************************************************************************** -->

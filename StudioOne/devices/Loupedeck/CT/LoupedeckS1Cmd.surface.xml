@@ -66,6 +66,7 @@
 		<Control name="trackAddFolder"              type="trigger" options="receive"> <MidiMessage status="#90" address="#42" channel="14"/> </Control>
 		<Control name="trackAddBusSelected"         type="trigger" options="receive"> <MidiMessage status="#90" address="#43" channel="14"/> </Control>
 		<Control name="trackArmAllAudioTracks"      type="trigger" options="receive"> <MidiMessage status="#90" address="#44" channel="14"/> </Control>
+		<Control name="transportMetronomeSetup"     type="trigger" options="receive"> <MidiMessage status="#90" address="#4F" channel="14"/> </Control>
 		<Control name="transportReturnToZero"       type="trigger" options="receive"> <MidiMessage status="#90" address="#50" channel="14"/> </Control>
 		<Control name="transportReturnToStart"      type="trigger" options="receive"> <MidiMessage status="#90" address="#51" channel="14"/> </Control>
 		<Control name="transportEnablePlayMarker"   type="trigger" options="receive"> <MidiMessage status="#90" address="#52" channel="14"/> </Control>
@@ -247,6 +248,7 @@
 			<Command control="trackAddFolder"                command.category="Track"      command.name="Add Folder Track"/>
 			<Command control="trackAddBusSelected"           command.category="Track"      command.name="Add Bus for Selected Channels"/>
 			<Command control="trackArmAllAudioTracks"        command.category="Track"      command.name="Arm All Audio Tracks"/>
+			<Command control="transportMetronomeSetup"       command.category="Transport"  command.name="Metronome Setup"/>
 			<Command control="transportReturnToZero"         command.category="Transport"  command.name="Return to Zero"/>
 			<Command control="transportReturnToStart"        command.category="Transport"  command.name="Return to Start on Stop"/>
 			<Command control="transportEnablePlayMarker"     command.category="Transport"  command.name="Enable Play Start Marker"/>

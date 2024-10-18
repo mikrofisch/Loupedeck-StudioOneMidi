@@ -24,6 +24,8 @@
 			<MidiMessage status="#E0" channel="14"/>
 		</Control>
 
+
+
 		<!-- Virtual master display for editor -->
 		<Control name="masterDisplay" type="textdisplay" options="transmit public"/>
 
@@ -36,6 +38,7 @@
 		<Control name="sendButton"       type="trigger" options="receive"> <MidiMessage status="#90" address="#29" channel="0"/> </Control>
 		<Control name="panButton"        type="trigger" options="receive"> <MidiMessage status="#90" address="#2A" channel="0"/> </Control>
 		<Control name="fxButton"         type="trigger" options="receive"> <MidiMessage status="#90" address="#39" channel="0"/> </Control>
+		<Control name="clickModeButton"  type="trigger" options="receive"> <MidiMessage status="#90" address="#3A" channel="0"/> </Control>
 		<Control name="user1Button"      type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#2B" channel="0"/> </Control>
 		<Control name="user2Button"      type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#2C" channel="0"/> </Control>
 		<Control name="user3Button"      type="trigger" options="transmit receive"> <MidiMessage status="#90" address="#2D" channel="0"/> </Control>
@@ -47,6 +50,7 @@
 		<Control name="sendLED"          options="transmit"> <MidiMessage status="#90" address="#29" channel="0"/> </Control>
 		<Control name="panLED"           options="transmit"> <MidiMessage status="#90" address="#2A" channel="0"/> </Control>
 		<Control name="fxLED"            options="transmit"> <MidiMessage status="#90" address="#39" channel="0"/> </Control>
+		<Control name="clickModeLED"     options="transmit"> <MidiMessage status="#90" address="#3A" channel="0"/> </Control>
 
 		<!-- Fader Banks -->
 		<Control name="faderBankLeft"  type="trigger" options="receive"> <MidiMessage status="#90" address="#31" channel="0"/> </Control>
@@ -198,17 +202,18 @@
 		<!-- ******************************************************************************************** -->
 
 		<!-- Channel assignment modes, keep in sync with LoupedeckCT.js -->
-		<define name="$MODE_TRACK"    value="0"/>
-		<define name="$MODE_SEND"     value="1"/>
-		<define name="$MODE_PAN"      value="2"/>
-		<define name="$MODE_USER1"    value="3"/>
-		<define name="$MODE_USER2"    value="4"/>
-		<define name="$MODE_USER3"    value="5"/>
-		<define name="$MODE_USER4"    value="6"/>
-		<define name="$MODE_USER5"    value="7"/>
-		<define name="$MODE_USER6"    value="8"/>
-		<define name="$MODE_PANFOCUS" value="9"/>
-		<define name="$MODE_FX"       value="10"/>
+		<define name="$MODE_TRACK"        value="0"/>
+		<define name="$MODE_SEND"         value="1"/>
+		<define name="$MODE_PAN"          value="2"/>
+		<define name="$MODE_USER1"        value="3"/>
+		<define name="$MODE_USER2"        value="4"/>
+		<define name="$MODE_USER3"        value="5"/>
+		<define name="$MODE_USER4"        value="6"/>
+		<define name="$MODE_USER5"        value="7"/>
+		<define name="$MODE_USER6"        value="8"/>
+		<define name="$MODE_PANFOCUS"     value="9"/>
+		<define name="$MODE_FX"           value="10"/>
+		<define name="$MODE_CLICK"        value="11"/>
 
 		<!-- Mixer banks, keep in sync with script kLoupedeckCtMixerBanks. -->
 		<define name="$BANK_ALL"          value="0"/>
@@ -321,6 +326,10 @@
 			<!-- kFxMode -->
 			<Radio control="fxButton" param="assignMode" value="$MODE_FX"/>
 			<Radio control="fxLED" param="assignMode" value="$MODE_FX"/>
+
+			<!-- kClickMode -->
+			<Radio control="clickModeButton" param="assignMode" value="$MODE_CLICK"/>
+			<Radio control="clickModeLED" param="assignMode" value="$MODE_CLICK"/>
 
 			<!-- kUser1Mode, kUser2Mode, kUser3Mode -->
 			<Radio control="user1Button" param="assignMode" value="$MODE_USER1"/>

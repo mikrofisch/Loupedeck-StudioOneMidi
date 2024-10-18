@@ -63,8 +63,13 @@
     <None Remove="Resources\button_add_52px.png" />
     <None Remove="Resources\bypass_52px.png" />
     <None Remove="Resources\channel_editor_52px.png" />
+    <None Remove="Resources\click2_52px.png" />
+    <None Remove="Resources\click2_on_52px.png" />
     <None Remove="Resources\click_52px.png" />
     <None Remove="Resources\click_on_52px.png" />
+    <None Remove="Resources\click_settings_52px.png" />
+    <None Remove="Resources\click_vol_52px.png" />
+    <None Remove="Resources\click_vol_on_52px.png" />
     <None Remove="Resources\console_height_52px.png" />
     <None Remove="Resources\console_width_52px.png" />
     <None Remove="Resources\dial_52px.png" />
@@ -225,7 +230,7 @@
     <None Remove="Resources\show_scenes_52px.png" />
     <None Remove="Resources\stop_52px.png" />
     <None Remove="Resources\stop_on_52px.png" />
-    <None Remove="Resources\tap_tempo_52px.png" />
+    <None Remove="Resources\tempo_tap_52px.png" />
     <None Remove="Resources\time_display_52px.png" />
     <None Remove="Resources\toggle_ripple_52px.png" />
     <None Remove="Resources\toggle_snap_52px.png" />
@@ -304,6 +309,9 @@
     <EmbeddedResource Include="Resources\channel_editor_52px.png" />
     <EmbeddedResource Include="Resources\click_52px.png" />
     <EmbeddedResource Include="Resources\click_on_52px.png" />
+    <EmbeddedResource Include="Resources\click_settings_52px.png" />
+    <EmbeddedResource Include="Resources\click_vol_52px.png" />
+    <EmbeddedResource Include="Resources\click_vol_on_52px.png" />
     <EmbeddedResource Include="Resources\console_height_52px.png" />
     <EmbeddedResource Include="Resources\console_width_52px.png" />
     <EmbeddedResource Include="Resources\dial_52px.png" />
@@ -458,7 +466,7 @@
     <EmbeddedResource Include="Resources\show_scenes_52px.png" />
     <EmbeddedResource Include="Resources\stop_52px.png" />
     <EmbeddedResource Include="Resources\stop_on_52px.png" />
-    <EmbeddedResource Include="Resources\tap_tempo_52px.png" />
+    <EmbeddedResource Include="Resources\tempo_tap_52px.png" />
     <EmbeddedResource Include="Resources\time_display_52px.png" />
     <EmbeddedResource Include="Resources\toggle_ripple_52px.png" />
     <EmbeddedResource Include="Resources\toggle_snap_52px.png" />
@@ -504,6 +512,11 @@
     <Reference Include="PluginApi">
       <HintPath>$(PluginApiDir)PluginApi.dll</HintPath>
     </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\click2_52px.png" />
+    <EmbeddedResource Include="Resources\click2_on_52px.png" />
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">

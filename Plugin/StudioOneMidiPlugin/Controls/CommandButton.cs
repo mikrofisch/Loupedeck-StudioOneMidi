@@ -87,7 +87,7 @@
             this.AddButton(new OneWayCommandButtonData(14, 0x55, "Loop Selection Snapped", "loop_selection_snapped"), "Transport");
             this.AddButton(new OneWayCommandButtonData(14, 0x56, "Play from Loop Start", "play_loop"), "Transport");
             this.AddButton(new OneWayCommandButtonData(14, 0x57, "Loop Follows Selection", "loop_follows_selection"), "Transport");
-            this.AddButton(new OneWayCommandButtonData(14, 0x58, "Tap Tempo", "tap_tempo"), "Transport");
+            this.AddButton(new OneWayCommandButtonData(14, 0x58, "Tap Tempo", "tempo_tap"), "Transport");
             this.AddButton(new OneWayCommandButtonData(14, 0x59, "Set Loop Start", "loop_set_start"), "Transport");
             this.AddButton(new OneWayCommandButtonData(14, 0x5A, "Set Loop End", "loop_set_end"), "Transport");
             this.AddButton(new OneWayCommandButtonData(14, 0x5B, "Goto Loop Start", "loop_goto_start"), "Transport");

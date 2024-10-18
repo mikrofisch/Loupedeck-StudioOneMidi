@@ -45,7 +45,8 @@
         {
             All = 0,
             PreModeActivated = 1,
-            PanelsActivated = 2
+            PanelsActivated = 2,
+            ClickActivated = 3
         }
         private RecLayerMode CurrentRecLayerMode = RecLayerMode.All;
 
@@ -60,6 +61,8 @@
         private UserSendsLayerMode CurrentUserSendsLayerMode = UserSendsLayerMode.User;
         private Boolean DeactivateUserMenu = false;
 
+        private static readonly BitmapColor ClickBgColor = new BitmapColor(50, 114, 134);
+
         private static readonly String idxUserButton = $"{(Int32)ButtonLayer.faderModesSend}:3";
         private static readonly String idxSendButton = $"{(Int32)ButtonLayer.faderModesSend}:5";
         private static readonly String idxPlayMuteSoloSelectButton = $"{(Int32)ButtonLayer.channelPropertiesPlay}:0";
@@ -70,13 +73,20 @@
         private static readonly String idxRecArmMonitorButton = $"{(Int32)ButtonLayer.channelPropertiesRec}:0";
         private static readonly String idxRecAutomationModeButton = $"{(Int32)ButtonLayer.channelPropertiesRec}:2";
         private static readonly String idxRecPanelsButton = $"{(Int32)ButtonLayer.channelPropertiesRec}:3";
+        private static readonly String idxRecClickButton = $"{(Int32)ButtonLayer.channelPropertiesRec}:5";
         private static readonly String idxUserSendsPluginsButton = $"{(Int32)ButtonLayer.faderModesSend}:2-1";
         private static readonly String idxUserSendsUserModeButton = $"{(Int32)ButtonLayer.faderModesSend}:3";
         private static readonly String idxUserSendsViewsButton = $"{(Int32)ButtonLayer.faderModesSend}:4";
         private static readonly String idxUserSendsU1Button = $"{(Int32)ButtonLayer.faderModesSend}:0-1";
         private static readonly String idxUserSendsU2Button = $"{(Int32)ButtonLayer.faderModesSend}:1-1";
 
-        private IDictionary<int, string> noteReceivers = new Dictionary<int, string>();
+        // private IDictionary<int, string> noteReceivers = new Dictionary<int, string>();
+        private class NoteReceiverEntry
+        {
+            public Int32 Note;
+            public String ButtonIndex;
+        }
+        private List<NoteReceiverEntry> NoteReceivers = new List<NoteReceiverEntry>();
 
         ButtonLayer CurrentLayer = ButtonLayer.channelPropertiesPlay;
 
@@ -173,7 +183,8 @@
             this.addButton(ButtonLayer.channelPropertiesRec, "4-2", new OneWayCommandButtonData(14, 0x10, "Show Inputs", "show_inputs", panelsBgColor));
             this.addButton(ButtonLayer.channelPropertiesRec, "5-2", new OneWayCommandButtonData(14, 0x09, "Show Groups", "show_groups", panelsBgColor));
             this.addButton(ButtonLayer.channelPropertiesRec, "4", new ModeButtonData("VIEWS"));
-            this.addButton(ButtonLayer.channelPropertiesRec, "5", new CommandButtonData(0x59, "Click", "click"), isNoteReceiver: true);
+            this.addButton(ButtonLayer.channelPropertiesRec, "5", new MenuCommandButtonData(0x3A, 0x59, "CLICK", "click", new BitmapColor(ClickBgColor, 100)), isNoteReceiver: true);
+            this.addButton(ButtonLayer.channelPropertiesRec, "3-3", new OneWayCommandButtonData(14, 0x4F, "Click Settings", "click_settings", ClickBgColor));
 
             this.addButton(ButtonLayer.faderModesShow, "0", new CommandButtonData(0x40, "AUDIO", new BitmapColor(0, 60, 80), BitmapColor.White));
             this.addButton(ButtonLayer.faderModesShow, "1", new CommandButtonData(0x42, "FX", new BitmapColor(0, 60, 80), BitmapColor.White));
@@ -343,11 +354,13 @@
 
         protected void OnNoteReceived(object sender, NoteOnEvent e)
         {
-            if (this.noteReceivers.ContainsKey(e.NoteNumber))
+            foreach (NoteReceiverEntry n in this.NoteReceivers)
             {
-                // Any other command button
-                var cbd = this.buttonData[this.noteReceivers[e.NoteNumber]] as CommandButtonData;
-                cbd.Activated = e.Velocity > 0;
+                if (n.Note == e.NoteNumber)
+                {
+                    var cbd = this.buttonData[n.ButtonIndex] as CommandButtonData;
+                    cbd.Activated = e.Velocity > 0;
+                }
             }
             this.EmitActionImageChanged();
         }
@@ -535,6 +548,25 @@
                                     this.CurrentLayer = ButtonLayer.viewSelector;
                                 }
                                 break;
+                            case 5: // CLICK
+                                if (this.CurrentRecLayerMode == RecLayerMode.All)
+                                {
+                                    this.CurrentRecLayerMode = RecLayerMode.ClickActivated;
+                                    (this.buttonData[idxRecClickButton] as MenuCommandButtonData).MenuActivated = true;
+                                    this.plugin.EmitSelectButtonCustomModeChanged(new SelectButtonCustomParams { ButtonIndex = 4, 
+                                        MidiChannel = 14, MidiCode = 0x58, IconName = "tempo_tap", BgColor = ClickBgColor, BarColor = BitmapColor.Transparent });
+                                    this.plugin.EmitSelectButtonCustomModeChanged(new SelectButtonCustomParams { ButtonIndex = 5, 
+                                        MidiChannel = 0, MidiCode = 0x59, IconName = "click_vol", BgColor = ClickBgColor, BarColor = BitmapColor.White
+                                    });
+                                }
+                                else if (this.CurrentRecLayerMode == RecLayerMode.ClickActivated)
+                                {
+                                    this.CurrentRecLayerMode = RecLayerMode.All;
+                                    (this.buttonData[idxRecClickButton] as MenuCommandButtonData).MenuActivated = false;
+                                    this.plugin.EmitSelectModeChanged(SelectButtonMode.Property);
+                                    this.plugin.SetChannelFaderMode(ChannelFaderMode.Pan);
+                                }
+                                break;
                         }
                     }
                     this.EmitActionImageChanged();
@@ -681,7 +713,12 @@
                             if ("135".Contains(actionParameter)) idx += "-1";
                             break;
                         case RecLayerMode.PanelsActivated:
-                            if ("01245".Contains(actionParameter)) idx += "-2";
+                            if ("01245".Contains(actionParameter))
+                                idx += "-2";
+                            break;
+                        case RecLayerMode.ClickActivated:
+                            if ("3".Contains(actionParameter))
+                                idx += "-3";
                             break;
                     }
                     break;
@@ -715,7 +752,7 @@
             if (isNoteReceiver)
             {
                 var cbd = bd as CommandButtonData;
-                this.noteReceivers[cbd.Code] = idx;
+                this.NoteReceivers.Add(new NoteReceiverEntry { Note = cbd.Code, ButtonIndex = idx });
             }
         }
     }

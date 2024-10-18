@@ -3,6 +3,7 @@
     using System;
     using static Loupedeck.StudioOneMidiPlugin.StudioOneMidiPlugin;
     using System.Threading;
+    using Melanchall.DryWetMidi.Core;
 
     // Button for channel selection functions. These are used in the left and
     // right columns of the channel modes keypad. Different selection modes allow
@@ -15,6 +16,7 @@
     internal class ChannelSelectButton : StudioOneButton<SelectButtonData>
     {
         private Boolean IsUserConfigWindowOpen = false;
+        private Boolean ListenToMidi = false;
 
         public ChannelSelectButton()
         {
@@ -60,7 +62,19 @@
             {
                 for (int i = 0; i < StudioOneMidiPlugin.ChannelCount; i++)
                 {
-                    this.buttonData[i.ToString()].CurrentMode = e;
+                    var bd = this.buttonData[i.ToString()];
+                    bd.CurrentMode = e;
+                }
+                this.ListenToMidi = false;
+                this.EmitActionImageChanged();
+            };
+
+            this.plugin.SelectButtonCustomModeChanged += (object sender, SelectButtonCustomParams cp) =>
+            {
+                this.buttonData[cp.ButtonIndex.ToString()].SetCustomMode(cp);
+                if (cp.MidiCode > 0)
+                {
+                    this.ListenToMidi = true;
                 }
                 this.EmitActionImageChanged();
             };
@@ -86,10 +100,23 @@
                 }
             };
 
+            this.plugin.CommandNoteReceived += (object sender, NoteOnEvent e) =>
+            {
+                if (this.ListenToMidi)
+                {
+                    foreach (KeyValuePair<String, SelectButtonData> bd in this.buttonData)
+                    {
+                        if (bd.Value.CurrentMode == SelectButtonMode.Custom && bd.Value.CurrentCustomParams.MidiCode == e.NoteNumber)
+                        {
+                            bd.Value.CustomIsActivated = e.Velocity > 0;
+                        }
+                    }
+                    this.EmitActionImageChanged();
+                }
+            };
+
             return true;
         }
-
-        private void Plugin_FocusDeviceChanged(Object sender, String e) => throw new NotImplementedException();
 
         protected override Boolean ProcessTouchEvent(String actionParameter, DeviceTouchEvent touchEvent)
         {

@@ -20,8 +20,8 @@
         private String PluginName;
         private static readonly ColorFinder UserColorFinder = new ColorFinder(new ColorFinder.ColorSettings
         {
-            OnColor =  new FinderColor(DefaultBarColor),      // Used for volume bar
-            OffColor = new FinderColor(80, 80, 80)         // Used for volume bar
+            OnColor =  new FinderColor(DefaultBarColor),    // Used for volume bar
+            OffColor = new FinderColor(80, 80, 80)          // Used for volume bar
         });
         
         private static readonly UserButtonParams[] UserButtonInfo = new UserButtonParams[StudioOneMidiPlugin.ChannelCount];
@@ -78,10 +78,11 @@
 
             plugin.SelectButtonCustomModeChanged += (Object sender, SelectButtonCustomParams cp) =>
             {
+
                 this.CustomSettings[cp.ButtonIndex] = new CustomParams
                 {
                     BgColor = cp.BgColor,
-                    BarColor = cp.BarColor
+                    BarColor = cp.BarColor,
                 };
 
                 this.ActionImageChanged(); 
@@ -163,11 +164,11 @@
             ChannelData cd = this.GetChannel(channelIndex);
             UserColorFinder.CurrentChannel = cd.ChannelID + 1;
 
-            var isCustom = this.CustomSettings[cd.ChannelID] != null;
+            var customParams = cd.ChannelID < this.CustomSettings.Length ? this.CustomSettings[cd.ChannelID] : null;
 
             var bb = new BitmapBuilder(imageWidth, imageHeight);
-            bb.FillRectangle(0, 0, imageWidth, imageHeight, isCustom 
-                                                            ? this.CustomSettings[cd.ChannelID].BgColor
+            bb.FillRectangle(0, 0, imageWidth, imageHeight, customParams != null 
+                                                            ? customParams.BgColor
                                                             : BitmapColor.Black);
 
             if (this.SelectMode == SelectButtonMode.FX)
@@ -191,18 +192,23 @@
 
             // Check for selected channel volume & pan
             var isSelectedChannel = cd.ChannelID >= StudioOneMidiPlugin.ChannelCount;
+            var isSelectedPan = cd.ChannelID == StudioOneMidiPlugin.ChannelCount + 1;
+            var isClick = isSelectedPan ? cd.ValueStr.IsNullOrEmpty() 
+                                        : this.SelectMode == SelectButtonMode.Send
+                                          || this.SelectMode == SelectButtonMode.User ? false
+                                                                                      : this.FaderMode == FaderMode.Pan && cd.ValueStr.Contains("dB");
             var isVolume = cd.ChannelID == StudioOneMidiPlugin.ChannelCount
-                           || (cd.ChannelID == StudioOneMidiPlugin.ChannelCount + 1
-                           ? false
-                           : this.SelectMode == SelectButtonMode.Send
-                             || this.SelectMode == SelectButtonMode.User
-                             || cd.ValueStr.Contains("dB")
-                             ? true
-                             : this.FaderMode == FaderMode.Volume);
+                           || (isSelectedPan
+                               ? isClick
+                               : this.SelectMode == SelectButtonMode.Send
+                                 || this.SelectMode == SelectButtonMode.User
+                                 || isClick
+                                 ? true
+                                 : this.FaderMode == FaderMode.Volume);
 
             var valueColor = BitmapColor.White;
-            var valBarColor = this.CustomSettings[cd.ChannelID] != null 
-                              ? this.CustomSettings[cd.ChannelID].BarColor
+            var valBarColor = customParams != null 
+                              ? customParams.BarColor
                               : UserColorFinder.getBarOnColor(this.PluginName, cd.Label);
             var linkedParameter = UserColorFinder.getLinkedParameter(this.PluginName, cd.Label);
 
@@ -258,7 +264,7 @@
                     volBarH = (Int32)(Math.Abs(cd.Value - 0.5) * bb.Height);
                     volBarY = cd.Value < 0.5 ? bb.Height / 2 : bb.Height / 2 - volBarH;
                 }
-                if (isSelectedChannel)
+                if (isSelectedChannel && !isSelectedPan)
                 {
                     bb.DrawImage(IconVolume, 0, 0);
                 }
@@ -282,11 +288,19 @@
             // bb.DrawText(cd.TrackName, 0, 0, bb.Width, bb.Height / 2, null, imageSize == PluginImageSize.Width60 ? 12 : 1);
             // bb.DrawText($"{Math.Round(cd.Value * 100.0f)} %", 0, bb.Height / 2, bb.Width, bb.Height / 2);
 
-            // In custom mode limit the number of decimal places to 2. Hard wired for now.
-            var valStr = isCustom ? Regex.Replace(cd.ValueStr, @"(\d+)([.,]?)(\d{0,2})\d*\s?(\D*)", "$1$2$3 $4")
-                                  : cd.ValueStr;
 
-            bb.DrawText(valStr.Replace(' ', '\n'), 0, bb.Height / 4, bb.Width, bb.Height / 2, valueColor);
+            if (isClick)
+            {
+                bb.DrawImage(EmbeddedResources.ReadImage(EmbeddedResources.FindFile("click_32px.png")), 12, 9);
+            }
+            else
+            {
+                // In custom mode limit the number of decimal places to 2. Hard wired for now.
+                var valStr = customParams != null ? Regex.Replace(cd.ValueStr, @"(\d+)([.,]?)(\d{0,2})\d*\s?(\D*)", "$1$2$3 $4")
+                                                  : cd.ValueStr;
+
+                bb.DrawText(valStr.Replace(' ', '\n'), 0, bb.Height / 4, bb.Width, bb.Height / 2, valueColor);
+            }
             return bb.ToImage();
 		}
 

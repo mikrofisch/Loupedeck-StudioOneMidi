@@ -1,6 +1,8 @@
 ﻿namespace Loupedeck.StudioOneMidiPlugin.Controls
 {
     using System;
+    using System.Security.Permissions;
+
     using Loupedeck.StudioOneMidiPlugin.Helpers;
 
     using static Loupedeck.StudioOneMidiPlugin.StudioOneMidiPlugin;
@@ -181,12 +183,14 @@
     public class SelectButtonData : ButtonData
     {
         public SelectButtonMode CurrentMode = SelectButtonMode.Property;
+        public Boolean Enabled = true; 
         public Boolean UserButtonActive = false;
         public Boolean UserButtonEnabled = true;
         public Boolean UserButtonMenuActive = false;
         public static ChannelProperty.PropertyType SelectionPropertyType = ChannelProperty.PropertyType.Mute;
 
         public String UserLabel { get; set; }
+        public String Label { get; set; }
         public static String FocusDeviceName;
 
         private static readonly BitmapColor CommandPropertyColor = new BitmapColor(40, 40, 40);
@@ -251,6 +255,9 @@
             //if (!this.Plugin.mackieChannelData.TryGetValue(this.ChannelIndex.ToString(), out MackieChannelData cd))
             //    return;
 
+            this.Label = cd.Label;
+            this.UserLabel = cd.UserLabel;
+
             var bb = new BitmapBuilder(imageSize);
 
             return SelectButtonData.drawImage(bb, 
@@ -261,22 +268,24 @@
                                               this.UserButtonMenuActive,
                                               SelectionPropertyType,
                                               PluginName,
-                                              customParams: this.CurrentCustomParams);
+                                              customParams: this.CurrentCustomParams,
+                                              this.Enabled);
         }
 
         public static BitmapImage drawImage(BitmapBuilder bb,
                                             ChannelData cd,
                                             SelectButtonMode buttonMode,
-                                            Boolean buttonActive,
+                                            Boolean userButtonActive,
                                             Boolean userButtonEnabled = true,
                                             Boolean userButtonMenuActive = false,
                                             ChannelProperty.PropertyType commandProperty = ChannelProperty.PropertyType.Select,
                                             String pluginName = "",
-                                            CustomParams customParams = null)
+                                            CustomParams customParams = null,
+                                            Boolean buttonEnabled = true)
         {
             bb.FillRectangle(0, 0, bb.Width, bb.Height, BitmapColor.Black);
 
-            if (cd.Label.IsNullOrEmpty() && cd.ValueStr.IsNullOrEmpty())
+            if (cd.Label.IsNullOrEmpty() && cd.ValueStr.IsNullOrEmpty() && cd.UserLabel.IsNullOrEmpty())
             {
                 return bb.ToImage();
             }
@@ -291,7 +300,7 @@
             {
                 bb.FillRectangle(0, 0, bb.Width, bb.Height, customParams.BgColor);
 
-                if (buttonActive && customParams.IconOn != null)
+                if (userButtonActive && customParams.IconOn != null)
                 {
                     bb.DrawImage(customParams.IconOn);
                 }
@@ -318,7 +327,23 @@
                 // bb.FillRectangle(0, 0, bb.Width, bb.Height, BitmapColor.Black);
                 var titleHeight = cd.Description.Length > 0 ? TitleHeight : 0;
                 bb.DrawText(cd.Description, 0, barHeight + 2, bb.Width, titleHeight, TextDescColor);
-                bb.DrawText(cd.Label, 0, titleHeight, bb.Width, bb.Height - titleHeight);
+
+                // Remove clutter from plugin name
+                var typePos = -1;
+                var len = cd.Label.Length;
+                if (typePos < 0 && len > 16)
+                {
+                    typePos = cd.Label.LastIndexOf("Mono", len, 16);
+                }
+                if (typePos < 0 && len > 11)
+                {
+                    typePos = cd.Label.LastIndexOf("Stereo", len, 11);
+                }
+                if (typePos < 0)
+                {
+                    typePos = cd.Label.LastIndexOf("x64");
+                }
+                bb.DrawText(typePos > 0 ? cd.Label.Substring(0, typePos) : cd.Label, 0, titleHeight, bb.Width, bb.Height - titleHeight);
             }
             else if (buttonMode == SelectButtonMode.User)
             {
@@ -333,7 +358,8 @@
                 {
                     if (UserColorFinder.getPaintLabelBg(pluginName, cd.Label))
                     {
-                        bb.FillRectangle(0, 0, bb.Width, uby, new BitmapColor(UserColorFinder.getOnColor(pluginName, cd.Label), 80));
+                        bb.FillRectangle(0, 0, bb.Width, uby, buttonEnabled ? UserColorFinder.getOnColor(pluginName, cd.Label) 
+                                                                            : UserColorFinder.getOffColor(pluginName, cd.Label));
                     }
                 }
                 bb.DrawText(cd.Description, 0, 0, bb.Width, TitleHeight, TextDescColor);
@@ -347,15 +373,15 @@
                 var tw = bb.Width;
                 if (UserColorFinder.hasMenu(pluginName, cd.UserLabel))
                 {
-                    buttonActive = true;    // Use 'on' colour variants for all menu items
+                    userButtonActive = true;    // Use 'on' colour variants for all menu items
                 }
-                var tc = userButtonEnabled ? buttonActive ? drawCircle ? UserColorFinder.getOnColor(pluginName, cd.UserLabel, isUser: true)
+                var tc = userButtonEnabled ? userButtonActive ? drawCircle ? UserColorFinder.getOnColor(pluginName, cd.UserLabel, isUser: true)
                                                                            : UserColorFinder.getTextOnColor(pluginName, cd.UserLabel, isUser: true)
                                                               : UserColorFinder.getTextOffColor(pluginName, cd.UserLabel, isUser: true)
                                            : BitmapColor.Black;
                 if (userButtonMenuActive) tc = BitmapColor.White;
                 var bc = (cd.UserLabel.Length > 0 || UserColorFinder.getLabel(pluginName, cd.UserLabel, isUser: true).Length > 0)
-                                                  && userButtonEnabled ? buttonActive ? UserColorFinder.getOnColor(pluginName, cd.UserLabel, isUser: true)
+                                                  && userButtonEnabled ? userButtonActive ? UserColorFinder.getOnColor(pluginName, cd.UserLabel, isUser: true)
                                                                        : UserColorFinder.getOffColor(pluginName, cd.UserLabel, isUser: true)
                                                  : BgColorUnassigned;
                 if (userButtonMenuActive)
@@ -374,12 +400,12 @@
                     if (cd.ChannelID >= 3) cx = bb.Width - ubh / 2;
                     var cy = uby + ubh/2;
                     var cr = ubh/2 - 5;
-                    if (buttonActive) bb.FillCircle(cx, cy, cr, tc);
+                    if (userButtonActive) bb.FillCircle(cx, cy, cr, tc);
                     else                  bb.DrawArc(cx, cy, cr, 0, 360, tc, 2);
                     tx = ubh;
                     tw = bb.Width - ubh * 2;
                 }
-                var labelText = buttonActive ? UserColorFinder.getLabelOnShort(pluginName, cd.UserLabel, isUser: true)
+                var labelText = userButtonActive ? UserColorFinder.getLabelOnShort(pluginName, cd.UserLabel, isUser: true)
                                                  : UserColorFinder.getLabelShort(pluginName, cd.UserLabel, isUser: true);
                 var menuItems = UserColorFinder.getMenuItems(pluginName, cd.UserLabel, isUser: true);
                 if (menuItems != null)
@@ -981,6 +1007,7 @@
                                                                                                 OffColor = FinderColor.Black,
                                                                                                 TextOnColor = FinderColor.White,
                                                                                                 TextOffColor = FinderColor.Black});
+        enum PluginType { Any, Mono, Stereo, MonoStereo }    // variants of Waves plugins
 
         public ModeTopCommandButtonData(Int32 channel, Int32 code, String name, Location bl, String iconName = null) : base(channel, code, name, iconName)
         {
@@ -1017,7 +1044,7 @@
             bb.FillRectangle(0, 0, bb.Width, bb.Height, BitmapColor.Black);
 
             var dispTxtH = 24;
-            var bgX = this.IsUserButton ? dispTxtH + 4 : 0;
+            var bgX = this.IsUserButton ? dispTxtH + 6 : 0;
             var bgH = bb.Height - bgX;
 
             if (this.IsUserButton)
@@ -1054,12 +1081,40 @@
                                            : this.UserColorFinder.getTextOffColor(this.PluginName, this.Name, isUser: true), 16);
             }
 
-            int hPos;
-            if (this.ButtonLocation == Location.Left) hPos = 1;
-            else                                      hPos = -bb.Width - 1;
+            if (this.TopDisplayText != null)
+            {
+                // Waves plugins come in Mono, Stereo, and Mono/Stereo variants. We replace the text
+                // denoting the variant with an icon in the top right corner.
+                String iconName = null;
+                var len = this.TopDisplayText.Length;
+                var typePos = -1;
+                if (len > 16 && (typePos = this.TopDisplayText.LastIndexOf("Mono/Stereo", len, 16)) > 0)
+                {
+                    iconName = "plugtype_mono-stereo";
+                }
+                else if (len > 9 && (typePos = this.TopDisplayText.LastIndexOf("Mono", len, 9)) > 0)
+                {
+                    iconName = "plugtype_mono";
+                }
+                else if (len > 11 && (typePos = this.TopDisplayText.LastIndexOf("Stereo", len, 11)) > 0)
+                {
+                    iconName = "plugtype_stereo";
+                }
 
-            bb.DrawText(this.TopDisplayText, hPos, 0, bb.Width * 2, dispTxtH);
+                // Check for other clutter in plugin name
+                if (typePos < 0)
+                {
+                    typePos = this.TopDisplayText.LastIndexOf("x64");
+                }
 
+                bb.DrawText(typePos > 0 ? this.TopDisplayText.Substring(0, typePos) : this.TopDisplayText,
+                            this.ButtonLocation == Location.Left ? 1 : -bb.Width - 1, 0, bb.Width * 2, dispTxtH);
+                if (iconName != null && this.ButtonLocation == Location.Right)
+                {
+                    // bb.FillRectangle(bb.Width - 20, 0, 20, 20, BitmapColor.Black);
+                    bb.DrawImage(EmbeddedResources.ReadImage(EmbeddedResources.FindFile(iconName + "_20px.png")), bb.Width - 20, 0);
+                }
+            }
             return bb.ToImage();
         }
     }

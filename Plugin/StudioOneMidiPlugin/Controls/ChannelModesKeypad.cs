@@ -108,7 +108,7 @@
             this.addButton(ButtonLayer.ViewSelector, "1", new ModeButtonData("REC"));
             this.addButton(ButtonLayer.ViewSelector, "2", new ModeButtonData("SHOW"));
             this.addButton(ButtonLayer.ViewSelector, "3", new ModeButtonData("USER\rSENDS"));
-            this.addButton(ButtonLayer.ViewSelector, "4", new ModeButtonData("LAST"));
+            this.addButton(ButtonLayer.ViewSelector, "4", new ModeButtonData("LAST", "view_last"));
 
             // Create button data for each layer
             //this.addButton(ButtonLayer.channelProperties, 0, new PropertyButtonData(StudioOneMidiPlugin.ChannelCount, 

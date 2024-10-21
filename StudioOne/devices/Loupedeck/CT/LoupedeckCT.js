@@ -34,6 +34,7 @@ class LoupedeckCTComponent extends LoupedeckSharedComponent {
         this.sendMode = paramList.addParam("sendMode");
         this.flipMode = paramList.addParam("flipMode");
         this.panModeLED = paramList.addParam("panModeLED");
+        this.panSelectedValue = paramList.addAlias("panSelectedValue");
         this.activeUserPagesParam = paramList.addInteger(0, 127, "activeUserPages");
         this.updateModeParams();
         

@@ -225,6 +225,11 @@ class LoupedeckSharedComponent extends FocusChannelPanComponent {
             // Host.Console.writeLine("channelIndex: "+channelIndex+", stripCount: "+stripCount+", position: "+position);
             this.channelBankElement.scrollTo(position);
         }
+        if (this.isPanSupportingChannel(this.focusChannelElement.getProperty(PreSonus.PropertyID.kChannelType))) {
+            this.focusChannelElement.connectAliasParam(this.panSelectedValue, PreSonus.ParamID.kPan);
+        } else {
+            this.focusChannelElement.connectAliasParam(this.panSelectedValue, PreSonus.ParamID.kAudioClickGain);
+        }
         super.onConnectFocusChannel();
         if (this.assignment.mode == ChannelAssignmentMode.kTrackMode || 
             this.assignment.mode == ChannelAssignmentMode.kFXMode) {

@@ -142,7 +142,7 @@
                 return SelectButtonData.drawImage(new BitmapBuilder(imageWidth, imageHeight),
                                                   this.plugin.channelData[channelIndex.ToString()],
                                                   StudioOneMidiPlugin.SelectButtonMode.Select,
-                                                  buttonActive: false,
+                                                  userButtonActive: false,
                                                   commandProperty: (ChannelProperty.PropertyType) controlProperty);
             }
         }

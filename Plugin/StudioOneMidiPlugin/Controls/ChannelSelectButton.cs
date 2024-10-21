@@ -40,7 +40,7 @@
             {
                 var bd = this.buttonData[e.channelIndex.ToString()];
                 bd.UserButtonActive = e.isActive();
-                bd.UserLabel = e.userLabel;
+//                bd.UserLabel = e.userLabel;
 
                 foreach (var sbd in this.buttonData.Values)
                 {
@@ -48,10 +48,22 @@
                     {
                         sbd.UserButtonEnabled = SelectButtonData.UserColorFinder.getLinkReversed(SelectButtonData.PluginName, sbd.UserLabel) ? !e.isActive() : e.isActive();
                     }
+                    if (SelectButtonData.UserColorFinder.getLinkedParameter(SelectButtonData.PluginName, sbd.Label) == e.userLabel)
+                    {
+                        sbd.Enabled = SelectButtonData.UserColorFinder.getLinkReversed(SelectButtonData.PluginName, sbd.Label) ? !e.isActive() : e.isActive();
+                    }
                 }
                 this.EmitActionImageChanged();
             };
-            this.plugin.UserPageChanged += (Object sender, Int32 e) => SelectButtonData.UserColorFinder.CurrentUserPage = e;
+            this.plugin.UserPageChanged += (Object sender, Int32 e) =>
+            {
+                foreach (var sbd in this.buttonData.Values)
+                {
+                    sbd.UserButtonEnabled = true;
+                    sbd.Enabled = true;
+                }
+                SelectButtonData.UserColorFinder.CurrentUserPage = e;
+            };
             this.plugin.FocusDeviceChanged += (Object sender, String e) => SelectButtonData.FocusDeviceName = e;
             this.plugin.ChannelDataChanged += (object sender, EventArgs e) => 
             {

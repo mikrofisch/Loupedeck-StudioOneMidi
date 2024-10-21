@@ -65,6 +65,7 @@
     <None Remove="Resources\channel_editor_52px.png" />
     <None Remove="Resources\click2_52px.png" />
     <None Remove="Resources\click2_on_52px.png" />
+    <None Remove="Resources\click_32px.png" />
     <None Remove="Resources\click_52px.png" />
     <None Remove="Resources\click_on_52px.png" />
     <None Remove="Resources\click_settings_52px.png" />
@@ -172,6 +173,9 @@
     <None Remove="Resources\plugin_next_52px.png" />
     <None Remove="Resources\plugin_prev_52px.png" />
     <None Remove="Resources\plugin_scroll_52px.png" />
+    <None Remove="Resources\plugtype_mono-stereo_20px.png" />
+    <None Remove="Resources\plugtype_mono_20px.png" />
+    <None Remove="Resources\plugtype_stereo_20px.png" />
     <None Remove="Resources\precount_52px.png" />
     <None Remove="Resources\precount_on_52px.png" />
     <None Remove="Resources\precount_sm_52px.png" />
@@ -249,6 +253,7 @@
     <None Remove="Resources\tracks_collapse_52px.png" />
     <None Remove="Resources\track_80px.png" />
     <None Remove="Resources\track_list_52px.png" />
+    <None Remove="Resources\view_last_52px.png" />
     <None Remove="Resources\zoom_80px.png" />
     <None Remove="Resources\zoom_full_52px.png" />
     <None Remove="Resources\zoom_full_h_52px.png" />
@@ -308,6 +313,7 @@
     <EmbeddedResource Include="Resources\bypass_52px.png" />
     <EmbeddedResource Include="Resources\channel_editor_52px.png" />
     <EmbeddedResource Include="Resources\click_52px.png" />
+    <EmbeddedResource Include="Resources\click_32px.png" />
     <EmbeddedResource Include="Resources\click_on_52px.png" />
     <EmbeddedResource Include="Resources\click_settings_52px.png" />
     <EmbeddedResource Include="Resources\click_vol_52px.png" />
@@ -392,6 +398,8 @@
     <EmbeddedResource Include="Resources\menu_markers_80px.png" />
     <EmbeddedResource Include="Resources\monitor_24px.png" />
     <EmbeddedResource Include="Resources\monitor_52px.png" />
+    <EmbeddedResource Include="Resources\plugtype_mono-stereo_20px.png" />
+    <EmbeddedResource Include="Resources\plugtype_mono_20px.png" />
     <EmbeddedResource Include="Resources\panels_52px.png" />
     <EmbeddedResource Include="Resources\panels_80px.png" />
     <EmbeddedResource Include="Resources\panels_pg1_80px.png" />
@@ -464,6 +472,7 @@
     <EmbeddedResource Include="Resources\show_markers_52px.png" />
     <EmbeddedResource Include="Resources\show_outputs_52px.png" />
     <EmbeddedResource Include="Resources\show_scenes_52px.png" />
+    <EmbeddedResource Include="Resources\plugtype_stereo_20px.png" />
     <EmbeddedResource Include="Resources\stop_52px.png" />
     <EmbeddedResource Include="Resources\stop_on_52px.png" />
     <EmbeddedResource Include="Resources\tempo_tap_52px.png" />
@@ -485,6 +494,7 @@
     <EmbeddedResource Include="Resources\tracks_collapse_52px.png" />
     <EmbeddedResource Include="Resources\track_80px.png" />
     <EmbeddedResource Include="Resources\track_list_52px.png" />
+    <EmbeddedResource Include="Resources\view_last_52px.png" />
     <EmbeddedResource Include="Resources\zoom_80px.png" />
     <EmbeddedResource Include="Resources\zoom_full_52px.png" />
     <EmbeddedResource Include="Resources\zoom_full_h_52px.png" />

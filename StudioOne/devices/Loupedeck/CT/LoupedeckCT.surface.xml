@@ -310,6 +310,8 @@
 
 			<String control="assignmentDisplay" param="assignString"/>
 
+			<Value control="selectedPan" param="panSelectedValue"/>
+
 			<!-- kTrackMode -->
 			<Radio control="trackButton" param="assignMode" value="$MODE_TRACK"/>
 			<Radio control="trackLED" param="assignMode" value="$MODE_TRACK"/>
@@ -452,7 +454,8 @@
 					<Toggle control="monitorButtonSelected" param="monitor"/>
 
 					<Value control="selectedVolume" param="volume"/>
-					<Value control="selectedPan" param="pan"/>
+					<!-- Pan value is mapped to an alias in the <Global> section to allow control of click volume -->
+					<!--  <Value control="selectedPan" param="pan"/> -->
 					<DefaultValue control="selectedVolumeReset" param="volume"/>
 					<DefaultValue control="selectedPanReset" param="pan"/>
 

@@ -1172,6 +1172,172 @@
 			</SurfaceAssignmentPage>
 		</List>
 	</SurfaceDeviceAssignment>
+		<SurfaceDeviceAssignment deviceID="{56535453-5445-4D61-6262-657920726F61}" friendlyName="Waves Abbey Road Chambers Mono">
+		<List x:id="pages">
+			<SurfaceAssignmentPage>
+				<Association key="U1" value="{56535453-5445-4D61-6262-657920726F61}/vstp10000001"/>
+				<Association key="vbut[0][0]" value="{56535453-5445-4D61-6262-657920726F61}/vstp0"/>
+				<Association key="vbut[0][1]" value="{56535453-5445-4D61-6262-657920726F61}/vstp3"/>
+				<Association key="vbut[0][2]" value="{56535453-5445-4D61-6262-657920726F61}/vstp4"/>
+				<Association key="vbut[0][4]" value="{56535453-5445-4D61-6262-657920726F61}/vstp1"/>
+				<Association key="vbut[0][5]" value="{56535453-5445-4D61-6262-657920726F61}/vstp2"/>
+				<Association key="vbut[0][3]" value="{56535453-5445-4D61-6262-657920726F61}/vstp23"/>
+				<Association key="vpot[0][0]" value="{56535453-5445-4D61-6262-657920726F61}/vstp30"/>
+				<Association key="vpot[0][1]" value="{56535453-5445-4D61-6262-657920726F61}/vstp18"/>
+				<Association key="vpot[0][2]" value="{56535453-5445-4D61-6262-657920726F61}/vstp17"/>
+				<Association key="vpot[0][4]" value="{56535453-5445-4D61-6262-657920726F61}/vstp22"/>
+				<Association key="vpot[0][5]" value="{56535453-5445-4D61-6262-657920726F61}/vstp21"/>
+				<Association key="vpot[1][0]" value="{56535453-5445-4D61-6262-657920726F61}/vstp20"/>
+				<Association key="vpot[1][1]" value="{56535453-5445-4D61-6262-657920726F61}/vstp19"/>
+				<Association key="vpot[1][2]" value="{56535453-5445-4D61-6262-657920726F61}/vstp16"/>
+				<Association key="vpot[1][3]" value="{56535453-5445-4D61-6262-657920726F61}/vstp25"/>
+				<Association key="vpot[1][4]" value="{56535453-5445-4D61-6262-657920726F61}/vstp9"/>
+				<Association key="vpot[1][5]" value="{56535453-5445-4D61-6262-657920726F61}/vstp8"/>
+				<Association key="vbut[1][4]" value="{56535453-5445-4D61-6262-657920726F61}/vstp7"/>
+				<Association key="vbut[2][0]" value="{56535453-5445-4D61-6262-657920726F61}/vstp10"/>
+				<Association key="vbut[2][3]" value="{56535453-5445-4D61-6262-657920726F61}/vstp11"/>
+				<Association key="vpot[2][0]" value="{56535453-5445-4D61-6262-657920726F61}/vstp12"/>
+				<Association key="vpot[2][3]" value="{56535453-5445-4D61-6262-657920726F61}/vstp13"/>
+				<Association key="vpot[2][1]" value="{56535453-5445-4D61-6262-657920726F61}/vstp28"/>
+				<Association key="vpot[2][4]" value="{56535453-5445-4D61-6262-657920726F61}/vstp27"/>
+				<Association key="vpot[2][5]" value="{56535453-5445-4D61-6262-657920726F61}/vstp26"/>
+				<Association key="vpot[2][2]" value="{56535453-5445-4D61-6262-657920726F61}/vstp29"/>
+				<Association key="vbut[1][0]" value="{56535453-5445-4D61-6262-657920726F61}/vstp24"/>
+			</SurfaceAssignmentPage>
+		</List>
+	</SurfaceDeviceAssignment>
+	<SurfaceDeviceAssignment deviceID="{56535453-5445-5361-6262-657920726F61}" friendlyName="Waves Abbey Road Chambers Stereo">
+		<List x:id="pages">
+			<SurfaceAssignmentPage>
+				<Association key="U1" value="{56535453-5445-5361-6262-657920726F61}/vstp10000001"/>
+				<Association key="vbut[0][0]" value="{56535453-5445-5361-6262-657920726F61}/vstp0"/>
+				<Association key="vbut[0][1]" value="{56535453-5445-5361-6262-657920726F61}/vstp3"/>
+				<Association key="vbut[0][2]" value="{56535453-5445-5361-6262-657920726F61}/vstp4"/>
+				<Association key="vbut[0][4]" value="{56535453-5445-5361-6262-657920726F61}/vstp1"/>
+				<Association key="vbut[0][5]" value="{56535453-5445-5361-6262-657920726F61}/vstp2"/>
+				<Association key="vbut[0][3]" value="{56535453-5445-5361-6262-657920726F61}/vstp23"/>
+				<Association key="vpot[0][0]" value="{56535453-5445-5361-6262-657920726F61}/vstp30"/>
+				<Association key="vpot[0][1]" value="{56535453-5445-5361-6262-657920726F61}/vstp18"/>
+				<Association key="vpot[0][2]" value="{56535453-5445-5361-6262-657920726F61}/vstp17"/>
+				<Association key="vpot[0][4]" value="{56535453-5445-5361-6262-657920726F61}/vstp22"/>
+				<Association key="vpot[0][5]" value="{56535453-5445-5361-6262-657920726F61}/vstp21"/>
+				<Association key="vpot[1][0]" value="{56535453-5445-5361-6262-657920726F61}/vstp20"/>
+				<Association key="vpot[1][1]" value="{56535453-5445-5361-6262-657920726F61}/vstp19"/>
+				<Association key="vpot[1][2]" value="{56535453-5445-5361-6262-657920726F61}/vstp16"/>
+				<Association key="vpot[1][3]" value="{56535453-5445-5361-6262-657920726F61}/vstp25"/>
+				<Association key="vpot[1][4]" value="{56535453-5445-5361-6262-657920726F61}/vstp9"/>
+				<Association key="vpot[1][5]" value="{56535453-5445-5361-6262-657920726F61}/vstp8"/>
+				<Association key="vbut[1][4]" value="{56535453-5445-5361-6262-657920726F61}/vstp7"/>
+				<Association key="vbut[2][0]" value="{56535453-5445-5361-6262-657920726F61}/vstp10"/>
+				<Association key="vbut[2][3]" value="{56535453-5445-5361-6262-657920726F61}/vstp11"/>
+				<Association key="vpot[2][0]" value="{56535453-5445-5361-6262-657920726F61}/vstp12"/>
+				<Association key="vpot[2][3]" value="{56535453-5445-5361-6262-657920726F61}/vstp13"/>
+				<Association key="vpot[2][1]" value="{56535453-5445-5361-6262-657920726F61}/vstp28"/>
+				<Association key="vpot[2][4]" value="{56535453-5445-5361-6262-657920726F61}/vstp27"/>
+				<Association key="vpot[2][5]" value="{56535453-5445-5361-6262-657920726F61}/vstp26"/>
+				<Association key="vpot[2][2]" value="{56535453-5445-5361-6262-657920726F61}/vstp29"/>
+				<Association key="vbut[1][0]" value="{56535453-5445-5361-6262-657920726F61}/vstp24"/>
+			</SurfaceAssignmentPage>
+		</List>
+	</SurfaceDeviceAssignment>
+	<SurfaceDeviceAssignment deviceID="{56535453-5445-5861-6262-657920726F61}" friendlyName="Waves Abbey Road Chambers Mono/Stereo">
+		<List x:id="pages">
+			<SurfaceAssignmentPage>
+				<Association key="U1" value="{56535453-5445-5861-6262-657920726F61}/vstp10000001"/>
+				<Association key="vbut[0][0]" value="{56535453-5445-5861-6262-657920726F61}/vstp0"/>
+				<Association key="vbut[0][1]" value="{56535453-5445-5861-6262-657920726F61}/vstp3"/>
+				<Association key="vbut[0][2]" value="{56535453-5445-5861-6262-657920726F61}/vstp4"/>
+				<Association key="vbut[0][4]" value="{56535453-5445-5861-6262-657920726F61}/vstp1"/>
+				<Association key="vbut[0][5]" value="{56535453-5445-5861-6262-657920726F61}/vstp2"/>
+				<Association key="vbut[0][3]" value="{56535453-5445-5861-6262-657920726F61}/vstp23"/>
+				<Association key="vpot[0][0]" value="{56535453-5445-5861-6262-657920726F61}/vstp30"/>
+				<Association key="vpot[0][1]" value="{56535453-5445-5861-6262-657920726F61}/vstp18"/>
+				<Association key="vpot[0][2]" value="{56535453-5445-5861-6262-657920726F61}/vstp17"/>
+				<Association key="vpot[0][4]" value="{56535453-5445-5861-6262-657920726F61}/vstp22"/>
+				<Association key="vpot[0][5]" value="{56535453-5445-5861-6262-657920726F61}/vstp21"/>
+				<Association key="vpot[1][0]" value="{56535453-5445-5861-6262-657920726F61}/vstp20"/>
+				<Association key="vpot[1][1]" value="{56535453-5445-5861-6262-657920726F61}/vstp19"/>
+				<Association key="vpot[1][2]" value="{56535453-5445-5861-6262-657920726F61}/vstp16"/>
+				<Association key="vpot[1][3]" value="{56535453-5445-5861-6262-657920726F61}/vstp25"/>
+				<Association key="vpot[1][4]" value="{56535453-5445-5861-6262-657920726F61}/vstp9"/>
+				<Association key="vpot[1][5]" value="{56535453-5445-5861-6262-657920726F61}/vstp8"/>
+				<Association key="vbut[1][4]" value="{56535453-5445-5861-6262-657920726F61}/vstp7"/>
+				<Association key="vbut[2][0]" value="{56535453-5445-5861-6262-657920726F61}/vstp10"/>
+				<Association key="vbut[2][3]" value="{56535453-5445-5861-6262-657920726F61}/vstp11"/>
+				<Association key="vpot[2][0]" value="{56535453-5445-5861-6262-657920726F61}/vstp12"/>
+				<Association key="vpot[2][3]" value="{56535453-5445-5861-6262-657920726F61}/vstp13"/>
+				<Association key="vpot[2][1]" value="{56535453-5445-5861-6262-657920726F61}/vstp28"/>
+				<Association key="vpot[2][4]" value="{56535453-5445-5861-6262-657920726F61}/vstp27"/>
+				<Association key="vpot[2][5]" value="{56535453-5445-5861-6262-657920726F61}/vstp26"/>
+				<Association key="vpot[2][2]" value="{56535453-5445-5861-6262-657920726F61}/vstp29"/>
+				<Association key="vbut[1][0]" value="{56535453-5445-5861-6262-657920726F61}/vstp24"/>
+			</SurfaceAssignmentPage>
+		</List>
+	</SurfaceDeviceAssignment>
+	<SurfaceDeviceAssignment deviceID="{56535448-4244-4D68-2D64-656C6179206D}" friendlyName="Waves H-Delay Mono">
+		<List x:id="pages">
+			<SurfaceAssignmentPage>
+				<Association key="U1" value="{56535448-4244-4D68-2D64-656C6179206D}/vstp10000001"/>
+				<Association key="vbut[0][3]" value="{56535448-4244-4D68-2D64-656C6179206D}/vstp12"/>
+				<Association key="vpot[0][2]" value="{56535448-4244-4D68-2D64-656C6179206D}/vstp2"/>
+				<Association key="vpot[0][1]" value="{56535448-4244-4D68-2D64-656C6179206D}/vstp0"/>
+				<Association key="vpot[0][0]" value="{56535448-4244-4D68-2D64-656C6179206D}/vstp1"/>
+				<Association key="vpot[0][3]" value="{56535448-4244-4D68-2D64-656C6179206D}/vstp4"/>
+				<Association key="vpot[0][4]" value="{56535448-4244-4D68-2D64-656C6179206D}/vstp5"/>
+				<Association key="vpot[0][5]" value="{56535448-4244-4D68-2D64-656C6179206D}/vstp6"/>
+				<Association key="vbut[0][0]" value="{56535448-4244-4D68-2D64-656C6179206D}/vstp3"/>
+				<Association key="vbut[0][5]" value="{56535448-4244-4D68-2D64-656C6179206D}/vstp7"/>
+				<Association key="vpot[1][5]" value="{56535448-4244-4D68-2D64-656C6179206D}/vstp11"/>
+				<Association key="vpot[1][4]" value="{56535448-4244-4D68-2D64-656C6179206D}/vstp10"/>
+				<Association key="vpot[1][2]" value="{56535448-4244-4D68-2D64-656C6179206D}/vstp8"/>
+				<Association key="vpot[1][1]" value="{56535448-4244-4D68-2D64-656C6179206D}/vstp9"/>
+			</SurfaceAssignmentPage>
+		</List>
+	</SurfaceDeviceAssignment>
+	<SurfaceDeviceAssignment deviceID="{56535448-4244-5368-2D64-656C61792073}" friendlyName="Waves H-Delay Stereo">
+		<List x:id="pages">
+			<SurfaceAssignmentPage>
+				<Association key="U1" value="{56535448-4244-5368-2D64-656C61792073}/vstp10000001"/>
+				<Association key="vpot[0][2]" value="{56535448-4244-5368-2D64-656C61792073}/vstp2"/>
+				<Association key="vpot[0][1]" value="{56535448-4244-5368-2D64-656C61792073}/vstp0"/>
+				<Association key="vpot[0][0]" value="{56535448-4244-5368-2D64-656C61792073}/vstp1"/>
+				<Association key="vpot[0][3]" value="{56535448-4244-5368-2D64-656C61792073}/vstp5"/>
+				<Association key="vpot[0][4]" value="{56535448-4244-5368-2D64-656C61792073}/vstp6"/>
+				<Association key="vpot[0][5]" value="{56535448-4244-5368-2D64-656C61792073}/vstp7"/>
+				<Association key="vbut[0][3]" value="{56535448-4244-5368-2D64-656C61792073}/vstp13"/>
+				<Association key="vbut[0][5]" value="{56535448-4244-5368-2D64-656C61792073}/vstp8"/>
+				<Association key="vbut[0][4]" value="{56535448-4244-5368-2D64-656C61792073}/vstp14"/>
+				<Association key="vbut[0][2]" value="{56535448-4244-5368-2D64-656C61792073}/vstp3"/>
+				<Association key="vbut[0][0]" value="{56535448-4244-5368-2D64-656C61792073}/vstp4"/>
+				<Association key="vpot[1][1]" value="{56535448-4244-5368-2D64-656C61792073}/vstp10"/>
+				<Association key="vpot[1][2]" value="{56535448-4244-5368-2D64-656C61792073}/vstp9"/>
+				<Association key="vpot[1][4]" value="{56535448-4244-5368-2D64-656C61792073}/vstp11"/>
+				<Association key="vpot[1][5]" value="{56535448-4244-5368-2D64-656C61792073}/vstp12"/>
+			</SurfaceAssignmentPage>
+		</List>
+	</SurfaceDeviceAssignment>
+	<SurfaceDeviceAssignment deviceID="{56535448-4244-5868-2D64-656C6179206D}" friendlyName="Waves H-Delay Mono/Stereo">
+		<List x:id="pages">
+			<SurfaceAssignmentPage>
+				<Association key="U1" value="{56535448-4244-5868-2D64-656C6179206D}/vstp10000001"/>
+				<Association key="vpot[0][2]" value="{56535448-4244-5868-2D64-656C6179206D}/vstp2"/>
+				<Association key="vpot[0][1]" value="{56535448-4244-5868-2D64-656C6179206D}/vstp0"/>
+				<Association key="vpot[0][0]" value="{56535448-4244-5868-2D64-656C6179206D}/vstp1"/>
+				<Association key="vpot[0][3]" value="{56535448-4244-5868-2D64-656C6179206D}/vstp5"/>
+				<Association key="vpot[0][4]" value="{56535448-4244-5868-2D64-656C6179206D}/vstp6"/>
+				<Association key="vpot[0][5]" value="{56535448-4244-5868-2D64-656C6179206D}/vstp7"/>
+				<Association key="vbut[0][3]" value="{56535448-4244-5868-2D64-656C6179206D}/vstp13"/>
+				<Association key="vbut[0][5]" value="{56535448-4244-5868-2D64-656C6179206D}/vstp8"/>
+				<Association key="vbut[0][4]" value="{56535448-4244-5868-2D64-656C6179206D}/vstp14"/>
+				<Association key="vbut[0][2]" value="{56535448-4244-5868-2D64-656C6179206D}/vstp3"/>
+				<Association key="vbut[0][0]" value="{56535448-4244-5868-2D64-656C6179206D}/vstp4"/>
+				<Association key="vpot[1][1]" value="{56535448-4244-5868-2D64-656C6179206D}/vstp10"/>
+				<Association key="vpot[1][2]" value="{56535448-4244-5868-2D64-656C6179206D}/vstp9"/>
+				<Association key="vpot[1][4]" value="{56535448-4244-5868-2D64-656C6179206D}/vstp11"/>
+				<Association key="vpot[1][5]" value="{56535448-4244-5868-2D64-656C6179206D}/vstp12"/>
+			</SurfaceAssignmentPage>
+		</List>
+	</SurfaceDeviceAssignment>
 	<SurfaceDeviceAssignment deviceID="{56535450-5345-4D70-7332-322073707265}" friendlyName="Waves PS22 Spread Mono/Stereo">
 		<List x:id="pages">
 			<SurfaceAssignmentPage/>

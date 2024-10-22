@@ -1,9 +1,12 @@
-﻿namespace Loupedeck.StudioOneMidiPlugin.Controls
+﻿using Loupedeck.StudioOneMidiPlugin.Controls;
+
+namespace Loupedeck.StudioOneMidiPlugin.Controls
 {
     using System;
     using static Loupedeck.StudioOneMidiPlugin.StudioOneMidiPlugin;
     using System.Threading;
     using Melanchall.DryWetMidi.Core;
+    using System.Diagnostics;
 
     // Button for channel selection functions. These are used in the left and
     // right columns of the channel modes keypad. Different selection modes allow
@@ -36,43 +39,24 @@
         {
             base.OnLoad();
 
-            this.plugin.UserButtonChanged += (object sender, UserButtonParams e) =>
+            this.plugin.UserButtonChanged += (Object sender, UserButtonParams e) =>
             {
                 var bd = this.buttonData[e.channelIndex.ToString()];
                 bd.UserButtonActive = e.isActive();
-//                bd.UserLabel = e.userLabel;
-
-                foreach (var sbd in this.buttonData.Values)
-                {
-                    if (SelectButtonData.UserColorFinder.getLinkedParameter(SelectButtonData.PluginName, sbd.UserLabel) == e.userLabel)
-                    {
-                        sbd.UserButtonEnabled = SelectButtonData.UserColorFinder.getLinkReversed(SelectButtonData.PluginName, sbd.UserLabel) ? !e.isActive() : e.isActive();
-                    }
-                    if (SelectButtonData.UserColorFinder.getLinkedParameter(SelectButtonData.PluginName, sbd.Label) == e.userLabel)
-                    {
-                        sbd.Enabled = SelectButtonData.UserColorFinder.getLinkReversed(SelectButtonData.PluginName, sbd.Label) ? !e.isActive() : e.isActive();
-                    }
-                }
-                this.EmitActionImageChanged();
             };
             this.plugin.UserPageChanged += (Object sender, Int32 e) =>
             {
-                foreach (var sbd in this.buttonData.Values)
-                {
-                    sbd.UserButtonEnabled = true;
-                    sbd.Enabled = true;
-                }
                 SelectButtonData.UserColorFinder.CurrentUserPage = e;
             };
             this.plugin.FocusDeviceChanged += (Object sender, String e) => SelectButtonData.FocusDeviceName = e;
-            this.plugin.ChannelDataChanged += (object sender, EventArgs e) => 
+            this.plugin.ChannelDataChanged += (Object sender, EventArgs e) => 
             {
                 this.EmitActionImageChanged();
             };
 
-            this.plugin.SelectModeChanged += (object sender, SelectButtonMode e) =>
+            this.plugin.SelectModeChanged += (Object sender, SelectButtonMode e) =>
             {
-                for (int i = 0; i < StudioOneMidiPlugin.ChannelCount; i++)
+                for (var i = 0; i < StudioOneMidiPlugin.ChannelCount; i++)
                 {
                     var bd = this.buttonData[i.ToString()];
                     bd.CurrentMode = e;
@@ -100,7 +84,6 @@
             this.plugin.FocusDeviceChanged += (object sender, string e) =>
             {
                 SelectButtonData.PluginName = getPluginName(e);
-                this.EmitActionImageChanged();
             };
 
             this.plugin.UserButtonMenuActivated += (object sender, UserButtonMenuParams e) =>
@@ -128,6 +111,64 @@
             };
 
             return true;
+        }
+
+        protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
+        {
+            var bd = this.buttonData[actionParameter];
+            var sendChannelActiveChange = false;
+            if (bd.CurrentMode == SelectButtonMode.User)
+            {
+                // Check linked parameter dependencies every time channels are updated.
+                //
+                var linkedParameter = SelectButtonData.UserColorFinder.getLinkedParameter(SelectButtonData.PluginName, bd.Label);
+                var linkedParameterUser = SelectButtonData.UserColorFinder.getLinkedParameter(SelectButtonData.PluginName, bd.UserLabel);
+
+                Debug.WriteLine("ChannelSelectButton getCommandImage channel: " + bd.ChannelIndex + " bd.Label: " + bd.Label + ", linkedParameter: " + linkedParameter +", linkedParameterUser: " + linkedParameterUser);
+
+                if (!linkedParameter.IsNullOrEmpty() || !linkedParameterUser.IsNullOrEmpty())
+                {
+                    foreach (var sbd in this.buttonData.Values)
+                    {
+                        var cd = this.plugin.channelData[sbd.ChannelIndex.ToString()];
+
+                        if (cd.UserLabel == linkedParameterUser)   // user button
+                        {
+                            bd.UserButtonEnabled = SelectButtonData.UserColorFinder.getLinkReversed(SelectButtonData.PluginName, bd.UserLabel) ^ cd.UserValue > 0;
+                        }
+                        if (cd.UserLabel == linkedParameter)       // channel value
+                        {
+                            var linkedStates = SelectButtonData.UserColorFinder.getLinkedStates(SelectButtonData.PluginName, bd.Label);
+                            if (!linkedStates.IsNullOrEmpty())
+                            {
+                                var userMenuItems = SelectButtonData.UserColorFinder.getUserMenuItems(SelectButtonData.PluginName, linkedParameter);
+                                if (userMenuItems != null && userMenuItems.Length > 1)
+                                {
+                                    var menuIndex = (Int32)Math.Round((Double)cd.UserValue / 127 * (userMenuItems.Length - 1));
+                                    bd.Enabled = linkedStates.Contains(menuIndex.ToString()) ^ SelectButtonData.UserColorFinder.getLinkReversed(SelectButtonData.PluginName, bd.Label);
+                                    sendChannelActiveChange = true;
+                                }
+                            }
+                            else
+                            {
+                                bd.Enabled = SelectButtonData.UserColorFinder.getLinkReversed(SelectButtonData.PluginName, bd.Label) ^ cd.UserValue > 0;
+                                sendChannelActiveChange = true;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    bd.Enabled = true;
+                    bd.UserButtonEnabled = true;
+                    sendChannelActiveChange = true;
+                }
+            }
+            if (sendChannelActiveChange)
+            {
+                this.plugin.EmitChannelActiveChanged(new ChannelActiveParams { ChannelIndex = bd.ChannelIndex, IsActive = bd.Enabled });
+            }
+            return bd.getImage(imageSize);
         }
 
         protected override Boolean ProcessTouchEvent(String actionParameter, DeviceTouchEvent touchEvent)

@@ -14,7 +14,7 @@
         {
             this.ActionImageChangedTimer = new System.Timers.Timer(10);
             this.ActionImageChangedTimer.AutoReset = false;
-            this.ActionImageChangedTimer.Elapsed += (object sender, System.Timers.ElapsedEventArgs e) =>
+            this.ActionImageChangedTimer.Elapsed += (Object sender, System.Timers.ElapsedEventArgs e) =>
             {
                 // Debug.WriteLine("ActionImageChangeTimer.Elapsed " + this.Name);
                 this.ActionImageChanged();

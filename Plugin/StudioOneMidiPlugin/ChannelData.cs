@@ -1,74 +1,74 @@
-﻿using Melanchall.DryWetMidi.Common;
-using Melanchall.DryWetMidi.Core;
-
-namespace Loupedeck.StudioOneMidiPlugin
+﻿namespace Loupedeck.StudioOneMidiPlugin
 {
     using System;
+
+    using Melanchall.DryWetMidi.Common;
+    using Melanchall.DryWetMidi.Core;
 
     public class ChannelData : EventArgs
 	{
 
-		public int ChannelID;
-		public float Value = 0;
-		public string Label = "";
-        public string ValueStr = "";
-        public string Description = "";
-        public string UserLabel = "";
+		public Int32 ChannelID;
+		public Single Value = 0;
+		public String Label = "";
+        public String ValueStr = "";
+        public String Description = "";
+        public String UserLabel = "";
         public Int32 UserValue = 0;
 
-        public bool[] BoolProperty = new bool[(int)Enum.GetNames(typeof(ChannelProperty.PropertyType)).Length];
+        public Boolean[] BoolProperty = new Boolean[(Int32)Enum.GetNames(typeof(ChannelProperty.PropertyType)).Length];
 
-		public bool IsMasterChannel = false;
+		public Boolean IsMasterChannel = false;
 
-		private StudioOneMidiPlugin plugin;
+		private readonly StudioOneMidiPlugin plugin;
 
 
-        public bool Selected
+        public Boolean Selected
         {
-            get => BoolProperty[(int)ChannelProperty.PropertyType.Select];
+            get => this.BoolProperty[(Int32)ChannelProperty.PropertyType.Select];
             set
             {
-                BoolProperty[(int)ChannelProperty.PropertyType.Select] = value;
+                this.BoolProperty[(Int32)ChannelProperty.PropertyType.Select] = value;
             }
         }
 
-        public bool Muted
+        public Boolean Muted
         {
-            get => BoolProperty[(int)ChannelProperty.PropertyType.Mute];
+            get => this.BoolProperty[(Int32)ChannelProperty.PropertyType.Mute];
             set
             {
-                BoolProperty[(int)ChannelProperty.PropertyType.Mute] = value;
+                this.BoolProperty[(Int32)ChannelProperty.PropertyType.Mute] = value;
             }
         }
 
-        public bool Armed
+        public Boolean Armed
 		{
-			get => BoolProperty[(int)ChannelProperty.PropertyType.Arm];
+			get => this.BoolProperty[(Int32)ChannelProperty.PropertyType.Arm];
 			set
 			{
-				BoolProperty[(int)ChannelProperty.PropertyType.Arm] = value;
+				this.BoolProperty[(Int32)ChannelProperty.PropertyType.Arm] = value;
 			}
 		}
 
-		public bool Solo
+		public Boolean Solo
 		{
-			get => BoolProperty[(int)ChannelProperty.PropertyType.Solo];
+			get => this.BoolProperty[(Int32)ChannelProperty.PropertyType.Solo];
 			set
 			{
-				BoolProperty[(int)ChannelProperty.PropertyType.Solo] = value;
+				this.BoolProperty[(Int32)ChannelProperty.PropertyType.Solo] = value;
 			}
 		}
 
-        public bool Monitor
+        public Boolean Monitor
         {
-            get => BoolProperty[(int)ChannelProperty.PropertyType.Monitor];
+            get => this.BoolProperty[(Int32)ChannelProperty.PropertyType.Monitor];
             set
             {
-                BoolProperty[(int)ChannelProperty.PropertyType.Monitor] = value;
+                this.BoolProperty[(Int32)ChannelProperty.PropertyType.Monitor] = value;
             }
         }
         
-        public ChannelData(StudioOneMidiPlugin plugin, int channelID)
+        public ChannelData(StudioOneMidiPlugin plugin, Int32 channelID)
 		{
 			this.plugin = plugin;
 
@@ -83,11 +83,11 @@ namespace Loupedeck.StudioOneMidiPlugin
 		public void EmitVolumeUpdate()
 		{
 			var e = new PitchBendEvent();
-			e.PitchValue = (ushort)(this.Value * 16383);
+			e.PitchValue = (UInt16)(this.Value * 16383);
 			e.Channel = (FourBitNumber)this.ChannelID;
 			this.plugin.mackieMidiOut.SendEvent(e);
 
-			this.plugin.EmitChannelDataChanged();
+//			this.plugin.EmitChannelDataChanged();
 		}
 
         public void EmitValueReset()
@@ -98,7 +98,7 @@ namespace Loupedeck.StudioOneMidiPlugin
         public void EmitChannelPropertyPress(ChannelProperty.PropertyType type)
 		{
 			var e = new NoteOnEvent();
-			e.NoteNumber = (SevenBitNumber)(ChannelProperty.MidiBaseNote[(int)type] + this.ChannelID);
+			e.NoteNumber = (SevenBitNumber)(ChannelProperty.MidiBaseNote[(Int32)type] + this.ChannelID);
 			e.Velocity = (SevenBitNumber)127;
 			this.plugin.mackieMidiOut.SendEvent(e);
 

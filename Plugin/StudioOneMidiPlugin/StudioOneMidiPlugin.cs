@@ -30,7 +30,7 @@ namespace Loupedeck.StudioOneMidiPlugin
 
 		public const Int32 ChannelCount = 6;
 
-		public IDictionary<string, ChannelData> channelData = new Dictionary<string, ChannelData>();
+		public IDictionary<String, ChannelData> channelData = new Dictionary<String, ChannelData>();
 
         String midiInName, midiOutName, mackieMidiInName, mackieMidiOutName;
 
@@ -39,11 +39,12 @@ namespace Loupedeck.StudioOneMidiPlugin
         public Boolean isConfigWindowOpen = false;
 
         public event EventHandler ChannelDataChanged;
+        public event EventHandler ChannelValueChanged;
         public event EventHandler<NoteOnEvent> CommandNoteReceived;
         public event EventHandler<NoteOnEvent> OneWayCommandNoteReceived;
         public event EventHandler<Int32> ActiveUserPagesReceived;
         public event EventHandler SelectButtonPressed;
-        public event EventHandler<string> FocusDeviceChanged;
+        public event EventHandler<String> FocusDeviceChanged;
         public event EventHandler<ChannelProperty.PropertyType> PropertySelectionChanged;
 
         // Keyboard modifier flags
@@ -110,6 +111,14 @@ namespace Loupedeck.StudioOneMidiPlugin
         private const Int32 UserPageMidiBase = 0x2B;
         private Boolean[] UserModeActivated { get; set; } = new Boolean[MaxUserPages];
         public event EventHandler<Int32> UserPageChanged;
+        private Int32 CurrentUserPage = 0;
+
+        public class ChannelActiveParams
+        {
+            public Int32 ChannelIndex { get; set; }
+            public Boolean IsActive { get; set; } = true;
+        }
+        public event EventHandler<ChannelActiveParams> ChannelActiveCanged; 
 
         public enum AutomationMode
         {
@@ -139,7 +148,7 @@ namespace Loupedeck.StudioOneMidiPlugin
         }
         public ChannelFaderMode CurrentChannelFaderMode = ChannelFaderMode.Pan;
 
-        public string MidiInName
+        public String MidiInName
         {
 			get => this.midiInName;
 			set {
@@ -223,7 +232,7 @@ namespace Loupedeck.StudioOneMidiPlugin
 			}
 		}
 
-        private System.Timers.Timer ChannelDataChangeTimer;
+        private readonly System.Timers.Timer ChannelDataChangeTimer, ChannelValueChangeTimer;
 
         public static String getPluginName(String focusDeviceName)
         {
@@ -253,11 +262,17 @@ namespace Loupedeck.StudioOneMidiPlugin
                 this.channelData[i.ToString()] = new ChannelData(this, i);
             }
 
-			this.ChannelDataChangeTimer = new System.Timers.Timer(10);
+			this.ChannelDataChangeTimer = new System.Timers.Timer(50);
 			this.ChannelDataChangeTimer.AutoReset = false;
-            this.ChannelDataChangeTimer.Elapsed += (object sender, System.Timers.ElapsedEventArgs e) =>
+            this.ChannelDataChangeTimer.Elapsed += (Object sender, System.Timers.ElapsedEventArgs e) =>
             {
                 ChannelDataChanged.Invoke(this, null);
+            };
+            this.ChannelValueChangeTimer = new System.Timers.Timer(20);
+            this.ChannelValueChangeTimer.AutoReset = false;
+            this.ChannelValueChangeTimer.Elapsed += (Object sender, System.Timers.ElapsedEventArgs e) =>
+            {
+                ChannelValueChanged?.Invoke(this, null);
             };
         }
 
@@ -317,9 +332,10 @@ namespace Loupedeck.StudioOneMidiPlugin
 			this.isConfigWindowOpen = true;
 		}
 
-		public void EmitChannelDataChanged() =>
+        public void EmitChannelDataChanged() =>
             this.ChannelDataChangeTimer.Start();
-
+        public void EmitChannelValueChanged() =>
+            this.ChannelValueChangeTimer.Start();
         public void EmitSelectedButtonPressed() =>
             this.SelectButtonPressed?.Invoke(this, null);
 
@@ -336,8 +352,10 @@ namespace Loupedeck.StudioOneMidiPlugin
             this.PropertySelectionChanged?.Invoke(this, pt);
 
         public void EmitUserButtonMenuActivated(UserButtonMenuParams ubmp) =>
-            this.UserButtonMenuActivated?.Invoke(this, ubmp)
-;
+            this.UserButtonMenuActivated?.Invoke(this, ubmp);
+
+        public void EmitChannelActiveChanged(ChannelActiveParams cap) =>
+            this.ChannelActiveCanged?.Invoke(this, cap);
         public override void RunCommand(String commandName, String parameter)
         {
 		}
@@ -384,7 +402,8 @@ namespace Loupedeck.StudioOneMidiPlugin
                     }
 
                     cd.Value = pbe.PitchValue / 16383.0f;
-                    this.EmitChannelDataChanged();
+
+                    this.EmitChannelValueChanged();
                 }
             }
             // Note event -> toggle settings
@@ -396,7 +415,7 @@ namespace Loupedeck.StudioOneMidiPlugin
 
                 foreach (ChannelProperty.PropertyType bt in Enum.GetValues(typeof(ChannelProperty.PropertyType)))
                 {
-                    if (ce.NoteNumber >= ChannelProperty.MidiBaseNote[(int)bt] && ce.NoteNumber < (ChannelProperty.MidiBaseNote[(int)bt] + ChannelCount + 1))
+                    if (ce.NoteNumber >= ChannelProperty.MidiBaseNote[(Int32)bt] && ce.NoteNumber < (ChannelProperty.MidiBaseNote[(Int32)bt] + ChannelCount + 1))
                     {
                         eventType = bt;
                         eventTypeFound = true;
@@ -406,12 +425,13 @@ namespace Loupedeck.StudioOneMidiPlugin
 
                 if (eventTypeFound)
                 {
-                    var channelIndex = ce.NoteNumber - ChannelProperty.MidiBaseNote[(int)eventType];
+                    var channelIndex = ce.NoteNumber - ChannelProperty.MidiBaseNote[(Int32)eventType];
 
                     if (!this.channelData.TryGetValue(channelIndex.ToString(), out ChannelData cd))
                         return;
 
-                    cd.BoolProperty[(int)eventType] = ce.Velocity > 0;
+                    cd.BoolProperty[(Int32)eventType] = ce.Velocity > 0;
+
                     this.EmitChannelDataChanged();
                 }
                 else if (ce.Channel == 0)
@@ -424,7 +444,11 @@ namespace Loupedeck.StudioOneMidiPlugin
                         ubp.userValue = ce.Velocity;
                         if (this.channelData.TryGetValue(ubp.channelIndex.ToString(), out ChannelData cd))
                         {
-                            cd.UserValue = ubp.userValue;
+                            if (cd.UserValue != ubp.userValue)
+                            {
+                                cd.UserValue = ubp.userValue;
+                                this.EmitChannelDataChanged();
+                            }
                             ubp.userLabel = cd.UserLabel;
                         }
                         UserButtonChanged.Invoke(this, ubp);
@@ -466,7 +490,7 @@ namespace Loupedeck.StudioOneMidiPlugin
                         this.UserModeActivated[ce.NoteNumber - UserPageMidiBase] = ce.Velocity > 0;
 
                         var userPage = 0;
-                        for (var i = 0; i < MaxUserPages; i++)
+                        for (var i = MaxUserPages - 1; i >= 0; i--)
                         {
                             if (this.UserModeActivated[i])
                             {
@@ -475,7 +499,11 @@ namespace Loupedeck.StudioOneMidiPlugin
                             }
                         }
 
-                        UserPageChanged.Invoke(this, userPage);
+                        if (userPage != this.CurrentUserPage)
+                        {
+                            this.CurrentUserPage = userPage;
+                            UserPageChanged.Invoke(this, userPage);
+                        }
                     }
                     else
                     {
@@ -526,7 +554,7 @@ namespace Loupedeck.StudioOneMidiPlugin
                             break;
                         case 1: // Value
                             cd.ValueStr = receivedString;
-                            this.EmitChannelDataChanged();
+                            this.EmitChannelValueChanged();
                             break;
                         case 2: // Description
                             cd.Description = receivedString;

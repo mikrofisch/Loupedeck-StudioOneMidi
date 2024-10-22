@@ -24,20 +24,19 @@
             OffColor = new FinderColor(80, 80, 80)          // Used for volume bar
         });
         
-        private static readonly UserButtonParams[] UserButtonInfo = new UserButtonParams[StudioOneMidiPlugin.ChannelCount];
+        private static readonly Boolean[] IsActive = new Boolean[StudioOneMidiPlugin.ChannelCount];
 
         private class CustomParams
         {
             public BitmapColor BgColor = BitmapColor.Black;
             public BitmapColor BarColor = DefaultBarColor;
         }
-        private CustomParams[] CustomSettings = new CustomParams[StudioOneMidiPlugin.ChannelCount];
+        private readonly CustomParams[] CustomSettings = new CustomParams[StudioOneMidiPlugin.ChannelCount];
 
         private Boolean IsUserConfigWindowOpen = false;
 
         public ChannelFader() : base(hasReset: true)
 		{
-
             this.DisplayName = "Channel Fader";
             this.Description = "Channel fader.\nButton press -> reset to default";
             this.GroupName = "";
@@ -56,6 +55,11 @@
 
             IconVolume ??= EmbeddedResources.ReadImage(EmbeddedResources.FindFile("dial_volume_52px.png"));
             IconPan ??= EmbeddedResources.ReadImage(EmbeddedResources.FindFile("dial_pan_52px.png"));
+
+            for (var i = 0; i < IsActive.Length; i++)
+            {
+                IsActive[i] = true;
+            }
         }
 
         protected override bool OnLoad()
@@ -65,6 +69,10 @@
             UserColorFinder.Init( plugin );
 
             plugin.ChannelDataChanged += (Object sender, EventArgs e) => {
+                this.ActionImageChanged();
+            };
+
+            plugin.ChannelValueChanged += (Object sender, EventArgs e) => {
                 this.ActionImageChanged();
             };
 
@@ -100,13 +108,16 @@
                 this.ActionImageChanged();
             };
 
-            plugin.UserButtonChanged += (Object sender, UserButtonParams e) =>
+            plugin.ChannelActiveCanged += (Object sender, ChannelActiveParams e) =>
             {
-                UserButtonInfo[e.channelIndex] = e;
+                IsActive[e.ChannelIndex] = e.IsActive;
                 this.ActionImageChanged();
             };
 
-            plugin.UserPageChanged += (Object sender, Int32 e) => UserColorFinder.CurrentUserPage = e;
+            plugin.UserPageChanged += (Object sender, Int32 e) =>
+            {
+                UserColorFinder.CurrentUserPage = e;
+            };
 
             return true;
         }
@@ -151,7 +162,6 @@
                 stepDivisions *= 6;
             }
             cd.Value = Math.Min(1, Math.Max(0, (float)Math.Round(cd.Value * stepDivisions + diff) / stepDivisions));
-            // cd.Value = 0.51F;
 			cd.EmitVolumeUpdate();
             return true;
 		}
@@ -210,7 +220,6 @@
             var valBarColor = customParams != null 
                               ? customParams.BarColor
                               : UserColorFinder.getBarOnColor(this.PluginName, cd.Label);
-            var linkedParameter = UserColorFinder.getLinkedParameter(this.PluginName, cd.Label);
 
             if (this.SelectMode == SelectButtonMode.Select)
             {
@@ -235,24 +244,13 @@
                 }
             }
 
-            if (linkedParameter != null)
-            {
-                var isActive = false;
-                foreach (UserButtonParams ubp in UserButtonInfo)
-                {
-                    if (ubp != null && ubp.userLabel == linkedParameter)
-                    {
-                        isActive = ubp.isActive();
-                        break;
-                    }
-                }
 
-                if (isActive == UserColorFinder.getLinkReversed(this.PluginName, cd.Label))
-                {
-                    valueColor = new BitmapColor(70, 70, 70);
-                    valBarColor = UserColorFinder.getOffColor(this.PluginName, cd.Label);
-                }
+            if (cd.ChannelID < IsActive.Length && !IsActive[cd.ChannelID])
+            {
+                valueColor = new BitmapColor(70, 70, 70);
+                valBarColor = UserColorFinder.getOffColor(this.PluginName, cd.Label);
             }
+
             if (UserColorFinder.hideValueBar(this.PluginName, cd.Label)) valBarColor = BitmapColor.Transparent;
 
             if (isVolume)

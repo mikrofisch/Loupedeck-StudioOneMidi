@@ -183,7 +183,7 @@
     public class SelectButtonData : ButtonData
     {
         public SelectButtonMode CurrentMode = SelectButtonMode.Property;
-        public Boolean Enabled = true; 
+        public Boolean Enabled = true;
         public Boolean UserButtonActive = false;
         public Boolean UserButtonEnabled = true;
         public Boolean UserButtonMenuActive = false;
@@ -199,7 +199,7 @@
         public static readonly FinderColor BgColorUnassigned = new FinderColor(40, 40, 40);
         public static readonly BitmapColor BgColorUserCircle = new BitmapColor(60, 60, 60);
 
-        private readonly Int32 ChannelIndex = -1;
+        public readonly Int32 ChannelIndex = -1;
         private const Int32 TitleHeight = 24;
         private static BitmapImage IconSelMon, IconSelRec;
 
@@ -407,7 +407,7 @@
                 }
                 var labelText = userButtonActive ? UserColorFinder.getLabelOnShort(pluginName, cd.UserLabel, isUser: true)
                                                  : UserColorFinder.getLabelShort(pluginName, cd.UserLabel, isUser: true);
-                var menuItems = UserColorFinder.getMenuItems(pluginName, cd.UserLabel, isUser: true);
+                var menuItems = UserColorFinder.getUserMenuItems(pluginName, cd.UserLabel, isUser: true);
                 if (menuItems != null)
                 {
                     if (labelText.Length > 0) labelText += ": "; 
@@ -492,7 +492,7 @@
                     cd.EmitChannelPropertyPress(SelectButtonData.SelectionPropertyType);    // Sends MIDI data
                     break;
                 case SelectButtonMode.User:
-                    var menuItems = UserColorFinder .getMenuItems(PluginName, cd.UserLabel, isUser: true);
+                    var menuItems = UserColorFinder .getUserMenuItems(PluginName, cd.UserLabel, isUser: true);
                     if (menuItems != null)
                     {
                         // Display value selection menu.

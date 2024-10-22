@@ -81,6 +81,8 @@
 
     public class ColorFinder
     {
+        public const Int32 DefaultOnTransparency = 80;
+
         public static readonly BitmapColor NoColor = new BitmapColor(-1, -1, -1);
         [XmlInclude(typeof(S1TopControlColors))]
         public class ColorSettings
@@ -95,7 +97,7 @@
             public Boolean PaintLabelBg { get; set; } = true;
 
             public FinderColor OnColor { get; set; }
-            public Int32 OnTransparency { get; set; } = 80;
+            public Int32 OnTransparency { get; set; } = DefaultOnTransparency;
             public FinderColor OffColor { get; set; }
             //            [XmlElement, DefaultValue(null)]
             public FinderColor TextOnColor { get; set; }
@@ -108,10 +110,12 @@
             public String LinkedParameter { get; set; }
             [DefaultValueAttribute(false)]
             public Boolean LinkReversed { get; set; } = false;
+            public String LinkedStates { get; set; }                // Comma separated list of indices for which the linked parameter is active
+                                                                    // if the linked parameter has multipe states
             [DefaultValueAttribute(100)]
-            public Int32 DialSteps { get; set; } = 100;               // Number of steps for a mode dial
+            public Int32 DialSteps { get; set; } = 100;             // Number of steps for a mode dial
 
-            public String[] MenuItems;                  // Items for user button menu
+            public String[] UserMenuItems;                              // Items for user button menu
 
             // For plugin settings
             public const String strOnColor = "OnColor";
@@ -249,16 +253,19 @@
                                String label = null,
                                ColorSettings.PotMode mode = ColorSettings.PotMode.Positive,
                                Boolean linkReversed = false,
+                               String linkedStates = "",
                                FinderColor onColor = null,
-                               Int32 onTransparency = 80,
+                               Int32 onTransparency = DefaultOnTransparency,
                                FinderColor textOnColor = null,
                                FinderColor offColor = null,
                                FinderColor textOffColor = null,
-                               String[] menuItems = null)
+                               String[] userMenuItems = null)
         {
             if (label == null) label = parameterName;
             var colorSettings = ColorDict[(pluginName, linkedParameter)];
-            ColorDict.Add((pluginName, parameterName), new ColorSettings { Mode = mode,
+            ColorDict.Add((pluginName, parameterName), new ColorSettings 
+            { 
+                Mode = mode,
                 OnColor = onColor ?? colorSettings.OnColor,
                 OnTransparency = onTransparency,
                 OffColor = offColor ?? colorSettings.OffColor,
@@ -267,7 +274,8 @@
                 Label = label,
                 LinkedParameter = linkedParameter,
                 LinkReversed = linkReversed,
-                MenuItems = menuItems
+                LinkedStates = linkedStates,
+                UserMenuItems = userMenuItems
             });
         }
 
@@ -320,8 +328,8 @@
         public BitmapColor getOnColor(String pluginName, String parameterName, Boolean isUser = false)
         {
             var cs = this.getColorSettings(pluginName, parameterName, isUser);
-            return cs != null ? new BitmapColor(cs.OnColor, cs.OnTransparency)
-                              : new BitmapColor(this.DefaultColorSettings.OnColor, this.DefaultColorSettings.OnTransparency);
+            return cs != null ? new BitmapColor(cs.OnColor, isUser ? 255 : cs.OnTransparency)
+                              : new BitmapColor(this.DefaultColorSettings.OnColor, isUser ? 255 : this.DefaultColorSettings.OnTransparency);
         }
         public BitmapColor getBarOnColor(String pluginName, String parameterName, Boolean isUser = false)
         {
@@ -368,11 +376,12 @@
         }
         public String getLinkedParameter(String pluginName, String parameterName, Boolean isUser = false) => this.getColorSettings(pluginName, parameterName, isUser).LinkedParameter;
         public Boolean getLinkReversed(String pluginName, String parameterName, Boolean isUser = false) => this.getColorSettings(pluginName, parameterName, isUser).LinkReversed;
+        public String getLinkedStates(String pluginName, String parameterName, Boolean isUser = false) => this.getColorSettings(pluginName, parameterName, isUser).LinkedStates;
         public Boolean hideValueBar(String pluginName, String parameterName, Boolean isUser = false) => this.getColorSettings(pluginName, parameterName, isUser).HideValueBar;
         public Boolean showUserButtonCircle(String pluginName, String parameterName, Boolean isUser = false) => this.getColorSettings(pluginName, parameterName, isUser).ShowUserButtonCircle;
         public Int32 getDialSteps(String pluginName, String parameterName, Boolean isUser = false) => this.getColorSettings(pluginName, parameterName, isUser).DialSteps;
-        public String[] getMenuItems(String pluginName, String parameterName, Boolean isUser = false) => this.getColorSettings(pluginName, parameterName, isUser).MenuItems;
-        public Boolean hasMenu(String pluginName, String parameterName, Boolean isUser = false) => this.getColorSettings(pluginName, parameterName, isUser).MenuItems != null;
+        public String[] getUserMenuItems(String pluginName, String parameterName, Boolean isUser = false) => this.getColorSettings(pluginName, parameterName, isUser).UserMenuItems;
+        public Boolean hasMenu(String pluginName, String parameterName, Boolean isUser = false) => this.getColorSettings(pluginName, parameterName, isUser).UserMenuItems != null;
         public static String settingName(String pluginName, String parameterName, String setting) => strColorSettingsID + pluginName + "|" + parameterName + "|" + setting;
 
         private void InitColorDict()
@@ -417,6 +426,7 @@
             ColorDict.Add(("Pro EQ", "LMF-Solo"), new ColorSettings { OnColor = new FinderColor(224, 182, 69), Label = "LMF Solo" });
             ColorDict.Add(("Pro EQ", "HMF-Solo"), new ColorSettings { OnColor = new FinderColor(224, 182, 69), Label = "HMF Solo" });
 
+            ColorDict.Add(("Fat Channel", "Loupedeck User Pages"), new ColorSettings { UserMenuItems = ["Gate", "Comp", "EQ 1", "EQ 2", "Limiter"] });
             ColorDict.Add(("Fat Channel", "Hi Pass Filter"), new ColorSettings { Label = "Hi Pass" });
             ColorDict.Add(("Fat Channel", "Gate On"), new ColorSettings { OnColor = new FinderColor(250, 250, 193), TextOnColor = FinderColor.Black, Label = "Gate ON" });
             ColorDict.Add(("Fat Channel", "Range"), new ColorSettings { OffColor = FinderColor.Transparent, LinkedParameter = "Expander", LinkReversed = true });
@@ -426,6 +436,7 @@
             ColorDict.Add(("Fat Channel", "Attack"), new ColorSettings { OffColor = FinderColor.Transparent, LinkedParameter = "Auto", LinkReversed = true });
             ColorDict.Add(("Fat Channel", "Release"), new ColorSettings { OffColor = FinderColor.Transparent, LinkedParameter = "Auto", LinkReversed = true });
             ColorDict.Add(("Fat Channel", "Auto"), new ColorSettings { OnColor = new FinderColor(193, 202, 214), TextOnColor = FinderColor.Black });
+            ColorDict.Add(("Fat Channel", "Soft Knee"), new ColorSettings { OnColor = new FinderColor(193, 202, 214), TextOnColor = FinderColor.Black });
             ColorDict.Add(("Fat Channel", "Peak Reduction"), new ColorSettings { Label = "Pk Reductn" });
             ColorDict.Add(("Fat Channel", "EQ On"), new ColorSettings { OnColor = new FinderColor(250, 250, 193), TextOnColor = FinderColor.Black, Label = "EQ ON" });
             ColorDict.Add(("Fat Channel", "Low On"), new ColorSettings { OnColor = new FinderColor(241, 84, 220), Label = "LF", ShowUserButtonCircle = true });
@@ -596,32 +607,32 @@
             this.addLinked("REQ", "Band1 Gain", "Band1 On/Off", label: "Gain", mode: ColorSettings.PotMode.Symmetric);
             this.addLinked("REQ", "Band1 Frq", "Band1 On/Off", label: "Freq");
             this.addLinked("REQ", "Band1 Q", "Band1 On/Off", label: "Q");
-            this.addLinked("REQ", "Band1 Type", "Band1 On/Off", label: "", menuItems: ["!Bell", "!Low-Shelf", "!Hi-Pass", "!Low-RShelv"]);
+            this.addLinked("REQ", "Band1 Type", "Band1 On/Off", label: "", userMenuItems: ["!Bell", "!Low-Shelf", "!Hi-Pass", "!Low-RShelv"]);
             ColorDict.Add(("REQ", "Band2 On/Off"), new ColorSettings { Label = "Band 2", OnColor = new FinderColor(175, 173, 29), TextOnColor = FinderColor.Black });
             this.addLinked("REQ", "Band2 Gain", "Band2 On/Off", label: "Gain", mode: ColorSettings.PotMode.Symmetric);
             this.addLinked("REQ", "Band2 Frq", "Band2 On/Off", label: "Freq");
             this.addLinked("REQ", "Band2 Q", "Band2 On/Off", label: "Q");
-            this.addLinked("REQ", "Band2 Type", "Band2 On/Off", label: "", menuItems: ["!Bell", "!Low-Shelf"]);
+            this.addLinked("REQ", "Band2 Type", "Band2 On/Off", label: "", userMenuItems: ["!Bell", "!Low-Shelf"]);
             ColorDict.Add(("REQ", "Band3 On/Off"), new ColorSettings { Label = "Band 3", OnColor = new FinderColor(57, 181, 74), TextOnColor = FinderColor.Black });
             this.addLinked("REQ", "Band3 Gain", "Band3 On/Off", label: "Gain", mode: ColorSettings.PotMode.Symmetric);
             this.addLinked("REQ", "Band3 Frq", "Band3 On/Off", label: "Freq");
             this.addLinked("REQ", "Band3 Q", "Band3 On/Off", label: "Q");
-            this.addLinked("REQ", "Band3 Type", "Band3 On/Off", label: "", menuItems: ["!Bell", "!Low-Shelf"]);
+            this.addLinked("REQ", "Band3 Type", "Band3 On/Off", label: "", userMenuItems: ["!Bell", "!Low-Shelf"]);
             ColorDict.Add(("REQ", "Band4 On/Off"), new ColorSettings { Label = "Band 4", OnColor = new FinderColor(56, 149, 203), TextOnColor = FinderColor.Black });
             this.addLinked("REQ", "Band4 Gain", "Band4 On/Off", label: "Gain", mode: ColorSettings.PotMode.Symmetric);
             this.addLinked("REQ", "Band4 Frq", "Band4 On/Off", label: "Freq");
             this.addLinked("REQ", "Band4 Q", "Band4 On/Off", label: "Q");
-            this.addLinked("REQ", "Band4 Type", "Band4 On/Off", label: "", menuItems: ["!Bell", "!Hi-Shelf"]);
+            this.addLinked("REQ", "Band4 Type", "Band4 On/Off", label: "", userMenuItems: ["!Bell", "!Hi-Shelf"]);
             ColorDict.Add(("REQ", "Band5 On/Off"), new ColorSettings { Label = "Band 5", OnColor = new FinderColor(130, 41, 141), TextOnColor = FinderColor.Black });
             this.addLinked("REQ", "Band5 Gain", "Band5 On/Off", label: "Gain", mode: ColorSettings.PotMode.Symmetric);
             this.addLinked("REQ", "Band5 Frq", "Band5 On/Off", label: "Freq");
             this.addLinked("REQ", "Band5 Q", "Band5 On/Off", label: "Q");
-            this.addLinked("REQ", "Band5 Type", "Band5 On/Off", label: "", menuItems: ["!Bell", "!Hi-Shelf"]);
+            this.addLinked("REQ", "Band5 Type", "Band5 On/Off", label: "", userMenuItems: ["!Bell", "!Hi-Shelf"]);
             ColorDict.Add(("REQ", "Band6 On/Off"), new ColorSettings { Label = "Band 6", OnColor = new FinderColor(199, 48, 105), TextOnColor = FinderColor.Black });
             this.addLinked("REQ", "Band6 Gain", "Band6 On/Off", label: "Gain", mode: ColorSettings.PotMode.Symmetric);
             this.addLinked("REQ", "Band6 Frq", "Band6 On/Off", label: "Freq");
             this.addLinked("REQ", "Band6 Q", "Band6 On/Off", label: "Q");
-            this.addLinked("REQ", "Band6 Type", "Band6 On/Off", label: "", menuItems: ["!Bell", "!Hi-Shelf", "!Low-Pass", "!Hi-RShelv"]);
+            this.addLinked("REQ", "Band6 Type", "Band6 On/Off", label: "", userMenuItems: ["!Bell", "!Hi-Shelf", "!Low-Pass", "!Hi-RShelv"]);
             ColorDict.Add(("REQ", "Fader left Out"), new ColorSettings { Label = "Output", OnColor = new FinderColor(242, 101, 34) });
             ColorDict.Add(("REQ", "Gain-L (link)"), new ColorSettings { Label = "Out L", OnColor = new FinderColor(242, 101, 34) });
             ColorDict.Add(("REQ", "Gain-R"), new ColorSettings { Label = "Out R", OnColor = new FinderColor(242, 101, 34) });
@@ -657,16 +668,16 @@
             ColorDict.Add(("Smack Attack", "Attack"), new ColorSettings { OnColor = new FinderColor(9, 217, 179), Mode = ColorSettings.PotMode.Symmetric });
             ColorDict.Add(("Smack Attack", "AttackSensitivity"), new ColorSettings { Label = "Sensitivity", OnColor = new FinderColor(9, 217, 179) });
             ColorDict.Add(("Smack Attack", "AttackDuration"), new ColorSettings { Label = "Duration", OnColor = new FinderColor(9, 217, 179) });
-            ColorDict.Add(("Smack Attack", "AttackShape"), new ColorSettings { Label = "", OnColor = new FinderColor(30, 30, 30), MenuItems = ["!sm_Needle", "!sm_Nail", "!sm_BluntA"], DialSteps = 2, HideValueBar = true });
+            ColorDict.Add(("Smack Attack", "AttackShape"), new ColorSettings { Label = "", OnColor = new FinderColor(30, 30, 30), UserMenuItems = ["!sm_Needle", "!sm_Nail", "!sm_BluntA"], DialSteps = 2, HideValueBar = true });
             ColorDict.Add(("Smack Attack", "Sustain"), new ColorSettings { OnColor = new FinderColor(230, 172, 5), Mode = ColorSettings.PotMode.Symmetric });
             ColorDict.Add(("Smack Attack", "SustainSensitivity"), new ColorSettings { Label = "Sensitivity", OnColor = new FinderColor(230, 172, 5) });
             ColorDict.Add(("Smack Attack", "SustainDuration"), new ColorSettings { Label = "Duration", OnColor = new FinderColor(230, 172, 5) });
-            ColorDict.Add(("Smack Attack", "SustainShape"), new ColorSettings { Label = "", OnColor = new FinderColor(30, 30, 30), MenuItems = ["!sm_Linear", "!sm_Nonlinear", "!sm_BluntS"], DialSteps = 2, HideValueBar = true });
-            ColorDict.Add(("Smack Attack", "Guard"), new ColorSettings { TextOnColor = new FinderColor(0, 198, 250), MenuItems = ["Off", "Clip", "Limit"], DialSteps = 2, HideValueBar = true });
+            ColorDict.Add(("Smack Attack", "SustainShape"), new ColorSettings { Label = "", OnColor = new FinderColor(30, 30, 30), UserMenuItems = ["!sm_Linear", "!sm_Nonlinear", "!sm_BluntS"], DialSteps = 2, HideValueBar = true });
+            ColorDict.Add(("Smack Attack", "Guard"), new ColorSettings { TextOnColor = new FinderColor(0, 198, 250), UserMenuItems = ["Off", "Clip", "Limit"], DialSteps = 2, HideValueBar = true });
             ColorDict.Add(("Smack Attack", "Mix"), new ColorSettings { OnColor = new FinderColor(0, 198, 250) });
             ColorDict.Add(("Smack Attack", "Output"), new ColorSettings { OnColor = new FinderColor(0, 198, 250), Mode = ColorSettings.PotMode.Symmetric });
 
-            ColorDict.Add(("Brauer Motion", "Loupedeck User Pages"), new ColorSettings { MenuItems = ["MAIN", "PNR 1", "PNR 2", "T/D 1", "T/D 2", "MIX"] });
+            ColorDict.Add(("Brauer Motion", "Loupedeck User Pages"), new ColorSettings { UserMenuItems = ["MAIN", "PNR 1", "PNR 2", "T/D 1", "T/D 2", "MIX"] });
             var path1Color = new FinderColor(139, 195, 74);
             var path2Color = new FinderColor(230, 74, 25);
             var bgColor = new FinderColor(12, 80, 124);
@@ -681,11 +692,11 @@
             ColorDict.Add(("Brauer Motion", "Path 2 A Marker"), new ColorSettings { Label = "A", OnColor = bgColor, TextOnColor = path2Color, BarOnColor = path2Color });
             ColorDict.Add(("Brauer Motion", "Path 2 B Marker"), new ColorSettings { Label = "B", OnColor = bgColor, TextOnColor = path2Color, BarOnColor = path2Color });
             ColorDict.Add(("Brauer Motion", "Path 2 Start Marker"), new ColorSettings { Label = "START", OnColor = bgColor, TextOnColor = path2Color, BarOnColor = path2Color });
-            ColorDict.Add(("Brauer Motion", "Panner 1 Mode"), new ColorSettings { Label = "", OnColor = buttonBgColor, TextOnColor = path1Color, MenuItems = ["SYNC", "FREE", "INPUT", "MANUAL"] });
-            ColorDict.Add(("Brauer Motion", "Panner 2 Mode"), new ColorSettings { Label = "", OnColor = buttonBgColor, TextOnColor = path2Color, MenuItems = ["SYNC", "FREE", "INPUT", "MANUAL"] });
+            ColorDict.Add(("Brauer Motion", "Panner 1 Mode"), new ColorSettings { Label = "", OnColor = buttonBgColor, TextOnColor = path1Color, UserMenuItems = ["SYNC", "FREE", "INPUT", "MANUAL"] });
+            ColorDict.Add(("Brauer Motion", "Panner 2 Mode"), new ColorSettings { Label = "", OnColor = buttonBgColor, TextOnColor = path2Color, UserMenuItems = ["SYNC", "FREE", "INPUT", "MANUAL"] });
             ColorDict.Add(("Brauer Motion", "Link"), new ColorSettings { Label = "LINK", OnColor = buttonBgColor, TextOnColor = new FinderColor(0, 192, 255), OffColor = buttonBgColor, TextOffColor = new FinderColor(60, 60, 60) });
-            ColorDict.Add(("Brauer Motion", "Path 1"), new ColorSettings { Label = "", OnColor = buttonBgColor, TextOnColor = new FinderColor(102, 157, 203), MenuItems = ["CLASSIC", "CIRCLE", "CIRC PHASE", "X LIGHTS"] });
-            ColorDict.Add(("Brauer Motion", "Modulator 1"), new ColorSettings { Label = "", OnColor = buttonBgColor, TextOnColor = new FinderColor(102, 157, 203), MenuItems = ["!bm_Sine", "!bm_Triangle", "!bm_Saw", "!bm_Square"] });
+            ColorDict.Add(("Brauer Motion", "Path 1"), new ColorSettings { Label = "", OnColor = buttonBgColor, TextOnColor = new FinderColor(102, 157, 203), UserMenuItems = ["CLASSIC", "CIRCLE", "CIRC PHASE", "X LIGHTS"] });
+            ColorDict.Add(("Brauer Motion", "Modulator 1"), new ColorSettings { Label = "", OnColor = buttonBgColor, TextOnColor = new FinderColor(102, 157, 203), UserMenuItems = ["!bm_Sine", "!bm_Triangle", "!bm_Saw", "!bm_Square"] });
             ColorDict.Add(("Brauer Motion", "Reverse 1"), new ColorSettings { Label = "REVERSE", OffColor = buttonBgColor, TextOffColor = textColor, OnColor = checkOnColor, TextOnColor = FinderColor.Black });
             ColorDict.Add(("Brauer Motion", "Mod Delay On/Off 1"), new ColorSettings { Label = "OFF", LabelOn = "ON", OffColor = buttonBgColor, TextOffColor = textColor, OnColor = checkOnColor, TextOnColor = FinderColor.Black });
             ColorDict.Add(("Brauer Motion", "Speed 1"), new ColorSettings { Label = "SPEED 1", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path1Color });
@@ -694,8 +705,8 @@
             ColorDict.Add(("Brauer Motion", "Width 1"), new ColorSettings { Label = "WIDTH 1", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path1Color });
             ColorDict.Add(("Brauer Motion", "Pre Delay 1"), new ColorSettings { Label = "PRE DLY 1", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path1Color });
             ColorDict.Add(("Brauer Motion", "Mod Delay 1"), new ColorSettings { Label = "MOD DLY 1", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path1Color });
-            ColorDict.Add(("Brauer Motion", "Path 2"), new ColorSettings { Label = "", OnColor = buttonBgColor, TextOnColor = new FinderColor(102, 157, 203), MenuItems = ["CLASSIC", "CIRCLE", "CIRC PHASE", "X LIGHTS"] });
-            ColorDict.Add(("Brauer Motion", "Modulator 2"), new ColorSettings { Label = "", OnColor = buttonBgColor, TextOnColor = new FinderColor(102, 157, 203), MenuItems = ["!bm_Sine", "!bm_Triangle", "!bm_Saw", "!bm_Square"] });
+            ColorDict.Add(("Brauer Motion", "Path 2"), new ColorSettings { Label = "", OnColor = buttonBgColor, TextOnColor = new FinderColor(102, 157, 203), UserMenuItems = ["CLASSIC", "CIRCLE", "CIRC PHASE", "X LIGHTS"] });
+            ColorDict.Add(("Brauer Motion", "Modulator 2"), new ColorSettings { Label = "", OnColor = buttonBgColor, TextOnColor = new FinderColor(102, 157, 203), UserMenuItems = ["!bm_Sine", "!bm_Triangle", "!bm_Saw", "!bm_Square"] });
             ColorDict.Add(("Brauer Motion", "Reverse 2"), new ColorSettings { Label = "REVERSE", OffColor = buttonBgColor, TextOffColor = textColor, OnColor = checkOnColor, TextOnColor = FinderColor.Black });
             ColorDict.Add(("Brauer Motion", "Mod Delay On/Off 2"), new ColorSettings { Label = "OFF", LabelOn = "ON", OffColor = buttonBgColor, TextOffColor = textColor, OnColor = checkOnColor, TextOnColor = FinderColor.Black });
             ColorDict.Add(("Brauer Motion", "Speed 2"), new ColorSettings { Label = "SPEED 2", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path2Color });
@@ -704,20 +715,20 @@
             ColorDict.Add(("Brauer Motion", "Width 2"), new ColorSettings { Label = "WIDTH 2", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path2Color });
             ColorDict.Add(("Brauer Motion", "Pre Delay 2"), new ColorSettings { Label = "PRE DLY 2", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path2Color });
             ColorDict.Add(("Brauer Motion", "Mod Delay 2"), new ColorSettings { Label = "MOD DLY 2", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path2Color });
-            ColorDict.Add(("Brauer Motion", "Trigger Mode 1"), new ColorSettings { Label = "", OnColor = buttonBgColor, TextOnColor = new FinderColor(102, 157, 203), MenuItems = ["OFF", "SIMPLE", "ONE-SHOT", "RETRIGGER", "S-TRIG REV", "A TO B"] });
+            ColorDict.Add(("Brauer Motion", "Trigger Mode 1"), new ColorSettings { Label = "", OnColor = buttonBgColor, TextOnColor = new FinderColor(102, 157, 203), UserMenuItems = ["OFF", "SIMPLE", "ONE-SHOT", "RETRIGGER", "S-TRIG REV", "A TO B"] });
             ColorDict.Add(("Brauer Motion", "Trigger A to B 1"), new ColorSettings { Label = "A TO B", LabelOn = "B TO A", OffColor = buttonBgColor, TextOffColor = textColor, OnColor = buttonBgColor, TextOnColor = textColor });
             ColorDict.Add(("Brauer Motion", "Trigger Sensitivity 1"), new ColorSettings { Label = "SENS 1", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path1Color });
             ColorDict.Add(("Brauer Motion", "Trigger HP 1"), new ColorSettings { Label = "HOLD 1", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path1Color });
-            ColorDict.Add(("Brauer Motion", "Dynamics 1"), new ColorSettings { Label = "", OnColor = buttonBgColor, TextOnColor = new FinderColor(102, 157, 203), MenuItems = ["OFF", "PANNER 1", "DIRECT", "OUTPUT"] });
+            ColorDict.Add(("Brauer Motion", "Dynamics 1"), new ColorSettings { Label = "", OnColor = buttonBgColor, TextOnColor = new FinderColor(102, 157, 203), UserMenuItems = ["OFF", "PANNER 1", "DIRECT", "OUTPUT"] });
             ColorDict.Add(("Brauer Motion", "Drive 1"), new ColorSettings { Label = "DRIVE 1", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path1Color });
             ColorDict.Add(("Brauer Motion", "Ratio 1"), new ColorSettings { Label = "RATIO 1", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path1Color });
             ColorDict.Add(("Brauer Motion", "Dynamics HP 1"), new ColorSettings { Label = "HP 1", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path1Color });
             ColorDict.Add(("Brauer Motion", "Dynamics LP 1"), new ColorSettings { Label = "LP 1", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path1Color });
-            ColorDict.Add(("Brauer Motion", "Trigger Mode 2"), new ColorSettings { Label = "", OnColor = buttonBgColor, TextOnColor = new FinderColor(102, 157, 203), MenuItems = ["OFF", "SIMPLE", "ONE-SHOT", "RETRIGGER", "S-TRIG REV", "A TO B"] });
+            ColorDict.Add(("Brauer Motion", "Trigger Mode 2"), new ColorSettings { Label = "", OnColor = buttonBgColor, TextOnColor = new FinderColor(102, 157, 203), UserMenuItems = ["OFF", "SIMPLE", "ONE-SHOT", "RETRIGGER", "S-TRIG REV", "A TO B"] });
             ColorDict.Add(("Brauer Motion", "Trigger A to B 2"), new ColorSettings { Label = "A TO B", LabelOn = "B TO A", OffColor = buttonBgColor, TextOffColor = textColor, OnColor = buttonBgColor, TextOnColor = textColor });
             ColorDict.Add(("Brauer Motion", "Trigger Sensitivity 2"), new ColorSettings { Label = "SENS 2", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path2Color });
             ColorDict.Add(("Brauer Motion", "Trigger HP 2"), new ColorSettings { Label = "HOLD 2", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path2Color });
-            ColorDict.Add(("Brauer Motion", "Dynamics 2"), new ColorSettings { Label = "", OnColor = buttonBgColor, TextOnColor = new FinderColor(102, 157, 203), MenuItems = ["OFF", "PANNER 1", "DIRECT", "OUTPUT"] });
+            ColorDict.Add(("Brauer Motion", "Dynamics 2"), new ColorSettings { Label = "", OnColor = buttonBgColor, TextOnColor = new FinderColor(102, 157, 203), UserMenuItems = ["OFF", "PANNER 1", "DIRECT", "OUTPUT"] });
             ColorDict.Add(("Brauer Motion", "Drive 2"), new ColorSettings { Label = "DRIVE 2", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path2Color });
             ColorDict.Add(("Brauer Motion", "Ratio 2"), new ColorSettings { Label = "RATIO 2", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path2Color });
             ColorDict.Add(("Brauer Motion", "Dynamics HP 2"), new ColorSettings { Label = "HP 2", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path2Color });
@@ -747,11 +758,11 @@
             ColorDict.Add(("Abbey Road Chambers", "RS106 Bass Cut"), new ColorSettings { Label = "BASS CUT", OnColor = new FinderColor(222, 211, 202), TextOnColor = FinderColor.Black });
             ColorDict.Add(("Abbey Road Chambers", "RS127 Gain"), new ColorSettings { Label = "GAIN", Mode = ColorSettings.PotMode.Symmetric, OnColor = new FinderColor(123, 124, 119), TextOnColor = FinderColor.White });
             ColorDict.Add(("Abbey Road Chambers", "RS127 Freq"), new ColorSettings { Label = "FREQ", OnColor = new FinderColor(123, 124, 119), TextOnColor = FinderColor.White, DialSteps = 2 });
-            ColorDict.Add(("Abbey Road Chambers", "Reverb Type"), new ColorSettings { Label = "", OnColor = mixColor, TextOnColor = FinderColor.Black, MenuItems = ["CHMBR 2", "MIRROR", "STONE"] });
-            this.addLinked("Abbey Road Chambers", "Mic", "Reverb Type", label: "M", linkReversed: true, onColor: typeColor, textOnColor: FinderColor.White, menuItems: ["KM53", "MK2H"]);
-            ColorDict.Add(("Abbey Road Chambers", "Mic Position"), new ColorSettings { Label = "P", OnColor = typeColor, TextOnColor = FinderColor.White, MenuItems = ["WALL", "CLASSIC", "ROOM"] });
-            this.addLinked("Abbey Road Chambers", "Speaker", "Reverb Type", label: "S", linkReversed: true, onColor: typeColor, textOnColor: FinderColor.White, menuItems: ["ALTEC", "B&W"]);
-            this.addLinked("Abbey Road Chambers", "Speaker Facing", "Reverb Type", label: "F", linkReversed: true, onColor: typeColor, textOnColor: FinderColor.White, menuItems: ["ROOM", "WALL"]);
+            ColorDict.Add(("Abbey Road Chambers", "Reverb Type"), new ColorSettings { Label = "", OnColor = mixColor, TextOnColor = FinderColor.Black, UserMenuItems = ["CHMBR 2", "MIRROR", "STONE"] });
+            this.addLinked("Abbey Road Chambers", "Mic", "Reverb Type", label: "M", linkReversed: true, onColor: typeColor, textOnColor: FinderColor.White, userMenuItems: ["KM53", "MK2H"]);
+            ColorDict.Add(("Abbey Road Chambers", "Mic Position"), new ColorSettings { Label = "P", OnColor = typeColor, TextOnColor = FinderColor.White, UserMenuItems = ["WALL", "CLASSIC", "ROOM"] });
+            this.addLinked("Abbey Road Chambers", "Speaker", "Reverb Type", label: "S", linkReversed: true, onColor: typeColor, textOnColor: FinderColor.White, userMenuItems: ["ALTEC", "B&W"]);
+            this.addLinked("Abbey Road Chambers", "Speaker Facing", "Reverb Type", label: "F", linkReversed: true, onColor: typeColor, textOnColor: FinderColor.White, userMenuItems: ["ROOM", "WALL"]);
             ColorDict.Add(("Abbey Road Chambers", "Filters To Chamber On/Off"), new ColorSettings { Label = "FILTERS", OnColor = FinderColor.White, TextOnColor = FinderColor.Black, OffColor = optionsOffBgColor, TextOffColor = FinderColor.Black });
             ColorDict.Add(("Abbey Road Chambers", "ARChambers On/Off"), new ColorSettings { Label = "STEED", OnColor = optionsOffBgColor, TextOnColor = FinderColor.White, OffColor = optionsOffBgColor, TextOffColor = FinderColor.Black });
             ColorDict.Add(("Abbey Road Chambers", "Feedback"), new ColorSettings { Label = "FEEDBACK", OnColor = mainCtrlColor, TextOnColor = FinderColor.White });
@@ -771,16 +782,16 @@
             var hybridButtonOffColor = new FinderColor(215, 209, 186);
             var hybridButtonTextOnColor = new FinderColor(247, 230, 25);
             var hybridButtonTextOffColor = FinderColor.Black;
-            ColorDict.Add(("H-Delay", "Sync"), new ColorSettings { Label = "", OnColor = hybridButtonOnColor, TextOnColor = hybridButtonTextOnColor, OffColor = hybridButtonOffColor, TextOffColor = hybridButtonTextOffColor, MenuItems = ["BPM", "HOST", "MS"] });
-            this.addLinked("H-Delay", "Delay BPM", "Sync", label: "DELAY", linkReversed: true, onColor: hybridLineColor, onTransparency: 255, textOnColor: FinderColor.Black, offColor: new FinderColor(50, 50, 50));
-            this.addLinked("H-Delay", "Delay Sec", "Sync", label: "DELAY", onColor: hybridLineColor, onTransparency: 255, textOnColor: FinderColor.Black, offColor: new FinderColor(50, 50, 50));
+            ColorDict.Add(("H-Delay", "Sync"), new ColorSettings { Label = "", OnColor = hybridButtonOnColor, TextOnColor = hybridButtonTextOnColor, OffColor = hybridButtonOffColor, TextOffColor = hybridButtonTextOffColor, UserMenuItems = ["BPM", "HOST", "MS"] });
+            this.addLinked("H-Delay", "Delay BPM", "Sync", label: "DELAY", linkedStates: "0,1", onColor: hybridLineColor, onTransparency: 255, textOnColor: FinderColor.Black, offColor: new FinderColor(50, 50, 50));
+            this.addLinked("H-Delay", "Delay Sec", "Sync", label: "DELAY", linkedStates: "2", onColor: hybridLineColor, onTransparency: 255, textOnColor: FinderColor.Black, offColor: new FinderColor(50, 50, 50));
             ColorDict.Add(("H-Delay", "Feedback"), new ColorSettings { Label = "FEEDBACK", OnColor = hybridLineColor, OnTransparency = 255, TextOnColor = FinderColor.Black });
             ColorDict.Add(("H-Delay", "Mix"), new ColorSettings { Label = "DRY/WET", OnColor = hybridLineColor, OnTransparency = 255, TextOnColor = FinderColor.Black });
             ColorDict.Add(("H-Delay", "Output"), new ColorSettings { Label = "OUTPUT", Mode = ColorSettings.PotMode.Symmetric, OnColor = hybridLineColor, OnTransparency = 255, TextOnColor = FinderColor.Black });
             ColorDict.Add(("H-Delay", "Analog"), new ColorSettings { Label = "ANALOG", OnColor = hybridLineColor, OnTransparency = 255, TextOnColor = FinderColor.Black, DialSteps = 4 });
             ColorDict.Add(("H-Delay", "Phase L"), new ColorSettings { Label = "PHASE L", OnColor = hybridButtonOnColor, TextOnColor = hybridButtonTextOnColor, OffColor = hybridButtonOffColor, TextOffColor = hybridButtonTextOffColor });
             ColorDict.Add(("H-Delay", "Phase R"), new ColorSettings { Label = "PHASE R", OnColor = hybridButtonOnColor, TextOnColor = hybridButtonTextOnColor, OffColor = hybridButtonOffColor, TextOffColor = hybridButtonTextOffColor });
-            ColorDict.Add(("H-Delay", "PingPong"), new ColorSettings { Label = "PING PONG", OnColor = hybridButtonOnColor, TextOnColor = hybridButtonTextOnColor, OffColor = hybridButtonOffColor, TextOffColor = hybridButtonTextOffColor });
+            ColorDict.Add(("H-Delay", "PingPong"), new ColorSettings { Label = "PINGPONG", OnColor = hybridButtonOnColor, TextOnColor = hybridButtonTextOnColor, OffColor = hybridButtonOffColor, TextOffColor = hybridButtonTextOffColor });
             ColorDict.Add(("H-Delay", "LoFi"), new ColorSettings { Label = "LoFi", OnColor = hybridButtonOnColor, TextOnColor = hybridButtonTextOnColor, OffColor = hybridButtonOffColor, TextOffColor = hybridButtonTextOffColor });
             ColorDict.Add(("H-Delay", "Depth"), new ColorSettings { Label = "DEPTH", OnColor = hybridLineColor, OnTransparency = 255, TextOnColor = FinderColor.Black });
             ColorDict.Add(("H-Delay", "Rate"), new ColorSettings { Label = "RATE", OnColor = hybridLineColor, OnTransparency = 255, TextOnColor = FinderColor.Black });
@@ -802,18 +813,18 @@
             ColorDict.Add(("LoAir", "Lo"), new ColorSettings { Mode = ColorSettings.PotMode.Symmetric });
             ColorDict.Add(("LoAir", "Align"), new ColorSettings { OnColor = new FinderColor(206, 175, 43), TextOnColor = FinderColor.Black });
 
-            ColorDict.Add(("CLA Unplugged", "Bass Color"), new ColorSettings { Label = "", MenuItems = [ "OFF", "SUB", "LOWER", "UPPER" ] });
+            ColorDict.Add(("CLA Unplugged", "Bass Color"), new ColorSettings { Label = "", UserMenuItems = [ "OFF", "SUB", "LOWER", "UPPER" ] });
             ColorDict.Add(("CLA Unplugged", "Bass"), new ColorSettings { OnColor = new FinderColor(210, 209, 96), Mode = ColorSettings.PotMode.Symmetric });
-            ColorDict.Add(("CLA Unplugged", "Treble Color"), new ColorSettings { Label = "", MenuItems = ["OFF", "BITE", "TOP", "ROOF"] });
+            ColorDict.Add(("CLA Unplugged", "Treble Color"), new ColorSettings { Label = "", UserMenuItems = ["OFF", "BITE", "TOP", "ROOF"] });
             ColorDict.Add(("CLA Unplugged", "Treble"), new ColorSettings { OnColor = new FinderColor(210, 209, 96), Mode = ColorSettings.PotMode.Symmetric });
             ColorDict.Add(("CLA Unplugged", "Compress"), new ColorSettings { OnColor = new FinderColor(210, 209, 96), Mode = ColorSettings.PotMode.Symmetric });
-            ColorDict.Add(("CLA Unplugged", "Compress Color"), new ColorSettings { Label = "", MenuItems = ["OFF", "PUSH", "SPANK", "WALL"] });
+            ColorDict.Add(("CLA Unplugged", "Compress Color"), new ColorSettings { Label = "", UserMenuItems = ["OFF", "PUSH", "SPANK", "WALL"] });
             ColorDict.Add(("CLA Unplugged", "Reverb 1"), new ColorSettings { OnColor = new FinderColor(210, 209, 96), Mode = ColorSettings.PotMode.Symmetric });
-            ColorDict.Add(("CLA Unplugged", "Reverb 1 Color"), new ColorSettings { Label = "", MenuItems = ["OFF", "ROOM", "HALL", "CHAMBER"] });
+            ColorDict.Add(("CLA Unplugged", "Reverb 1 Color"), new ColorSettings { Label = "", UserMenuItems = ["OFF", "ROOM", "HALL", "CHAMBER"] });
             ColorDict.Add(("CLA Unplugged", "Reverb 2"), new ColorSettings { OnColor = new FinderColor(210, 209, 96), Mode = ColorSettings.PotMode.Symmetric });
-            ColorDict.Add(("CLA Unplugged", "Reverb 2 Color"), new ColorSettings { Label = "", MenuItems = ["OFF", "TIGHT", "LARGE", "CANYON"] });
+            ColorDict.Add(("CLA Unplugged", "Reverb 2 Color"), new ColorSettings { Label = "", UserMenuItems = ["OFF", "TIGHT", "LARGE", "CANYON"] });
             ColorDict.Add(("CLA Unplugged", "Delay"), new ColorSettings { OnColor = new FinderColor(210, 209, 96), Mode = ColorSettings.PotMode.Symmetric });
-            ColorDict.Add(("CLA Unplugged", "Delay Color"), new ColorSettings { Label = "", MenuItems = ["OFF", "SLAP", "EIGHT", "QUARTER"] });
+            ColorDict.Add(("CLA Unplugged", "Delay Color"), new ColorSettings { Label = "", UserMenuItems = ["OFF", "SLAP", "EIGHT", "QUARTER"] });
             ColorDict.Add(("CLA Unplugged", "Sensitivity"), new ColorSettings { Label = "Input Sens", OnColor = new FinderColor(210, 209, 96), Mode = ColorSettings.PotMode.Symmetric });
             ColorDict.Add(("CLA Unplugged", "Output"), new ColorSettings { OnColor = new FinderColor(210, 209, 96), Mode = ColorSettings.PotMode.Symmetric });
             ColorDict.Add(("CLA Unplugged", "PreDelay 1"), new ColorSettings { Label = "Pre Rvrb 1", OnColor = new FinderColor(210, 209, 96), DialSteps = 13 });
@@ -825,9 +836,9 @@
 
             ColorDict.Add(("CLA-76", "Revision"), new ColorSettings { Label = "Bluey", LabelOn = "Blacky", OffColor = new FinderColor(62, 141, 180), TextOffColor = FinderColor.White, 
                                                                                                            OnColor = FinderColor.Black, TextOnColor = FinderColor.White });
-            ColorDict.Add(("CLA-76", "Ratio"), new ColorSettings { MenuItems = ["20", "12", "8", "4", "ALL"] });
-            ColorDict.Add(("CLA-76", "Analog"), new ColorSettings { Label = "A", MenuItems = ["50Hz", "60Hz", "Off"], TextOnColor = new FinderColor(254, 246, 212) });
-            ColorDict.Add(("CLA-76", "Meter"), new ColorSettings { MenuItems = ["GR", "IN", "OUT"] });
+            ColorDict.Add(("CLA-76", "Ratio"), new ColorSettings { UserMenuItems = ["20", "12", "8", "4", "ALL"] });
+            ColorDict.Add(("CLA-76", "Analog"), new ColorSettings { Label = "A", UserMenuItems = ["50Hz", "60Hz", "Off"], TextOnColor = new FinderColor(254, 246, 212) });
+            ColorDict.Add(("CLA-76", "Meter"), new ColorSettings { UserMenuItems = ["GR", "IN", "OUT"] });
             ColorDict.Add(("CLA-76", "Comp Off"), new ColorSettings { OnColor = new FinderColor(162, 38, 38), TextOnColor = FinderColor.White });
 
             // Analog Obsession

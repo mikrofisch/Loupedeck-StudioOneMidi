@@ -280,7 +280,7 @@
                 }
                 var ubd = this.buttonData[idxUserSendsUserModeButton] as UserModeButtonData;
                 ubd.resetUserPage();
-                ubd.setPageNames(new ColorFinder().getColorSettings(pluginName, "Loupedeck User Pages", false).MenuItems);
+                ubd.setPageNames(new ColorFinder().getColorSettings(pluginName, "Loupedeck User Pages", false).UserMenuItems);
 
                 if (this.CurrentLayer == ButtonLayer.FaderModesSend && this.CurrentUserSendsLayerMode == UserSendsLayerMode.PluginSelectionActivated)
                 {

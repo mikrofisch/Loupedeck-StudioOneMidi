@@ -529,6 +529,10 @@
     <EmbeddedResource Include="Resources\click2_on_52px.png" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Actions\" />
+  </ItemGroup>
+
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Condition="$(OS) == 'Windows_NT'" Command="echo $(OutputPath) &gt; &quot;$(PluginDir)$(ProjectName).link&quot;&#xD;&#xA;xcopy /d &quot;$(OutputPath)runtimes\$(NETCoreSdkPortableRuntimeIdentifier)\native\*&quot; $(OutputPath)" />
     <Exec Condition="$(OS) != 'Windows_NT'" Command="echo $(OutputPath) &gt; $(PluginDir)$(ProjectName).link" />

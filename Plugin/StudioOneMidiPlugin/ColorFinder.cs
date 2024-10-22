@@ -498,6 +498,18 @@
             ColorDict.Add(("Phaser", "Log. Sweep"), new ColorSettings { OnColor = new FinderColor(188, 198, 206), TextOnColor = FinderColor.Black });
             ColorDict.Add(("Phaser", "Soft"), new ColorSettings { OnColor = new FinderColor(188, 198, 206), TextOnColor = FinderColor.Black });
 
+            var analogDelayButtonOnColor = new FinderColor(255, 59, 58);
+            var analogDelayButtonOffColor = new FinderColor(84, 18, 18);
+            ColorDict.Add(("Analog Delay", "Delay Beats"), new ColorSettings { LinkedParameter = "Delay Sync", Label = "TIME", OnColor = new FinderColor(107, 113, 230), TextOnColor = FinderColor.White, OffColor = new FinderColor(25, 28, 55) });
+            ColorDict.Add(("Analog Delay", "Delay Time"), new ColorSettings { LinkedParameter = "Delay Sync", LinkReversed = true, Label = "TIME", OnColor = new FinderColor(107, 113, 230), TextOnColor = FinderColor.White, OffColor = new FinderColor(25, 28, 55) });
+            ColorDict.Add(("Analog Delay", "Delay Sync"), new ColorSettings { Label = "SYNC", OnColor = analogDelayButtonOnColor, TextOnColor = FinderColor.White, OffColor = analogDelayButtonOffColor, TextOffColor = FinderColor.Black });
+            ColorDict.Add(("Analog Delay", "Feedback Level"), new ColorSettings { Label = "FEEDBACK", OnColor = new FinderColor(107, 113, 230), TextOnColor = FinderColor.White, OffColor = new FinderColor(46, 50, 84), TextOffColor = FinderColor.Black });
+            ColorDict.Add(("Analog Delay", "Feedback Boost"), new ColorSettings { Label = "BOOST", OnColor = analogDelayButtonOnColor, TextOnColor = FinderColor.White, OffColor = analogDelayButtonOffColor, TextOffColor = FinderColor.Black });
+            ColorDict.Add(("Analog Delay", "LFO Speed"), new ColorSettings { LinkedParameter = "LFO Sync", LinkReversed = true, Label = "SPEED", OnColor = new FinderColor(114, 202, 114), TextOnColor = FinderColor.White, OffColor = new FinderColor(26, 46, 29), TextOffColor = FinderColor.Black });
+            ColorDict.Add(("Analog Delay", "LFO Beats"), new ColorSettings { LinkedParameter = "LFO Sync", Label = "SPEED", OnColor = new FinderColor(114, 202, 114), TextOnColor = FinderColor.White, OffColor = new FinderColor(26, 46, 29), TextOffColor = FinderColor.Black });
+            ColorDict.Add(("Analog Delay", "LFO Width"), new ColorSettings { Label = "AMOUNT", OnColor = new FinderColor(114, 202, 114), TextOnColor = FinderColor.White, OffColor = new FinderColor(46, 50, 84), TextOffColor = FinderColor.Black });
+            ColorDict.Add(("Analog Delay", "LFO Sync"), new ColorSettings { Label = "SYNC", OnColor = analogDelayButtonOnColor, TextOnColor = FinderColor.White, OffColor = analogDelayButtonOffColor, TextOffColor = FinderColor.Black });
+
             ColorDict.Add(("Alpine Desk", "Boost"), new ColorSettings { DialSteps = 2, HideValueBar = true });
             ColorDict.Add(("Alpine Desk", "Preamp On"), new ColorSettings { Label = "ON", OnColor = new FinderColor(0, 154, 144) });
             ColorDict.Add(("Alpine Desk", "Noise On"), new ColorSettings { Label = "ON", OnColor = new FinderColor(0, 154, 144) });
@@ -797,6 +809,19 @@
             ColorDict.Add(("H-Delay", "Rate"), new ColorSettings { Label = "RATE", OnColor = hybridLineColor, OnTransparency = 255, TextOnColor = FinderColor.Black });
             ColorDict.Add(("H-Delay", "HiPass"), new ColorSettings { Label = "HIPASS", OnColor = hybridLineColor, OnTransparency = 255, TextOnColor = FinderColor.Black });
             ColorDict.Add(("H-Delay", "LoPass"), new ColorSettings { Label = "LOPASS", OnColor = hybridLineColor, OnTransparency = 255, TextOnColor = FinderColor.Black });
+
+            ColorDict.Add(("H-Comp", "Threshold"), new ColorSettings { Label = "THRESH", OnColor = hybridLineColor, OnTransparency = 255, TextOnColor = FinderColor.Black });
+            ColorDict.Add(("H-Comp", "Meter Select"), new ColorSettings { Label = "", OnColor = hybridButtonOnColor, TextOnColor = hybridButtonTextOnColor, OffColor = hybridButtonOffColor, TextOffColor = hybridButtonTextOffColor, UserMenuItems = ["IN", "GR", "OUT"] });
+            ColorDict.Add(("H-Comp", "Punch"), new ColorSettings { Label = "PUNCH", OnColor = hybridLineColor, OnTransparency = 255, TextOnColor = FinderColor.Black });
+            ColorDict.Add(("H-Comp", "Ratio"), new ColorSettings { Label = "RATIO", OnColor = hybridLineColor, OnTransparency = 255, TextOnColor = FinderColor.Black });
+            ColorDict.Add(("H-Comp", "Attack"), new ColorSettings { Label = "ATTACK", OnColor = hybridLineColor, OnTransparency = 255, TextOnColor = FinderColor.Black });
+            ColorDict.Add(("H-Comp", "Limiter"), new ColorSettings { Label = "LIMITER", OnColor = hybridButtonOnColor, TextOnColor = hybridButtonTextOnColor, OffColor = hybridButtonOffColor, TextOffColor = hybridButtonTextOffColor });
+            ColorDict.Add(("H-Comp", "Sync"), new ColorSettings { Label = "", OnColor = hybridButtonOnColor, TextOnColor = hybridButtonTextOnColor, OffColor = hybridButtonOffColor, TextOffColor = hybridButtonTextOffColor, UserMenuItems = ["BPM", "HOST", "MS"] });
+            ColorDict.Add(("H-Comp", "Release"), new ColorSettings { LinkedParameter = "Sync", Label = "RELEASE", LinkedStates = "2", OnColor = hybridLineColor, OnTransparency = 255, TextOnColor = FinderColor.Black, OffColor = new FinderColor(50, 50, 50) });
+            ColorDict.Add(("H-Comp", "ReleaseBPM"), new ColorSettings { LinkedParameter = "Sync", Label = "RELEASE", LinkedStates = "0,1", DialSteps = 19, OnColor = hybridLineColor, OnTransparency = 255, TextOnColor = FinderColor.Black, OffColor = new FinderColor(50, 50, 50) });
+            ColorDict.Add(("H-Comp", "Mix"), new ColorSettings { Label = "DRY/WET", OnColor = hybridLineColor, OnTransparency = 255, TextOnColor = FinderColor.Black });
+            ColorDict.Add(("H-Comp", "Output"), new ColorSettings { Label = "OUTPUT", Mode = ColorSettings.PotMode.Symmetric, OnColor = hybridLineColor, OnTransparency = 255, TextOnColor = FinderColor.Black });
+            ColorDict.Add(("H-Comp", "Analog"), new ColorSettings { Label = "ANALOG", OnColor = hybridLineColor, OnTransparency = 255, TextOnColor = FinderColor.Black, DialSteps = 4 });
 
 
             ColorDict.Add(("Sibilance", "Monitor"), new ColorSettings { OnColor = new FinderColor(0, 195, 230) });

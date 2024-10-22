@@ -1,4 +1,4 @@
-namespace Loupedeck.StudioOneMidiPlugin
+namespace Loupedeck.StudioOneMidiPlugin.Controls
 {
     using System;
 
@@ -21,12 +21,13 @@ namespace Loupedeck.StudioOneMidiPlugin
 
         protected override BitmapImage GetCommandImage(ActionEditorActionParameters actionParameters, Int32 imageWidth, Int32 imageHeight)
         {
-            if (!actionParameters.TryGetString("LabelText", out var labelText)) return null;
+            if (!actionParameters.TryGetString("LabelText", out var labelText))
+                return null;
 
             var bb = new BitmapBuilder(imageWidth, imageHeight);
 
             bb.DrawText(labelText);
-            
+
             return bb.ToImage();
         }
 

@@ -500,15 +500,25 @@
 
             var analogDelayButtonOnColor = new FinderColor(255, 59, 58);
             var analogDelayButtonOffColor = new FinderColor(84, 18, 18);
-            ColorDict.Add(("Analog Delay", "Delay Beats"), new ColorSettings { LinkedParameter = "Delay Sync", Label = "TIME", OnColor = new FinderColor(107, 113, 230), TextOnColor = FinderColor.White, OffColor = new FinderColor(25, 28, 55) });
-            ColorDict.Add(("Analog Delay", "Delay Time"), new ColorSettings { LinkedParameter = "Delay Sync", LinkReversed = true, Label = "TIME", OnColor = new FinderColor(107, 113, 230), TextOnColor = FinderColor.White, OffColor = new FinderColor(25, 28, 55) });
+            ColorDict.Add(("Analog Delay", "Delay Beats"), new ColorSettings { LinkedParameter = "Delay Sync", Label = "TIME", DialSteps = 20, OnColor = new FinderColor(107, 113, 230), TextOnColor = FinderColor.White, OffColor = new FinderColor(25, 28, 55), TextOffColor = FinderColor.Black });
+            ColorDict.Add(("Analog Delay", "Delay Time"), new ColorSettings { LinkedParameter = "Delay Sync", LinkReversed = true, Label = "TIME", OnColor = new FinderColor(107, 113, 230), TextOnColor = FinderColor.White, OffColor = new FinderColor(25, 28, 55), TextOffColor = FinderColor.Black });
             ColorDict.Add(("Analog Delay", "Delay Sync"), new ColorSettings { Label = "SYNC", OnColor = analogDelayButtonOnColor, TextOnColor = FinderColor.White, OffColor = analogDelayButtonOffColor, TextOffColor = FinderColor.Black });
             ColorDict.Add(("Analog Delay", "Feedback Level"), new ColorSettings { Label = "FEEDBACK", OnColor = new FinderColor(107, 113, 230), TextOnColor = FinderColor.White, OffColor = new FinderColor(46, 50, 84), TextOffColor = FinderColor.Black });
             ColorDict.Add(("Analog Delay", "Feedback Boost"), new ColorSettings { Label = "BOOST", OnColor = analogDelayButtonOnColor, TextOnColor = FinderColor.White, OffColor = analogDelayButtonOffColor, TextOffColor = FinderColor.Black });
             ColorDict.Add(("Analog Delay", "LFO Speed"), new ColorSettings { LinkedParameter = "LFO Sync", LinkReversed = true, Label = "SPEED", OnColor = new FinderColor(114, 202, 114), TextOnColor = FinderColor.White, OffColor = new FinderColor(26, 46, 29), TextOffColor = FinderColor.Black });
             ColorDict.Add(("Analog Delay", "LFO Beats"), new ColorSettings { LinkedParameter = "LFO Sync", Label = "SPEED", OnColor = new FinderColor(114, 202, 114), TextOnColor = FinderColor.White, OffColor = new FinderColor(26, 46, 29), TextOffColor = FinderColor.Black });
-            ColorDict.Add(("Analog Delay", "LFO Width"), new ColorSettings { Label = "AMOUNT", OnColor = new FinderColor(114, 202, 114), TextOnColor = FinderColor.White, OffColor = new FinderColor(46, 50, 84), TextOffColor = FinderColor.Black });
+            ColorDict.Add(("Analog Delay", "LFO Width"), new ColorSettings { Label = "AMOUNT", Mode = ColorSettings.PotMode.Symmetric, OnColor = new FinderColor(114, 202, 114), TextOnColor = FinderColor.White });
             ColorDict.Add(("Analog Delay", "LFO Sync"), new ColorSettings { Label = "SYNC", OnColor = analogDelayButtonOnColor, TextOnColor = FinderColor.White, OffColor = analogDelayButtonOffColor, TextOffColor = FinderColor.Black });
+            ColorDict.Add(("Analog Delay", "LFO Waveform"), new ColorSettings { Label = "", OnColor = new FinderColor(30, 51, 33), UserMenuItems = ["!ad_Triangle", "!ad_Sine", "!ad_Sawtooth", "!ad_Square"] });
+            ColorDict.Add(("Analog Delay", "Low Cut"), new ColorSettings { Label = "LOW CUT", OnColor = new FinderColor(145, 145, 23), TextOnColor = FinderColor.White });
+            ColorDict.Add(("Analog Delay", "High Cut"), new ColorSettings { Label = "HI CUT", OnColor = new FinderColor(145, 145, 23), TextOnColor = FinderColor.White });
+            ColorDict.Add(("Analog Delay", "Saturation"), new ColorSettings { Label = "DRIVE", OnColor = new FinderColor(145, 145, 23), TextOnColor = FinderColor.White });
+            ColorDict.Add(("Analog Delay", "Delay Speed"), new ColorSettings { Label = "FACTOR", OnColor = new FinderColor(178, 103, 32), TextOnColor = FinderColor.White });
+            ColorDict.Add(("Analog Delay", "Delay Inertia"), new ColorSettings { Label = "INERTIA", OnColor = new FinderColor(178, 103, 32), TextOnColor = FinderColor.White });
+            ColorDict.Add(("Analog Delay", "Feedback Width"), new ColorSettings { Label = "WIDTH", OnColor = new FinderColor(195, 81, 35), TextOnColor = FinderColor.White });
+            ColorDict.Add(("Analog Delay", "Ping-Pong Swap"), new ColorSettings { Label = "SWAP", OnColor = analogDelayButtonOnColor, TextOnColor = FinderColor.White, OffColor = analogDelayButtonOffColor, TextOffColor = FinderColor.Black });
+            ColorDict.Add(("Analog Delay", "Ping-Pong Mode"), new ColorSettings { Label = "PP", UserMenuItems = ["OFF", "SUM", "2-CH"], OnColor = new FinderColor(35, 23, 17), TextOnColor = FinderColor.White, OffColor = new FinderColor(35, 23, 17), TextOffColor = FinderColor.Black });
+            ColorDict.Add(("Analog Delay", "Mix"), new ColorSettings { Label = "DRY/WET", OnColor = new FinderColor(213, 68, 68), TextOnColor = FinderColor.White });
 
             ColorDict.Add(("Alpine Desk", "Boost"), new ColorSettings { DialSteps = 2, HideValueBar = true });
             ColorDict.Add(("Alpine Desk", "Preamp On"), new ColorSettings { Label = "ON", OnColor = new FinderColor(0, 154, 144) });

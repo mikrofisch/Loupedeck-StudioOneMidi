@@ -364,7 +364,8 @@
                 }
                 bb.DrawText(cd.Description, 0, 0, bb.Width, TitleHeight, TextDescColor);
                 bb.DrawText(UserColorFinder.getLabelShort(pluginName, cd.Label), 0, bb.Height / 2 - TitleHeight / 2, bb.Width, TitleHeight, 
-                            UserColorFinder.getTextOnColor(pluginName, cd.Label));
+                            buttonEnabled ? UserColorFinder.getTextOnColor(pluginName, cd.Label)
+                                          : UserColorFinder.getTextOffColor(pluginName, cd.Label));
 
                 // User Button
                 //

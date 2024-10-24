@@ -107,6 +107,10 @@
     <None Remove="Resources\layer_rename_52px.png" />
     <None Remove="Resources\layer_up_52px.png" />
     <None Remove="Resources\layer_up_inv_52px.png" />
+    <None Remove="Resources\lbl_ad_Sawtooth.png" />
+    <None Remove="Resources\lbl_ad_Sine.png" />
+    <None Remove="Resources\lbl_ad_Square.png" />
+    <None Remove="Resources\lbl_ad_Triangle.png" />
     <None Remove="Resources\lbl_Bell.png" />
     <None Remove="Resources\lbl_bm_Saw.png" />
     <None Remove="Resources\lbl_bm_Sine.png" />
@@ -350,6 +354,10 @@
     <EmbeddedResource Include="Resources\layer_rename_52px.png" />
     <EmbeddedResource Include="Resources\layer_up_52px.png" />
     <EmbeddedResource Include="Resources\layer_up_inv_52px.png" />
+    <EmbeddedResource Include="Resources\lbl_ad_Sawtooth.png" />
+    <EmbeddedResource Include="Resources\lbl_ad_Sine.png" />
+    <EmbeddedResource Include="Resources\lbl_ad_Square.png" />
+    <EmbeddedResource Include="Resources\lbl_ad_Triangle.png" />
     <EmbeddedResource Include="Resources\lbl_Bell.png" />
     <EmbeddedResource Include="Resources\lbl_bm_Saw.png" />
     <EmbeddedResource Include="Resources\lbl_bm_Sine.png" />

@@ -578,6 +578,47 @@
             ColorDict.Add(("Console Shaper", "Noise On"), new ColorSettings { Label = "ON", OnColor = new FinderColor(114, 167, 204) });
             ColorDict.Add(("Console Shaper", "Crosstalk On"), new ColorSettings { Label = "ON", OnColor = new FinderColor(114, 167, 204) });
 
+            // brainworx
+
+            var bxSslLedOnColor = new FinderColor(255, 48, 24);
+            var bxSslLedOffColor = new FinderColor(50, 50, 50);
+            var bxSslWhite = new FinderColor(206, 206, 206);
+            var bxSslRed = new FinderColor(184, 59, 55);
+            var bxSslGreen = new FinderColor(73, 109, 70);
+            var bxSslBlue = new FinderColor(70, 121, 162);
+            var bxSslBlack = new FinderColor(63, 64, 64);
+            var bxSslBrown = new FinderColor(110, 81, 69);
+            var bxSslButtonColor = new FinderColor(198, 200, 195);
+            ColorDict.Add(("bx_console SSL 4000 E", "Loupedeck User Pages"), new ColorSettings { UserMenuItems = ["EQ 1", "EQ 2", "DYN", "DYN/MIX"  ] });
+            ColorDict.Add(("bx_console SSL 4000 E", "HPF Frequency"), new ColorSettings { Label = "HP Frq", LinkedParameter = "HPF On/Off", OnColor = bxSslWhite });
+            ColorDict.Add(("bx_console SSL 4000 E", "HPF On/Off"), new ColorSettings { Label = "Off", LabelOn = "On", OnColor = bxSslLedOnColor, TextOnColor = FinderColor.White, OffColor = bxSslLedOffColor, TextOffColor = FinderColor.Black });
+            ColorDict.Add(("bx_console SSL 4000 E", "LPF Frequency"), new ColorSettings { Label = "LP Frq", LinkedParameter = "LPF On/Off", OnColor = bxSslWhite });
+            ColorDict.Add(("bx_console SSL 4000 E", "LPF On/Off"), new ColorSettings { Label = "Off", LabelOn = "On", OnColor = bxSslLedOnColor, TextOnColor = FinderColor.White, OffColor = bxSslLedOffColor, TextOffColor = FinderColor.Black });
+            ColorDict.Add(("bx_console SSL 4000 E", "EQ High Gain"), new ColorSettings { Label = "HF Gain", OnColor = bxSslRed });
+            ColorDict.Add(("bx_console SSL 4000 E", "EQ High Frequency"), new ColorSettings { Label = "HF Freq", OnColor = bxSslRed });
+            ColorDict.Add(("bx_console SSL 4000 E", "EQ High Gain"), new ColorSettings { Label = "HF Gain", OnColor = bxSslRed });
+            ColorDict.Add(("bx_console SSL 4000 E", "EQ High Bell"), new ColorSettings { Label = "SHELF", LabelOn = "BELL", OnColor = bxSslButtonColor, TextOnColor = FinderColor.Black, OffColor = bxSslButtonColor, TextOffColor = FinderColor.Black });
+            ColorDict.Add(("bx_console SSL 4000 E", "EQ Low Frequency"), new ColorSettings { Label = "LF Freq", LinkedParameter = "EQ Type", OnColor = bxSslBrown, TextOnColor = FinderColor.White, OffColor = bxSslBlack, TextOffColor = FinderColor.White });
+            ColorDict.Add(("bx_console SSL 4000 E", "EQ Low Gain"), new ColorSettings { Label = "LF Gain", LinkedParameter = "EQ Type", OnColor = bxSslBrown, TextOnColor = FinderColor.White, OffColor = bxSslBlack, TextOffColor = FinderColor.White });
+            ColorDict.Add(("bx_console SSL 4000 E", "EQ Low Bell"), new ColorSettings { Label = "SHELF", LabelOn = "BELL", OnColor = bxSslButtonColor, TextOnColor = FinderColor.Black, OffColor = bxSslButtonColor, TextOffColor = FinderColor.Black });
+            ColorDict.Add(("bx_console SSL 4000 E", "EQ Type"), new ColorSettings { Label = "EQ TYPE", LabelOn = "BELL", OnColor = bxSslButtonColor, TextOnColor = FinderColor.Black, OffColor = bxSslButtonColor, TextOffColor = FinderColor.Black });
+            ColorDict.Add(("bx_console SSL 4000 E", "EQ High Mid Gain"), new ColorSettings { Label = "HMF Gain", OnColor = bxSslGreen });
+            ColorDict.Add(("bx_console SSL 4000 E", "EQ High Mid Frequency"), new ColorSettings { Label = "HMF Freq", OnColor = bxSslGreen });
+            ColorDict.Add(("bx_console SSL 4000 E", "EQ High Mid Q"), new ColorSettings { Label = "HMF Q", OnColor = bxSslGreen });
+            ColorDict.Add(("bx_console SSL 4000 E", "EQ Low Mid Gain"), new ColorSettings { Label = "LMF Gain", OnColor = bxSslBlue });
+            ColorDict.Add(("bx_console SSL 4000 E", "EQ Low Mid Frequency"), new ColorSettings { Label = "LMF Freq", OnColor = bxSslBlue });
+            ColorDict.Add(("bx_console SSL 4000 E", "EQ Low Mid Q"), new ColorSettings { Label = "LMF Q", OnColor = bxSslBlue });
+            ColorDict.Add(("bx_console SSL 4000 E", "EQ LC Ratio"), new ColorSettings { Label = "LC RATIO", OnColor = bxSslWhite });
+            ColorDict.Add(("bx_console SSL 4000 E", "EQ LC Threshold"), new ColorSettings { Label = "LC THRES", OnColor = bxSslWhite });
+            ColorDict.Add(("bx_console SSL 4000 E", "EQ LC Release"), new ColorSettings { Label = "LC RELEASE", OnColor = bxSslWhite });
+            ColorDict.Add(("bx_console SSL 4000 E", "EQ LC Attack"), new ColorSettings { Label = "FAST", OnColor = bxSslLedOnColor, TextOnColor = FinderColor.White, OffColor = bxSslLedOffColor, TextOffColor = FinderColor.Black });
+            ColorDict.Add(("bx_console SSL 4000 E", "EQ LC Link"), new ColorSettings { Label = "LINK", OnColor = new FinderColor(253, 222, 16), TextOnColor = FinderColor.Black, OffColor = bxSslLedOffColor, TextOffColor = FinderColor.Black });
+            ColorDict.Add(("bx_console SSL 4000 E", "EQ GE Ratio"), new ColorSettings { Label = "GE RATIO", OnColor = bxSslWhite });
+            ColorDict.Add(("bx_console SSL 4000 E", "EQ GE Threshold"), new ColorSettings { Label = "GE THRES", OnColor = bxSslWhite });
+            ColorDict.Add(("bx_console SSL 4000 E", "EQ GE Release"), new ColorSettings { Label = "GE RELEASE", OnColor = bxSslWhite });
+            ColorDict.Add(("bx_console SSL 4000 E", "EQ GE Attack"), new ColorSettings { Label = "FAST", OnColor = bxSslLedOnColor, TextOnColor = FinderColor.White, OffColor = bxSslLedOffColor, TextOffColor = FinderColor.Black });
+
+
             // Waves
 
             ColorDict.Add(("SSLGChannel", "HP Frq"), new ColorSettings { OnColor = new FinderColor(220, 216, 207) });

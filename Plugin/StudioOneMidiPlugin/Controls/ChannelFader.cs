@@ -20,8 +20,10 @@
         private String PluginName;
         private static readonly ColorFinder UserColorFinder = new ColorFinder(new ColorFinder.ColorSettings
         {
-            OnColor =  new FinderColor(DefaultBarColor),    // Used for volume bar
-            OffColor = new FinderColor(80, 80, 80)          // Used for volume bar
+            OnColor = new FinderColor(DefaultBarColor),     // Used for volume bar
+            OffColor = new FinderColor(80, 80, 80),         // Used for volume bar
+            TextOnColor = FinderColor.White,
+            TextOffColor = new FinderColor(80, 80, 80)
         });
         
         private static readonly Boolean[] IsActive = new Boolean[StudioOneMidiPlugin.ChannelCount];
@@ -247,7 +249,7 @@
 
             if (cd.ChannelID < IsActive.Length && !IsActive[cd.ChannelID])
             {
-                valueColor = new BitmapColor(70, 70, 70);
+                valueColor = UserColorFinder.getTextOffColor(this.PluginName, cd.Label);
                 valBarColor = UserColorFinder.getOffColor(this.PluginName, cd.Label);
             }
 

@@ -505,7 +505,10 @@
                     else
                     {
                         // Toggle the user button value.
-                        this.Plugin.SendMidiNote(0, UserButtonMidiBase + this.ChannelIndex, this.UserButtonActive ? 0 : 127);
+                        if (this.UserButtonEnabled)
+                        {
+                            this.Plugin.SendMidiNote(0, UserButtonMidiBase + this.ChannelIndex, this.UserButtonActive ? 0 : 127);
+                        }
                     }
                     break;
                 case SelectButtonMode.FX:

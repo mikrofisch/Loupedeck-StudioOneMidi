@@ -316,8 +316,10 @@
     <EmbeddedResource Include="Resources\button_add_52px.png" />
     <EmbeddedResource Include="Resources\bypass_52px.png" />
     <EmbeddedResource Include="Resources\channel_editor_52px.png" />
-    <EmbeddedResource Include="Resources\click_52px.png" />
+    <EmbeddedResource Include="Resources\click2_52px.png" />
+    <EmbeddedResource Include="Resources\click2_on_52px.png" />
     <EmbeddedResource Include="Resources\click_32px.png" />
+    <EmbeddedResource Include="Resources\click_52px.png" />
     <EmbeddedResource Include="Resources\click_on_52px.png" />
     <EmbeddedResource Include="Resources\click_settings_52px.png" />
     <EmbeddedResource Include="Resources\click_vol_52px.png" />
@@ -532,17 +534,13 @@
     </Reference>
   </ItemGroup>
 
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\click2_52px.png" />
-    <EmbeddedResource Include="Resources\click2_on_52px.png" />
-  </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Actions\" />
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Condition="$(OS) == 'Windows_NT'" Command="echo $(OutputPath) &gt; &quot;$(PluginDir)$(ProjectName).link&quot;&#xD;&#xA;xcopy /d &quot;$(OutputPath)runtimes\$(NETCoreSdkPortableRuntimeIdentifier)\native\*&quot; $(OutputPath)" />
+    <Exec Condition="$(OS) == 'Windows_NT'" Command="echo $(OutputPath) &gt; &quot;$(PluginDir)$(ProjectName).link&quot;" />
     <Exec Condition="$(OS) != 'Windows_NT'" Command="echo $(OutputPath) &gt; $(PluginDir)$(ProjectName).link" />
   </Target>
 

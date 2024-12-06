@@ -30,7 +30,8 @@
 
                 var bd = this.buttonData[param];
                 bd.Activated = e.Velocity > 0;
-                this.EmitActionImageChanged();
+                this.ActionImageChanged(param);
+                // this.EmitActionImageChanged();
             };
 
             this.plugin.FunctionKeyChanged += (object sender, FunctionKeyParams fke) =>
@@ -39,12 +40,12 @@
                 // parameters since the global user buttons are handled as additional
                 // function keys.
                 //
-                if (this.buttonData.TryGetValue((fke.KeyID + 0x60).ToString(), out var bd))
+                var code = (fke.KeyID + 0x60).ToString();
+                if (this.buttonData.TryGetValue(code, out var bd))
                 {
                     bd.Name = fke.FunctionName;
+                    this.ActionImageChanged(code);
                 }
-
-                this.EmitActionImageChanged();
             };
 
             return true;

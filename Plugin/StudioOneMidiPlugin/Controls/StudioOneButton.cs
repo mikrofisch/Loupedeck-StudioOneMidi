@@ -17,7 +17,17 @@
             this.ActionImageChangedTimer.Elapsed += (Object sender, System.Timers.ElapsedEventArgs e) =>
             {
                 // Debug.WriteLine("ActionImageChangeTimer.Elapsed " + this.Name);
-                this.ActionImageChanged();
+
+                // As of version 6.0.2 of the Loupedeck software ActionImageChanged() requires the
+                // actionParameter argument in order to have an effect when used in PluginDynamicCommand.
+                // Iterating through 6 buttons for now (assuming that EmitActionImageChanged() is called when
+                // all buttons on display should be updated - we have 6 ChannelSelectButtons and
+                // 6 ChannelModesKeypad buttons).
+                //
+                for (var i = 0; i < 6; i++)
+                {
+                    this.ActionImageChanged($"{i}");
+                }
             };
 
         }

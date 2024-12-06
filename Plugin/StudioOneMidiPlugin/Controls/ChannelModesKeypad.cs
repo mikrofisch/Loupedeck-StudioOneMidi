@@ -13,6 +13,14 @@
     // The functionality of the buttons changes dynamically.
     internal class ChannelModesKeypad : StudioOneButton<ButtonData>
     {
+        private static readonly BitmapColor ClickBgColor = new BitmapColor(50, 114, 134);
+
+        public class ModeData
+        {
+            public Int32 layerID;
+            public ButtonData[] bd = new ButtonData[6];
+        }
+
         private enum ButtonLayer
         {
             ViewSelector,
@@ -30,6 +38,10 @@
             User = 1
         }
         private static UserSendsMode LastUserSendsMode = UserSendsMode.User;
+
+        private ModeData viewSelectorModeData = new ModeData();
+
+        private IDictionary<Int32, ModeData> PlayLayerModeDataDict = new Dictionary<Int32, ModeData>();
 
         private enum PlayLayerMode
         {
@@ -63,8 +75,6 @@
         private UserSendsLayerMode CurrentUserSendsLayerMode = UserSendsLayerMode.User;
         private Boolean DeactivateUserMenu = false;
 
-        private static readonly BitmapColor ClickBgColor = new BitmapColor(50, 114, 134);
-
         private static readonly String idxUserButton = $"{(Int32)ButtonLayer.FaderModesSend}:3";
         private static readonly String idxSendButton = $"{(Int32)ButtonLayer.FaderModesSend}:5";
         private static readonly String idxPlayMuteSoloSelectButton = $"{(Int32)ButtonLayer.ChannelPropertiesPlay}:0";
@@ -97,18 +107,24 @@
             this.Description = "Special button for controlling Loupedeck fader modes";
 
             // Create UI buttons
-            this.AddParameter($"{0}", "Mode Group Button 1-1", "Channel Modes");
-            this.AddParameter($"{1}", "Mode Group Button 2-1", "Channel Modes");
-            this.AddParameter($"{2}", "Mode Group Button 1-2", "Channel Modes");
-            this.AddParameter($"{3}", "Mode Group Button 2-2", "Channel Modes");
-            this.AddParameter($"{4}", "Mode Group Button 1-3", "Channel Modes");
-            this.AddParameter($"{5}", "Mode Group Button 2-3", "Channel Modes");
+            this.AddParameter("0", "Mode Group Button 1-1", "Channel Modes");
+            this.AddParameter("1", "Mode Group Button 2-1", "Channel Modes");
+            this.AddParameter("2", "Mode Group Button 1-2", "Channel Modes");
+            this.AddParameter("3", "Mode Group Button 2-2", "Channel Modes");
+            this.AddParameter("4", "Mode Group Button 1-3", "Channel Modes");
+            this.AddParameter("5", "Mode Group Button 2-3", "Channel Modes");
 
             this.addButton(ButtonLayer.ViewSelector, "0", new ModeButtonData("PLAY"));
             this.addButton(ButtonLayer.ViewSelector, "1", new ModeButtonData("REC"));
             this.addButton(ButtonLayer.ViewSelector, "2", new ModeButtonData("SHOW"));
             this.addButton(ButtonLayer.ViewSelector, "3", new ModeButtonData("USER\rSENDS"));
             this.addButton(ButtonLayer.ViewSelector, "4", new ModeButtonData("LAST", "view_last"));
+
+            viewSelectorModeData.bd[0] = new ModeButtonData("PLAY");
+            viewSelectorModeData.bd[1] = new ModeButtonData("REC");
+            viewSelectorModeData.bd[2] = new ModeButtonData("SHOW");
+            viewSelectorModeData.bd[3] = new ModeButtonData("USER\rSENDS");
+            viewSelectorModeData.bd[4] = new ModeButtonData("LAST", "view_last");
 
             // Create button data for each layer
             //this.addButton(ButtonLayer.channelProperties, 0, new PropertyButtonData(StudioOneMidiPlugin.ChannelCount, 
@@ -169,6 +185,7 @@
             this.addButton(ButtonLayer.ChannelPropertiesPlay, "3-6", new OneWayCommandButtonData(14, 0x17, "Add Bus Channel", "add_bus", addBgColor));
             this.addButton(ButtonLayer.ChannelPropertiesPlay, "4-6", new OneWayCommandButtonData(14, 0x3C, "Add Track", null, addBgColor));
 
+
             this.addButton(ButtonLayer.ChannelPropertiesRec, "0", new PropertySelectionButtonData(ChannelProperty.PropertyType.Arm,
                                                                                                 ChannelProperty.PropertyType.Monitor,
                                                                                                 "select-arm", "select-monitor", "select-arm-monitor",
@@ -192,7 +209,7 @@
             this.addButton(ButtonLayer.FaderModesShow, "0", new CommandButtonData(0x40, "AUDIO", new BitmapColor(0, 60, 80), BitmapColor.White));
             this.addButton(ButtonLayer.FaderModesShow, "1", new CommandButtonData(0x42, "FX", new BitmapColor(0, 60, 80), BitmapColor.White));
             this.addButton(ButtonLayer.FaderModesShow, "2", new CommandButtonData(0x43, "BUS", new BitmapColor(0, 60, 80), BitmapColor.White));
-             this.addButton(ButtonLayer.FaderModesShow, "3", new CommandButtonData(0x44, "OUT", new BitmapColor(0, 60, 80), BitmapColor.White));
+            this.addButton(ButtonLayer.FaderModesShow, "3", new CommandButtonData(0x44, "OUT", new BitmapColor(0, 60, 80), BitmapColor.White));
             this.addButton(ButtonLayer.FaderModesShow, "4", new ModeButtonData("VIEWS"));
             this.addButton(ButtonLayer.FaderModesShow, "5", new ViewAllRemoteCommandButtonData(), isNoteReceiver: false);
 

@@ -124,7 +124,7 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
                 var linkedParameter = SelectButtonData.UserColorFinder.getLinkedParameter(SelectButtonData.PluginName, bd.Label);
                 var linkedParameterUser = SelectButtonData.UserColorFinder.getLinkedParameter(SelectButtonData.PluginName, bd.UserLabel);
 
-                Debug.WriteLine("ChannelSelectButton getCommandImage channel: " + bd.ChannelIndex + " bd.Label: " + bd.Label + ", linkedParameter: " + linkedParameter +", linkedParameterUser: " + linkedParameterUser);
+                // Debug.WriteLine("ChannelSelectButton getCommandImage channel: " + bd.ChannelIndex + " bd.Label: " + bd.Label + ", linkedParameter: " + linkedParameter +", linkedParameterUser: " + linkedParameterUser);
 
                 if (!linkedParameter.IsNullOrEmpty() || !linkedParameterUser.IsNullOrEmpty())
                 {
@@ -168,6 +168,7 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
             {
                 this.plugin.EmitChannelActiveChanged(new ChannelActiveParams { ChannelIndex = bd.ChannelIndex, IsActive = bd.Enabled });
             }
+
             return bd.getImage(imageSize);
         }
 

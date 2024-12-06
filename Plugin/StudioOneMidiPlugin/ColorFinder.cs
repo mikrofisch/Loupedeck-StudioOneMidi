@@ -8,7 +8,6 @@
     using System.Text.Json.Serialization;
     using System.Xml.Serialization;
     using System.ComponentModel;
-    using System.Windows.Controls;
 
 
     // BitmapColor objects that have not been explicitly assigned to a
@@ -984,6 +983,48 @@
             ColorDict.Add(("CLA-76", "Analog"), new ColorSettings { Label = "A", UserMenuItems = ["50Hz", "60Hz", "Off"], TextOnColor = new FinderColor(254, 246, 212) });
             ColorDict.Add(("CLA-76", "Meter"), new ColorSettings { UserMenuItems = ["GR", "IN", "OUT"] });
             ColorDict.Add(("CLA-76", "Comp Off"), new ColorSettings { OnColor = new FinderColor(162, 38, 38), TextOnColor = FinderColor.White });
+
+            // Black Rooster Audio
+
+            {
+                var barOnColor = new FinderColor(242, 202, 75);
+                var knobOnColor = new FinderColor(210, 204, 182);
+                ColorDict.Add(("VLA-2A", "Power"), new ColorSettings { Label = "OFF", LabelOn = "ON", OnColor = new FinderColor(212, 86, 27) });
+                ColorDict.Add(("VLA-2A", "Mode"), new ColorSettings { Label = "COMPRESS", LabelOn = "LIMIT", OffColor = FinderColor.Black, TextOffColor = FinderColor.White });
+                ColorDict.Add(("VLA-2A", "ExSidech"), new ColorSettings { Label = "EXT SC OFF", LabelOn = "EXT SC ON", OffColor = FinderColor.Black, TextOffColor = FinderColor.White });
+                ColorDict.Add(("VLA-2A", "CellSel"), new ColorSettings { Label = "CEL", UserMenuItems = ["A", "B", "C"] });
+                ColorDict.Add(("VLA-2A", "VULevel"), new ColorSettings { Label = "VU", UserMenuItems = ["IN", "GR", "OUT"] });
+                ColorDict.Add(("VLA-2A", "Gain"), new ColorSettings { Label = "GAIN", OnColor = knobOnColor, TextOnColor = FinderColor.Black, BarOnColor = barOnColor, OnTransparency = 255 });
+                ColorDict.Add(("VLA-2A", "PeakRedc"), new ColorSettings { Label = "PK REDCT", OnColor = knobOnColor, TextOnColor = FinderColor.Black, BarOnColor = barOnColor, OnTransparency = 255 });
+                ColorDict.Add(("VLA-2A", "Emphasis"), new ColorSettings { Label = "EMPHASIS", OnColor = knobOnColor, TextOnColor = FinderColor.Black, BarOnColor = barOnColor, OnTransparency = 255 });
+                ColorDict.Add(("VLA-2A", "Makeup"), new ColorSettings { Label = "MAKEUP", OnColor = knobOnColor, TextOnColor = FinderColor.Black, BarOnColor = barOnColor, OnTransparency = 255 });
+                ColorDict.Add(("VLA-2A", "Mix"), new ColorSettings { Label = "MIX", OnColor = knobOnColor, TextOnColor = FinderColor.Black, BarOnColor = barOnColor, OnTransparency = 255 });
+            }
+            {
+                var barOnColor = FinderColor.White;
+                ColorDict.Add(("VLA-3A", "Power"), new ColorSettings { Label = "OFF", LabelOn = "ON", OnColor = new FinderColor(212, 86, 27) });
+                ColorDict.Add(("VLA-3A", "Mode"), new ColorSettings { Label = "COMPRESS", LabelOn = "LIMIT", OffColor = FinderColor.Black, TextOffColor = FinderColor.White });
+                ColorDict.Add(("VLA-3A", "VULevel"), new ColorSettings { Label = "VU", UserMenuItems = ["IN", "GR", "OUT"] });
+                ColorDict.Add(("VLA-3A", "Gain"), new ColorSettings { Label = "GAIN", BarOnColor = barOnColor });
+                ColorDict.Add(("VLA-3A", "PeakRedc"), new ColorSettings { Label = "PK REDCT", BarOnColor = barOnColor });
+            }
+            {
+                var barOnColor = new FinderColor(255, 161, 75);
+                var knobOnColor = new FinderColor(199, 183, 160);
+                ColorDict.Add(("RO-140", "Power"), new ColorSettings { Label = "OFF", LabelOn = "ON", OnColor = new FinderColor(212, 86, 27) });
+                ColorDict.Add(("RO-140", "Material"), new ColorSettings { UserMenuItems = ["TITANIUM", "GOLD", "SILVER", "BRONZE", "ALUMINUM", "STEEL" ] });
+                ColorDict.Add(("RO-140", "Mode"), new ColorSettings { UserMenuItems = ["MONO", "MONO>ST", "STEREO" ] });
+                ColorDict.Add(("RO-140", "Low"), new ColorSettings { Label = "LOW", OnColor = knobOnColor, TextOnColor = FinderColor.Black, BarOnColor = barOnColor, OnTransparency = 255 });
+                ColorDict.Add(("RO-140", "Mid"), new ColorSettings { Label = "MID", OnColor = knobOnColor, TextOnColor = FinderColor.Black, BarOnColor = barOnColor, OnTransparency = 255 });
+                ColorDict.Add(("RO-140", "High"), new ColorSettings { Label = "HIGH", OnColor = knobOnColor, TextOnColor = FinderColor.Black, BarOnColor = barOnColor, OnTransparency = 255 });
+                ColorDict.Add(("RO-140", "Damper"), new ColorSettings { Label = "DAMPER", OnColor = knobOnColor, TextOnColor = FinderColor.Black, BarOnColor = new FinderColor(200, 155, 127), OnTransparency = 255, DialSteps = 9 });
+                ColorDict.Add(("RO-140", "PreDelay"), new ColorSettings { Label = "PRE/DELAY", OnColor = knobOnColor, TextOnColor = FinderColor.Black, BarOnColor = barOnColor, OnTransparency = 255 });
+                ColorDict.Add(("RO-140", "Size"), new ColorSettings { Label = "SIZE", OnColor = knobOnColor, TextOnColor = FinderColor.Black, BarOnColor = barOnColor, OnTransparency = 255 });
+                ColorDict.Add(("RO-140", "BassCut"), new ColorSettings { Label = "BASS CUT", OnColor = knobOnColor, TextOnColor = FinderColor.Black, BarOnColor = barOnColor, OnTransparency = 255 });
+                ColorDict.Add(("RO-140", "Mix"), new ColorSettings { Label = "MIX", OnColor = knobOnColor, TextOnColor = FinderColor.Black, BarOnColor = barOnColor, OnTransparency = 255 });
+                ColorDict.Add(("RO-140", "Input"), new ColorSettings { Label = "INPUT", OnColor = knobOnColor, TextOnColor = FinderColor.Black, BarOnColor = barOnColor, OnTransparency = 255 });
+                ColorDict.Add(("RO-140", "Output"), new ColorSettings { Label = "OUTPUT", OnColor = knobOnColor, TextOnColor = FinderColor.Black, BarOnColor = barOnColor, OnTransparency = 255 });
+            }
 
             // Analog Obsession
 

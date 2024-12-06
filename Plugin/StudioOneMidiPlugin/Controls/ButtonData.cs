@@ -1,22 +1,35 @@
 ﻿namespace Loupedeck.StudioOneMidiPlugin.Controls
 {
     using System;
-    using System.Security.Permissions;
+    using System.CodeDom;
 
     using Loupedeck.StudioOneMidiPlugin.Helpers;
-
     using static Loupedeck.StudioOneMidiPlugin.StudioOneMidiPlugin;
 
     public abstract class ButtonData
     {
         public static readonly BitmapColor DefaultSelectionBgColor = new BitmapColor(60, 60, 60);
+        protected const Int32 TrackNameH = 24;
+        protected const Int32 LabelFontSize = 15;
+        protected const Int32 DescFontSize = 14;
+        protected const Int32 TrackNameFontSize = 14;
 
         protected StudioOneMidiPlugin Plugin;
-        protected const int TrackNameH = 24;
 
         public virtual void OnLoad(StudioOneMidiPlugin plugin) => this.Plugin = plugin;
         public abstract BitmapImage getImage(PluginImageSize imageSize);
         public abstract void runCommand();
+    }
+
+    // Class to manage the 6 buttons in the ChannelModesKeypad system which
+    // change their ButtonData according to the keypad's current mode.
+    //
+    public class ChannelModesKeypadButtonData : ButtonData
+    {
+        public static Int32 CurrentLayer = 0;
+        public ChannelModesKeypadButtonData()
+        {
+        }
     }
 
     public class PropertyButtonData : ButtonData
@@ -108,7 +121,7 @@
                     hPos = -bb.Width - 1;
                     width = bb.Width * 2;
                 }
-                bb.DrawText(trackName, hPos, 0, width, TrackNameH);
+                bb.DrawText(trackName, hPos, 0, width, TrackNameH, null, TrackNameFontSize);
             }
 
             return bb.ToImage();
@@ -310,7 +323,7 @@
                 }
                 else
                 {
-                    bb.DrawText(customParams.Label, TextDescColor);
+                    bb.DrawText(customParams.Label, TextDescColor, LabelFontSize);
                 }
             }
             else if (buttonMode == SelectButtonMode.Send || buttonMode == SelectButtonMode.FX)
@@ -326,7 +339,7 @@
                 }
                 // bb.FillRectangle(0, 0, bb.Width, bb.Height, BitmapColor.Black);
                 var titleHeight = cd.Description.Length > 0 ? TitleHeight : 0;
-                bb.DrawText(cd.Description, 0, barHeight + 2, bb.Width, titleHeight, TextDescColor);
+                bb.DrawText(cd.Description, 0, barHeight + 2, bb.Width, titleHeight, TextDescColor, DescFontSize);
 
                 // Remove clutter from plugin name
                 var typePos = -1;
@@ -343,7 +356,7 @@
                 {
                     typePos = cd.Label.LastIndexOf("x64");
                 }
-                bb.DrawText(typePos > 0 ? cd.Label.Substring(0, typePos) : cd.Label, 0, titleHeight, bb.Width, bb.Height - titleHeight);
+                bb.DrawText(typePos > 0 ? cd.Label.Substring(0, typePos) : cd.Label, 0, titleHeight, bb.Width, bb.Height - titleHeight, null, TrackNameFontSize);
             }
             else if (buttonMode == SelectButtonMode.User)
             {
@@ -362,10 +375,10 @@
                                                                             : UserColorFinder.getOffColor(pluginName, cd.Label));
                     }
                 }
-                bb.DrawText(cd.Description, 0, 0, bb.Width, TitleHeight, TextDescColor);
+                bb.DrawText(cd.Description, 0, 0, bb.Width, TitleHeight, TextDescColor, DescFontSize);
                 bb.DrawText(UserColorFinder.getLabelShort(pluginName, cd.Label), 0, bb.Height / 2 - TitleHeight / 2, bb.Width, TitleHeight, 
                             buttonEnabled ? UserColorFinder.getTextOnColor(pluginName, cd.Label)
-                                          : UserColorFinder.getTextOffColor(pluginName, cd.Label));
+                                          : UserColorFinder.getTextOffColor(pluginName, cd.Label), LabelFontSize);
 
                 // User Button
                 //
@@ -472,7 +485,7 @@
                 bb.DrawImage(SelectButtonData.IconSelRec, rX + rW / 2 - SelectButtonData.IconSelRec.Width / 2, rY2 + rH / 2 - SelectButtonData.IconSelRec.Height / 2);
                 bb.DrawImage(SelectButtonData.IconSelMon, rX2 + rW / 2 - SelectButtonData.IconSelMon.Width / 2, rY2 + rH / 2 - SelectButtonData.IconSelRec.Height / 2);
 
-                bb.DrawText(ColorFinder.stripLabel(cd.Label), 0, bb.Height / 2 - TitleHeight / 2, bb.Width, TitleHeight);
+                bb.DrawText(ColorFinder.stripLabel(cd.Label), 0, bb.Height / 2 - TitleHeight / 2, bb.Width, TitleHeight, null, LabelFontSize);
             }
             return bb.ToImage();
         }
@@ -664,7 +677,7 @@
             }
             else
             {
-                bb.DrawText(this.Name, 0, 0, bb.Width, bb.Height, this.Activated ? this.TextOnColor : this.TextColor, 16);
+                bb.DrawText(this.Name, 0, 0, bb.Width, bb.Height, this.Activated ? this.TextOnColor : this.TextColor, LabelFontSize);
             }
 
             return bb.ToImage();
@@ -980,7 +993,7 @@
             }
             else
             {
-                bb.DrawText(this.Name, 0, 0, bb.Width, bb.Height, null, 16);
+                bb.DrawText(this.Name, 0, 0, bb.Width, bb.Height, null, LabelFontSize);
             }
 
             return bb.ToImage();
@@ -1082,7 +1095,7 @@
                                              this.UserColorFinder.getLabel(this.PluginName, this.Name, isUser: true), 
                                              0, dispTxtH, bb.Width, bb.Height - dispTxtH, 
                             this.Activated ? this.UserColorFinder.getTextOnColor(this.PluginName, this.Name, isUser: true)
-                                           : this.UserColorFinder.getTextOffColor(this.PluginName, this.Name, isUser: true), 16);
+                                           : this.UserColorFinder.getTextOffColor(this.PluginName, this.Name, isUser: true), LabelFontSize);
             }
 
             if (this.TopDisplayText != null)
@@ -1112,7 +1125,7 @@
                 }
 
                 bb.DrawText(typePos > 0 ? this.TopDisplayText.Substring(0, typePos) : this.TopDisplayText,
-                            this.ButtonLocation == Location.Left ? 1 : -bb.Width - 1, 0, bb.Width * 2, dispTxtH);
+                            this.ButtonLocation == Location.Left ? 1 : -bb.Width - 1, 0, bb.Width * 2, dispTxtH, null, TrackNameFontSize);
                 if (iconName != null && this.ButtonLocation == Location.Right)
                 {
                     // bb.FillRectangle(bb.Width - 20, 0, 20, 20, BitmapColor.Black);
@@ -1212,7 +1225,7 @@
             if (this.SelectionModeActivated)
             {
                 bb.FillRectangle(0, 0, bb.Width, bb.Height, ButtonData.DefaultSelectionBgColor);
-                bb.DrawText("Auto\rMode", 0, 0, bb.Width, bb.Height, null, 16);
+                bb.DrawText("Auto\rMode", 0, 0, bb.Width, bb.Height, null, LabelFontSize);
             }
             else
             {
@@ -1251,7 +1264,7 @@
             bb.FillRectangle(0, 0, bb.Width, bb.Height, this.BgColor);
             bb.FillRectangle(0, bY, bb.Width, fillHeight, AutomationModeButtonData.AutomationBgColor[(Int32)this.Mode]);
             bb.DrawText(this.Mode == AutomationMode.Off ? "Off" : AutomationModeButtonData.AutomationText[(Int32)this.Mode], 
-                        0, 0, bb.Width, bb.Height, AutomationModeButtonData.AutomationTextColor[(Int32)this.Mode], 16);
+                        0, 0, bb.Width, bb.Height, AutomationModeButtonData.AutomationTextColor[(Int32)this.Mode], LabelFontSize);
 
             if (this.Mode == this.Plugin.CurrentAutomationMode)
             {
@@ -1328,6 +1341,8 @@
     public class SendsCommandButtonData : CommandButtonData
     {
         public const Int32 Note = 0x29;
+        public const Int32 FontSize = LabelFontSize;
+
         public SendsCommandButtonData() : base(Note, "SENDS")
         {
             this.Activated = true;
@@ -1345,7 +1360,7 @@
 
             bb.FillRectangle(rX, rY, rW, rH, this.Activated ? CommandButtonData.cRectOn : CommandButtonData.cRectOff);
 
-            bb.DrawText(this.Name, rX, rY, rW, rH, this.Activated ? CommandButtonData.cTextOn : CommandButtonData.cTextOff, 16);
+            bb.DrawText(this.Name, rX, rY, rW, rH, this.Activated ? CommandButtonData.cTextOn : CommandButtonData.cTextOff, FontSize, FontSize);
 
             return bb.ToImage();
         }
@@ -1364,6 +1379,7 @@
 
     public class UserModeButtonData : ButtonData
     {
+        private const Int32 FontSize = LabelFontSize;
         public Int32 ActiveUserPages { get; set; } = 3;
         Int32 UserPage { get; set; } = 0;
         Int32 LastUserPage { get; set; } = 0;
@@ -1415,7 +1431,7 @@
             var rX = (bb.Width - rW) / 2;
 
             bb.FillRectangle(rX, rY, rW, rH, this.UserPage == 0 ? CommandButtonData.cRectOff : CommandButtonData.cRectOn);
-            bb.DrawText("USER", rX, rY, rW, rH, this.UserPage == 0 ? CommandButtonData.cTextOff : CommandButtonData.cTextOn, 16);
+            bb.DrawText("USER", rX, rY, rW, rH, this.UserPage == 0 ? CommandButtonData.cTextOff : CommandButtonData.cTextOn, FontSize, FontSize);
 
             rY += rH;
             bb.FillRectangle(rX, rY, rW, rH, CommandButtonData.cRectOff);
@@ -1424,21 +1440,21 @@
 
             if (this.PageNames != null && this.PageNames.Length >= this.UserPage)
             {
-                bb.DrawText(this.PageNames[(this.UserPage > 0 ? this.UserPage : this.LastUserPage) - 1], rX, rY, rW, rH, CommandButtonData.cTextOff);
+                bb.DrawText(this.PageNames[(this.UserPage > 0 ? this.UserPage : this.LastUserPage) - 1], rX, rY, rW, rH, CommandButtonData.cTextOff, FontSize, FontSize);
             }
             else
             {
-                bb.DrawText("1", rX, rY, rW2, rH, CommandButtonData.cTextOff);
+                bb.DrawText("1", rX, rY, rW2, rH, CommandButtonData.cTextOff, FontSize, FontSize);
 
                 if (this.ActiveUserPages > 1)
                 {
                     if (this.ActiveUserPages > 2)
                     {
-                        bb.DrawText(this.ActiveUserPages.ToString(), rX + rW - rW2, rY, rW2, rH, CommandButtonData.cTextOff);
+                        bb.DrawText(this.ActiveUserPages.ToString(), rX + rW - rW2, rY, rW2, rH, CommandButtonData.cTextOff, FontSize, FontSize);
                     }
                     if (this.ActiveUserPages < 4)
                     {
-                        bb.DrawText("2", rX + rW2, rY, rW2, rH, CommandButtonData.cTextOff);
+                        bb.DrawText("2", rX + rW2, rY, rW2, rH, CommandButtonData.cTextOff, FontSize, FontSize);
                     }
                     else
                     {
@@ -1464,7 +1480,7 @@
                 if (this.UserPage > 0)
                 {
                     bb.FillRectangle(rX, rY, rW2, rH, CommandButtonData.cRectOn);
-                    bb.DrawText(this.UserPage.ToString(), rX, rY, rW2, rH, CommandButtonData.cTextOn);
+                    bb.DrawText(this.UserPage.ToString(), rX, rY, rW2, rH, CommandButtonData.cTextOn, FontSize, FontSize);
                 }
             }
 

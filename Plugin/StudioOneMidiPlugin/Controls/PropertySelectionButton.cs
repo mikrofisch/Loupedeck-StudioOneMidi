@@ -24,7 +24,7 @@
 
             this.plugin.PropertySelectionChanged += (object sender, ChannelProperty.PropertyType e) =>
             {
-                this.EmitActionImageChanged();
+                this.UpdateAllActionImages();
             };
 
             return true;

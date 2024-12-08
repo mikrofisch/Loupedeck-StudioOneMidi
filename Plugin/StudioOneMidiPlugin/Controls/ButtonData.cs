@@ -21,17 +21,6 @@
         public abstract void runCommand();
     }
 
-    // Class to manage the 6 buttons in the ChannelModesKeypad system which
-    // change their ButtonData according to the keypad's current mode.
-    //
-    public class ChannelModesKeypadButtonData : ButtonData
-    {
-        public static Int32 CurrentLayer = 0;
-        public ChannelModesKeypadButtonData()
-        {
-        }
-    }
-
     public class PropertyButtonData : ButtonData
     {
         public const Int32 SelectedChannel = StudioOneMidiPlugin.ChannelCount;
@@ -1225,7 +1214,7 @@
             if (this.SelectionModeActivated)
             {
                 bb.FillRectangle(0, 0, bb.Width, bb.Height, ButtonData.DefaultSelectionBgColor);
-                bb.DrawText("Auto\rMode", 0, 0, bb.Width, bb.Height, null, LabelFontSize);
+                bb.DrawText("Auto", 0, 0, bb.Width, bb.Height, null, LabelFontSize);
             }
             else
             {

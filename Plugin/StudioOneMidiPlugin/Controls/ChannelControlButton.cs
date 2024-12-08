@@ -55,7 +55,7 @@
             }
             base.RunCommand(actionParameter);
 
-            this.EmitActionImageChanged();
+            this.UpdateAllActionImages();
         }
 
         private void AddButton(CommandButtonData bd, Boolean addToShowList = false)

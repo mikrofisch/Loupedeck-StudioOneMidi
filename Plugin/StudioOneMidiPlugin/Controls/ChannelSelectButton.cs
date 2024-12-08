@@ -51,7 +51,7 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
             this.plugin.FocusDeviceChanged += (Object sender, String e) => SelectButtonData.FocusDeviceName = e;
             this.plugin.ChannelDataChanged += (Object sender, EventArgs e) => 
             {
-                this.EmitActionImageChanged();
+                this.UpdateAllActionImages();
             };
 
             this.plugin.SelectModeChanged += (Object sender, SelectButtonMode e) =>
@@ -62,7 +62,7 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
                     bd.CurrentMode = e;
                 }
                 this.ListenToMidi = false;
-                this.EmitActionImageChanged();
+                this.UpdateAllActionImages();
             };
 
             this.plugin.SelectButtonCustomModeChanged += (object sender, SelectButtonCustomParams cp) =>
@@ -72,13 +72,13 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
                 {
                     this.ListenToMidi = true;
                 }
-                this.EmitActionImageChanged();
+                this.UpdateAllActionImages();
             };
 
             this.plugin.PropertySelectionChanged += (object sender, ChannelProperty.PropertyType e) =>
             {
                 SelectButtonData.SelectionPropertyType = e;
-                this.EmitActionImageChanged();
+                this.UpdateAllActionImages();
             };
 
             this.plugin.FocusDeviceChanged += (object sender, string e) =>
@@ -91,7 +91,7 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
                 if (e.ChannelIndex >= 0)
                 {
                     this.buttonData[e.ChannelIndex.ToString()].UserButtonMenuActive = e.IsActive;
-                    this.EmitActionImageChanged();
+                    this.UpdateAllActionImages();
                 }
             };
 
@@ -106,7 +106,7 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
                             bd.Value.CustomIsActivated = e.Velocity > 0;
                         }
                     }
-                    this.EmitActionImageChanged();
+                    this.UpdateAllActionImages();
                 }
             };
 

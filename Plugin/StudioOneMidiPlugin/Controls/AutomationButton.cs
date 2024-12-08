@@ -27,7 +27,7 @@
 
             this.plugin.AutomationModeChanged += (Object sender, AutomationMode e) =>
             {
-                this.EmitActionImageChanged();
+                this.UpdateAllActionImages();
             };
 
             return true;

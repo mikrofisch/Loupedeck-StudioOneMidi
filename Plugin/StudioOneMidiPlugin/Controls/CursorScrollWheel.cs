@@ -36,7 +36,7 @@
             var e = new ControlChangeEvent();
             e.ControlValue = (SevenBitNumber)diff;
             e.ControlNumber = (SevenBitNumber)0x3C;
-            (this.Plugin as StudioOneMidiPlugin).mackieMidiOut.SendEvent(e);
+            (this.Plugin as StudioOneMidiPlugin).loupedeckMidiOut.SendEvent(e);
 
             this.AdjustmentValueChanged();
         }

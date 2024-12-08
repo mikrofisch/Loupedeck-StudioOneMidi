@@ -1012,8 +1012,8 @@
                 var barOnColor = new FinderColor(255, 161, 75);
                 var knobOnColor = new FinderColor(199, 183, 160);
                 ColorDict.Add(("RO-140", "Power"), new ColorSettings { Label = "OFF", LabelOn = "ON", OnColor = new FinderColor(212, 86, 27) });
-                ColorDict.Add(("RO-140", "Material"), new ColorSettings { UserMenuItems = ["TITANIUM", "GOLD", "SILVER", "BRONZE", "ALUMINUM", "STEEL" ] });
-                ColorDict.Add(("RO-140", "Mode"), new ColorSettings { UserMenuItems = ["MONO", "MONO>ST", "STEREO" ] });
+                ColorDict.Add(("RO-140", "Material"), new ColorSettings { Label = "", UserMenuItems = ["STEEL", "ALUMINUM", "BRONZE", "SILVER", "GOLD", "TITANIUM"] });
+                ColorDict.Add(("RO-140", "Mode"), new ColorSettings { Label = "", UserMenuItems = ["MONO", "MONO>ST", "STEREO" ] });
                 ColorDict.Add(("RO-140", "Low"), new ColorSettings { Label = "LOW", OnColor = knobOnColor, TextOnColor = FinderColor.Black, BarOnColor = barOnColor, OnTransparency = 255 });
                 ColorDict.Add(("RO-140", "Mid"), new ColorSettings { Label = "MID", OnColor = knobOnColor, TextOnColor = FinderColor.Black, BarOnColor = barOnColor, OnTransparency = 255 });
                 ColorDict.Add(("RO-140", "High"), new ColorSettings { Label = "HIGH", OnColor = knobOnColor, TextOnColor = FinderColor.Black, BarOnColor = barOnColor, OnTransparency = 255 });

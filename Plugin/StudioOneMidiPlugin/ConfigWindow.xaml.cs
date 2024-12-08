@@ -32,7 +32,7 @@ namespace Loupedeck.StudioOneMidiPlugin
                 }
 
                 midiIn.SelectedItem = plugin.MidiInName;
-                mackieMidiIn.SelectedItem = plugin.MackieMidiInName;
+                mackieMidiIn.SelectedItem = plugin.LoupedeckMidiInName;
             }
 
             {
@@ -46,7 +46,7 @@ namespace Loupedeck.StudioOneMidiPlugin
                 }
 
                 midiOut.SelectedItem = plugin.MidiOutName;
-                mackieMidiOut.SelectedItem = plugin.MackieMidiOutName;
+                mackieMidiOut.SelectedItem = plugin.LoupedeckMidiOutName;
             }
         }
 
@@ -62,12 +62,12 @@ namespace Loupedeck.StudioOneMidiPlugin
 
         private void mackieMidiIn_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
-            plugin.MackieMidiInName = mackieMidiIn.SelectedItem as string;
+            plugin.LoupedeckMidiInName = mackieMidiIn.SelectedItem as string;
         }
 
         private void mackieMidiOut_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
-            plugin.MackieMidiOutName = mackieMidiOut.SelectedItem as string;
+            plugin.LoupedeckMidiOutName = mackieMidiOut.SelectedItem as string;
         }
     }
 }

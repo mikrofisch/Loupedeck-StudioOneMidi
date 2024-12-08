@@ -25,14 +25,14 @@ namespace Loupedeck.StudioOneMidiPlugin
         // Gets a value indicating whether this is a Universal plugin or an Application plugin.
         public override Boolean HasNoApplication => true;
 
-		public InputDevice midiIn = null, mackieMidiIn = null;
-		public OutputDevice midiOut = null, mackieMidiOut = null;
+		public InputDevice midiIn = null, loupedeckMidiIn = null;
+		public OutputDevice midiOut = null, loupedeckMidiOut = null;
 
 		public const Int32 ChannelCount = 6;
 
 		public IDictionary<String, ChannelData> channelData = new Dictionary<String, ChannelData>();
 
-        String midiInName, midiOutName, mackieMidiInName, mackieMidiOutName;
+        String midiInName, midiOutName, loupedeckMidiInName, loupedeckMidiOutName;
 
         public ChannelFader channelFader;
 
@@ -139,7 +139,7 @@ namespace Loupedeck.StudioOneMidiPlugin
             Autopunch
         }
         public RecPreMode CurrentRecPreMode = RecPreMode.Off;
-
+    
         public enum ChannelFaderMode
         {
             Send,
@@ -152,7 +152,7 @@ namespace Loupedeck.StudioOneMidiPlugin
         {
 			get => this.midiInName;
 			set {
-				if (this.midiIn != null) {
+                if (this.midiIn != null) {
                     this.midiIn.StopEventsListening();
                     this.midiIn.Dispose();
 				}
@@ -188,46 +188,46 @@ namespace Loupedeck.StudioOneMidiPlugin
 			}
 		}
 
-		public String MackieMidiInName
+		public String LoupedeckMidiInName
         {
-			get => this.mackieMidiInName;
+			get => this.loupedeckMidiInName;
 			set {
-				if (this.mackieMidiIn != null) {
-                    this.mackieMidiIn.StopEventsListening();
-                    this.mackieMidiIn.Dispose();
+				if (this.loupedeckMidiIn != null) {
+                    this.loupedeckMidiIn.StopEventsListening();
+                    this.loupedeckMidiIn.Dispose();
 				}
 
-                this.mackieMidiInName = value;
+                this.loupedeckMidiInName = value;
 				try {
-                    this.mackieMidiIn = InputDevice.GetByName(value);
-                    this.mackieMidiIn.EventReceived += OnMidiEvent;
-                    this.mackieMidiIn.StartEventsListening();
-                    this.SetPluginSetting("MackieMidiIn", value, false);
+                    this.loupedeckMidiIn = InputDevice.GetByName(value);
+                    this.loupedeckMidiIn.EventReceived += OnMidiEvent;
+                    this.loupedeckMidiIn.StartEventsListening();
+                    // this.SetPluginSetting("LoupedeckMidiIn", value, false);
 				}
 				catch (Exception) {
-                    this.mackieMidiIn = null;
+                    this.loupedeckMidiIn = null;
 				}
 			}
 		}
 
-		public String MackieMidiOutName
+		public String LoupedeckMidiOutName
         {
-			get => this.mackieMidiOutName;
+			get => this.loupedeckMidiOutName;
 			set {
-				if (this.mackieMidiOut != null)
+				if (this.loupedeckMidiOut != null)
                 {
-                    this.mackieMidiOut.Dispose();
+                    this.loupedeckMidiOut.Dispose();
 				}
 
-                this.mackieMidiOutName = value;
+                this.loupedeckMidiOutName = value;
 				try
                 {
-                    this.mackieMidiOut = OutputDevice.GetByName(value);
-                    this.SetPluginSetting("MackieMidiOut", value, false);
+                    this.loupedeckMidiOut = OutputDevice.GetByName(value);
+                    // this.SetPluginSetting("LoupedeckMidiOut", value, false);
 				}
 				catch (Exception)
                 {
-                    this.mackieMidiOut = null;
+                    this.loupedeckMidiOut = null;
 				}
 			}
 		}
@@ -374,14 +374,14 @@ namespace Loupedeck.StudioOneMidiPlugin
 //
 //			if (TryGetPluginSetting("MackieMidiIn", out mackieMidiInName))
 //                MackieMidiInName = mackieMidiInName;
-            this.MackieMidiInName = "Loupedeck S1 In";
+            this.LoupedeckMidiInName = "Loupedeck S1 Out";
 
 //            if (TryGetPluginSetting("MidiOut", out midiOutName))
 //				MidiOutName = midiOutName;
 
 //			if (TryGetPluginSetting("MackieMidiOut", out mackieMidiOutName))
 //				MackieMidiOutName = mackieMidiOutName;
-            this.MackieMidiOutName = "Loupedeck S1 Out";
+            this.LoupedeckMidiOutName = "Loupedeck S1 In";
         }
 
         private void OnMidiEvent(object sender, MidiEventReceivedEventArgs args)
@@ -599,7 +599,7 @@ namespace Loupedeck.StudioOneMidiPlugin
             e.Channel = (FourBitNumber)midiChannel;
             e.Velocity = (SevenBitNumber)velocity;
             e.NoteNumber = (SevenBitNumber)note;
-            this.mackieMidiOut.SendEvent(e);
+            this.loupedeckMidiOut.SendEvent(e);
         }
 
         public void SetChannelFaderMode(ChannelFaderMode mode, Int32 userPage = 1)

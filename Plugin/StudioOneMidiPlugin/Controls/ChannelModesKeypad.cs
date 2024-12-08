@@ -17,7 +17,6 @@
 
         public class ModeData
         {
-            public Int32 ModeID;
             public ButtonData[] ButtonDataList = new ButtonData[6];
         }
         private enum ButtonLayer
@@ -324,6 +323,7 @@
             this.ButtonLayerDict[ButtonLayer.FaderModesSend].AddMode(modeID);
             this.addButton(ButtonLayer.FaderModesSend, modeID, 0, new ModeTopCommandButtonData(14, 0x74, "Previous Plugin", ModeTopCommandButtonData.Location.Left, "plugin_prev", pluginBgColor));
             this.addButton(ButtonLayer.FaderModesSend, modeID, 1, new ModeTopCommandButtonData(14, 0x75, "Next Plugin", ModeTopCommandButtonData.Location.Right, "plugin_next", pluginBgColor));
+            this.addButton(ButtonLayer.FaderModesSend, modeID, 2, this.getButtonData(ButtonLayer.FaderModesSend, (Int32)UserSendsMode.User, 2));
             this.addButton(ButtonLayer.FaderModesSend, modeID, 3, new OneWayCommandButtonData(14, 0x12, "Channel Editor", "channel_editor", pluginBgColor));
             this.addButton(ButtonLayer.FaderModesSend, modeID, 5, new OneWayCommandButtonData(14, 0x0D, "Reset Window Positions", "reset_window_positions", pluginBgColor));
 

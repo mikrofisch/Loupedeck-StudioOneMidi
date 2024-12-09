@@ -1,6 +1,7 @@
 ﻿namespace Loupedeck.StudioOneMidiPlugin
 {
     using System;
+    using System.IO;
     using System.Collections.Generic;
     using System.Linq;
     using System.Text.RegularExpressions;
@@ -8,6 +9,7 @@
     using System.Text.Json.Serialization;
     using System.Xml.Serialization;
     using System.ComponentModel;
+    using System.Windows.Shapes;
 
 
     // BitmapColor objects that have not been explicitly assigned to a
@@ -172,6 +174,12 @@
                 this.Label = label;
             }
         }
+
+        public class XmlConfig
+        {
+            public ConfigEntry[] Entries = new ConfigEntry[10];
+        }
+
         public void Init(Plugin plugin, Boolean forceReload = false)
         {
             if (forceReload)
@@ -182,19 +190,31 @@
             {
                 this.InitColorDict();
 
-                //                var ConfigFilePath = Path.Combine(Directory.GetParent(Application.LocalUserAppDataPath.TrimEnd(Path.DirectorySeparatorChar)).FullName, ConfigFileName);
-                //
-                //                var serializer = new XmlSerializer(typeof(ConfigEntry));
-                //                TextWriter writer = new StreamWriter(ConfigFilePath);
-                //
-                //                foreach (KeyValuePair<(String, String), ColorSettings> entry in ColorDict)
-                //                {
-                //                    serializer.Serialize(writer, new ConfigEntry { key1 = entry.Key.Item1,
-                //                                                                   key2 = entry.Key.Item2,
-                //                                                                   colorSettings = entry.Value });
-                //                }
-                //
-                //                writer.Close();
+                var configFolderPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StudioOneMidiPlugin");
+                if (!Directory.Exists(configFolderPath))
+                {
+                    Directory.CreateDirectory(configFolderPath);
+                }
+                var configFilePath = System.IO.Path.Combine(configFolderPath, ConfigFileName);
+
+                XmlConfig blub = new XmlConfig();
+
+                var serializer = new XmlSerializer(typeof(XmlConfig));
+                TextWriter writer = new StreamWriter(configFilePath);
+
+                serializer.Serialize(writer, blub);
+
+//                foreach (KeyValuePair<(String, String), ColorSettings> entry in ColorDict)
+//                {
+//                    serializer.Serialize(writer, new ConfigEntry
+//                    {
+//                        key1 = entry.Key.Item1,
+//                        key2 = entry.Key.Item2,
+//                        colorSettings = entry.Value
+//                    });
+//                }
+
+                writer.Close();
 
                 // var options = new JsonSerializerOptions { WriteIndented = true, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault };
                 // foreach (KeyValuePair<(String, String), ColorSettings> entry in ColorDict)

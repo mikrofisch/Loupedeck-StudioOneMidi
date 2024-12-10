@@ -9,7 +9,6 @@
     using System.Text.Json.Serialization;
     using System.Xml.Serialization;
     using System.ComponentModel;
-    using System.Windows.Shapes;
 
 
     // BitmapColor objects that have not been explicitly assigned to a
@@ -18,8 +17,6 @@
     // to a color (BitmapColor.NoColor evaluates to the same values as BitmapColor.White) and
     // it cannot be set to null, we define a new class that can be null.
     //
-    [JsonConverter(typeof(FinderColorConverter))]
-    [XmlRoot("FinderColor")]
     public class FinderColor : IXmlSerializable
     {
         public BitmapColor Color { get; set; }
@@ -48,21 +45,29 @@
         public void ReadXml(System.Xml.XmlReader reader)
         {
             var str = reader.ReadString();
-            reader.ReadEndElement();
+//            reader.ReadEndElement();
         }
 
         public void WriteXml(System.Xml.XmlWriter writer)
         {
-            if (this.Color != null)
+            if (this.Color == null)
             {
-                var str = $"rgb({this.Color.R},{this.Color.G},{this.Color.B})";
-                str = "murks";
-
-                writer.WriteString(str);
-                writer.WriteEndElement();
+                return;
+            }
+            else if (this.Color == BitmapColor.White)
+            {
+                writer.WriteString("white");
+            }
+            else if (this.Color == BitmapColor.Black)
+            {
+                writer.WriteString("black");
+            }
+            else
+            {
+                writer.WriteString($"rgb({this.Color.R},{this.Color.G},{this.Color.B})");
             }
         }
-
+        
         #endregion
     }
     public class FinderColorConverter : JsonConverter<FinderColor>
@@ -85,15 +90,19 @@
         public const Int32 DefaultOnTransparency = 80;
 
         public static readonly BitmapColor NoColor = new BitmapColor(-1, -1, -1);
-        [XmlInclude(typeof(S1TopControlColors))]
+
+//        [XmlInclude(typeof(S1TopControlColors))]
         public class ColorSettings
         {
             public enum PotMode { Positive, Symmetric };
             public PotMode Mode { get; set; } = PotMode.Positive;
+
             [DefaultValueAttribute(false)]
             public Boolean HideValueBar { get; set; } = false;
+
             [DefaultValueAttribute(false)]
             public Boolean ShowUserButtonCircle { get; set; } = false;
+
             [DefaultValueAttribute(true)]
             public Boolean PaintLabelBg { get; set; } = true;
 
@@ -109,6 +118,7 @@
             public String Label { get; set; }
             public String LabelOn { get; set; }
             public String LinkedParameter { get; set; }
+
             [DefaultValueAttribute(false)]
             public Boolean LinkReversed { get; set; } = false;
             public String LinkedStates { get; set; }                // Comma separated list of indices for which the linked parameter is active
@@ -138,13 +148,6 @@
         public Int32 CurrentChannel = 0;
 
         const String ConfigFileName = "AudioPluginConfig.xml";
-
-        public class ConfigEntry
-        {
-            public String key1;
-            public String key2;
-            public ColorSettings colorSettings;
-        }
 
         public ColorSettings DefaultColorSettings { get; private set; } = new ColorSettings
         {
@@ -177,7 +180,27 @@
 
         public class XmlConfig
         {
-            public ConfigEntry[] Entries = new ConfigEntry[10];
+            public class DeviceEntry
+            {
+                public class ColorDef
+                {
+                    [XmlAttribute]
+                    public String Name;
+                    public FinderColor Color;
+                }
+                public class ConfigEntry
+                {
+                    [XmlAttribute]
+                    public String Name;
+                    public ColorSettings ColorSettings;
+                }
+
+                [XmlAttribute]
+                public String Name;
+                public List<ColorDef> Colors = new();
+                public List<ConfigEntry> ConfigEntries = new();
+            }
+            public List<DeviceEntry> DeviceEntries = new();
         }
 
         public void Init(Plugin plugin, Boolean forceReload = false)
@@ -190,19 +213,27 @@
             {
                 this.InitColorDict();
 
-                var configFolderPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StudioOneMidiPlugin");
+                var configFolderPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Loupedeck-StudioOneMidiPlugin");
                 if (!Directory.Exists(configFolderPath))
                 {
                     Directory.CreateDirectory(configFolderPath);
                 }
                 var configFilePath = System.IO.Path.Combine(configFolderPath, ConfigFileName);
 
-                XmlConfig blub = new XmlConfig();
+                var config = new XmlConfig();
+
+                var device = new XmlConfig.DeviceEntry { Name = "Plugin A"};
+                device.Colors.Add(new XmlConfig.DeviceEntry.ColorDef { Name = "ColorBg", Color = new FinderColor(10, 20, 30) });
+                device.Colors.Add(new XmlConfig.DeviceEntry.ColorDef { Name = "ColorFg", Color = FinderColor.White });
+                device.ConfigEntries.Add(new XmlConfig.DeviceEntry.ConfigEntry { Name = "HighMidFreq", ColorSettings = new ColorSettings { Label = "HMF", ShowUserButtonCircle = true } });
+                device.ConfigEntries.Add(new XmlConfig.DeviceEntry.ConfigEntry { Name = "LowMidFreq", ColorSettings = new ColorSettings { OnColor = new FinderColor(60, 200, 135), Label = "LMF", ShowUserButtonCircle = true } });
+                config.DeviceEntries.Add(device);
+
 
                 var serializer = new XmlSerializer(typeof(XmlConfig));
                 TextWriter writer = new StreamWriter(configFilePath);
 
-                serializer.Serialize(writer, blub);
+                serializer.Serialize(writer, config);
 
 //                foreach (KeyValuePair<(String, String), ColorSettings> entry in ColorDict)
 //                {

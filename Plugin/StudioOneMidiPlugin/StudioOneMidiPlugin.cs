@@ -382,6 +382,7 @@ namespace Loupedeck.StudioOneMidiPlugin
 //			if (TryGetPluginSetting("MackieMidiOut", out mackieMidiOutName))
 //				MackieMidiOutName = mackieMidiOutName;
             this.LoupedeckMidiOutName = "Loupedeck S1 In";
+            PlugSettingsFinder.Init(this);
         }
 
         private void OnMidiEvent(object sender, MidiEventReceivedEventArgs args)

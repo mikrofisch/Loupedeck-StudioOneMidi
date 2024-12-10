@@ -17,7 +17,7 @@
         public String Title { get; set; }
         public String PluginName { get; set; }
         public String PluginParameter { get; set; }
-        public ColorFinder.ColorSettings.PotMode Mode { get; set; }
+        public PlugSettingsFinder.PlugParamSettings.PotMode Mode { get; set; }
         public Boolean ShowCircle { get; set; }
         public Byte R { get; set; }
         public Byte G { get; set; }
@@ -43,10 +43,10 @@
             Dial, Button
         }
         private UserControlConfigData ConfigData;
-        private ColorFinder UserColorFinder;
+        private PlugSettingsFinder UserColorFinder;
 
         private Plugin Plugin { get; set; }
-        public UserControlConfig(WindowMode mode, Plugin plugin, ColorFinder cf, UserControlConfigData configData)
+        public UserControlConfig(WindowMode mode, Plugin plugin, PlugSettingsFinder cf, UserControlConfigData configData)
         {
             this.Plugin = plugin;
             this.UserColorFinder = cf;
@@ -62,8 +62,8 @@
             if (mode == WindowMode.Dial)
             {
                 this.spShowCircle.Visibility = Visibility.Collapsed;
-                this.rbPositive.IsChecked = configData.Mode == ColorFinder.ColorSettings.PotMode.Positive;
-                this.rbSymmetric.IsChecked = configData.Mode == ColorFinder.ColorSettings.PotMode.Symmetric;
+                this.rbPositive.IsChecked = configData.Mode == PlugSettingsFinder.PlugParamSettings.PotMode.Positive;
+                this.rbSymmetric.IsChecked = configData.Mode == PlugSettingsFinder.PlugParamSettings.PotMode.Symmetric;
             }
             else if (mode == WindowMode.Button)
             {
@@ -100,7 +100,7 @@
         }
 
         private void SetPluginSetting(String valueID, String value) => 
-            this.Plugin.SetPluginSetting(ColorFinder.settingName(this.ConfigData.PluginName,
+            this.Plugin.SetPluginSetting(PlugSettingsFinder.settingName(this.ConfigData.PluginName,
                                                                  this.ConfigData.PluginParameter,
                                                                  valueID), value, true);
         private void Reset(Object sender, RoutedEventArgs e)
@@ -109,19 +109,19 @@
 
             foreach (var setting in settingsList)
             {
-                if (setting.StartsWith(ColorFinder.settingName(this.ConfigData.PluginName,
+                if (setting.StartsWith(PlugSettingsFinder.settingName(this.ConfigData.PluginName,
                                                                     this.ConfigData.PluginParameter, "")))
                 {
                     this.Plugin.DeletePluginSetting(setting);
                 }
             }
-            this.UserColorFinder.Init(this.Plugin, forceReload: true);
+            PlugSettingsFinder.Init(this.Plugin, forceReload: true);
 
             var onColor = this.UserColorFinder.getOnColor(this.ConfigData.PluginName, this.ConfigData.PluginParameter);
 
             this.ConfigData.Mode = this.UserColorFinder.getMode(this.ConfigData.PluginName, this.ConfigData.PluginParameter);
-            this.rbPositive.IsChecked = this.ConfigData.Mode == ColorFinder.ColorSettings.PotMode.Positive;
-            this.rbSymmetric.IsChecked = this.ConfigData.Mode == ColorFinder.ColorSettings.PotMode.Symmetric;
+            this.rbPositive.IsChecked = this.ConfigData.Mode == PlugSettingsFinder.PlugParamSettings.PotMode.Positive;
+            this.rbSymmetric.IsChecked = this.ConfigData.Mode == PlugSettingsFinder.PlugParamSettings.PotMode.Symmetric;
             this.tbColorR.Text = onColor.R.ToString();
             this.tbColorG.Text = onColor.G.ToString();
             this.tbColorB.Text = onColor.B.ToString();
@@ -131,21 +131,21 @@
         {
             if (this.gPotMode.IsVisible)
             {
-                this.SetPluginSetting(ColorFinder.ColorSettings.strMode, $"{(this.rbPositive.IsChecked == true ? 0 : 1)}");
+                this.SetPluginSetting(PlugSettingsFinder.PlugParamSettings.strMode, $"{(this.rbPositive.IsChecked == true ? 0 : 1)}");
             }
             if (this.spShowCircle.IsVisible)
             {
-                this.SetPluginSetting(ColorFinder.ColorSettings.strShowCircle, $"{(this.chShowCircle.IsChecked == true ? 1 : 0)}");
+                this.SetPluginSetting(PlugSettingsFinder.PlugParamSettings.strShowCircle, $"{(this.chShowCircle.IsChecked == true ? 1 : 0)}");
             }
 
             var onColorHex = ((Byte)this.tbColorR.Text.ParseInt32()).ToString("X2") +
                              ((Byte)this.tbColorG.Text.ParseInt32()).ToString("X2") +
                              ((Byte)this.tbColorB.Text.ParseInt32()).ToString("X2");
-            this.SetPluginSetting(ColorFinder.ColorSettings.strOnColor, onColorHex);
-            this.SetPluginSetting(ColorFinder.ColorSettings.strLabel, this.tbLabel.Text);
+            this.SetPluginSetting(PlugSettingsFinder.PlugParamSettings.strOnColor, onColorHex);
+            this.SetPluginSetting(PlugSettingsFinder.PlugParamSettings.strLabel, this.tbLabel.Text);
             if (this.tbLinkedParam.IsVisible)
             {
-                this.SetPluginSetting(ColorFinder.ColorSettings.strLinkedParameter, this.tbLinkedParam.Text);
+                this.SetPluginSetting(PlugSettingsFinder.PlugParamSettings.strLinkedParameter, this.tbLinkedParam.Text);
             }
             this.Close();
         }

@@ -18,7 +18,7 @@
         private FaderMode FaderMode = FaderMode.Volume;
         private static BitmapImage IconVolume, IconPan;
         private String PluginName;
-        private static readonly ColorFinder UserColorFinder = new ColorFinder(new ColorFinder.ColorSettings
+        private static readonly PlugSettingsFinder UserColorFinder = new PlugSettingsFinder(new PlugSettingsFinder.PlugParamSettings
         {
             OnColor = new FinderColor(DefaultBarColor),     // Used for volume bar
             OffColor = new FinderColor(80, 80, 80),         // Used for volume bar
@@ -68,7 +68,6 @@
         {
             var plugin = base.Plugin as StudioOneMidiPlugin;
             plugin.channelFader = this;
-            UserColorFinder.Init( plugin );
 
             plugin.ChannelDataChanged += (Object sender, EventArgs e) => {
                 this.ActionImageChanged();
@@ -259,7 +258,7 @@
             {
                 var volBarH = (Int32)Math.Ceiling(cd.Value * bb.Height);
                 var volBarY = bb.Height - volBarH;
-                if (UserColorFinder.getMode(this.PluginName, cd.Label) == ColorFinder.ColorSettings.PotMode.Symmetric)
+                if (UserColorFinder.getMode(this.PluginName, cd.Label) == PlugSettingsFinder.PlugParamSettings.PotMode.Symmetric)
                 {
                     volBarH = (Int32)(Math.Abs(cd.Value - 0.5) * bb.Height);
                     volBarY = cd.Value < 0.5 ? bb.Height / 2 : bb.Height / 2 - volBarH;
@@ -382,7 +381,7 @@
                 w.Closed += (_, _) =>
                 {
                     this.IsUserConfigWindowOpen = false;
-                    UserColorFinder.Init(this.Plugin, forceReload: true);
+                    PlugSettingsFinder.Init(this.Plugin, forceReload: true);
                     (this.Plugin as StudioOneMidiPlugin).EmitChannelDataChanged();
                 };
                 w.Show();

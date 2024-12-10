@@ -218,7 +218,7 @@
 
         public static String PluginName { get; set; }
 
-        public static readonly ColorFinder UserColorFinder = new ColorFinder(new ColorFinder.ColorSettings
+        public static readonly PlugSettingsFinder UserPlugSettingsFinder = new PlugSettingsFinder(new PlugSettingsFinder.PlugParamSettings
         {
             OnColor = BgColorAssigned,
             OffColor = BgColorAssigned,
@@ -236,7 +236,6 @@
         public override void OnLoad(StudioOneMidiPlugin plugin)
         {
             base.OnLoad(plugin);
-            UserColorFinder.Init(plugin);
         }
 
         public void SetCustomMode(SelectButtonCustomParams cp)
@@ -349,43 +348,43 @@
             }
             else if (buttonMode == SelectButtonMode.User)
             {
-                UserColorFinder.CurrentChannel = cd.ChannelID + 1;
+                UserPlugSettingsFinder.CurrentChannel = cd.ChannelID + 1;
 
                 var ubh = bb.Height / 3;
                 var uby = bb.Height - ubh;
 
                 // User Pot
                 //
-                if (UserColorFinder.getLabel(pluginName, cd.Label).Length > 0)
+                if (UserPlugSettingsFinder.getLabel(pluginName, cd.Label).Length > 0)
                 {
-                    if (UserColorFinder.getPaintLabelBg(pluginName, cd.Label))
+                    if (UserPlugSettingsFinder.getPaintLabelBg(pluginName, cd.Label))
                     {
-                        bb.FillRectangle(0, 0, bb.Width, uby, buttonEnabled ? UserColorFinder.getOnColor(pluginName, cd.Label) 
-                                                                            : UserColorFinder.getOffColor(pluginName, cd.Label));
+                        bb.FillRectangle(0, 0, bb.Width, uby, buttonEnabled ? UserPlugSettingsFinder.getOnColor(pluginName, cd.Label) 
+                                                                            : UserPlugSettingsFinder.getOffColor(pluginName, cd.Label));
                     }
                 }
                 bb.DrawText(cd.Description, 0, 0, bb.Width, TitleHeight, TextDescColor, DescFontSize);
-                bb.DrawText(UserColorFinder.getLabelShort(pluginName, cd.Label), 0, bb.Height / 2 - TitleHeight / 2, bb.Width, TitleHeight, 
-                            buttonEnabled ? UserColorFinder.getTextOnColor(pluginName, cd.Label)
-                                          : UserColorFinder.getTextOffColor(pluginName, cd.Label), LabelFontSize);
+                bb.DrawText(UserPlugSettingsFinder.getLabelShort(pluginName, cd.Label), 0, bb.Height / 2 - TitleHeight / 2, bb.Width, TitleHeight, 
+                            buttonEnabled ? UserPlugSettingsFinder.getTextOnColor(pluginName, cd.Label)
+                                          : UserPlugSettingsFinder.getTextOffColor(pluginName, cd.Label), LabelFontSize);
 
                 // User Button
                 //
-                var drawCircle = cd.UserLabel.Length > 0 && UserColorFinder.showUserButtonCircle(pluginName, cd.UserLabel);
+                var drawCircle = cd.UserLabel.Length > 0 && UserPlugSettingsFinder.showUserButtonCircle(pluginName, cd.UserLabel);
                 var tx = 0;
                 var tw = bb.Width;
-                if (UserColorFinder.hasMenu(pluginName, cd.UserLabel))
+                if (UserPlugSettingsFinder.hasMenu(pluginName, cd.UserLabel))
                 {
                     userButtonActive = true;    // Use 'on' colour variants for all menu items
                 }
-                var tc = userButtonEnabled ? userButtonActive ? drawCircle ? UserColorFinder.getOnColor(pluginName, cd.UserLabel, isUser: true)
-                                                                           : UserColorFinder.getTextOnColor(pluginName, cd.UserLabel, isUser: true)
-                                                              : UserColorFinder.getTextOffColor(pluginName, cd.UserLabel, isUser: true)
+                var tc = userButtonEnabled ? userButtonActive ? drawCircle ? UserPlugSettingsFinder.getOnColor(pluginName, cd.UserLabel, isUser: true)
+                                                                           : UserPlugSettingsFinder.getTextOnColor(pluginName, cd.UserLabel, isUser: true)
+                                                              : UserPlugSettingsFinder.getTextOffColor(pluginName, cd.UserLabel, isUser: true)
                                            : BitmapColor.Black;
                 if (userButtonMenuActive) tc = BitmapColor.White;
-                var bc = (cd.UserLabel.Length > 0 || UserColorFinder.getLabel(pluginName, cd.UserLabel, isUser: true).Length > 0)
-                                                  && userButtonEnabled ? userButtonActive ? UserColorFinder.getOnColor(pluginName, cd.UserLabel, isUser: true)
-                                                                       : UserColorFinder.getOffColor(pluginName, cd.UserLabel, isUser: true)
+                var bc = (cd.UserLabel.Length > 0 || UserPlugSettingsFinder.getLabel(pluginName, cd.UserLabel, isUser: true).Length > 0)
+                                                  && userButtonEnabled ? userButtonActive ? UserPlugSettingsFinder.getOnColor(pluginName, cd.UserLabel, isUser: true)
+                                                                       : UserPlugSettingsFinder.getOffColor(pluginName, cd.UserLabel, isUser: true)
                                                  : BgColorUnassigned;
                 if (userButtonMenuActive)
                 {
@@ -408,9 +407,9 @@
                     tx = ubh;
                     tw = bb.Width - ubh * 2;
                 }
-                var labelText = userButtonActive ? UserColorFinder.getLabelOnShort(pluginName, cd.UserLabel, isUser: true)
-                                                 : UserColorFinder.getLabelShort(pluginName, cd.UserLabel, isUser: true);
-                var menuItems = UserColorFinder.getUserMenuItems(pluginName, cd.UserLabel, isUser: true);
+                var labelText = userButtonActive ? UserPlugSettingsFinder.getLabelOnShort(pluginName, cd.UserLabel, isUser: true)
+                                                 : UserPlugSettingsFinder.getLabelShort(pluginName, cd.UserLabel, isUser: true);
+                var menuItems = UserPlugSettingsFinder.getUserMenuItems(pluginName, cd.UserLabel, isUser: true);
                 if (menuItems != null)
                 {
                     if (labelText.Length > 0) labelText += ": "; 
@@ -474,7 +473,7 @@
                 bb.DrawImage(SelectButtonData.IconSelRec, rX + rW / 2 - SelectButtonData.IconSelRec.Width / 2, rY2 + rH / 2 - SelectButtonData.IconSelRec.Height / 2);
                 bb.DrawImage(SelectButtonData.IconSelMon, rX2 + rW / 2 - SelectButtonData.IconSelMon.Width / 2, rY2 + rH / 2 - SelectButtonData.IconSelRec.Height / 2);
 
-                bb.DrawText(ColorFinder.stripLabel(cd.Label), 0, bb.Height / 2 - TitleHeight / 2, bb.Width, TitleHeight, null, LabelFontSize);
+                bb.DrawText(PlugSettingsFinder.stripLabel(cd.Label), 0, bb.Height / 2 - TitleHeight / 2, bb.Width, TitleHeight, null, LabelFontSize);
             }
             return bb.ToImage();
         }
@@ -495,7 +494,7 @@
                     cd.EmitChannelPropertyPress(SelectButtonData.SelectionPropertyType);    // Sends MIDI data
                     break;
                 case SelectButtonMode.User:
-                    var menuItems = UserColorFinder .getUserMenuItems(PluginName, cd.UserLabel, isUser: true);
+                    var menuItems = UserPlugSettingsFinder .getUserMenuItems(PluginName, cd.UserLabel, isUser: true);
                     if (menuItems != null)
                     {
                         // Display value selection menu.
@@ -1009,10 +1008,10 @@
         String TopDisplayText;
         protected Boolean IsUserButton = false;
         protected String PluginName;
-        protected ColorFinder UserColorFinder = new ColorFinder(new ColorFinder.ColorSettings { OnColor = FinderColor.Black,
-                                                                                                OffColor = FinderColor.Black,
-                                                                                                TextOnColor = FinderColor.White,
-                                                                                                TextOffColor = FinderColor.Black});
+        protected PlugSettingsFinder UserPlugSettingsFinder = new PlugSettingsFinder(new PlugSettingsFinder.PlugParamSettings { OnColor = FinderColor.Black,
+                                                                                                                                OffColor = FinderColor.Black,
+                                                                                                                                TextOnColor = FinderColor.White,
+                                                                                                                                TextOffColor = FinderColor.Black});
         enum PluginType { Any, Mono, Stereo, MonoStereo }    // variants of Waves plugins
 
         public ModeTopCommandButtonData(Int32 channel, Int32 code, String name, Location bl, String iconName = null) : base(channel, code, name, iconName)
@@ -1029,7 +1028,6 @@
         public override void OnLoad(StudioOneMidiPlugin plugin)
         {
             base.OnLoad(plugin);
-            this.UserColorFinder.Init(plugin);
         }
 
         public void setTopDisplay(String text) => this.TopDisplayText = text;
@@ -1039,8 +1037,8 @@
 
             if (this.IsUserButton && this.Name.Length > 0)
             {
-                this.Icon = this.UserColorFinder.getIcon(this.PluginName, this.Name);
-                this.IconOn = this.UserColorFinder.getIconOn(this.PluginName, this.Name);
+                this.Icon = this.UserPlugSettingsFinder.getIcon(this.PluginName, this.Name);
+                this.IconOn = this.UserPlugSettingsFinder.getIconOn(this.PluginName, this.Name);
             }
         }
 
@@ -1061,8 +1059,8 @@
                 }
                 else
                 {
-                    bb.FillRectangle(0, bgX, bb.Width, bgH, this.Activated ? this.UserColorFinder.getOnColor(this.PluginName, this.Name, isUser: true)
-                                                                           : this.UserColorFinder.getOffColor(this.PluginName, this.Name, isUser: true));
+                    bb.FillRectangle(0, bgX, bb.Width, bgH, this.Activated ? this.UserPlugSettingsFinder.getOnColor(this.PluginName, this.Name, isUser: true)
+                                                                           : this.UserPlugSettingsFinder.getOffColor(this.PluginName, this.Name, isUser: true));
                 }
             }
             else
@@ -1080,11 +1078,11 @@
             }
             else
             {
-                bb.DrawText(this.Activated ? this.UserColorFinder.getLabelOn(this.PluginName, this.Name, isUser: true) :
-                                             this.UserColorFinder.getLabel(this.PluginName, this.Name, isUser: true), 
+                bb.DrawText(this.Activated ? this.UserPlugSettingsFinder.getLabelOn(this.PluginName, this.Name, isUser: true) :
+                                             this.UserPlugSettingsFinder.getLabel(this.PluginName, this.Name, isUser: true), 
                                              0, dispTxtH, bb.Width, bb.Height - dispTxtH, 
-                            this.Activated ? this.UserColorFinder.getTextOnColor(this.PluginName, this.Name, isUser: true)
-                                           : this.UserColorFinder.getTextOffColor(this.PluginName, this.Name, isUser: true), LabelFontSize);
+                            this.Activated ? this.UserPlugSettingsFinder.getTextOnColor(this.PluginName, this.Name, isUser: true)
+                                           : this.UserPlugSettingsFinder.getTextOffColor(this.PluginName, this.Name, isUser: true), LabelFontSize);
             }
 
             if (this.TopDisplayText != null)
@@ -1130,8 +1128,8 @@
         public ModeTopUserButtonData(Int32 channel, Int32 code, String name, Location bl) : base(channel, code, name, bl)
         {
             this.IsUserButton = true;
-            this.UserColorFinder.DefaultColorSettings.OnColor = SelectButtonData.BgColorAssigned;
-            this.UserColorFinder.DefaultColorSettings.OffColor = SelectButtonData.BgColorAssigned;
+            this.UserPlugSettingsFinder.DefaultPlugParamSettings.OnColor = SelectButtonData.BgColorAssigned;
+            this.UserPlugSettingsFinder.DefaultPlugParamSettings.OffColor = SelectButtonData.BgColorAssigned;
         }
     }
 

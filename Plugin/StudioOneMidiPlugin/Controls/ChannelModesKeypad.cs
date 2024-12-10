@@ -116,6 +116,7 @@
 
         public ChannelModesKeypad() : base()
         {
+            this.DisplayName = "Channel Modes Button";
             this.Description = "Special button for controlling Loupedeck fader modes";
 
             // Create UI buttons
@@ -441,7 +442,7 @@
                 }
                 var ubd = this.getButtonData(idxUserSendsUserModeButton) as UserModeButtonData;
                 ubd.resetUserPage();
-                ubd.setPageNames(new ColorFinder().getColorSettings(pluginName, "Loupedeck User Pages", false).UserMenuItems);
+                ubd.setPageNames(new PlugSettingsFinder().GetParamSettings(pluginName, "Loupedeck User Pages", false).UserMenuItems);
 
                 if (this.CurrentLayer == ButtonLayer.FaderModesSend && this.CurrentUserSendsLayerMode == UserSendsLayerMode.PluginSelectionActivated)
                 {

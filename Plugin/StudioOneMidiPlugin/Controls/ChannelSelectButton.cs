@@ -46,7 +46,7 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
             };
             this.plugin.UserPageChanged += (Object sender, Int32 e) =>
             {
-                SelectButtonData.UserColorFinder.CurrentUserPage = e;
+                SelectButtonData.UserPlugSettingsFinder.CurrentUserPage = e;
             };
             this.plugin.FocusDeviceChanged += (Object sender, String e) => SelectButtonData.FocusDeviceName = e;
             this.plugin.ChannelDataChanged += (Object sender, EventArgs e) => 
@@ -121,8 +121,8 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
             {
                 // Check linked parameter dependencies every time channels are updated.
                 //
-                var linkedParameter = SelectButtonData.UserColorFinder.getLinkedParameter(SelectButtonData.PluginName, bd.Label);
-                var linkedParameterUser = SelectButtonData.UserColorFinder.getLinkedParameter(SelectButtonData.PluginName, bd.UserLabel);
+                var linkedParameter = SelectButtonData.UserPlugSettingsFinder.getLinkedParameter(SelectButtonData.PluginName, bd.Label);
+                var linkedParameterUser = SelectButtonData.UserPlugSettingsFinder.getLinkedParameter(SelectButtonData.PluginName, bd.UserLabel);
 
                 // Debug.WriteLine("ChannelSelectButton getCommandImage channel: " + bd.ChannelIndex + " bd.Label: " + bd.Label + ", linkedParameter: " + linkedParameter +", linkedParameterUser: " + linkedParameterUser);
 
@@ -134,24 +134,24 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
 
                         if (cd.UserLabel == linkedParameterUser)   // user button
                         {
-                            bd.UserButtonEnabled = SelectButtonData.UserColorFinder.getLinkReversed(SelectButtonData.PluginName, bd.UserLabel) ^ cd.UserValue > 0;
+                            bd.UserButtonEnabled = SelectButtonData.UserPlugSettingsFinder.getLinkReversed(SelectButtonData.PluginName, bd.UserLabel) ^ cd.UserValue > 0;
                         }
                         if (cd.UserLabel == linkedParameter)       // channel value
                         {
-                            var linkedStates = SelectButtonData.UserColorFinder.getLinkedStates(SelectButtonData.PluginName, bd.Label);
+                            var linkedStates = SelectButtonData.UserPlugSettingsFinder.getLinkedStates(SelectButtonData.PluginName, bd.Label);
                             if (!linkedStates.IsNullOrEmpty())
                             {
-                                var userMenuItems = SelectButtonData.UserColorFinder.getUserMenuItems(SelectButtonData.PluginName, linkedParameter);
+                                var userMenuItems = SelectButtonData.UserPlugSettingsFinder.getUserMenuItems(SelectButtonData.PluginName, linkedParameter);
                                 if (userMenuItems != null && userMenuItems.Length > 1)
                                 {
                                     var menuIndex = (Int32)Math.Round((Double)cd.UserValue / 127 * (userMenuItems.Length - 1));
-                                    bd.Enabled = linkedStates.Contains(menuIndex.ToString()) ^ SelectButtonData.UserColorFinder.getLinkReversed(SelectButtonData.PluginName, bd.Label);
+                                    bd.Enabled = linkedStates.Contains(menuIndex.ToString()) ^ SelectButtonData.UserPlugSettingsFinder.getLinkReversed(SelectButtonData.PluginName, bd.Label);
                                     sendChannelActiveChange = true;
                                 }
                             }
                             else
                             {
-                                bd.Enabled = SelectButtonData.UserColorFinder.getLinkReversed(SelectButtonData.PluginName, bd.Label) ^ cd.UserValue > 0;
+                                bd.Enabled = SelectButtonData.UserPlugSettingsFinder.getLinkReversed(SelectButtonData.PluginName, bd.Label) ^ cd.UserValue > 0;
                                 sendChannelActiveChange = true;
                             }
                         }
@@ -193,26 +193,26 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
             if (this.IsUserConfigWindowOpen)
                 return;
 
-            var onColor = SelectButtonData.UserColorFinder.getOnColor(SelectButtonData.PluginName, pluginParameter);
+            var onColor = SelectButtonData.UserPlugSettingsFinder.getOnColor(SelectButtonData.PluginName, pluginParameter);
 
             var t = new Thread(() => {
                 var w = new UserControlConfig(UserControlConfig.WindowMode.Button,
                                               this.Plugin,
-                                              SelectButtonData.UserColorFinder,
+                                              SelectButtonData.UserPlugSettingsFinder,
                                               new UserControlConfigData
                                               {
                                                   PluginName = SelectButtonData.PluginName,
                                                   PluginParameter = pluginParameter,
-                                                  ShowCircle = SelectButtonData.UserColorFinder.getShowCircle(SelectButtonData.PluginName, pluginParameter),
+                                                  ShowCircle = SelectButtonData.UserPlugSettingsFinder.getShowCircle(SelectButtonData.PluginName, pluginParameter),
                                                   R = onColor.R,
                                                   G = onColor.G,
                                                   B = onColor.B,
-                                                  Label = SelectButtonData.UserColorFinder.getLabel(SelectButtonData.PluginName, pluginParameter)
+                                                  Label = SelectButtonData.UserPlugSettingsFinder.getLabel(SelectButtonData.PluginName, pluginParameter)
                                               });
                 w.Closed += (_, _) =>
                 {
                     this.IsUserConfigWindowOpen = false;
-                    SelectButtonData.UserColorFinder.Init(this.Plugin, forceReload: true);
+                    PlugSettingsFinder.Init(this.Plugin, forceReload: true);
                     (this.Plugin as StudioOneMidiPlugin).EmitChannelDataChanged();
                 };
                 w.Show();

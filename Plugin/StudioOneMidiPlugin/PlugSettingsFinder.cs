@@ -7,6 +7,7 @@
     using System.Text.RegularExpressions;
     using System.Xml.Serialization;
     using System.ComponentModel;
+    using System.Diagnostics;
 
 
     // BitmapColor objects that have not been explicitly assigned to a
@@ -274,7 +275,7 @@
         public PlugParamSettings GetParamSettings(String pluginName, String parameterName, Boolean isUser)
         {
             if (pluginName == null || parameterName == null) return this.DefaultPlugParamSettings;
-            if (this.LastParamSettings != null && pluginName == this.LastPluginName && parameterName == this.LastPluginParameter) return this.LastParamSettings;
+//            if (this.LastParamSettings != null && pluginName == this.LastPluginName && parameterName == this.LastPluginParameter) return this.LastParamSettings;
 
 //            if (!PlugParamDict.TryGetValue(pluginName, out var deviceEntry))
 //            {
@@ -284,23 +285,40 @@
             this.LastPluginName = pluginName;
             this.LastPluginParameter = parameterName;
 
-            isUser = true;
             var userPagePos = $"{this.CurrentUserPage}:{this.CurrentChannel}" + (isUser ? "U" : "");
             PlugParamSettings paramSettings;
 
-            if (PlugParamDict.TryGetValue(pluginName, out var deviceEntry))
+            // Find device entry.
+
+            if (!PlugParamDict.TryGetValue(pluginName, out var deviceEntry))
             {
-                if (deviceEntry.ParamSettings.TryGetValue(userPagePos, out paramSettings) ||
-                    deviceEntry.ParamSettings.TryGetValue(parameterName, out paramSettings) ||
-                    deviceEntry.ParamSettings.TryGetValue("", out paramSettings))
+                // No full match, try partial match
+                var partialMatchKeys = PlugParamDict.Keys.Where(key => key != "" && pluginName.StartsWith(key));
+                if (partialMatchKeys.Any())
                 {
-                    return this.SaveLastSettings(paramSettings);
+                    PlugParamDict.TryGetValue(partialMatchKeys.First(), out deviceEntry);
                 }
+            }
+
+            if (deviceEntry != null &&
+                (deviceEntry.ParamSettings.TryGetValue(userPagePos, out paramSettings) ||
+                deviceEntry.ParamSettings.TryGetValue(parameterName, out paramSettings) ||
+                deviceEntry.ParamSettings.TryGetValue("", out paramSettings)))
+            {
+                if (isUser)
+                {
+                    Debug.WriteLine("Match 1: " + userPagePos + ", " + paramSettings.Label);
+                }
+                return this.SaveLastSettings(paramSettings);
             }
 
             if (PlugParamDict.TryGetValue("", out deviceEntry) &&
                 deviceEntry.ParamSettings.TryGetValue(parameterName, out paramSettings))
             {
+                if (isUser)
+                {
+                    Debug.WriteLine("Match 2: " + userPagePos + ", " + paramSettings.Label);
+                }
                 return this.SaveLastSettings(paramSettings);
             }
 
@@ -310,22 +328,24 @@
             //            {
             //                return this.saveLastSettings(paramSettings);
             //            }
-//            partialMatchKeys = PlugParamDict.Keys.Where(currentKey => pluginName.Contains(currentKey.PluginName) && currentKey.PluginParameter == "");
-//            if (partialMatchKeys.Count() > 0 && PlugParamDict.TryGetValue(partialMatchKeys.First(), out paramSettings))
-//            {
-//                return this.saveLastSettings(paramSettings);
-//            }
+            //            partialMatchKeys = PlugParamDict.Keys.Where(currentKey => pluginName.Contains(currentKey.PluginName) && currentKey.PluginParameter == "");
+            //            if (partialMatchKeys.Count() > 0 && PlugParamDict.TryGetValue(partialMatchKeys.First(), out paramSettings))
+            //            {
+            //                return this.saveLastSettings(paramSettings);
+            //            }
 
-            var partialMatchKeys = PlugParamDict.Keys.Where(key => pluginName.StartsWith(key));
-            var murks = partialMatchKeys.Last();
-            if (PlugParamDict.TryGetValue(partialMatchKeys.Last(), out deviceEntry) &&
-                (deviceEntry.ParamSettings.TryGetValue(parameterName, out paramSettings) ||
-                 deviceEntry.ParamSettings.TryGetValue("", out paramSettings)))
+            //            var partialMatchKeys = PlugParamDict.Keys.Where(key => key != "" && pluginName.StartsWith(key));
+            //            if (PlugParamDict.TryGetValue(partialMatchKeys.First(), out deviceEntry) &&
+            //                (deviceEntry.ParamSettings.TryGetValue(parameterName, out paramSettings) ||
+            //                 deviceEntry.ParamSettings.TryGetValue("", out paramSettings)))
+            //            {
+            //                return this.SaveLastSettings(paramSettings);
+            //            }
+
+            if (isUser)
             {
-                return this.SaveLastSettings(paramSettings);
+                Debug.WriteLine("Default: " + userPagePos + ", " + DefaultPlugParamSettings.Label);
             }
-
-
             return this.SaveLastSettings(this.DefaultPlugParamSettings);
         }
 

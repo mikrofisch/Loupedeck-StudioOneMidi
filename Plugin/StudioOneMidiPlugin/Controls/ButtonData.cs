@@ -2,6 +2,7 @@
 {
     using System;
     using System.CodeDom;
+    using System.Diagnostics;
 
     using Loupedeck.StudioOneMidiPlugin.Helpers;
     using static Loupedeck.StudioOneMidiPlugin.StudioOneMidiPlugin;
@@ -407,6 +408,9 @@
                     tx = ubh;
                     tw = bb.Width - ubh * 2;
                 }
+
+                Debug.WriteLine("SelectButtonData.drawImage() cd.UserLabel: " + cd.UserLabel);
+
                 var labelText = userButtonActive ? UserPlugSettingsFinder.getLabelOnShort(pluginName, cd.UserLabel, isUser: true)
                                                  : UserPlugSettingsFinder.getLabelShort(pluginName, cd.UserLabel, isUser: true);
                 var menuItems = UserPlugSettingsFinder.getUserMenuItems(pluginName, cd.UserLabel, isUser: true);

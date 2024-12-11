@@ -1,4 +1,9 @@
-﻿namespace Loupedeck.StudioOneMidiPlugin
+﻿using Loupedeck.StudioOneMidiPlugin;
+using static Loupedeck.StudioOneMidiPlugin.ColorFinder;
+using System.IO;
+using System.Xml.Serialization;
+
+namespace Loupedeck.StudioOneMidiPlugin
 {
     using System;
     using System.IO;
@@ -147,6 +152,7 @@
         public Int32 CurrentUserPage = 0;              // For tracking the current user page position
         public Int32 CurrentChannel = 0;
 
+        readonly String ConfigFolderPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Loupedeck-StudioOneMidiPlugin");
         const String ConfigFileName = "AudioPluginConfig.xml";
 
         public ColorSettings DefaultColorSettings { get; private set; } = new ColorSettings
@@ -201,6 +207,47 @@
                 public List<ConfigEntry> ConfigEntries = new();
             }
             public List<DeviceEntry> DeviceEntries = new();
+        }
+
+        public void ReadXmlConfig()
+        {
+
+        }
+
+        public void WriteXmlConfig()
+        {
+            if (!Directory.Exists(this.ConfigFolderPath))
+            {
+                Directory.CreateDirectory(this.ConfigFolderPath);
+            }
+            var configFilePath = System.IO.Path.Combine(this.ConfigFolderPath, ConfigFileName);
+
+            var config = new XmlConfig();
+
+            var device = new XmlConfig.DeviceEntry { Name = "Plugin A" };
+            device.Colors.Add(new XmlConfig.DeviceEntry.ColorDef { Name = "ColorBg", Color = new FinderColor(10, 20, 30) });
+            device.Colors.Add(new XmlConfig.DeviceEntry.ColorDef { Name = "ColorFg", Color = FinderColor.White });
+            device.ConfigEntries.Add(new XmlConfig.DeviceEntry.ConfigEntry { Name = "HighMidFreq", ColorSettings = new ColorSettings { Label = "HMF", ShowUserButtonCircle = true } });
+            device.ConfigEntries.Add(new XmlConfig.DeviceEntry.ConfigEntry { Name = "LowMidFreq", ColorSettings = new ColorSettings { OnColor = new FinderColor(60, 200, 135), Label = "LMF", ShowUserButtonCircle = true } });
+            config.DeviceEntries.Add(device);
+
+
+            var serializer = new XmlSerializer(typeof(XmlConfig));
+            TextWriter writer = new StreamWriter(configFilePath);
+
+            serializer.Serialize(writer, config);
+
+//                foreach (KeyValuePair<(String, String), ColorSettings> entry in ColorDict)
+//                {
+//                    serializer.Serialize(writer, new ConfigEntry
+//                    {
+//                        key1 = entry.Key.Item1,
+//                        key2 = entry.Key.Item2,
+//                        colorSettings = entry.Value
+//                    });
+//                }
+
+            writer.Close();
         }
 
         public void Init(Plugin plugin, Boolean forceReload = false)

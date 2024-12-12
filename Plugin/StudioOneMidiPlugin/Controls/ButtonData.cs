@@ -287,7 +287,10 @@
         {
             bb.FillRectangle(0, 0, bb.Width, bb.Height, BitmapColor.Black);
 
-            if (cd.Label.IsNullOrEmpty() && cd.ValueStr.IsNullOrEmpty() && cd.UserLabel.IsNullOrEmpty())
+            // End this here if there is nothing to show. In User mode we need to investigate further before
+            // we know if there is anything.
+            //
+            if (cd.Label.IsNullOrEmpty() && cd.ValueStr.IsNullOrEmpty() && buttonMode != SelectButtonMode.User)
             {
                 return bb.ToImage();
             }
@@ -349,43 +352,53 @@
             }
             else if (buttonMode == SelectButtonMode.User)
             {
-                UserPlugSettingsFinder.CurrentChannel = cd.ChannelID + 1;
+                var buttonIdx = cd.ChannelID + 1;
 
                 var ubh = bb.Height / 3;
                 var uby = bb.Height - ubh;
 
+                var deviceEntry = UserPlugSettingsFinder.GetPlugParamDeviceEntry(pluginName);
+
                 // User Pot
                 //
-                if (UserPlugSettingsFinder.getLabel(pluginName, cd.Label).Length > 0)
+                if (UserPlugSettingsFinder.GetLabel(deviceEntry, cd.Label, buttonIdx).Length > 0)
                 {
-                    if (UserPlugSettingsFinder.getPaintLabelBg(pluginName, cd.Label))
+                    if (UserPlugSettingsFinder.GetPaintLabelBg(deviceEntry, cd.Label, buttonIdx))
                     {
-                        bb.FillRectangle(0, 0, bb.Width, uby, buttonEnabled ? UserPlugSettingsFinder.getOnColor(pluginName, cd.Label) 
-                                                                            : UserPlugSettingsFinder.getOffColor(pluginName, cd.Label));
+                        bb.FillRectangle(0, 0, bb.Width, bb.Height, buttonEnabled ? UserPlugSettingsFinder.GetOnColor(deviceEntry, cd.Label, buttonIdx) 
+                                                                                  : UserPlugSettingsFinder.GetOffColor(deviceEntry, cd.Label, buttonIdx));
                     }
                 }
                 bb.DrawText(cd.Description, 0, 0, bb.Width, TitleHeight, TextDescColor, DescFontSize);
-                bb.DrawText(UserPlugSettingsFinder.getLabelShort(pluginName, cd.Label), 0, bb.Height / 2 - TitleHeight / 2, bb.Width, TitleHeight, 
-                            buttonEnabled ? UserPlugSettingsFinder.getTextOnColor(pluginName, cd.Label)
-                                          : UserPlugSettingsFinder.getTextOffColor(pluginName, cd.Label), LabelFontSize);
+                bb.DrawText(UserPlugSettingsFinder.GetLabelShort(deviceEntry, cd.Label, buttonIdx), 0, bb.Height / 2 - TitleHeight / 2, bb.Width, TitleHeight, 
+                            buttonEnabled ? UserPlugSettingsFinder.GetTextOnColor(deviceEntry, cd.Label, buttonIdx)
+                                          : UserPlugSettingsFinder.GetTextOffColor(deviceEntry, cd.Label, buttonIdx), LabelFontSize);
 
                 // User Button
                 //
-                var drawCircle = cd.UserLabel.Length > 0 && UserPlugSettingsFinder.showUserButtonCircle(pluginName, cd.UserLabel);
+
+                // Get the text for the user button label first so that we know if there is anything to show. Note that cd.UserLabel (which contains
+                // the label sent by the plugin) may be empty if the plugin is buggy and doesn't send anything, but labelText may still have
+                // text if an override is defined for the button position.
+                //
+                var labelText = userButtonActive ? UserPlugSettingsFinder.GetLabelOnShort(deviceEntry, cd.UserLabel, buttonIdx, isUser: true)
+                                                 : UserPlugSettingsFinder.GetLabelShort(deviceEntry, cd.UserLabel, buttonIdx, isUser: true);
+
+                var drawCircle = labelText.Length > 0 && UserPlugSettingsFinder.ShowUserButtonCircle(deviceEntry, cd.UserLabel, buttonIdx);
                 var tx = 0;
                 var tw = bb.Width;
-                if (UserPlugSettingsFinder.hasMenu(pluginName, cd.UserLabel))
+                if (UserPlugSettingsFinder.HasMenu(deviceEntry, cd.UserLabel, buttonIdx))
                 {
                     userButtonActive = true;    // Use 'on' colour variants for all menu items
                 }
-                var tc = userButtonEnabled ? userButtonActive ? drawCircle ? UserPlugSettingsFinder.getOnColor(pluginName, cd.UserLabel, isUser: true)
-                                                                           : UserPlugSettingsFinder.getTextOnColor(pluginName, cd.UserLabel, isUser: true)
-                                                              : UserPlugSettingsFinder.getTextOffColor(pluginName, cd.UserLabel, isUser: true)
+                var tc = userButtonEnabled ? userButtonActive ? drawCircle ? UserPlugSettingsFinder.GetOnColor(deviceEntry, cd.UserLabel, buttonIdx, isUser: true)
+                                                                           : UserPlugSettingsFinder.GetTextOnColor(deviceEntry, cd.UserLabel, buttonIdx, isUser: true)
+                                                              : UserPlugSettingsFinder.GetTextOffColor(deviceEntry, cd.UserLabel, buttonIdx, isUser: true)
                                            : BitmapColor.Black;
                 if (userButtonMenuActive) tc = BitmapColor.White;
-                var bc = (cd.UserLabel.Length > 0 || UserPlugSettingsFinder.getLabel(pluginName, cd.UserLabel, isUser: true).Length > 0)
-                                                  && userButtonEnabled ? userButtonActive ? UserPlugSettingsFinder.getOnColor(pluginName, cd.UserLabel, isUser: true)
-                                                                       : UserPlugSettingsFinder.getOffColor(pluginName, cd.UserLabel, isUser: true)
+                var bc = (labelText.Length > 0 || UserPlugSettingsFinder.GetLabel(deviceEntry, cd.UserLabel, buttonIdx, isUser: true).Length > 0)
+                                                  && userButtonEnabled ? userButtonActive ? UserPlugSettingsFinder.GetOnColor(deviceEntry, cd.UserLabel, buttonIdx, isUser: true)
+                                                                       : UserPlugSettingsFinder.GetOffColor(deviceEntry, cd.UserLabel, buttonIdx, isUser: true)
                                                  : BgColorUnassigned;
                 if (userButtonMenuActive)
                 {
@@ -393,7 +406,7 @@
                     bb.FillRectangle(0, uby, bb.Width, ubh, new BitmapColor(120, 120, 120));
                     bb.FillRectangle(0, uby + stroke, bb.Width, ubh - 2 * stroke - 2, new BitmapColor(40, 40, 40));
                 }
-                else
+                else if (labelText.Length > 0)
                 {
                     bb.FillRectangle(0, uby, bb.Width, ubh, drawCircle ? BgColorUserCircle : bc);
                 }
@@ -409,11 +422,7 @@
                     tw = bb.Width - ubh * 2;
                 }
 
-                Debug.WriteLine("SelectButtonData.drawImage() cd.UserLabel: " + cd.UserLabel);
-
-                var labelText = userButtonActive ? UserPlugSettingsFinder.getLabelOnShort(pluginName, cd.UserLabel, isUser: true)
-                                                 : UserPlugSettingsFinder.getLabelShort(pluginName, cd.UserLabel, isUser: true);
-                var menuItems = UserPlugSettingsFinder.getUserMenuItems(pluginName, cd.UserLabel, isUser: true);
+                var menuItems = UserPlugSettingsFinder.GetUserMenuItems(deviceEntry, cd.UserLabel, buttonIdx, isUser: true);
                 if (menuItems != null)
                 {
                     if (labelText.Length > 0) labelText += ": "; 
@@ -498,7 +507,7 @@
                     cd.EmitChannelPropertyPress(SelectButtonData.SelectionPropertyType);    // Sends MIDI data
                     break;
                 case SelectButtonMode.User:
-                    var menuItems = UserPlugSettingsFinder .getUserMenuItems(PluginName, cd.UserLabel, isUser: true);
+                    var menuItems = UserPlugSettingsFinder.GetUserMenuItems(UserPlugSettingsFinder.GetPlugParamDeviceEntry(PluginName), cd.UserLabel, cd.ChannelID+1, isUser: true);
                     if (menuItems != null)
                     {
                         // Display value selection menu.
@@ -1008,7 +1017,7 @@
             Left,
             Right
         }
-        Location ButtonLocation = Location.Left;
+        readonly Location ButtonLocation = Location.Left;
         String TopDisplayText;
         protected Boolean IsUserButton = false;
         protected String PluginName;
@@ -1041,8 +1050,9 @@
 
             if (this.IsUserButton && this.Name.Length > 0)
             {
-                this.Icon = this.UserPlugSettingsFinder.getIcon(this.PluginName, this.Name);
-                this.IconOn = this.UserPlugSettingsFinder.getIconOn(this.PluginName, this.Name);
+                var deviceEntry = this.UserPlugSettingsFinder.GetPlugParamDeviceEntry(this.PluginName);
+                this.Icon = this.UserPlugSettingsFinder.GetIcon(deviceEntry, this.Name);
+                this.IconOn = this.UserPlugSettingsFinder.GetIconOn(deviceEntry, this.Name);
             }
         }
 
@@ -1055,6 +1065,9 @@
             var bgX = this.IsUserButton ? dispTxtH + 6 : 0;
             var bgH = bb.Height - bgX;
 
+            var deviceEntry = this.UserPlugSettingsFinder.GetPlugParamDeviceEntry(this.PluginName);
+            var buttonIdx = (Int32)this.ButtonLocation;
+
             if (this.IsUserButton)
             {
                 if (this.Name.Length == 0)
@@ -1063,8 +1076,8 @@
                 }
                 else
                 {
-                    bb.FillRectangle(0, bgX, bb.Width, bgH, this.Activated ? this.UserPlugSettingsFinder.getOnColor(this.PluginName, this.Name, isUser: true)
-                                                                           : this.UserPlugSettingsFinder.getOffColor(this.PluginName, this.Name, isUser: true));
+                    bb.FillRectangle(0, bgX, bb.Width, bgH, this.Activated ? this.UserPlugSettingsFinder.GetOnColor(deviceEntry, this.Name, buttonIdx, isUser: true)
+                                                                           : this.UserPlugSettingsFinder.GetOffColor(deviceEntry, this.Name, buttonIdx, isUser: true));
                 }
             }
             else
@@ -1082,11 +1095,11 @@
             }
             else
             {
-                bb.DrawText(this.Activated ? this.UserPlugSettingsFinder.getLabelOn(this.PluginName, this.Name, isUser: true) :
-                                             this.UserPlugSettingsFinder.getLabel(this.PluginName, this.Name, isUser: true), 
+                bb.DrawText(this.Activated ? this.UserPlugSettingsFinder.GetLabelOn(deviceEntry, this.Name, buttonIdx, isUser: true) :
+                                             this.UserPlugSettingsFinder.GetLabel(deviceEntry, this.Name, buttonIdx, isUser: true), 
                                              0, dispTxtH, bb.Width, bb.Height - dispTxtH, 
-                            this.Activated ? this.UserPlugSettingsFinder.getTextOnColor(this.PluginName, this.Name, isUser: true)
-                                           : this.UserPlugSettingsFinder.getTextOffColor(this.PluginName, this.Name, isUser: true), LabelFontSize);
+                            this.Activated ? this.UserPlugSettingsFinder.GetTextOnColor(deviceEntry, this.Name, buttonIdx, isUser: true)
+                                           : this.UserPlugSettingsFinder.GetTextOffColor(deviceEntry, this.Name, buttonIdx, isUser: true), LabelFontSize);
             }
 
             if (this.TopDisplayText != null)

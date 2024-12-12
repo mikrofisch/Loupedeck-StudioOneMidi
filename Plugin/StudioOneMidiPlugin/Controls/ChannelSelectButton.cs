@@ -44,10 +44,7 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
                 var bd = this.buttonData[e.channelIndex.ToString()];
                 bd.UserButtonActive = e.isActive();
             };
-            this.plugin.UserPageChanged += (Object sender, Int32 e) =>
-            {
-                SelectButtonData.UserPlugSettingsFinder.CurrentUserPage = e;
-            };
+            this.plugin.UserPageChanged += (Object sender, Int32 e) => SelectButtonData.UserPlugSettingsFinder.CurrentUserPage = e;
             this.plugin.FocusDeviceChanged += (Object sender, String e) => SelectButtonData.FocusDeviceName = e;
             this.plugin.ChannelDataChanged += (Object sender, EventArgs e) => 
             {
@@ -121,8 +118,9 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
             {
                 // Check linked parameter dependencies every time channels are updated.
                 //
-                var linkedParameter = SelectButtonData.UserPlugSettingsFinder.getLinkedParameter(SelectButtonData.PluginName, bd.Label);
-                var linkedParameterUser = SelectButtonData.UserPlugSettingsFinder.getLinkedParameter(SelectButtonData.PluginName, bd.UserLabel);
+                var deviceEntry = SelectButtonData.UserPlugSettingsFinder.GetPlugParamDeviceEntry(SelectButtonData.PluginName);
+                var linkedParameter = SelectButtonData.UserPlugSettingsFinder.GetLinkedParameter(deviceEntry, bd.Label, 0);
+                var linkedParameterUser = SelectButtonData.UserPlugSettingsFinder.GetLinkedParameter(deviceEntry, bd.UserLabel, 0);
 
                 // Debug.WriteLine("ChannelSelectButton getCommandImage channel: " + bd.ChannelIndex + " bd.Label: " + bd.Label + ", linkedParameter: " + linkedParameter +", linkedParameterUser: " + linkedParameterUser);
 
@@ -134,24 +132,24 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
 
                         if (cd.UserLabel == linkedParameterUser)   // user button
                         {
-                            bd.UserButtonEnabled = SelectButtonData.UserPlugSettingsFinder.getLinkReversed(SelectButtonData.PluginName, bd.UserLabel) ^ cd.UserValue > 0;
+                            bd.UserButtonEnabled = SelectButtonData.UserPlugSettingsFinder.GetLinkReversed(deviceEntry, bd.UserLabel, 0) ^ cd.UserValue > 0;
                         }
                         if (cd.UserLabel == linkedParameter)       // channel value
                         {
-                            var linkedStates = SelectButtonData.UserPlugSettingsFinder.getLinkedStates(SelectButtonData.PluginName, bd.Label);
+                            var linkedStates = SelectButtonData.UserPlugSettingsFinder.GetLinkedStates(deviceEntry, bd.Label, 0);
                             if (!linkedStates.IsNullOrEmpty())
                             {
-                                var userMenuItems = SelectButtonData.UserPlugSettingsFinder.getUserMenuItems(SelectButtonData.PluginName, linkedParameter);
+                                var userMenuItems = SelectButtonData.UserPlugSettingsFinder.GetUserMenuItems(deviceEntry, linkedParameter, 0);
                                 if (userMenuItems != null && userMenuItems.Length > 1)
                                 {
                                     var menuIndex = (Int32)Math.Round((Double)cd.UserValue / 127 * (userMenuItems.Length - 1));
-                                    bd.Enabled = linkedStates.Contains(menuIndex.ToString()) ^ SelectButtonData.UserPlugSettingsFinder.getLinkReversed(SelectButtonData.PluginName, bd.Label);
+                                    bd.Enabled = linkedStates.Contains(menuIndex.ToString()) ^ SelectButtonData.UserPlugSettingsFinder.GetLinkReversed(deviceEntry, bd.Label, 0);
                                     sendChannelActiveChange = true;
                                 }
                             }
                             else
                             {
-                                bd.Enabled = SelectButtonData.UserPlugSettingsFinder.getLinkReversed(SelectButtonData.PluginName, bd.Label) ^ cd.UserValue > 0;
+                                bd.Enabled = SelectButtonData.UserPlugSettingsFinder.GetLinkReversed(deviceEntry, bd.Label, 0) ^ cd.UserValue > 0;
                                 sendChannelActiveChange = true;
                             }
                         }
@@ -191,9 +189,12 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
         public void OpenUserConfigWindow(String pluginParameter)
         {
             if (this.IsUserConfigWindowOpen)
+            {
                 return;
+            }
 
-            var onColor = SelectButtonData.UserPlugSettingsFinder.getOnColor(SelectButtonData.PluginName, pluginParameter);
+            var deviceEntry = SelectButtonData.UserPlugSettingsFinder.GetPlugParamDeviceEntry(SelectButtonData.PluginName);
+            var onColor = SelectButtonData.UserPlugSettingsFinder.GetOnColor(deviceEntry, pluginParameter, 0);
 
             var t = new Thread(() => {
                 var w = new UserControlConfig(UserControlConfig.WindowMode.Button,
@@ -203,11 +204,11 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
                                               {
                                                   PluginName = SelectButtonData.PluginName,
                                                   PluginParameter = pluginParameter,
-                                                  ShowCircle = SelectButtonData.UserPlugSettingsFinder.getShowCircle(SelectButtonData.PluginName, pluginParameter),
+                                                  ShowCircle = SelectButtonData.UserPlugSettingsFinder.GetShowCircle(deviceEntry, pluginParameter, 0),
                                                   R = onColor.R,
                                                   G = onColor.G,
                                                   B = onColor.B,
-                                                  Label = SelectButtonData.UserPlugSettingsFinder.getLabel(SelectButtonData.PluginName, pluginParameter)
+                                                  Label = SelectButtonData.UserPlugSettingsFinder.GetLabel(deviceEntry, pluginParameter, 0)
                                               });
                 w.Closed += (_, _) =>
                 {

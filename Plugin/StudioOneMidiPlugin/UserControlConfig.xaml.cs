@@ -43,13 +43,13 @@
             Dial, Button
         }
         private UserControlConfigData ConfigData;
-        private PlugSettingsFinder UserColorFinder;
+        private PlugSettingsFinder UserPlugSettingsFinder;
 
         private Plugin Plugin { get; set; }
         public UserControlConfig(WindowMode mode, Plugin plugin, PlugSettingsFinder cf, UserControlConfigData configData)
         {
             this.Plugin = plugin;
-            this.UserColorFinder = cf;
+            this.UserPlugSettingsFinder = cf;
 
             configData.Title = mode == WindowMode.Dial ? "User Dial Configuration" : "User Button Configuration";
            
@@ -100,7 +100,7 @@
         }
 
         private void SetPluginSetting(String valueID, String value) => 
-            this.Plugin.SetPluginSetting(PlugSettingsFinder.settingName(this.ConfigData.PluginName,
+            this.Plugin.SetPluginSetting(PlugSettingsFinder.SettingName(this.ConfigData.PluginName,
                                                                  this.ConfigData.PluginParameter,
                                                                  valueID), value, true);
         private void Reset(Object sender, RoutedEventArgs e)
@@ -109,7 +109,7 @@
 
             foreach (var setting in settingsList)
             {
-                if (setting.StartsWith(PlugSettingsFinder.settingName(this.ConfigData.PluginName,
+                if (setting.StartsWith(PlugSettingsFinder.SettingName(this.ConfigData.PluginName,
                                                                     this.ConfigData.PluginParameter, "")))
                 {
                     this.Plugin.DeletePluginSetting(setting);
@@ -117,15 +117,17 @@
             }
             PlugSettingsFinder.Init(this.Plugin, forceReload: true);
 
-            var onColor = this.UserColorFinder.getOnColor(this.ConfigData.PluginName, this.ConfigData.PluginParameter);
+            var deviceEntry = this.UserPlugSettingsFinder.GetPlugParamDeviceEntry(this.ConfigData.PluginName);
 
-            this.ConfigData.Mode = this.UserColorFinder.getMode(this.ConfigData.PluginName, this.ConfigData.PluginParameter);
+            var onColor = this.UserPlugSettingsFinder.GetOnColor(deviceEntry, this.ConfigData.PluginParameter, 0);
+
+            this.ConfigData.Mode = this.UserPlugSettingsFinder.GetMode(deviceEntry, this.ConfigData.PluginParameter, 0);
             this.rbPositive.IsChecked = this.ConfigData.Mode == PlugSettingsFinder.PlugParamSettings.PotMode.Positive;
             this.rbSymmetric.IsChecked = this.ConfigData.Mode == PlugSettingsFinder.PlugParamSettings.PotMode.Symmetric;
             this.tbColorR.Text = onColor.R.ToString();
             this.tbColorG.Text = onColor.G.ToString();
             this.tbColorB.Text = onColor.B.ToString();
-            this.tbLabel.Text = this.UserColorFinder.getLabel(this.ConfigData.PluginName, this.ConfigData.PluginParameter);
+            this.tbLabel.Text = this.UserPlugSettingsFinder.GetLabel(deviceEntry, this.ConfigData.PluginParameter, 0);
         }
         private void SaveAndClose(Object sender, RoutedEventArgs e)
         {

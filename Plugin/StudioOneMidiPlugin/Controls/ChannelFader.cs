@@ -18,7 +18,7 @@
         private FaderMode FaderMode = FaderMode.Volume;
         private static BitmapImage IconVolume, IconPan;
         private String PluginName;
-        private static readonly PlugSettingsFinder UserColorFinder = new PlugSettingsFinder(new PlugSettingsFinder.PlugParamSettings
+        private static readonly PlugSettingsFinder UserPlugSettingsFinder = new PlugSettingsFinder(new PlugSettingsFinder.PlugParamSettings
         {
             OnColor = new FinderColor(DefaultBarColor),     // Used for volume bar
             OffColor = new FinderColor(80, 80, 80),         // Used for volume bar
@@ -117,7 +117,7 @@
 
             plugin.UserPageChanged += (Object sender, Int32 e) =>
             {
-                UserColorFinder.CurrentUserPage = e;
+                UserPlugSettingsFinder.CurrentUserPage = e;
             };
 
             return true;
@@ -157,7 +157,7 @@
 
             ChannelData cd = this.GetChannel(channelIndex);
 
-            var stepDivisions = UserColorFinder.getDialSteps(this.PluginName, cd.Label);
+            var stepDivisions = UserPlugSettingsFinder.GetDialSteps(UserPlugSettingsFinder.GetPlugParamDeviceEntry(this.PluginName), cd.Label, cd.ChannelID + 1);
             if (stepDivisions > 50 && (this.Plugin as StudioOneMidiPlugin).ShiftPressed)
             {
                 stepDivisions *= 6;
@@ -173,7 +173,7 @@
             if (!actionParameters.TryGetString(ControlOrientationSelector, out var controlOrientation)) return null;
 
             ChannelData cd = this.GetChannel(channelIndex);
-            UserColorFinder.CurrentChannel = cd.ChannelID + 1;
+            var buttonIdx = cd.ChannelID + 1;
 
             var customParams = cd.ChannelID < this.CustomSettings.Length ? this.CustomSettings[cd.ChannelID] : null;
 
@@ -187,7 +187,9 @@
                 return bb.ToImage();
             }
 
-            if (UserColorFinder.getLabel(this.PluginName, cd.Label).Length == 0) return bb.ToImage();
+            var deviceEntry = UserPlugSettingsFinder.GetPlugParamDeviceEntry(this.PluginName);
+
+            if (UserPlugSettingsFinder.GetLabel(deviceEntry, cd.Label, buttonIdx).Length == 0) return bb.ToImage();
 
             const int sideBarW = 8;
             int sideBarX = bb.Width - sideBarW;
@@ -220,7 +222,7 @@
             var valueColor = BitmapColor.White;
             var valBarColor = customParams != null 
                               ? customParams.BarColor
-                              : UserColorFinder.getBarOnColor(this.PluginName, cd.Label);
+                              : UserPlugSettingsFinder.GetBarOnColor(deviceEntry, cd.Label, buttonIdx);
 
             if (this.SelectMode == SelectButtonMode.Select)
             {
@@ -248,17 +250,17 @@
 
             if (cd.ChannelID < IsActive.Length && !IsActive[cd.ChannelID])
             {
-                valueColor = UserColorFinder.getTextOffColor(this.PluginName, cd.Label);
-                valBarColor = UserColorFinder.getOffColor(this.PluginName, cd.Label);
+                valueColor = UserPlugSettingsFinder.GetTextOffColor(deviceEntry, cd.Label, buttonIdx);
+                valBarColor = UserPlugSettingsFinder.GetOffColor(deviceEntry, cd.Label, buttonIdx);
             }
 
-            if (UserColorFinder.hideValueBar(this.PluginName, cd.Label)) valBarColor = BitmapColor.Transparent;
+            if (UserPlugSettingsFinder.HideValueBar(deviceEntry, cd.Label, buttonIdx)) valBarColor = BitmapColor.Transparent;
 
             if (isVolume)
             {
                 var volBarH = (Int32)Math.Ceiling(cd.Value * bb.Height);
                 var volBarY = bb.Height - volBarH;
-                if (UserColorFinder.getMode(this.PluginName, cd.Label) == PlugSettingsFinder.PlugParamSettings.PotMode.Symmetric)
+                if (UserPlugSettingsFinder.GetMode(deviceEntry, cd.Label, buttonIdx) == PlugSettingsFinder.PlugParamSettings.PotMode.Symmetric)
                 {
                     volBarH = (Int32)(Math.Abs(cd.Value - 0.5) * bb.Height);
                     volBarY = cd.Value < 0.5 ? bb.Height / 2 : bb.Height / 2 - volBarH;
@@ -362,22 +364,25 @@
         public void OpenUserConfigWindow(String pluginParameter)
         {
             if (this.IsUserConfigWindowOpen)
+            {
                 return;
+            }
 
-            var volBarColor = UserColorFinder.getOnColor(this.PluginName, pluginParameter);
+            var deviceEntry = UserPlugSettingsFinder.GetPlugParamDeviceEntry(this.PluginName);
+            var volBarColor = UserPlugSettingsFinder.GetOnColor(deviceEntry, pluginParameter, 0);
 
             var t = new Thread(() => {
                 var w = new UserControlConfig(UserControlConfig.WindowMode.Dial,
                                               this.Plugin,
-                                              UserColorFinder,
+                                              UserPlugSettingsFinder,
                                               new UserControlConfigData { PluginName = this.PluginName,
                                                                           PluginParameter = pluginParameter,
-                                                                          Mode = UserColorFinder.getMode(this.PluginName, pluginParameter),
+                                                                          Mode = UserPlugSettingsFinder.GetMode(deviceEntry, pluginParameter, 0),
                                                                           R = volBarColor.R,
                                                                           G = volBarColor.G,
                                                                           B = volBarColor.B,
-                                                                          LinkedParameter = UserColorFinder.getLinkedParameter(this.PluginName, pluginParameter),
-                                                                          Label = UserColorFinder.getLabel(this.PluginName, pluginParameter) } );
+                                                                          LinkedParameter = UserPlugSettingsFinder.GetLinkedParameter(deviceEntry, pluginParameter, 0),
+                                                                          Label = UserPlugSettingsFinder.GetLabel(deviceEntry, pluginParameter, 0) } );
                 w.Closed += (_, _) =>
                 {
                     this.IsUserConfigWindowOpen = false;

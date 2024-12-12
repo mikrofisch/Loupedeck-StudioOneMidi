@@ -8,6 +8,7 @@
     using System.Xml.Serialization;
     using System.ComponentModel;
     using System.Diagnostics;
+    using System.Windows.Controls.Ribbon;
 
 
     // BitmapColor objects that have not been explicitly assigned to a
@@ -65,6 +66,7 @@
 
     public class PlugSettingsFinder
     {
+        const String ConfigFileName = "AudioPluginConfig.xml";
         public const Int32 DefaultOnTransparency = 80;
 
         public static readonly BitmapColor NoColor = new BitmapColor(-1, -1, -1);
@@ -112,23 +114,22 @@
             //public const String[] strModeValue = { "Positive", "Symmetric" };
         }
 
-        private class PlugParamDeviceEntry
+        public class PlugParamDeviceEntry
         {
             public Dictionary<String, FinderColor> Colors = [];
             public Dictionary<String, PlugParamSettings> ParamSettings = [];
         }
 
-//        private static readonly Dictionary<(String PluginName, String PluginParameter), PlugParamSettings> PlugParamDict = [];
+        //        private static readonly Dictionary<(String PluginName, String PluginParameter), PlugParamSettings> PlugParamDict = [];
         private static readonly Dictionary<String, PlugParamDeviceEntry> PlugParamDict = [];
         private const String strPlugParamSettingsID = "[ps]";  // for plugin settings
 
         private String LastPluginName, LastPluginParameter;
+        private PlugParamDeviceEntry LastPlugParamDeviceEntry;
+        private static PlugParamDeviceEntry DefaultDeviceEntry;
         private PlugParamSettings LastParamSettings;
 
         public Int32 CurrentUserPage = 0;              // For tracking the current user page position
-        public Int32 CurrentChannel = 0;
-
-        const String ConfigFileName = "AudioPluginConfig.xml";
 
         public class ConfigEntry
         {
@@ -239,7 +240,7 @@
                         }
 
 
-                        if (plugin.TryGetPluginSetting(settingName(settingsParsed[0], settingsParsed[1], settingsParsed[2]), out var val))
+                        if (plugin.TryGetPluginSetting(SettingName(settingsParsed[0], settingsParsed[1], settingsParsed[2]), out var val))
                         {
                             switch (settingsParsed[2])
                             {
@@ -264,6 +265,8 @@
                         }
                     }
                 }
+
+                PlugParamDict.TryGetValue("", out DefaultDeviceEntry);
             }
         }
 
@@ -272,23 +275,20 @@
             this.LastParamSettings = paramSettings;
             return paramSettings;
         }
-        public PlugParamSettings GetParamSettings(String pluginName, String parameterName, Boolean isUser)
-        {
-            if (pluginName == null || parameterName == null) return this.DefaultPlugParamSettings;
-//            if (this.LastParamSettings != null && pluginName == this.LastPluginName && parameterName == this.LastPluginParameter) return this.LastParamSettings;
 
-//            if (!PlugParamDict.TryGetValue(pluginName, out var deviceEntry))
-//            {
-//                return this.DefaultPlugParamSettings;
-//            }
+        public PlugParamDeviceEntry GetPlugParamDeviceEntry(String pluginName)
+        {
+            if (pluginName == null)
+            {
+                return new PlugParamDeviceEntry();
+            }
+
+            if (pluginName == this.LastPluginName)
+            {
+                return this.LastPlugParamDeviceEntry;
+            }
 
             this.LastPluginName = pluginName;
-            this.LastPluginParameter = parameterName;
-
-            var userPagePos = $"{this.CurrentUserPage}:{this.CurrentChannel}" + (isUser ? "U" : "");
-            PlugParamSettings paramSettings;
-
-            // Find device entry.
 
             if (!PlugParamDict.TryGetValue(pluginName, out var deviceEntry))
             {
@@ -296,98 +296,94 @@
                 var partialMatchKeys = PlugParamDict.Keys.Where(key => key != "" && pluginName.StartsWith(key));
                 if (partialMatchKeys.Any())
                 {
-                    PlugParamDict.TryGetValue(partialMatchKeys.First(), out deviceEntry);
+                    if (!PlugParamDict.TryGetValue(partialMatchKeys.First(), out deviceEntry))
+                    {
+                        this.LastPlugParamDeviceEntry = new PlugParamDeviceEntry();
+                        return this.LastPlugParamDeviceEntry;
+                    }
                 }
             }
+
+            this.LastPlugParamDeviceEntry = deviceEntry;
+            return deviceEntry;
+        }
+
+        public PlugParamSettings GetPlugParamSettings(PlugParamDeviceEntry deviceEntry, String parameterName, Boolean isUser, Int32 buttonIdx = 0)
+        {
+            if (parameterName == null)
+            {
+                return this.DefaultPlugParamSettings;
+            }
+                
+            //            if (this.LastParamSettings != null && pluginName == this.LastPluginName && parameterName == this.LastPluginParameter) return this.LastParamSettings;
+
+            //            if (!PlugParamDict.TryGetValue(pluginName, out var deviceEntry))
+            //            {
+            //                return this.DefaultPlugParamSettings;
+            //            }
+
+            this.LastPluginParameter = parameterName;
+
+            var userPagePos = $"{this.CurrentUserPage}:{buttonIdx}" + (isUser ? "U" : "");
+            PlugParamSettings paramSettings;
 
             if (deviceEntry != null &&
                 (deviceEntry.ParamSettings.TryGetValue(userPagePos, out paramSettings) ||
                 deviceEntry.ParamSettings.TryGetValue(parameterName, out paramSettings) ||
+                (DefaultDeviceEntry != null && DefaultDeviceEntry.ParamSettings.TryGetValue(parameterName, out paramSettings)) ||
                 deviceEntry.ParamSettings.TryGetValue("", out paramSettings)))
             {
-                if (isUser)
-                {
-                    Debug.WriteLine("Match 1: " + userPagePos + ", " + paramSettings.Label);
-                }
                 return this.SaveLastSettings(paramSettings);
             }
 
             if (PlugParamDict.TryGetValue("", out deviceEntry) &&
                 deviceEntry.ParamSettings.TryGetValue(parameterName, out paramSettings))
             {
-                if (isUser)
-                {
-                    Debug.WriteLine("Match 2: " + userPagePos + ", " + paramSettings.Label);
-                }
                 return this.SaveLastSettings(paramSettings);
             }
 
-            // Try partial match of plugin name.
-            //            var partialMatchKeys = PlugParamDict.Keys.Where(currentKey => pluginName.StartsWith(currentKey.PluginName) && currentKey.PluginParameter == parameterName);
-            //            if (partialMatchKeys.Count() > 0 && PlugParamDict.TryGetValue(partialMatchKeys.First(), out paramSettings))
-            //            {
-            //                return this.saveLastSettings(paramSettings);
-            //            }
-            //            partialMatchKeys = PlugParamDict.Keys.Where(currentKey => pluginName.Contains(currentKey.PluginName) && currentKey.PluginParameter == "");
-            //            if (partialMatchKeys.Count() > 0 && PlugParamDict.TryGetValue(partialMatchKeys.First(), out paramSettings))
-            //            {
-            //                return this.saveLastSettings(paramSettings);
-            //            }
-
-            //            var partialMatchKeys = PlugParamDict.Keys.Where(key => key != "" && pluginName.StartsWith(key));
-            //            if (PlugParamDict.TryGetValue(partialMatchKeys.First(), out deviceEntry) &&
-            //                (deviceEntry.ParamSettings.TryGetValue(parameterName, out paramSettings) ||
-            //                 deviceEntry.ParamSettings.TryGetValue("", out paramSettings)))
-            //            {
-            //                return this.SaveLastSettings(paramSettings);
-            //            }
-
-            if (isUser)
-            {
-                Debug.WriteLine("Default: " + userPagePos + ", " + DefaultPlugParamSettings.Label);
-            }
             return this.SaveLastSettings(this.DefaultPlugParamSettings);
         }
 
-        private BitmapColor findColor(FinderColor settingsColor, BitmapColor defaultColor) => settingsColor ?? defaultColor;
+        private BitmapColor FindColor(FinderColor settingsColor, BitmapColor defaultColor) => settingsColor ?? defaultColor;
 
-        public PlugParamSettings.PotMode getMode(String pluginName, String parameterName, Boolean isUser = false) => this.GetParamSettings(pluginName, parameterName, isUser).Mode;
-        public Boolean getShowCircle(String pluginName, String parameterName, Boolean isUser = false) => this.GetParamSettings(pluginName, parameterName, isUser).ShowUserButtonCircle;
-        public Boolean getPaintLabelBg(String pluginName, String parameterName, Boolean isUser = false) => this.GetParamSettings(pluginName, parameterName, isUser).PaintLabelBg;
+        public PlugParamSettings.PotMode GetMode(PlugParamDeviceEntry deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false) => this.GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx).Mode;
+        public Boolean GetShowCircle(PlugParamDeviceEntry deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false) => this.GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx).ShowUserButtonCircle;
+        public Boolean GetPaintLabelBg(PlugParamDeviceEntry deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false) => this.GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx).PaintLabelBg;
 
-        public BitmapColor getOnColor(String pluginName, String parameterName, Boolean isUser = false)
+        public BitmapColor GetOnColor(PlugParamDeviceEntry deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false)
         {
-            var cs = this.GetParamSettings(pluginName, parameterName, isUser);
+            var cs = this.GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx);
             return cs != null ? new BitmapColor(cs.OnColor, isUser ? 255 : cs.OnTransparency)
                               : new BitmapColor(this.DefaultPlugParamSettings.OnColor, isUser ? 255 : this.DefaultPlugParamSettings.OnTransparency);
         }
-        public BitmapColor getBarOnColor(String pluginName, String parameterName, Boolean isUser = false)
+        public BitmapColor GetBarOnColor(PlugParamDeviceEntry deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false)
         {
-            var cs = this.GetParamSettings(pluginName, parameterName, isUser);
-            return cs.BarOnColor ?? this.findColor(cs.OnColor, this.DefaultPlugParamSettings.OnColor);
+            var cs = this.GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx);
+            return cs.BarOnColor ?? this.FindColor(cs.OnColor, this.DefaultPlugParamSettings.OnColor);
         }
-        public BitmapColor getOffColor(String pluginName, String parameterName, Boolean isUser = false) => this.findColor(this.GetParamSettings(pluginName, parameterName, isUser).OffColor,
-                                                                                                  this.DefaultPlugParamSettings.OffColor);
-        public BitmapColor getTextOnColor(String pluginName, String parameterName, Boolean isUser = false) => this.findColor(this.GetParamSettings(pluginName, parameterName, isUser).TextOnColor,
-                                                                                                     this.DefaultPlugParamSettings.TextOnColor);
-        public BitmapColor getTextOffColor(String pluginName, String parameterName, Boolean isUser = false) => this.findColor(this.GetParamSettings(pluginName, parameterName, isUser).TextOffColor,
-                                                                                                      this.DefaultPlugParamSettings.TextOffColor);
-        public String getLabel(String pluginName, String parameterName, Boolean isUser = false) => this.GetParamSettings(pluginName, parameterName, isUser).Label ?? parameterName;
-        public String getLabelOn(String pluginName, String parameterName, Boolean isUser = false)
+        public BitmapColor GetOffColor(PlugParamDeviceEntry deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false) => this.FindColor(this.GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx).OffColor,
+                                                                                                                                                          this.DefaultPlugParamSettings.OffColor);
+        public BitmapColor GetTextOnColor(PlugParamDeviceEntry deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false) => this.FindColor(this.GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx).TextOnColor,
+                                                                                                                                                             this.DefaultPlugParamSettings.TextOnColor);
+        public BitmapColor GetTextOffColor(PlugParamDeviceEntry deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false) => this.FindColor(this.GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx).TextOffColor,
+                                                                                                                                                              this.DefaultPlugParamSettings.TextOffColor);
+        public String GetLabel(PlugParamDeviceEntry deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false) => this.GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx).Label ?? parameterName;
+        public String GetLabelOn(PlugParamDeviceEntry deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false)
         {
-            var cs = this.GetParamSettings(pluginName, parameterName, isUser);
+            var cs = this.GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx);
             return cs.LabelOn ?? cs.Label ?? parameterName;
         }
-        public String getLabelShort(String pluginName, String parameterName, Boolean isUser = false) => stripLabel(this.getLabel(pluginName, parameterName, isUser));
-        public String getLabelOnShort(String pluginName, String parameterName, Boolean isUser = false) => stripLabel(this.getLabelOn(pluginName, parameterName, isUser));
+        public String GetLabelShort(PlugParamDeviceEntry deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false) => stripLabel(this.GetLabel(deviceEntry, parameterName, buttonIdx, isUser));
+        public String GetLabelOnShort(PlugParamDeviceEntry deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false) => stripLabel(this.GetLabelOn(deviceEntry, parameterName, buttonIdx, isUser));
         public static String stripLabel(String label)
         {
             if (label.Length <= 12) return label;
             return Regex.Replace(label, "(?<!^)[aeiou](?!$)", "");
         }
-        public BitmapImage getIcon(String pluginName, String parameterName)
+        public BitmapImage GetIcon(PlugParamDeviceEntry deviceEntry, String parameterName)
         {
-            var colorSettings = this.GetParamSettings(pluginName, parameterName, false);
+            var colorSettings = this.GetPlugParamSettings(deviceEntry, parameterName, false);
             if (colorSettings.IconName != null)
             {
                 return EmbeddedResources.ReadImage(EmbeddedResources.FindFile($"{colorSettings.IconName}_52px.png"));
@@ -395,24 +391,24 @@
             return null;
         }
 
-        public BitmapImage getIconOn(String pluginName, String parameterName)
+        public BitmapImage GetIconOn(PlugParamDeviceEntry deviceEntry, String parameterName)
         {
-            var colorSettings = this.GetParamSettings(pluginName, parameterName, false);
+            var colorSettings = this.GetPlugParamSettings(deviceEntry, parameterName, false);
             if (colorSettings.IconNameOn != null)
             {
                 return EmbeddedResources.ReadImage(EmbeddedResources.FindFile($"{colorSettings.IconNameOn}_52px.png"));
             }
             return null;
         }
-        public String getLinkedParameter(String pluginName, String parameterName, Boolean isUser = false) => this.GetParamSettings(pluginName, parameterName, isUser).LinkedParameter;
-        public Boolean getLinkReversed(String pluginName, String parameterName, Boolean isUser = false) => this.GetParamSettings(pluginName, parameterName, isUser).LinkReversed;
-        public String getLinkedStates(String pluginName, String parameterName, Boolean isUser = false) => this.GetParamSettings(pluginName, parameterName, isUser).LinkedStates;
-        public Boolean hideValueBar(String pluginName, String parameterName, Boolean isUser = false) => this.GetParamSettings(pluginName, parameterName, isUser).HideValueBar;
-        public Boolean showUserButtonCircle(String pluginName, String parameterName, Boolean isUser = false) => this.GetParamSettings(pluginName, parameterName, isUser).ShowUserButtonCircle;
-        public Int32 getDialSteps(String pluginName, String parameterName, Boolean isUser = false) => this.GetParamSettings(pluginName, parameterName, isUser).DialSteps;
-        public String[] getUserMenuItems(String pluginName, String parameterName, Boolean isUser = false) => this.GetParamSettings(pluginName, parameterName, isUser).UserMenuItems;
-        public Boolean hasMenu(String pluginName, String parameterName, Boolean isUser = false) => this.GetParamSettings(pluginName, parameterName, isUser).UserMenuItems != null;
-        public static String settingName(String pluginName, String parameterName, String setting) => strPlugParamSettingsID + pluginName + "|" + parameterName + "|" + setting;
+        public String GetLinkedParameter(PlugParamDeviceEntry deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false) => this.GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx).LinkedParameter;
+        public Boolean GetLinkReversed(PlugParamDeviceEntry deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false) => this.GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx).LinkReversed;
+        public String GetLinkedStates(PlugParamDeviceEntry deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false) => this.GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx).LinkedStates;
+        public Boolean HideValueBar(PlugParamDeviceEntry deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false) => this.GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx).HideValueBar;
+        public Boolean ShowUserButtonCircle(PlugParamDeviceEntry deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false) => this.GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx).ShowUserButtonCircle;
+        public Int32 GetDialSteps(PlugParamDeviceEntry deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false) => this.GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx).DialSteps;
+        public String[] GetUserMenuItems(PlugParamDeviceEntry deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false) => this.GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx).UserMenuItems;
+        public Boolean HasMenu(PlugParamDeviceEntry deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false) => this.GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx).UserMenuItems != null;
+        public static String SettingName(String pluginName, String parameterName, String setting) => strPlugParamSettingsID + pluginName + "|" + parameterName + "|" + setting;
 
         private static void AddParamSetting(String pluginName, String parameterName, PlugParamSettings setting)
         {

@@ -442,7 +442,9 @@
                 }
                 var ubd = this.getButtonData(idxUserSendsUserModeButton) as UserModeButtonData;
                 ubd.resetUserPage();
-                ubd.setPageNames(new PlugSettingsFinder().GetParamSettings(pluginName, "Loupedeck User Pages", false).UserMenuItems);
+
+                var pf = new PlugSettingsFinder();
+                ubd.setPageNames(pf.GetPlugParamSettings(pf.GetPlugParamDeviceEntry(pluginName), "Loupedeck User Pages", false).UserMenuItems);
 
                 if (this.CurrentLayer == ButtonLayer.FaderModesSend && this.CurrentUserSendsLayerMode == UserSendsLayerMode.PluginSelectionActivated)
                 {

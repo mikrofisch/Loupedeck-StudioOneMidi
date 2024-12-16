@@ -1,14 +1,14 @@
 ﻿namespace Loupedeck.StudioOneMidiPlugin
 {
     using System;
-    using System.IO;
     using System.Collections.Generic;
+    using System.ComponentModel;
+    using System.IO;
     using System.Linq;
     using System.Text.RegularExpressions;
+    using System.Xml.Schema;
+    using System.Xml;
     using System.Xml.Serialization;
-    using System.ComponentModel;
-    using System.Diagnostics;
-    using System.Windows.Controls.Ribbon;
 
 
     // BitmapColor objects that have not been explicitly assigned to a
@@ -17,19 +17,29 @@
     // to a color (BitmapColor.NoColor evaluates to the same values as BitmapColor.White) and
     // it cannot be set to null, we define a new class that can be null.
     //
-    [XmlRoot("FinderColor")]
+    [XmlSchemaProvider("GetSchemaMethod")]
     public class FinderColor : IXmlSerializable
     {
-        public BitmapColor Color { get; set; }
-
         public FinderColor() { }
-        public FinderColor(BitmapColor b)
+        public FinderColor(BitmapColor b) => this.Color = b;
+        public FinderColor(Byte r, Byte g, Byte b) => this.Color = new BitmapColor(r, g, b);
+
+        public FinderColor(String colorName, Byte r, Byte g, Byte b)
         {
-            this.Color = b;
-        }
-        public FinderColor(Byte r, Byte g, Byte b)
-        {
+            this.Name = colorName;
             this.Color = new BitmapColor(r, g, b);
+        }
+
+        public FinderColor(String colorName, BitmapColor bc)
+        {
+            this.Name = colorName;
+            this.Color = bc;
+        }
+
+        public FinderColor(FinderColor c)
+        {
+            this.Name = c.Name;
+            this.Color = c.Color;
         }
 
         public static implicit operator BitmapColor(FinderColor f) => f != null ? f.Color : new BitmapColor();
@@ -39,9 +49,34 @@
         public static FinderColor White => new FinderColor(BitmapColor.White);
         public static FinderColor Black => new FinderColor(BitmapColor.Black);
 
+        public BitmapColor Color { get; set; }
+        public readonly String Name;   // name of the referenced color in the device's color list
+
+        public Boolean XmlRenderAsNameRef = false;
+
         #region IXmlSerializable members
 
         public System.Xml.Schema.XmlSchema GetSchema() => null;
+
+        public static XmlQualifiedName GetSchemaMethod(XmlSchemaSet xs)
+        {
+            // This provides a schema so that the serializer will render the element name
+            // defined in the schema for arrays (which it doesn't do if [XmlRoot] is used
+            // to set the name)
+            var colorSchema = @"<xs:schema elementFormDefault=""qualified"" xmlns:xs=""http://www.w3.org/2001/XMLSchema""> " +
+                              @"<xs:element name=""Color"" nillable=""true"" />" +
+                              @"<xs:complexType name=""Color""> " +
+                              @"<xs:attribute name=""name"" type=""xs:string"" /> " +
+                              @"</xs:complexType> " +
+                              @"</xs:schema>";
+            using (var textReader = new StringReader(colorSchema))
+            using (var schemaSetReader = System.Xml.XmlReader.Create(textReader))
+            {
+                xs.Add("", schemaSetReader);
+            }
+            // Return back the namespace and name to be used for this type.
+            return new XmlQualifiedName("Color", "");
+        }
 
         public void ReadXml(System.Xml.XmlReader reader)
         {
@@ -51,13 +86,31 @@
 
         public void WriteXml(System.Xml.XmlWriter writer)
         {
-            if (this.Color != null)
+            if (!this.Name.IsNullOrEmpty())
             {
-                var str = $"rgb({this.Color.R},{this.Color.G},{this.Color.B})";
-                str = "murks";
-
-                writer.WriteString(str);
-                writer.WriteEndElement();
+                if (this.XmlRenderAsNameRef)
+                {
+                    writer.WriteString(this.Name);
+                }
+                else
+                {
+                    writer.WriteAttributeString("name", this.Name);
+                }
+            }
+            if (!this.XmlRenderAsNameRef)
+            {
+                if (this.Color == BitmapColor.White)
+                {
+                    writer.WriteString("white");
+                }
+                else if (this.Color == BitmapColor.Black)
+                {
+                    writer.WriteString("black");
+                }
+                else
+                {
+                    writer.WriteString($"rgb({this.Color.R},{this.Color.G},{this.Color.B})");
+                }
             }
         }
 
@@ -69,9 +122,8 @@
         const String ConfigFileName = "AudioPluginConfig.xml";
         public const Int32 DefaultOnTransparency = 80;
 
-        public static readonly BitmapColor NoColor = new BitmapColor(-1, -1, -1);
         [XmlInclude(typeof(S1TopControlColors))]
-        public class PlugParamSettings
+        public class PlugParamSetting
         {
             public enum PotMode { Positive, Symmetric };
             public PotMode Mode { get; set; } = PotMode.Positive;
@@ -101,7 +153,10 @@
             [DefaultValueAttribute(100)]
             public Int32 DialSteps { get; set; } = 100;             // Number of steps for a mode dial
 
-            public String[] UserMenuItems;                              // Items for user button menu
+            public String[] UserMenuItems;                          // Items for user button menu
+
+            [XmlAttribute (AttributeName = "name")]
+            public String Name;                                     // For XML config file
 
             // For plugin settings
             public const String strOnColor = "OnColor";
@@ -116,60 +171,108 @@
 
         public class PlugParamDeviceEntry
         {
-            public Dictionary<String, FinderColor> Colors = [];
-            public Dictionary<String, PlugParamSettings> ParamSettings = [];
+            public Dictionary<String, PlugParamSetting> ParamSettings = [];
         }
 
-        //        private static readonly Dictionary<(String PluginName, String PluginParameter), PlugParamSettings> PlugParamDict = [];
         private static readonly Dictionary<String, PlugParamDeviceEntry> PlugParamDict = [];
         private const String strPlugParamSettingsID = "[ps]";  // for plugin settings
 
         private String LastPluginName, LastPluginParameter;
         private PlugParamDeviceEntry LastPlugParamDeviceEntry;
         private static PlugParamDeviceEntry DefaultDeviceEntry;
-        private PlugParamSettings LastParamSettings;
+        private PlugParamSetting LastParamSettings;
 
         public Int32 CurrentUserPage = 0;              // For tracking the current user page position
 
-        public class ConfigEntry
-        {
-            public String key1;
-            public String key2;
-            public PlugParamSettings colorSettings;
-        }
-
-        public PlugParamSettings DefaultPlugParamSettings { get; private set; } = new PlugParamSettings
+        public PlugParamSetting DefaultPlugParamSettings { get; private set; } = new PlugParamSetting
         {
             OnColor = FinderColor.Transparent,
             OffColor = FinderColor.Transparent,
             TextOnColor = FinderColor.White,
-            TextOffColor = FinderColor.White
+            TextOffColor = FinderColor.White,
+            BarOnColor = FinderColor.White
         };
 
         // Need to call "Init()" to populate the ColorSettings dictionary!
         public PlugSettingsFinder() { }
 
         // Need to call "Init()" to populate the ColorSettings dictionary!
-        public PlugSettingsFinder(PlugParamSettings defaultPlugParamSettings)
+        public PlugSettingsFinder(PlugParamSetting defaultPlugParamSettings)
         {
             this.DefaultPlugParamSettings = defaultPlugParamSettings;
         }
 
-        public class S1TopControlColors : PlugParamSettings
-        {
-            public S1TopControlColors() { }
-            public S1TopControlColors(String label = null)
-            {
-                this.OnColor = new FinderColor(54, 84, 122);
-                this.OffColor = new FinderColor(27, 34, 37);
-                this.TextOffColor = new FinderColor(58, 117, 195);
-                this.Label = label;
-            }
-        }
 
         public class XmlConfig
         {
-            public ConfigEntry[] Entries = new ConfigEntry[10];
+            public class PluginConfig
+            {
+                [XmlAttribute]
+                public String PluginName;
+
+                public List<FinderColor> Colors = [];
+                public List<PlugParamSetting> ParamSettings = [];
+            }
+
+            [XmlElement("PluginConfig")]
+            public readonly List<PluginConfig> PluginConfigs = [];
+
+            private void ProcessColorSetting(PluginConfig p, FinderColor c)
+            {
+                if (c!= null && !c.Name.IsNullOrEmpty())
+                {
+                    var colorExists = false;
+                    foreach (var cc in p.Colors)
+                    {
+                        if (cc.Name == c.Name)
+                        {
+                            colorExists = true;
+                            break;
+                        }
+                    }
+                    if (!colorExists)
+                    {
+                        p.Colors.Add(new FinderColor(c));
+                    }
+                    c.XmlRenderAsNameRef = true;   // Write only name to XML in parameter settings entry
+                }
+            }
+
+            public void WriteXml()
+            {
+                var configFolderPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Loupedeck-StudioOneMidiPlugin");
+                if (!Directory.Exists(configFolderPath))
+                {
+                    Directory.CreateDirectory(configFolderPath);
+                }
+                var configFilePath = System.IO.Path.Combine(configFolderPath, ConfigFileName);
+
+                foreach (var deviceEntry in PlugParamDict)
+                {
+                    var cfgDeviceEntry = new PluginConfig { PluginName = deviceEntry.Key };
+                    foreach (var paramSettings in deviceEntry.Value.ParamSettings)
+                    {
+                        paramSettings.Value.Name = paramSettings.Key;
+
+                        this.ProcessColorSetting(cfgDeviceEntry, paramSettings.Value.OnColor);
+                        this.ProcessColorSetting(cfgDeviceEntry, paramSettings.Value.OffColor);
+                        this.ProcessColorSetting(cfgDeviceEntry, paramSettings.Value.TextOnColor);
+                        this.ProcessColorSetting(cfgDeviceEntry, paramSettings.Value.TextOffColor);
+                        this.ProcessColorSetting(cfgDeviceEntry, paramSettings.Value.BarOnColor);
+
+                        cfgDeviceEntry.ParamSettings.Add(paramSettings.Value); 
+                    }
+
+                    this.PluginConfigs.Add(cfgDeviceEntry);
+                }
+
+                var serializer = new XmlSerializer(typeof(XmlConfig));
+                var writer = new StreamWriter(configFilePath);
+
+                serializer.Serialize(writer, this);
+                writer.Close();
+
+            }
         }
 
         public static void Init(Plugin plugin, Boolean forceReload = false)
@@ -182,42 +285,8 @@
             {
                 InitColorDict();
 
-                var configFolderPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StudioOneMidiPlugin");
-                if (!Directory.Exists(configFolderPath))
-                {
-                    Directory.CreateDirectory(configFolderPath);
-                }
-                var configFilePath = System.IO.Path.Combine(configFolderPath, ConfigFileName);
-
-                XmlConfig blub = new XmlConfig();
-
-                var serializer = new XmlSerializer(typeof(XmlConfig));
-                TextWriter writer = new StreamWriter(configFilePath);
-
-                serializer.Serialize(writer, blub);
-
-//                foreach (KeyValuePair<(String, String), ColorSettings> entry in ColorDict)
-//                {
-//                    serializer.Serialize(writer, new ConfigEntry
-//                    {
-//                        key1 = entry.Key.Item1,
-//                        key2 = entry.Key.Item2,
-//                        colorSettings = entry.Value
-//                    });
-//                }
-
-                writer.Close();
-
-                // var options = new JsonSerializerOptions { WriteIndented = true, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault };
-                // foreach (KeyValuePair<(String, String), ColorSettings> entry in ColorDict)
-                // {
-                //    var jsonString = "{ \"key1\": \"" + entry.Key.Item1 + "\",\n";
-                //    jsonString += "  \"key2\": \"" + entry.Key.Item2 + "\",\n";
-                //    jsonString += "  \"colorSettings\": " + JsonSerializer.Serialize(entry.Value, options);
-                //    jsonString += "}";
-                //
-                //    Debug.WriteLine(jsonString);
-                // }
+                var xmlCfg = new XmlConfig();
+                xmlCfg.WriteXml();
 
                 // Read Loupedeck plugin settings
 
@@ -235,7 +304,7 @@
                         }
                         if (!pe.ParamSettings.TryGetValue(settingsParsed[1], out var ps))
                         {
-                            ps = new PlugParamSettings { };
+                            ps = new PlugParamSetting { };
                             pe.ParamSettings.Add(settingsParsed[0], ps);
                         }
 
@@ -244,21 +313,21 @@
                         {
                             switch (settingsParsed[2])
                             {
-                                case PlugParamSettings.strOnColor:
+                                case PlugParamSetting.strOnColor:
                                     ps.OnColor = new FinderColor(Convert.ToByte(val.Substring(0, 2), 16),
                                                                  Convert.ToByte(val.Substring(2, 2), 16),
                                                                  Convert.ToByte(val.Substring(4, 2), 16));
                                     break;
-                                case PlugParamSettings.strLabel:
+                                case PlugParamSetting.strLabel:
                                     ps.Label = val;
                                     break;
-                                case PlugParamSettings.strLinkedParameter:
+                                case PlugParamSetting.strLinkedParameter:
                                     ps.LinkedParameter = val;
                                     break;
-                                case PlugParamSettings.strMode:
-                                    ps.Mode = val.ParseInt32() == 0 ? PlugParamSettings.PotMode.Positive : PlugParamSettings.PotMode.Symmetric;
+                                case PlugParamSetting.strMode:
+                                    ps.Mode = val.ParseInt32() == 0 ? PlugParamSetting.PotMode.Positive : PlugParamSetting.PotMode.Symmetric;
                                     break;
-                                case PlugParamSettings.strShowCircle:
+                                case PlugParamSetting.strShowCircle:
                                     ps.ShowUserButtonCircle = val.ParseInt32() == 1 ? true : false;
                                     break;
                             }
@@ -270,7 +339,7 @@
             }
         }
 
-        private PlugParamSettings SaveLastSettings(PlugParamSettings paramSettings)
+        private PlugParamSetting SaveLastSettings(PlugParamSetting paramSettings)
         {
             this.LastParamSettings = paramSettings;
             return paramSettings;
@@ -308,24 +377,19 @@
             return deviceEntry;
         }
 
-        public PlugParamSettings GetPlugParamSettings(PlugParamDeviceEntry deviceEntry, String parameterName, Boolean isUser, Int32 buttonIdx = 0)
+        public PlugParamSetting GetPlugParamSettings(PlugParamDeviceEntry deviceEntry, String parameterName, Boolean isUser, Int32 buttonIdx = 0)
         {
             if (parameterName == null)
             {
                 return this.DefaultPlugParamSettings;
             }
                 
-            //            if (this.LastParamSettings != null && pluginName == this.LastPluginName && parameterName == this.LastPluginParameter) return this.LastParamSettings;
-
-            //            if (!PlugParamDict.TryGetValue(pluginName, out var deviceEntry))
-            //            {
-            //                return this.DefaultPlugParamSettings;
-            //            }
+//           if (this.LastParamSettings != null && deviceEntry == this.LastPlugParamDeviceEntry && parameterName == this.LastPluginParameter) return this.LastParamSettings;
 
             this.LastPluginParameter = parameterName;
 
             var userPagePos = $"{this.CurrentUserPage}:{buttonIdx}" + (isUser ? "U" : "");
-            PlugParamSettings paramSettings;
+            PlugParamSetting paramSettings;
 
             if (deviceEntry != null &&
                 (deviceEntry.ParamSettings.TryGetValue(userPagePos, out paramSettings) ||
@@ -347,7 +411,7 @@
 
         private BitmapColor FindColor(FinderColor settingsColor, BitmapColor defaultColor) => settingsColor ?? defaultColor;
 
-        public PlugParamSettings.PotMode GetMode(PlugParamDeviceEntry deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false) => this.GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx).Mode;
+        public PlugParamSetting.PotMode GetMode(PlugParamDeviceEntry deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false) => this.GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx).Mode;
         public Boolean GetShowCircle(PlugParamDeviceEntry deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false) => this.GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx).ShowUserButtonCircle;
         public Boolean GetPaintLabelBg(PlugParamDeviceEntry deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false) => this.GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx).PaintLabelBg;
 
@@ -410,18 +474,24 @@
         public Boolean HasMenu(PlugParamDeviceEntry deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false) => this.GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx).UserMenuItems != null;
         public static String SettingName(String pluginName, String parameterName, String setting) => strPlugParamSettingsID + pluginName + "|" + parameterName + "|" + setting;
 
-        private static void AddParamSetting(String pluginName, String parameterName, PlugParamSettings setting)
+//        private static void AddParamSetting(String pluginName, String parameterName, PlugParamSettings setting)
+//        {
+//            deviceEntry.ParamSettings.Add(parameterName, setting);
+//        }
+
+        private static PlugParamDeviceEntry AddPlugParamDeviceEntry(String pluginName)
         {
             if (!PlugParamDict.TryGetValue(pluginName, out var deviceEntry))
             {
                 deviceEntry = new PlugParamDeviceEntry();
                 PlugParamDict.Add(pluginName, deviceEntry);
             }
-            deviceEntry.ParamSettings.Add(parameterName, setting);
+            return deviceEntry;
         }
-        private static void AddLinked(String pluginName, String parameterName, String linkedParameter,
+
+        private static void AddLinked(PlugParamDeviceEntry deviceEntry, String parameterName, String linkedParameter,
                                       String label = null,
-                                      PlugParamSettings.PotMode mode = PlugParamSettings.PotMode.Positive,
+                                      PlugParamSetting.PotMode mode = PlugParamSetting.PotMode.Positive,
                                       Boolean linkReversed = false,
                                       String linkedStates = "",
                                       FinderColor onColor = null,
@@ -431,10 +501,9 @@
                                       FinderColor textOffColor = null,
                                       String[] userMenuItems = null)
         {
-            if (label == null)
-                label = parameterName;
-            var paramSettings = PlugParamDict[pluginName].ParamSettings[linkedParameter];
-            AddParamSetting(pluginName, parameterName, new PlugParamSettings
+            label ??= parameterName;
+            var paramSettings = deviceEntry.ParamSettings[linkedParameter];
+            deviceEntry.ParamSettings.Add(parameterName, new PlugParamSetting
             {
                 Mode = mode,
                 OnColor = onColor ?? paramSettings.OnColor,
@@ -450,841 +519,906 @@
             });
         }
 
+        public class S1TopControlColors : PlugParamSetting
+        {
+            public S1TopControlColors() { }
+            public S1TopControlColors(String label = null)
+            {
+                this.OnColor = new FinderColor(54, 84, 122);
+                this.OffColor = new FinderColor(27, 34, 37);
+                this.TextOffColor = new FinderColor(58, 117, 195);
+                this.Label = label;
+            }
+        }
+
         private static void InitColorDict()
         {
-            AddParamSetting("", "Bypass", new PlugParamSettings { OnColor = new FinderColor(204, 156, 107), IconName = "bypass" });
-            AddParamSetting("", "Global Bypass", new PlugParamSettings { OnColor = new FinderColor(204, 156, 107), IconName = "bypass" });
+            // Default device.
+            var deviceEntry = AddPlugParamDeviceEntry("");
+            deviceEntry.ParamSettings.Add("Bypass", new PlugParamSetting { OnColor = new FinderColor(204, 156, 107), IconName = "bypass" });
+            deviceEntry.ParamSettings.Add("Global Bypass", new PlugParamSetting { OnColor = new FinderColor(204, 156, 107), IconName = "bypass" });
 
-            AddParamSetting("Pro EQ", "Show Controls", new S1TopControlColors(label: "Band Controls"));
-            AddParamSetting("Pro EQ", "Show Dynamics", new S1TopControlColors(label: "Dynamics"));
-            AddParamSetting("Pro EQ", "High Quality", new S1TopControlColors());
-            AddParamSetting("Pro EQ", "View Mode", new S1TopControlColors(label: "Curves"));
-            AddParamSetting("Pro EQ", "LF-Active", new PlugParamSettings { OnColor = new FinderColor(255, 120, 38), Label = "LF", ShowUserButtonCircle = true });
-            AddParamSetting("Pro EQ", "MF-Active", new PlugParamSettings { OnColor = new FinderColor(107, 224, 44), Label = "MF", ShowUserButtonCircle = true });
-            AddParamSetting("Pro EQ", "HF-Active", new PlugParamSettings { OnColor = new FinderColor(75, 212, 250), Label = "HF", ShowUserButtonCircle = true });
-            AddParamSetting("Pro EQ", "LMF-Active", new PlugParamSettings { OnColor = new FinderColor(245, 205, 58), Label = "LMF", ShowUserButtonCircle = true });
-            AddParamSetting("Pro EQ", "HMF-Active", new PlugParamSettings { OnColor = new FinderColor(70, 183, 130), Label = "HMF", ShowUserButtonCircle = true });
-            AddParamSetting("Pro EQ", "LC-Active", new PlugParamSettings { OnColor = new FinderColor(255, 74, 61), Label = "LC", ShowUserButtonCircle = true });
-            AddParamSetting("Pro EQ", "HC-Active", new PlugParamSettings { OnColor = new FinderColor(158, 98, 255), Label = "HC", ShowUserButtonCircle = true });
-            AddParamSetting("Pro EQ", "LLC-Active", new PlugParamSettings { OnColor = FinderColor.White, Label = "LLC", ShowUserButtonCircle = true });
-            AddParamSetting("Pro EQ", "Global Gain", new PlugParamSettings { OnColor = new FinderColor(200, 200, 200), Label = "Gain", Mode = PlugParamSettings.PotMode.Symmetric });
-            AddParamSetting("Pro EQ", "Auto Gain", new PlugParamSettings { Label = "Auto" });
-            AddLinked("Pro EQ", "LF-Gain", "LF-Active", label: "LF Gain", mode: PlugParamSettings.PotMode.Symmetric);
-            AddLinked("Pro EQ", "LF-Frequency", "LF-Active", label: "LF Freq");
-            AddLinked("Pro EQ", "LF-Q", "LF-Active", label: "LF Q");
-            AddLinked("Pro EQ", "MF-Gain", "MF-Active", label: "MF Gain", mode: PlugParamSettings.PotMode.Symmetric);
-            AddLinked("Pro EQ", "MF-Frequency", "MF-Active", label: "MF Freq");
-            AddLinked("Pro EQ", "MF-Q", "MF-Active", label: "MF Q");
-            AddLinked("Pro EQ", "HF-Gain", "HF-Active", label: "HF Gain", mode: PlugParamSettings.PotMode.Symmetric);
-            AddLinked("Pro EQ", "HF-Frequency", "HF-Active", label: "HF Freq");
-            AddLinked("Pro EQ", "HF-Q", "HF-Active", label: "HF Q");
-            AddLinked("Pro EQ", "LMF-Gain", "LMF-Active", label: "LMF Gain", mode: PlugParamSettings.PotMode.Symmetric);
-            AddLinked("Pro EQ", "LMF-Frequency", "LMF-Active", label: "LMF Freq");
-            AddLinked("Pro EQ", "LMF-Q", "LMF-Active", label: "LMF Q");
-            AddLinked("Pro EQ", "HMF-Gain", "HMF-Active", label: "HMF Gain", mode: PlugParamSettings.PotMode.Symmetric);
-            AddLinked("Pro EQ", "HMF-Frequency", "HMF-Active", label: "HMF Freq");
-            AddLinked("Pro EQ", "HMF-Q", "HMF-Active", label: "HMF Q");
-            AddLinked("Pro EQ", "LC-Frequency", "LC-Active", label: "LC Freq");
-            AddLinked("Pro EQ", "HC-Frequency", "HC-Active", label: "HC Freq");
-            AddParamSetting("Pro EQ", "LF-Solo", new PlugParamSettings { OnColor = new FinderColor(224, 182, 69), Label = "LF Solo" });
-            AddParamSetting("Pro EQ", "MF-Solo", new PlugParamSettings { OnColor = new FinderColor(224, 182, 69), Label = "MF Solo" });
-            AddParamSetting("Pro EQ", "HF-Solo", new PlugParamSettings { OnColor = new FinderColor(224, 182, 69), Label = "HF Solo" });
-            AddParamSetting("Pro EQ", "LMF-Solo", new PlugParamSettings { OnColor = new FinderColor(224, 182, 69), Label = "LMF Solo" });
-            AddParamSetting("Pro EQ", "HMF-Solo", new PlugParamSettings { OnColor = new FinderColor(224, 182, 69), Label = "HMF Solo" });
+            deviceEntry = AddPlugParamDeviceEntry("Pro EQ");
+            deviceEntry.ParamSettings.Add("Show Controls", new S1TopControlColors(label: "Band Controls"));
+            deviceEntry.ParamSettings.Add("Show Dynamics", new S1TopControlColors(label: "Dynamics"));
+            deviceEntry.ParamSettings.Add("High Quality", new S1TopControlColors());
+            deviceEntry.ParamSettings.Add("View Mode", new S1TopControlColors(label: "Curves"));
+            deviceEntry.ParamSettings.Add("LF-Active", new PlugParamSetting { OnColor = new FinderColor(255, 120, 38), Label = "LF", ShowUserButtonCircle = true });
+            deviceEntry.ParamSettings.Add("MF-Active", new PlugParamSetting { OnColor = new FinderColor(107, 224, 44), Label = "MF", ShowUserButtonCircle = true });
+            deviceEntry.ParamSettings.Add("HF-Active", new PlugParamSetting { OnColor = new FinderColor(75, 212, 250), Label = "HF", ShowUserButtonCircle = true });
+            deviceEntry.ParamSettings.Add("LMF-Active", new PlugParamSetting { OnColor = new FinderColor(245, 205, 58), Label = "LMF", ShowUserButtonCircle = true });
+            deviceEntry.ParamSettings.Add("HMF-Active", new PlugParamSetting { OnColor = new FinderColor(70, 183, 130), Label = "HMF", ShowUserButtonCircle = true });
+            deviceEntry.ParamSettings.Add("LC-Active", new PlugParamSetting { OnColor = new FinderColor(255, 74, 61), Label = "LC", ShowUserButtonCircle = true });
+            deviceEntry.ParamSettings.Add("HC-Active", new PlugParamSetting { OnColor = new FinderColor(158, 98, 255), Label = "HC", ShowUserButtonCircle = true });
+            deviceEntry.ParamSettings.Add("LLC-Active", new PlugParamSetting { OnColor = FinderColor.White, Label = "LLC", ShowUserButtonCircle = true });
+            deviceEntry.ParamSettings.Add("Global Gain", new PlugParamSetting { OnColor = new FinderColor(200, 200, 200), Label = "Gain", Mode = PlugParamSetting.PotMode.Symmetric });
+            deviceEntry.ParamSettings.Add("Auto Gain", new PlugParamSetting { Label = "Auto" });
+            AddLinked(deviceEntry, "LF-Gain", "LF-Active", label: "LF Gain", mode: PlugParamSetting.PotMode.Symmetric);
+            AddLinked(deviceEntry, "LF-Frequency", "LF-Active", label: "LF Freq");
+            AddLinked(deviceEntry, "LF-Q", "LF-Active", label: "LF Q");
+            AddLinked(deviceEntry, "MF-Gain", "MF-Active", label: "MF Gain", mode: PlugParamSetting.PotMode.Symmetric);
+            AddLinked(deviceEntry, "MF-Frequency", "MF-Active", label: "MF Freq");
+            AddLinked(deviceEntry, "MF-Q", "MF-Active", label: "MF Q");
+            AddLinked(deviceEntry, "HF-Gain", "HF-Active", label: "HF Gain", mode: PlugParamSetting.PotMode.Symmetric);
+            AddLinked(deviceEntry, "HF-Frequency", "HF-Active", label: "HF Freq");
+            AddLinked(deviceEntry, "HF-Q", "HF-Active", label: "HF Q");
+            AddLinked(deviceEntry, "LMF-Gain", "LMF-Active", label: "LMF Gain", mode: PlugParamSetting.PotMode.Symmetric);
+            AddLinked(deviceEntry, "LMF-Frequency", "LMF-Active", label: "LMF Freq");
+            AddLinked(deviceEntry, "LMF-Q", "LMF-Active", label: "LMF Q");
+            AddLinked(deviceEntry, "HMF-Gain", "HMF-Active", label: "HMF Gain", mode: PlugParamSetting.PotMode.Symmetric);
+            AddLinked(deviceEntry, "HMF-Frequency", "HMF-Active", label: "HMF Freq");
+            AddLinked(deviceEntry, "HMF-Q", "HMF-Active", label: "HMF Q");
+            AddLinked(deviceEntry, "LC-Frequency", "LC-Active", label: "LC Freq");
+            AddLinked(deviceEntry, "HC-Frequency", "HC-Active", label: "HC Freq");
+            deviceEntry.ParamSettings.Add("LF-Solo", new PlugParamSetting { OnColor = new FinderColor(224, 182, 69), Label = "LF Solo" });
+            deviceEntry.ParamSettings.Add("MF-Solo", new PlugParamSetting { OnColor = new FinderColor(224, 182, 69), Label = "MF Solo" });
+            deviceEntry.ParamSettings.Add("HF-Solo", new PlugParamSetting { OnColor = new FinderColor(224, 182, 69), Label = "HF Solo" });
+            deviceEntry.ParamSettings.Add("LMF-Solo", new PlugParamSetting { OnColor = new FinderColor(224, 182, 69), Label = "LMF Solo" });
+            deviceEntry.ParamSettings.Add("HMF-Solo", new PlugParamSetting { OnColor = new FinderColor(224, 182, 69), Label = "HMF Solo" });
 
-            AddParamSetting("Fat Channel", "Loupedeck User Pages", new PlugParamSettings { UserMenuItems = ["Gate", "Comp", "EQ 1", "EQ 2", "Limiter"] });
-            AddParamSetting("Fat Channel", "Hi Pass Filter", new PlugParamSettings { Label = "Hi Pass" });
-            AddParamSetting("Fat Channel", "Gate On", new PlugParamSettings { OnColor = new FinderColor(250, 250, 193), TextOnColor = FinderColor.Black, Label = "Gate ON" });
-            AddParamSetting("Fat Channel", "Range", new PlugParamSettings { OffColor = FinderColor.Transparent, LinkedParameter = "Expander", LinkReversed = true });
-            AddParamSetting("Fat Channel", "Expander", new PlugParamSettings { OnColor = new FinderColor(193, 202, 214), TextOnColor = FinderColor.Black });
-            AddParamSetting("Fat Channel", "Key Listen", new PlugParamSettings { OnColor = new FinderColor(193, 202, 214), TextOnColor = FinderColor.Black });
-            AddParamSetting("Fat Channel", "Compressor On", new PlugParamSettings { OnColor = new FinderColor(250, 250, 193), TextOnColor = FinderColor.Black, Label = "Cmpr ON" });
-            AddParamSetting("Fat Channel", "Attack", new PlugParamSettings { OffColor = FinderColor.Transparent, LinkedParameter = "Auto", LinkReversed = true });
-            AddParamSetting("Fat Channel", "Release", new PlugParamSettings { OffColor = FinderColor.Transparent, LinkedParameter = "Auto", LinkReversed = true });
-            AddParamSetting("Fat Channel", "Auto", new PlugParamSettings { OnColor = new FinderColor(193, 202, 214), TextOnColor = FinderColor.Black });
-            AddParamSetting("Fat Channel", "Soft Knee", new PlugParamSettings { OnColor = new FinderColor(193, 202, 214), TextOnColor = FinderColor.Black });
-            AddParamSetting("Fat Channel", "Peak Reduction", new PlugParamSettings { Label = "Pk Reductn" });
-            AddParamSetting("Fat Channel", "EQ On", new PlugParamSettings { OnColor = new FinderColor(250, 250, 193), TextOnColor = FinderColor.Black, Label = "EQ ON" });
-            AddParamSetting("Fat Channel", "Low On", new PlugParamSettings { OnColor = new FinderColor(241, 84, 220), Label = "LF", ShowUserButtonCircle = true });
-            AddParamSetting("Fat Channel", "Low-Mid On", new PlugParamSettings { OnColor = new FinderColor(89, 236, 236), Label = "LMF", ShowUserButtonCircle = true });
-            AddParamSetting("Fat Channel", "Hi-Mid On", new PlugParamSettings { OnColor = new FinderColor(241, 178, 84), Label = "HMF", ShowUserButtonCircle = true });
-            AddParamSetting("Fat Channel", "High On", new PlugParamSettings { OnColor = new FinderColor(122, 240, 79), Label = "HF", ShowUserButtonCircle = true });
-            AddLinked("Fat Channel", "Low Gain", "Low On", label: "LF Gain", mode: PlugParamSettings.PotMode.Symmetric);
-            AddLinked("Fat Channel", "Low Freq", "Low On", label: "LF Freq");
-            AddLinked("Fat Channel", "Low Q", "Low On", label: "LMF Q");
-            AddLinked("Fat Channel", "Low-Mid Gain", "Low-Mid On", label: "LMF Gain", mode: PlugParamSettings.PotMode.Symmetric);
-            AddLinked("Fat Channel", "Low-Mid Freq", "Low-Mid On", label: "LMF Freq");
-            AddLinked("Fat Channel", "Low-Mid Q", "Low-Mid On", label: "LMF Q");
-            AddLinked("Fat Channel", "Hi-Mid Gain", "Hi-Mid On", label: "HMF Gain", mode: PlugParamSettings.PotMode.Symmetric);
-            AddLinked("Fat Channel", "Hi-Mid Freq", "Hi-Mid On", label: "HMF Freq");
-            AddLinked("Fat Channel", "Hi-Mid Q", "Hi-Mid On", label: "HMF Q");
-            AddLinked("Fat Channel", "High Gain", "High On", label: "HF Gain", mode: PlugParamSettings.PotMode.Symmetric);
-            AddLinked("Fat Channel", "High Freq", "High On", label: "HF Freq");
-            AddLinked("Fat Channel", "High Q", "High On", label: "HF Q");
-            AddParamSetting("Fat Channel", "Low Boost", new PlugParamSettings { OnColor = new FinderColor(241, 84, 220) });
-            AddParamSetting("Fat Channel", "Low Atten", new PlugParamSettings { OnColor = new FinderColor(241, 84, 220) });
-            AddParamSetting("Fat Channel", "Low Frequency", new PlugParamSettings { Label = "LF Freq", OnColor = new FinderColor(241, 84, 220), DialSteps = 3 });
-            AddParamSetting("Fat Channel", "High Boost", new PlugParamSettings { OnColor = new FinderColor(122, 240, 79) });
-            AddParamSetting("Fat Channel", "High Atten", new PlugParamSettings { OnColor = new FinderColor(122, 240, 79) });
-            AddParamSetting("Fat Channel", "High Bandwidth", new PlugParamSettings { Label = "Bandwidth", OnColor = new FinderColor(122, 240, 79) });
-            AddParamSetting("Fat Channel", "Attenuation Select", new PlugParamSettings { Label = "Atten Sel", OnColor = new FinderColor(122, 240, 79), DialSteps = 2 });
-            AddParamSetting("Fat Channel", "Limiter On", new PlugParamSettings { OnColor = new FinderColor(250, 250, 193), TextOnColor = FinderColor.Black, Label = "Limiter ON" });
+            deviceEntry = AddPlugParamDeviceEntry("Fat Channel");
+            deviceEntry.ParamSettings.Add("Loupedeck User Pages", new PlugParamSetting { UserMenuItems = ["Gate", "Comp", "EQ 1", "EQ 2", "Limiter"] });
+            deviceEntry.ParamSettings.Add("Hi Pass Filter", new PlugParamSetting { Label = "Hi Pass" });
+            deviceEntry.ParamSettings.Add("Gate On", new PlugParamSetting { OnColor = new FinderColor(250, 250, 193), TextOnColor = FinderColor.Black, Label = "Gate ON" });
+            deviceEntry.ParamSettings.Add("Range", new PlugParamSetting { OffColor = FinderColor.Transparent, LinkedParameter = "Expander", LinkReversed = true });
+            deviceEntry.ParamSettings.Add("Expander", new PlugParamSetting { OnColor = new FinderColor(193, 202, 214), TextOnColor = FinderColor.Black });
+            deviceEntry.ParamSettings.Add("Key Listen", new PlugParamSetting { OnColor = new FinderColor(193, 202, 214), TextOnColor = FinderColor.Black });
+            deviceEntry.ParamSettings.Add("Compressor On", new PlugParamSetting { OnColor = new FinderColor(250, 250, 193), TextOnColor = FinderColor.Black, Label = "Cmpr ON" });
+            deviceEntry.ParamSettings.Add("Attack", new PlugParamSetting { OffColor = FinderColor.Transparent, LinkedParameter = "Auto", LinkReversed = true });
+            deviceEntry.ParamSettings.Add("Release", new PlugParamSetting { OffColor = FinderColor.Transparent, LinkedParameter = "Auto", LinkReversed = true });
+            deviceEntry.ParamSettings.Add("Auto", new PlugParamSetting { OnColor = new FinderColor(193, 202, 214), TextOnColor = FinderColor.Black });
+            deviceEntry.ParamSettings.Add("Soft Knee", new PlugParamSetting { OnColor = new FinderColor(193, 202, 214), TextOnColor = FinderColor.Black });
+            deviceEntry.ParamSettings.Add("Peak Reduction", new PlugParamSetting { Label = "Pk Reductn" });
+            deviceEntry.ParamSettings.Add("EQ On", new PlugParamSetting { OnColor = new FinderColor(250, 250, 193), TextOnColor = FinderColor.Black, Label = "EQ ON" });
+            deviceEntry.ParamSettings.Add("Low On", new PlugParamSetting { OnColor = new FinderColor(241, 84, 220), Label = "LF", ShowUserButtonCircle = true });
+            deviceEntry.ParamSettings.Add("Low-Mid On", new PlugParamSetting { OnColor = new FinderColor(89, 236, 236), Label = "LMF", ShowUserButtonCircle = true });
+            deviceEntry.ParamSettings.Add("Hi-Mid On", new PlugParamSetting { OnColor = new FinderColor(241, 178, 84), Label = "HMF", ShowUserButtonCircle = true });
+            deviceEntry.ParamSettings.Add("High On", new PlugParamSetting { OnColor = new FinderColor(122, 240, 79), Label = "HF", ShowUserButtonCircle = true });
+            AddLinked(deviceEntry, "Low Gain", "Low On", label: "LF Gain", mode: PlugParamSetting.PotMode.Symmetric);
+            AddLinked(deviceEntry, "Low Freq", "Low On", label: "LF Freq");
+            AddLinked(deviceEntry, "Low Q", "Low On", label: "LMF Q");
+            AddLinked(deviceEntry, "Low-Mid Gain", "Low-Mid On", label: "LMF Gain", mode: PlugParamSetting.PotMode.Symmetric);
+            AddLinked(deviceEntry, "Low-Mid Freq", "Low-Mid On", label: "LMF Freq");
+            AddLinked(deviceEntry, "Low-Mid Q", "Low-Mid On", label: "LMF Q");
+            AddLinked(deviceEntry, "Hi-Mid Gain", "Hi-Mid On", label: "HMF Gain", mode: PlugParamSetting.PotMode.Symmetric);
+            AddLinked(deviceEntry, "Hi-Mid Freq", "Hi-Mid On", label: "HMF Freq");
+            AddLinked(deviceEntry, "Hi-Mid Q", "Hi-Mid On", label: "HMF Q");
+            AddLinked(deviceEntry, "High Gain", "High On", label: "HF Gain", mode: PlugParamSetting.PotMode.Symmetric);
+            AddLinked(deviceEntry, "High Freq", "High On", label: "HF Freq");
+            AddLinked(deviceEntry, "High Q", "High On", label: "HF Q");
+            deviceEntry.ParamSettings.Add("Low Boost", new PlugParamSetting { OnColor = new FinderColor(241, 84, 220) });
+            deviceEntry.ParamSettings.Add("Low Atten", new PlugParamSetting { OnColor = new FinderColor(241, 84, 220) });
+            deviceEntry.ParamSettings.Add("Low Frequency", new PlugParamSetting { Label = "LF Freq", OnColor = new FinderColor(241, 84, 220), DialSteps = 3 });
+            deviceEntry.ParamSettings.Add("High Boost", new PlugParamSetting { OnColor = new FinderColor(122, 240, 79) });
+            deviceEntry.ParamSettings.Add("High Atten", new PlugParamSetting { OnColor = new FinderColor(122, 240, 79) });
+            deviceEntry.ParamSettings.Add("High Bandwidth", new PlugParamSetting { Label = "Bandwidth", OnColor = new FinderColor(122, 240, 79) });
+            deviceEntry.ParamSettings.Add("Attenuation Select", new PlugParamSetting { Label = "Atten Sel", OnColor = new FinderColor(122, 240, 79), DialSteps = 2 });
+            deviceEntry.ParamSettings.Add("Limiter On", new PlugParamSetting { OnColor = new FinderColor(250, 250, 193), TextOnColor = FinderColor.Black, Label = "Limiter ON" });
 
-            AddParamSetting("Compressor", "LookAhead", new S1TopControlColors());
-            AddParamSetting("Compressor", "Link Channels", new S1TopControlColors(label: "CH Link"));
-            AddParamSetting("Compressor", "Attack", new PlugParamSettings { OffColor = FinderColor.Transparent, LinkedParameter = "Auto Speed", LinkReversed = true });
-            AddParamSetting("Compressor", "Release", new PlugParamSettings { OffColor = FinderColor.Transparent, LinkedParameter = "Auto Speed", LinkReversed = true });
-            AddParamSetting("Compressor", "Auto Speed", new PlugParamSettings { Label = "Auto" });
-            AddParamSetting("Compressor", "Adaptive Speed", new PlugParamSettings { Label = "Adaptive" });
-            AddParamSetting("Compressor", "Gain", new PlugParamSettings { Label = "Makeup", OffColor = FinderColor.Transparent, LinkedParameter = "Auto Gain", LinkReversed = true });
-            AddParamSetting("Compressor", "Auto Gain", new PlugParamSettings { Label = "Auto" });
-            AddParamSetting("Compressor", "Sidechain LC-Freq", new PlugParamSettings { Label = "Side LC", OffColor = FinderColor.Transparent, LinkedParameter = "Sidechain Filter" });
-            AddParamSetting("Compressor", "Sidechain HC-Freq", new PlugParamSettings { Label = "Side HC", OffColor = FinderColor.Transparent, LinkedParameter = "Sidechain Filter" });
-            AddParamSetting("Compressor", "Sidechain Filter", new PlugParamSettings { Label = "Filter" });
-            AddParamSetting("Compressor", "Sidechain Listen", new PlugParamSettings { Label = "Listen" });
-            AddParamSetting("Compressor", "Swap Frequencies", new PlugParamSettings { Label = "Swap" });
+            deviceEntry = AddPlugParamDeviceEntry("Compressor");
+            deviceEntry.ParamSettings.Add("LookAhead", new S1TopControlColors());
+            deviceEntry.ParamSettings.Add("Link Channels", new S1TopControlColors(label: "CH Link"));
+            deviceEntry.ParamSettings.Add("Attack", new PlugParamSetting { OffColor = FinderColor.Transparent, LinkedParameter = "Auto Speed", LinkReversed = true });
+            deviceEntry.ParamSettings.Add("Release", new PlugParamSetting { OffColor = FinderColor.Transparent, LinkedParameter = "Auto Speed", LinkReversed = true });
+            deviceEntry.ParamSettings.Add("Auto Speed", new PlugParamSetting { Label = "Auto" });
+            deviceEntry.ParamSettings.Add("Adaptive Speed", new PlugParamSetting { Label = "Adaptive" });
+            deviceEntry.ParamSettings.Add("Gain", new PlugParamSetting { Label = "Makeup", OffColor = FinderColor.Transparent, LinkedParameter = "Auto Gain", LinkReversed = true });
+            deviceEntry.ParamSettings.Add("Auto Gain", new PlugParamSetting { Label = "Auto" });
+            deviceEntry.ParamSettings.Add("Sidechain LC-Freq", new PlugParamSetting { Label = "Side LC", OffColor = FinderColor.Transparent, LinkedParameter = "Sidechain Filter" });
+            deviceEntry.ParamSettings.Add("Sidechain HC-Freq", new PlugParamSetting { Label = "Side HC", OffColor = FinderColor.Transparent, LinkedParameter = "Sidechain Filter" });
+            deviceEntry.ParamSettings.Add("Sidechain Filter", new PlugParamSetting { Label = "Filter" });
+            deviceEntry.ParamSettings.Add("Sidechain Listen", new PlugParamSetting { Label = "Listen" });
+            deviceEntry.ParamSettings.Add("Swap Frequencies", new PlugParamSetting { Label = "Swap" });
 
-            AddParamSetting("Limiter", "Mode ", new PlugParamSettings { Label = "A", LabelOn = "B", OnColor = new FinderColor(40, 40, 40), OffColor = new FinderColor(40, 40, 40),
+            deviceEntry = AddPlugParamDeviceEntry("Limiter");
+            deviceEntry.ParamSettings.Add("Mode ", new PlugParamSetting { Label = "A", LabelOn = "B", OnColor = new FinderColor(40, 40, 40), OffColor = new FinderColor(40, 40, 40),
                                                                              TextOnColor = new FinderColor(171, 197, 226), TextOffColor = new FinderColor(171, 197, 226) });
-            AddParamSetting("Limiter", "True Peak Limiting", new S1TopControlColors(label: "True Peak"));
-            AddLinked("Limiter", "SoftClipper", "True Peak Limiting", label: " Soft Clip", linkReversed: true);
-            AddParamSetting("Limiter", "Attack", new PlugParamSettings { DialSteps = 2, HideValueBar = true } );
+            deviceEntry.ParamSettings.Add("True Peak Limiting", new S1TopControlColors(label: "True Peak"));
+            AddLinked(deviceEntry, "SoftClipper", "True Peak Limiting", label: " Soft Clip", linkReversed: true);
+            deviceEntry.ParamSettings.Add("Attack", new PlugParamSetting { DialSteps = 2, HideValueBar = true } );
 
-            AddParamSetting("Flanger", "", new PlugParamSettings { OnColor = new FinderColor(238, 204, 103) });
-            AddParamSetting("Flanger", "Feedback", new PlugParamSettings { OnColor = new FinderColor(238, 204, 103), Mode = PlugParamSettings.PotMode.Symmetric });
-            AddParamSetting("Flanger", "LFO Sync", new PlugParamSettings { OnColor = new FinderColor(188, 198, 206), TextOnColor = FinderColor.Black });
-            AddParamSetting("Flanger", "Depth", new PlugParamSettings { OnColor = new FinderColor(238, 204, 103), Label = "Mix" });
+            deviceEntry = AddPlugParamDeviceEntry("Flanger");
+            deviceEntry.ParamSettings.Add("", new PlugParamSetting { OnColor = new FinderColor(238, 204, 103) });
+            deviceEntry.ParamSettings.Add("Feedback", new PlugParamSetting { OnColor = new FinderColor(238, 204, 103), Mode = PlugParamSetting.PotMode.Symmetric });
+            deviceEntry.ParamSettings.Add("LFO Sync", new PlugParamSetting { OnColor = new FinderColor(188, 198, 206), TextOnColor = FinderColor.Black });
+            deviceEntry.ParamSettings.Add("Depth", new PlugParamSetting { OnColor = new FinderColor(238, 204, 103), Label = "Mix" });
 
-            AddParamSetting("Phaser", "", new PlugParamSettings { OnColor = new FinderColor(238, 204, 103) });
-            AddParamSetting("Phaser", "Center Frequency", new PlugParamSettings { OnColor = new FinderColor(238, 204, 103), Label = "Center" });
-            AddParamSetting("Phaser", "Sweep Range", new PlugParamSettings { OnColor = new FinderColor(238, 204, 103), Label = "Range" });
-            AddParamSetting("Phaser", "Stereo Spread", new PlugParamSettings { OnColor = new FinderColor(238, 204, 103), Label = "Spread" });
-            AddParamSetting("Phaser", "Depth", new PlugParamSettings { OnColor = new FinderColor(238, 204, 103), Label = "Mix" });
-            AddParamSetting("Phaser", "LFO Sync", new PlugParamSettings { OnColor = new FinderColor(188, 198, 206), TextOnColor = FinderColor.Black });
-            AddParamSetting("Phaser", "Log. Sweep", new PlugParamSettings { OnColor = new FinderColor(188, 198, 206), TextOnColor = FinderColor.Black });
-            AddParamSetting("Phaser", "Soft", new PlugParamSettings { OnColor = new FinderColor(188, 198, 206), TextOnColor = FinderColor.Black });
+            deviceEntry = AddPlugParamDeviceEntry("Phaser");
+            deviceEntry.ParamSettings.Add("", new PlugParamSetting { OnColor = new FinderColor(238, 204, 103) });
+            deviceEntry.ParamSettings.Add("Center Frequency", new PlugParamSetting { OnColor = new FinderColor(238, 204, 103), Label = "Center" });
+            deviceEntry.ParamSettings.Add("Sweep Range", new PlugParamSetting { OnColor = new FinderColor(238, 204, 103), Label = "Range" });
+            deviceEntry.ParamSettings.Add("Stereo Spread", new PlugParamSetting { OnColor = new FinderColor(238, 204, 103), Label = "Spread" });
+            deviceEntry.ParamSettings.Add("Depth", new PlugParamSetting { OnColor = new FinderColor(238, 204, 103), Label = "Mix" });
+            deviceEntry.ParamSettings.Add("LFO Sync", new PlugParamSetting { OnColor = new FinderColor(188, 198, 206), TextOnColor = FinderColor.Black });
+            deviceEntry.ParamSettings.Add("Log. Sweep", new PlugParamSetting { OnColor = new FinderColor(188, 198, 206), TextOnColor = FinderColor.Black });
+            deviceEntry.ParamSettings.Add("Soft", new PlugParamSetting { OnColor = new FinderColor(188, 198, 206), TextOnColor = FinderColor.Black });
 
-            var analogDelayButtonOnColor = new FinderColor(255, 59, 58);
-            var analogDelayButtonOffColor = new FinderColor(84, 18, 18);
-            AddParamSetting("Analog Delay", "Delay Beats", new PlugParamSettings { LinkedParameter = "Delay Sync", Label = "TIME", DialSteps = 40, OnColor = new FinderColor(107, 113, 230), TextOnColor = FinderColor.White, OffColor = new FinderColor(25, 28, 55), TextOffColor = FinderColor.Black });
-            AddParamSetting("Analog Delay", "Delay Time", new PlugParamSettings { LinkedParameter = "Delay Sync", LinkReversed = true, Label = "TIME", OnColor = new FinderColor(107, 113, 230), TextOnColor = FinderColor.White, OffColor = new FinderColor(25, 28, 55), TextOffColor = FinderColor.Black });
-            AddParamSetting("Analog Delay", "Delay Sync", new PlugParamSettings { Label = "SYNC", OnColor = analogDelayButtonOnColor, TextOnColor = FinderColor.White, OffColor = analogDelayButtonOffColor, TextOffColor = FinderColor.Black });
-            AddParamSetting("Analog Delay", "Feedback Level", new PlugParamSettings { Label = "FEEDBACK", OnColor = new FinderColor(107, 113, 230), TextOnColor = FinderColor.White, OffColor = new FinderColor(46, 50, 84), TextOffColor = FinderColor.Black });
-            AddParamSetting("Analog Delay", "Feedback Boost", new PlugParamSettings { Label = "BOOST", OnColor = analogDelayButtonOnColor, TextOnColor = FinderColor.White, OffColor = analogDelayButtonOffColor, TextOffColor = FinderColor.Black });
-            AddParamSetting("Analog Delay", "LFO Speed", new PlugParamSettings { LinkedParameter = "LFO Sync", LinkReversed = true, Label = "SPEED", OnColor = new FinderColor(114, 202, 114), TextOnColor = FinderColor.White, OffColor = new FinderColor(26, 46, 29), TextOffColor = FinderColor.Black });
-            AddParamSetting("Analog Delay", "LFO Beats", new PlugParamSettings { LinkedParameter = "LFO Sync", Label = "SPEED", OnColor = new FinderColor(114, 202, 114), TextOnColor = FinderColor.White, OffColor = new FinderColor(26, 46, 29), TextOffColor = FinderColor.Black });
-            AddParamSetting("Analog Delay", "LFO Width", new PlugParamSettings { Label = "AMOUNT", Mode = PlugParamSettings.PotMode.Symmetric, OnColor = new FinderColor(114, 202, 114), TextOnColor = FinderColor.White });
-            AddParamSetting("Analog Delay", "LFO Sync", new PlugParamSettings { Label = "SYNC", OnColor = analogDelayButtonOnColor, TextOnColor = FinderColor.White, OffColor = analogDelayButtonOffColor, TextOffColor = FinderColor.Black });
-            AddParamSetting("Analog Delay", "LFO Waveform", new PlugParamSettings { Label = "", OnColor = new FinderColor(30, 51, 33), UserMenuItems = ["!ad_Triangle", "!ad_Sine", "!ad_Sawtooth", "!ad_Square"] });
-            AddParamSetting("Analog Delay", "Low Cut", new PlugParamSettings { Label = "LOW CUT", OnColor = new FinderColor(145, 145, 23), TextOnColor = FinderColor.White });
-            AddParamSetting("Analog Delay", "High Cut", new PlugParamSettings { Label = "HI CUT", OnColor = new FinderColor(145, 145, 23), TextOnColor = FinderColor.White });
-            AddParamSetting("Analog Delay", "Saturation", new PlugParamSettings { Label = "DRIVE", OnColor = new FinderColor(145, 145, 23), TextOnColor = FinderColor.White });
-            AddParamSetting("Analog Delay", "Delay Speed", new PlugParamSettings { Label = "FACTOR", OnColor = new FinderColor(178, 103, 32), TextOnColor = FinderColor.White });
-            AddParamSetting("Analog Delay", "Delay Inertia", new PlugParamSettings { Label = "INERTIA", OnColor = new FinderColor(178, 103, 32), TextOnColor = FinderColor.White });
-            AddParamSetting("Analog Delay", "Feedback Width", new PlugParamSettings { Label = "WIDTH", OnColor = new FinderColor(195, 81, 35), TextOnColor = FinderColor.White });
-            AddParamSetting("Analog Delay", "Ping-Pong Swap", new PlugParamSettings { Label = "SWAP", OnColor = analogDelayButtonOnColor, TextOnColor = FinderColor.White, OffColor = analogDelayButtonOffColor, TextOffColor = FinderColor.Black });
-            AddParamSetting("Analog Delay", "Ping-Pong Mode", new PlugParamSettings { Label = "PP", UserMenuItems = ["OFF", "SUM", "2-CH"], OnColor = new FinderColor(35, 23, 17), TextOnColor = FinderColor.White, OffColor = new FinderColor(35, 23, 17), TextOffColor = FinderColor.Black });
-            AddParamSetting("Analog Delay", "Mix", new PlugParamSettings { Label = "DRY/WET", OnColor = new FinderColor(213, 68, 68), TextOnColor = FinderColor.White });
+            {
+                deviceEntry = AddPlugParamDeviceEntry("Analog Delay");
 
-            AddParamSetting("Alpine Desk", "Boost", new PlugParamSettings { DialSteps = 2, HideValueBar = true });
-            AddParamSetting("Alpine Desk", "Preamp On", new PlugParamSettings { Label = "ON", OnColor = new FinderColor(0, 154, 144) });
-            AddParamSetting("Alpine Desk", "Noise On", new PlugParamSettings { Label = "ON", OnColor = new FinderColor(0, 154, 144) });
-            AddParamSetting("Alpine Desk", "Noise Gate On", new PlugParamSettings { Label = "Noise Gate", OnColor = new FinderColor(0, 154, 144) });
-            AddParamSetting("Alpine Desk", "Crosstalk", new PlugParamSettings { OnColor = new FinderColor(253, 202, 0) });
-            AddParamSetting("Alpine Desk", "Crosstalk On", new PlugParamSettings { Label = "ON", OnColor = new FinderColor(0, 154, 144) });
-            AddParamSetting("Alpine Desk", "Transformer", new PlugParamSettings { OnColor = new FinderColor(224, 22, 36), DialSteps = 1, HideValueBar = true });
-            AddParamSetting("Alpine Desk", "Master", new PlugParamSettings { Mode = PlugParamSettings.PotMode.Symmetric });
-            AddParamSetting("Alpine Desk", "Compensation", new PlugParamSettings { LabelOn = "Channel", Label = "Bus", OnColor = new FinderColor(0, 154, 144), OffColor = new FinderColor(0, 154, 144), TextOffColor = FinderColor.White });
-            AddParamSetting("Alpine Desk", "Character Enhancer", new PlugParamSettings { Label = "Character" });
-            AddParamSetting("Alpine Desk", "Economy", new PlugParamSettings { Label = "Eco", OnColor = new FinderColor(0, 154, 144) });
+                var ButtonOnColor = new FinderColor("ButtonOncolor", 255, 59, 58);
+                var ButtonOffColor = new FinderColor("ButtonOffColor", 84, 18, 18);
+                deviceEntry.ParamSettings.Add("Delay Beats", new PlugParamSetting { LinkedParameter = "Delay Sync", Label = "TIME", DialSteps = 40, OnColor = new FinderColor(107, 113, 230), TextOnColor = FinderColor.White, OffColor = new FinderColor(25, 28, 55), TextOffColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("Delay Time", new PlugParamSetting { LinkedParameter = "Delay Sync", LinkReversed = true, Label = "TIME", OnColor = new FinderColor(107, 113, 230), TextOnColor = FinderColor.White, OffColor = new FinderColor(25, 28, 55), TextOffColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("Delay Sync", new PlugParamSetting { Label = "SYNC", OnColor = ButtonOnColor, TextOnColor = FinderColor.White, OffColor = ButtonOffColor, TextOffColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("Feedback Level", new PlugParamSetting { Label = "FEEDBACK", OnColor = new FinderColor(107, 113, 230), TextOnColor = FinderColor.White, OffColor = new FinderColor(46, 50, 84), TextOffColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("Feedback Boost", new PlugParamSetting { Label = "BOOST", OnColor = ButtonOnColor, TextOnColor = FinderColor.White, OffColor = ButtonOffColor, TextOffColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("LFO Speed", new PlugParamSetting { LinkedParameter = "LFO Sync", LinkReversed = true, Label = "SPEED", OnColor = new FinderColor(114, 202, 114), TextOnColor = FinderColor.White, OffColor = new FinderColor(26, 46, 29), TextOffColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("LFO Beats", new PlugParamSetting { LinkedParameter = "LFO Sync", Label = "SPEED", OnColor = new FinderColor(114, 202, 114), TextOnColor = FinderColor.White, OffColor = new FinderColor(26, 46, 29), TextOffColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("LFO Width", new PlugParamSetting { Label = "AMOUNT", Mode = PlugParamSetting.PotMode.Symmetric, OnColor = new FinderColor(114, 202, 114), TextOnColor = FinderColor.White });
+                deviceEntry.ParamSettings.Add("LFO Sync", new PlugParamSetting { Label = "SYNC", OnColor = ButtonOnColor, TextOnColor = FinderColor.White, OffColor = ButtonOffColor, TextOffColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("LFO Waveform", new PlugParamSetting { Label = "", OnColor = new FinderColor(30, 51, 33), UserMenuItems = ["!ad_Triangle", "!ad_Sine", "!ad_Sawtooth", "!ad_Square"] });
+                deviceEntry.ParamSettings.Add("Low Cut", new PlugParamSetting { Label = "LOW CUT", OnColor = new FinderColor(145, 145, 23), TextOnColor = FinderColor.White });
+                deviceEntry.ParamSettings.Add("High Cut", new PlugParamSetting { Label = "HI CUT", OnColor = new FinderColor(145, 145, 23), TextOnColor = FinderColor.White });
+                deviceEntry.ParamSettings.Add("Saturation", new PlugParamSetting { Label = "DRIVE", OnColor = new FinderColor(145, 145, 23), TextOnColor = FinderColor.White });
+                deviceEntry.ParamSettings.Add("Delay Speed", new PlugParamSetting { Label = "FACTOR", OnColor = new FinderColor(178, 103, 32), TextOnColor = FinderColor.White });
+                deviceEntry.ParamSettings.Add("Delay Inertia", new PlugParamSetting { Label = "INERTIA", OnColor = new FinderColor(178, 103, 32), TextOnColor = FinderColor.White });
+                deviceEntry.ParamSettings.Add("Feedback Width", new PlugParamSetting { Label = "WIDTH", OnColor = new FinderColor(195, 81, 35), TextOnColor = FinderColor.White });
+                deviceEntry.ParamSettings.Add("Ping-Pong Swap", new PlugParamSetting { Label = "SWAP", OnColor = ButtonOnColor, TextOnColor = FinderColor.White, OffColor = ButtonOffColor, TextOffColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("Ping-Pong Mode", new PlugParamSetting { Label = "PP", UserMenuItems = ["OFF", "SUM", "2-CH"], OnColor = new FinderColor(35, 23, 17), TextOnColor = FinderColor.White, OffColor = new FinderColor(35, 23, 17), TextOffColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("Mix", new PlugParamSetting { Label = "DRY/WET", OnColor = new FinderColor(213, 68, 68), TextOnColor = FinderColor.White });
+            }
 
-            AddParamSetting("Brit Console", "Boost", new PlugParamSettings { DialSteps = 2, OnColor = new FinderColor(43, 128, 157), HideValueBar = true });
-            AddParamSetting("Brit Console", "Drive", new PlugParamSettings { OnColor = new FinderColor(43, 128, 157) });
-            AddParamSetting("Brit Console", "Preamp On", new PlugParamSettings { Label = "ON", OnColor = new FinderColor(202, 74, 68), ShowUserButtonCircle = true });
-            AddParamSetting("Brit Console", "Noise", new PlugParamSettings { OnColor = new FinderColor(43, 128, 157) });
-            AddParamSetting("Brit Console", "Noise On", new PlugParamSettings { Label = "ON", OnColor = new FinderColor(202, 74, 68), ShowUserButtonCircle = true });
-            AddParamSetting("Brit Console", "Noise Gate On", new PlugParamSettings { Label = "Gate", OnColor = new FinderColor(202, 74, 68), ShowUserButtonCircle = true });
-            AddParamSetting("Brit Console", "Crosstalk", new PlugParamSettings { OnColor = new FinderColor(43, 128, 157) });
-            AddParamSetting("Brit Console", "Crosstalk On", new PlugParamSettings { Label = "ON", OnColor = new FinderColor(202, 74, 68), ShowUserButtonCircle = true });
-            AddParamSetting("Brit Console", "Style", new PlugParamSettings { OnColor = new FinderColor(202, 74, 68), DialSteps = 2, HideValueBar = true });
-            AddParamSetting("Brit Console", "Harmonics", new PlugParamSettings { OnColor = new FinderColor(202, 74, 68) });
-            AddParamSetting("Brit Console", "Compensation", new PlugParamSettings { LabelOn = "Channel", Label = "Bus", TextOffColor = FinderColor.White });
-            AddParamSetting("Brit Console", "Character Enhancer", new PlugParamSettings { Label = "Character", OnColor = new FinderColor(43, 128, 157) });
-            AddParamSetting("Brit Console", "Master", new PlugParamSettings { OnColor = new FinderColor(43, 128, 157), Mode = PlugParamSettings.PotMode.Symmetric });
-            AddParamSetting("Brit Console", "Economy", new PlugParamSettings { Label = "Eco", OnColor = new FinderColor(202, 74, 68), ShowUserButtonCircle = true });
+            deviceEntry = AddPlugParamDeviceEntry("Alpine Desk");
+            deviceEntry.ParamSettings.Add("Boost", new PlugParamSetting { DialSteps = 2, HideValueBar = true });
+            deviceEntry.ParamSettings.Add("Preamp On", new PlugParamSetting { Label = "ON", OnColor = new FinderColor(0, 154, 144) });
+            deviceEntry.ParamSettings.Add("Noise On", new PlugParamSetting { Label = "ON", OnColor = new FinderColor(0, 154, 144) });
+            deviceEntry.ParamSettings.Add("Noise Gate On", new PlugParamSetting { Label = "Noise Gate", OnColor = new FinderColor(0, 154, 144) });
+            deviceEntry.ParamSettings.Add("Crosstalk", new PlugParamSetting { OnColor = new FinderColor(253, 202, 0) });
+            deviceEntry.ParamSettings.Add("Crosstalk On", new PlugParamSetting { Label = "ON", OnColor = new FinderColor(0, 154, 144) });
+            deviceEntry.ParamSettings.Add("Transformer", new PlugParamSetting { OnColor = new FinderColor(224, 22, 36), DialSteps = 1, HideValueBar = true });
+            deviceEntry.ParamSettings.Add("Master", new PlugParamSetting { Mode = PlugParamSetting.PotMode.Symmetric });
+            deviceEntry.ParamSettings.Add("Compensation", new PlugParamSetting { LabelOn = "Channel", Label = "Bus", OnColor = new FinderColor(0, 154, 144), OffColor = new FinderColor(0, 154, 144), TextOffColor = FinderColor.White });
+            deviceEntry.ParamSettings.Add("Character Enhancer", new PlugParamSetting { Label = "Character" });
+            deviceEntry.ParamSettings.Add("Economy", new PlugParamSetting { Label = "Eco", OnColor = new FinderColor(0, 154, 144) });
 
-            AddParamSetting("CTC-1", "Boost", new PlugParamSettings { OnColor = new FinderColor(244, 104, 26) });
-            AddParamSetting("CTC-1", "Preamp On", new PlugParamSettings { Label = "ON", OnColor = new FinderColor(244, 104, 26) });
-            AddParamSetting("CTC-1", "Noise", new PlugParamSettings { DialSteps = 4 });
-            AddParamSetting("CTC-1", "Noise On", new PlugParamSettings { Label = "ON", OnColor = new FinderColor(244, 104, 26) });
-            AddParamSetting("CTC-1", "Noise Gate On", new PlugParamSettings { Label = "Gate", OnColor = new FinderColor(244, 104, 26) });
-            AddParamSetting("CTC-1", "Preamp Type", new PlugParamSettings { Label = "Type", DialSteps = 2, HideValueBar = true });
-            AddParamSetting("CTC-1", "Crosstalk On", new PlugParamSettings { Label = "ON", OnColor = new FinderColor(244, 104, 26) });
-            AddParamSetting("CTC-1", "Compensation", new PlugParamSettings { LabelOn = "Channel", Label = "Bus", OnColor = new FinderColor(69, 125, 159), OffColor = new FinderColor(69, 125, 159), TextOnColor = FinderColor.White, TextOffColor = FinderColor.White });
-            AddParamSetting("CTC-1", "Character Enhancer", new PlugParamSettings { Label = "Character" });
-            AddParamSetting("CTC-1", "Master", new PlugParamSettings { Mode = PlugParamSettings.PotMode.Symmetric });
-            AddParamSetting("CTC-1", "Economy", new PlugParamSettings { Label = "Eco", OnColor = new FinderColor(69, 125, 159) });
+            deviceEntry = AddPlugParamDeviceEntry("Brit Console");
+            deviceEntry.ParamSettings.Add("Boost", new PlugParamSetting { DialSteps = 2, OnColor = new FinderColor(43, 128, 157), HideValueBar = true });
+            deviceEntry.ParamSettings.Add("Drive", new PlugParamSetting { OnColor = new FinderColor(43, 128, 157) });
+            deviceEntry.ParamSettings.Add("Preamp On", new PlugParamSetting { Label = "ON", OnColor = new FinderColor(202, 74, 68), ShowUserButtonCircle = true });
+            deviceEntry.ParamSettings.Add("Noise", new PlugParamSetting { OnColor = new FinderColor(43, 128, 157) });
+            deviceEntry.ParamSettings.Add("Noise On", new PlugParamSetting { Label = "ON", OnColor = new FinderColor(202, 74, 68), ShowUserButtonCircle = true });
+            deviceEntry.ParamSettings.Add("Noise Gate On", new PlugParamSetting { Label = "Gate", OnColor = new FinderColor(202, 74, 68), ShowUserButtonCircle = true });
+            deviceEntry.ParamSettings.Add("Crosstalk", new PlugParamSetting { OnColor = new FinderColor(43, 128, 157) });
+            deviceEntry.ParamSettings.Add("Crosstalk On", new PlugParamSetting { Label = "ON", OnColor = new FinderColor(202, 74, 68), ShowUserButtonCircle = true });
+            deviceEntry.ParamSettings.Add("Style", new PlugParamSetting { OnColor = new FinderColor(202, 74, 68), DialSteps = 2, HideValueBar = true });
+            deviceEntry.ParamSettings.Add("Harmonics", new PlugParamSetting { OnColor = new FinderColor(202, 74, 68) });
+            deviceEntry.ParamSettings.Add("Compensation", new PlugParamSetting { LabelOn = "Channel", Label = "Bus", TextOffColor = FinderColor.White });
+            deviceEntry.ParamSettings.Add("Character Enhancer", new PlugParamSetting { Label = "Character", OnColor = new FinderColor(43, 128, 157) });
+            deviceEntry.ParamSettings.Add("Master", new PlugParamSetting { OnColor = new FinderColor(43, 128, 157), Mode = PlugParamSetting.PotMode.Symmetric });
+            deviceEntry.ParamSettings.Add("Economy", new PlugParamSetting { Label = "Eco", OnColor = new FinderColor(202, 74, 68), ShowUserButtonCircle = true });
 
-            AddParamSetting("Porta Casstte", "Boost", new PlugParamSettings { OnColor = new FinderColor(251, 0, 3) });
-            AddParamSetting("Porta Cassette", "Drive", new PlugParamSettings { OnColor = new FinderColor(226, 226, 226) });
-            AddParamSetting("Porta Cassette", "Preamp On", new PlugParamSettings { Label = "ON", OnColor = new FinderColor(251, 0, 3), ShowUserButtonCircle = true });
-            AddParamSetting("Porta Cassette", "Noise", new PlugParamSettings { OnColor = new FinderColor(226, 226, 226) });
-            AddParamSetting("Porta Cassette", "Noise On", new PlugParamSettings { Label = "ON", OnColor = new FinderColor(251, 0, 3), ShowUserButtonCircle = true });
-            AddParamSetting("Porta Cassette", "Noise Gate On", new PlugParamSettings { Label = "Gate", OnColor = new FinderColor(251, 0, 3), ShowUserButtonCircle = true });
-            AddParamSetting("Porta Cassette", "Crosstalk", new PlugParamSettings { OnColor = new FinderColor(226, 226, 226) });
-            AddParamSetting("Porta Cassette", "Crosstalk On", new PlugParamSettings { Label = "ON", OnColor = new FinderColor(251, 0, 3), ShowUserButtonCircle = true });
-            AddParamSetting("Porta Cassette", "Pitch", new PlugParamSettings { OnColor = new FinderColor(144, 153, 153), Mode = PlugParamSettings.PotMode.Symmetric });
-            AddParamSetting("Porta Cassette", "Compensation", new PlugParamSettings { LabelOn = "Channel", Label = "Bus", TextOffColor = FinderColor.White });
-            AddParamSetting("Porta Cassette", "Character Enhancer", new PlugParamSettings { Label = "Character", OnColor = new FinderColor(226, 226, 226) });
-            AddParamSetting("Porta Cassette", "Master", new PlugParamSettings { OnColor = new FinderColor(226, 226, 226), Mode = PlugParamSettings.PotMode.Symmetric });
-            AddParamSetting("Porta Cassette", "Economy", new PlugParamSettings { Label = "Eco" });
+            deviceEntry = AddPlugParamDeviceEntry("CTC-1");
+            deviceEntry.ParamSettings.Add("Boost", new PlugParamSetting { OnColor = new FinderColor(244, 104, 26) });
+            deviceEntry.ParamSettings.Add("Preamp On", new PlugParamSetting { Label = "ON", OnColor = new FinderColor(244, 104, 26) });
+            deviceEntry.ParamSettings.Add("Noise", new PlugParamSetting { DialSteps = 4 });
+            deviceEntry.ParamSettings.Add("Noise On", new PlugParamSetting { Label = "ON", OnColor = new FinderColor(244, 104, 26) });
+            deviceEntry.ParamSettings.Add("Noise Gate On", new PlugParamSetting { Label = "Gate", OnColor = new FinderColor(244, 104, 26) });
+            deviceEntry.ParamSettings.Add("Preamp Type", new PlugParamSetting { Label = "Type", DialSteps = 2, HideValueBar = true });
+            deviceEntry.ParamSettings.Add("Crosstalk On", new PlugParamSetting { Label = "ON", OnColor = new FinderColor(244, 104, 26) });
+            deviceEntry.ParamSettings.Add("Compensation", new PlugParamSetting { LabelOn = "Channel", Label = "Bus", OnColor = new FinderColor(69, 125, 159), OffColor = new FinderColor(69, 125, 159), TextOnColor = FinderColor.White, TextOffColor = FinderColor.White });
+            deviceEntry.ParamSettings.Add("Character Enhancer", new PlugParamSetting { Label = "Character" });
+            deviceEntry.ParamSettings.Add("Master", new PlugParamSetting { Mode = PlugParamSetting.PotMode.Symmetric });
+            deviceEntry.ParamSettings.Add("Economy", new PlugParamSetting { Label = "Eco", OnColor = new FinderColor(69, 125, 159) });
 
-            AddParamSetting("Console Shaper", "Preamp On", new PlugParamSettings { Label = "ON", OnColor = new FinderColor(114, 167, 204) });
-            AddParamSetting("Console Shaper", "Noise", new PlugParamSettings { DialSteps = 4 });
-            AddParamSetting("Console Shaper", "Noise On", new PlugParamSettings { Label = "ON", OnColor = new FinderColor(114, 167, 204) });
-            AddParamSetting("Console Shaper", "Crosstalk On", new PlugParamSettings { Label = "ON", OnColor = new FinderColor(114, 167, 204) });
+            deviceEntry = AddPlugParamDeviceEntry("Porta Casstte");
+            deviceEntry.ParamSettings.Add("Boost", new PlugParamSetting { OnColor = new FinderColor(251, 0, 3) });
+            deviceEntry.ParamSettings.Add("Drive", new PlugParamSetting { OnColor = new FinderColor(226, 226, 226) });
+            deviceEntry.ParamSettings.Add("Preamp On", new PlugParamSetting { Label = "ON", OnColor = new FinderColor(251, 0, 3), ShowUserButtonCircle = true });
+            deviceEntry.ParamSettings.Add("Noise", new PlugParamSetting { OnColor = new FinderColor(226, 226, 226) });
+            deviceEntry.ParamSettings.Add("Noise On", new PlugParamSetting { Label = "ON", OnColor = new FinderColor(251, 0, 3), ShowUserButtonCircle = true });
+            deviceEntry.ParamSettings.Add("Noise Gate On", new PlugParamSetting { Label = "Gate", OnColor = new FinderColor(251, 0, 3), ShowUserButtonCircle = true });
+            deviceEntry.ParamSettings.Add("Crosstalk", new PlugParamSetting { OnColor = new FinderColor(226, 226, 226) });
+            deviceEntry.ParamSettings.Add("Crosstalk On", new PlugParamSetting { Label = "ON", OnColor = new FinderColor(251, 0, 3), ShowUserButtonCircle = true });
+            deviceEntry.ParamSettings.Add("Pitch", new PlugParamSetting { OnColor = new FinderColor(144, 153, 153), Mode = PlugParamSetting.PotMode.Symmetric });
+            deviceEntry.ParamSettings.Add("Compensation", new PlugParamSetting { LabelOn = "Channel", Label = "Bus", TextOffColor = FinderColor.White });
+            deviceEntry.ParamSettings.Add("Character Enhancer", new PlugParamSetting { Label = "Character", OnColor = new FinderColor(226, 226, 226) });
+            deviceEntry.ParamSettings.Add("Master", new PlugParamSetting { OnColor = new FinderColor(226, 226, 226), Mode = PlugParamSetting.PotMode.Symmetric });
+            deviceEntry.ParamSettings.Add("Economy", new PlugParamSetting { Label = "Eco" });
+
+            deviceEntry = AddPlugParamDeviceEntry("Console Shaper");
+            deviceEntry.ParamSettings.Add("Preamp On", new PlugParamSetting { Label = "ON", OnColor = new FinderColor(114, 167, 204) });
+            deviceEntry.ParamSettings.Add("Noise", new PlugParamSetting { DialSteps = 4 });
+            deviceEntry.ParamSettings.Add("Noise On", new PlugParamSetting { Label = "ON", OnColor = new FinderColor(114, 167, 204) });
+            deviceEntry.ParamSettings.Add("Crosstalk On", new PlugParamSetting { Label = "ON", OnColor = new FinderColor(114, 167, 204) });
 
             // brainworx
+            {
+                var bxSslOnTransparency = 180;
+                var bxSslLedRedColor = new FinderColor("BxSslLedRedColor", 255, 48, 24);
+                var bxSslLedGreenColor = new FinderColor("BxSslLedGreenColor", 95, 255, 48);
+                var bxSslLedOffColor = new FinderColor("BxSslLedOffColor", 50, 50, 50);
+                var bxSslWhite = new FinderColor("BxSslWhite", 206, 206, 206);
+                var bxSslRed = new FinderColor("BxSslRed", 184, 59, 55);
+                var bxSslGreen = new FinderColor("BxSslGreen", 73, 109, 70);
+                var bxSslBlue = new FinderColor("BxSslBlue", 70, 121, 162);
+                var bxSslYellow = new FinderColor("BxSslYellow", 255, 240, 29);
+                var bxSslBlack = new FinderColor("BxSslBlack", 53, 56, 56);
+                var bxSslBrown = new FinderColor("BxSslBrown", 110, 81, 69);
+                var bxSslButtonColor = new FinderColor("BxSslButtonOnColor", 198, 200, 195);
+                var bxSslButtonOffColor = new FinderColor("BxSslButtonOffColor", 138, 140, 138);
 
-            var bxSslOnTransparency = 180;
-            var bxSslLedRedColor = new FinderColor(255, 48, 24);
-            var bxSslLedGreenColor = new FinderColor(95, 255, 48);
-            var bxSslLedOffColor = new FinderColor(50, 50, 50);
-            var bxSslWhite = new FinderColor(206, 206, 206);
-            var bxSslRed = new FinderColor(184, 59, 55);
-            var bxSslGreen = new FinderColor(73, 109, 70);
-            var bxSslBlue = new FinderColor(70, 121, 162);
-            var bxSslYellow = new FinderColor(255, 240, 29);
-            var bxSslBlack = new FinderColor(53, 56, 56);
-            var bxSslBrown = new FinderColor(110, 81, 69);
-            var bxSslButtonColor = new FinderColor(198, 200, 195);
-            var bxSslButtonOffColor = new FinderColor(138, 140, 138);
-            AddParamSetting("bx_console SSL 4000 E", "Loupedeck User Pages", new PlugParamSettings { UserMenuItems = ["EQ 1", "EQ 2", "DYN", "DN/MX"  ] });
-            AddParamSetting("bx_console SSL 4000 E", "EQ On/Off", new PlugParamSettings { Label = "EQ", OnColor = bxSslLedGreenColor, TextOnColor = FinderColor.Black, TextOffColor = FinderColor.Black });
-            AddParamSetting("bx_console SSL 4000 E", "Dyn On/Off", new PlugParamSettings { Label = "DYN", OnColor = bxSslLedGreenColor, TextOnColor = FinderColor.Black, TextOffColor = FinderColor.Black });
-            AddParamSetting("bx_console SSL 4000 E", "HPF Frequency", new PlugParamSettings { Label = "HP Frq", LinkedParameter = "HPF On/Off", OnColor = bxSslWhite });
-            AddParamSetting("bx_console SSL 4000 E", "HPF On/Off", new PlugParamSettings { Label = "Off", LabelOn = "On", OnColor = bxSslLedRedColor, TextOnColor = FinderColor.White, OffColor = bxSslLedOffColor, TextOffColor = FinderColor.Black });
-            AddParamSetting("bx_console SSL 4000 E", "LPF Frequency", new PlugParamSettings { Label = "LP Frq", LinkedParameter = "LPF On/Off", OnColor = bxSslWhite });
-            AddParamSetting("bx_console SSL 4000 E", "LPF On/Off", new PlugParamSettings { Label = "Off", LabelOn = "On", OnColor = bxSslLedRedColor, TextOnColor = FinderColor.White, OffColor = bxSslLedOffColor, TextOffColor = FinderColor.Black });
-            AddParamSetting("bx_console SSL 4000 E", "FLT Position", new PlugParamSettings { Label = "DYN SC", OnColor = bxSslButtonColor, TextOnColor = FinderColor.Black, OffColor = bxSslLedOffColor, TextOffColor = FinderColor.Black });
-            AddParamSetting("bx_console SSL 4000 E", "EQ High Gain", new PlugParamSettings { Label = "HF Gain", OnColor = bxSslRed, OnTransparency = bxSslOnTransparency });
-            AddParamSetting("bx_console SSL 4000 E", "EQ High Frequency", new PlugParamSettings { Label = "HF Freq", OnColor = bxSslRed, OnTransparency = bxSslOnTransparency });
-            AddParamSetting("bx_console SSL 4000 E", "EQ High Bell", new PlugParamSettings { Label = "SHELF", LabelOn = "BELL", OnColor = bxSslButtonColor, TextOnColor = FinderColor.Black, OffColor = bxSslButtonColor, TextOffColor = FinderColor.Black });
-            AddParamSetting("bx_console SSL 4000 E", "EQ Low Gain", new PlugParamSettings { Label = "LF Gain", LinkedParameter = "EQ Type", OnColor = bxSslBrown, OnTransparency = 255, TextOnColor = FinderColor.White, OffColor = bxSslBlack, TextOffColor = FinderColor.White });
-            AddParamSetting("bx_console SSL 4000 E", "EQ Low Frequency", new PlugParamSettings { Label = "LF Freq", LinkedParameter = "EQ Type", OnColor = bxSslBrown, OnTransparency = 255, TextOnColor = FinderColor.White, OffColor = bxSslBlack, TextOffColor = FinderColor.White });
-            AddParamSetting("bx_console SSL 4000 E", "EQ Low Bell", new PlugParamSettings { Label = "SHELF", LabelOn = "BELL", OnColor = bxSslButtonColor, TextOnColor = FinderColor.Black, OffColor = bxSslButtonColor, TextOffColor = FinderColor.Black });
-            AddParamSetting("bx_console SSL 4000 E", "EQ Type", new PlugParamSettings { Label = "EQ TYPE", OnColor = bxSslButtonColor, TextOnColor = FinderColor.Black, OffColor = bxSslButtonColor, TextOffColor = FinderColor.Black });
-            AddParamSetting("bx_console SSL 4000 E", "EQ High Mid Gain", new PlugParamSettings { Label = "HMF Gain", OnColor = bxSslGreen, OnTransparency = bxSslOnTransparency });
-            AddParamSetting("bx_console SSL 4000 E", "EQ High Mid Frequency", new PlugParamSettings { Label = "HMF Freq", OnColor = bxSslGreen, OnTransparency = bxSslOnTransparency });
-            AddParamSetting("bx_console SSL 4000 E", "EQ High Mid Q", new PlugParamSettings { Label = "HMF Q", OnColor = bxSslGreen, OnTransparency = bxSslOnTransparency });
-            AddParamSetting("bx_console SSL 4000 E", "EQ Low Mid Gain", new PlugParamSettings { Label = "LMF Gain", OnColor = bxSslBlue, OnTransparency = (Int32)(bxSslOnTransparency * 0.8) });
-            AddParamSetting("bx_console SSL 4000 E", "EQ Low Mid Frequency", new PlugParamSettings { Label = "LMF Freq", OnColor = bxSslBlue, OnTransparency = (Int32)(bxSslOnTransparency * 0.8) });
-            AddParamSetting("bx_console SSL 4000 E", "EQ Low Mid Q", new PlugParamSettings { Label = "LMF Q", OnColor = bxSslBlue, OnTransparency = (Int32)(bxSslOnTransparency * 0.8) });
-            AddParamSetting("bx_console SSL 4000 E", "LC Ratio", new PlugParamSettings { Label = "LC RATIO", OnColor = bxSslWhite });
-            AddParamSetting("bx_console SSL 4000 E", "LC Threshold", new PlugParamSettings { Label = "LC THRES", OnColor = bxSslWhite });
-            AddParamSetting("bx_console SSL 4000 E", "LC Release", new PlugParamSettings { Label = "LC REL", OnColor = bxSslWhite });
-            AddParamSetting("bx_console SSL 4000 E", "LC Attack", new PlugParamSettings { Label = "FAST", OnColor = bxSslLedRedColor, TextOnColor = FinderColor.White, OffColor = bxSslLedOffColor, TextOffColor = FinderColor.Black });
-            AddParamSetting("bx_console SSL 4000 E", "LC Link", new PlugParamSettings { Label = "LINK", OnColor = bxSslYellow, TextOnColor = FinderColor.Black, OffColor = bxSslButtonOffColor, TextOffColor = FinderColor.Black });
-            AddParamSetting("bx_console SSL 4000 E", "GE Range", new PlugParamSettings { Label = "GE RANGE", OnColor = bxSslGreen, OnTransparency = bxSslOnTransparency });
-            AddParamSetting("bx_console SSL 4000 E", "GE Threshold", new PlugParamSettings { Label = "GE THRES", OnColor = bxSslGreen, OnTransparency = bxSslOnTransparency });
-            AddParamSetting("bx_console SSL 4000 E", "GE Release", new PlugParamSettings { Label = "GE REL", OnColor = bxSslGreen, OnTransparency = bxSslOnTransparency });
-            AddParamSetting("bx_console SSL 4000 E", "GE Attack", new PlugParamSettings { Label = "FAST", OnColor = bxSslLedRedColor, TextOnColor = FinderColor.White, OffColor = bxSslLedOffColor, TextOffColor = FinderColor.Black });
-            AddParamSetting("bx_console SSL 4000 E", "GE Mode", new PlugParamSettings { Label = "EXP", LabelOn = "GATE", OnColor = bxSslButtonColor, TextOnColor = FinderColor.Black, OffColor = bxSslButtonColor, TextOffColor = FinderColor.Black });
-            AddParamSetting("bx_console SSL 4000 E", "GE Invert", new PlugParamSettings { Label = "NORM", LabelOn = "INV", OnColor = bxSslButtonColor, TextOnColor = FinderColor.Black, OffColor = bxSslButtonColor, TextOffColor = FinderColor.Black });
-            AddParamSetting("bx_console SSL 4000 E", "GE Threshold Range", new PlugParamSettings { Label = "-30 dB", OnColor = bxSslLedRedColor, TextOnColor = FinderColor.White, OffColor = bxSslLedOffColor, TextOffColor = FinderColor.Black });
-            AddParamSetting("bx_console SSL 4000 E", "LC Highpass", new PlugParamSettings { Label = "LC HPF", OnColor = bxSslWhite });
-            AddParamSetting("bx_console SSL 4000 E", "LC 2nd Thresh Level", new PlugParamSettings { Label = "LC REL2", OnColor = bxSslWhite });
-            AddParamSetting("bx_console SSL 4000 E", "LC Mix", new PlugParamSettings { Label = "LC MIX", OnColor = bxSslWhite });
-            AddParamSetting("bx_console SSL 4000 E", "In Gain", new PlugParamSettings { Label = "IN GAIN", OnColor = bxSslWhite, OnTransparency = 180, TextOnColor = FinderColor.Black });
-            AddParamSetting("bx_console SSL 4000 E", "Virtual Gain", new PlugParamSettings { Label = "V GAIN", OnColor = bxSslRed, OnTransparency = 180 });
-            AddParamSetting("bx_console SSL 4000 E", "Out Gain", new PlugParamSettings { Label = "OUT GAIN", OnColor = bxSslWhite, OnTransparency = 180, TextOnColor = FinderColor.Black });
-            AddParamSetting("bx_console SSL 4000 E", "Phase", new PlugParamSettings { Label = "PHASE", OnColor = bxSslButtonColor, TextOnColor = FinderColor.Black, OffColor = new FinderColor(100, 100, 100), TextOffColor = FinderColor.Black });
-            AddParamSetting("bx_console SSL 4000 E", "Stereo Mode", new PlugParamSettings { Label = "ANALOG", LabelOn = "DIGITAL", OnColor = bxSslButtonColor, TextOnColor = FinderColor.Black, OffColor = bxSslYellow, TextOffColor = FinderColor.Black });
-            AddParamSetting("bx_console SSL 4000 E", "EQ Position", new PlugParamSettings { Label = "", OnColor = bxSslButtonColor, TextOnColor = FinderColor.Black, UserMenuItems = ["PRE DYN", "DYN SC", "POST DYN"] });
-            AddParamSetting("bx_console SSL 4000 E", "Dyn Key", new PlugParamSettings { Label = "D 2 KEY", OnColor = bxSslLedRedColor, TextOnColor = FinderColor.White, OffColor = bxSslButtonOffColor, TextOffColor = FinderColor.Black });
+                deviceEntry = AddPlugParamDeviceEntry("bx_console SSL 4000 E");
+                deviceEntry.ParamSettings.Add("Loupedeck User Pages", new PlugParamSetting { UserMenuItems = ["EQ 1", "EQ 2", "DYN", "DN/MX"] });
+                deviceEntry.ParamSettings.Add("EQ On/Off", new PlugParamSetting { Label = "EQ", OnColor = bxSslLedGreenColor, TextOnColor = FinderColor.Black, TextOffColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("Dyn On/Off", new PlugParamSetting { Label = "DYN", OnColor = bxSslLedGreenColor, TextOnColor = FinderColor.Black, TextOffColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("HPF Frequency", new PlugParamSetting { Label = "HP Frq", LinkedParameter = "HPF On/Off", OnColor = bxSslWhite });
+                deviceEntry.ParamSettings.Add("HPF On/Off", new PlugParamSetting { Label = "Off", LabelOn = "On", OnColor = bxSslLedRedColor, TextOnColor = FinderColor.White, OffColor = bxSslLedOffColor, TextOffColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("LPF Frequency", new PlugParamSetting { Label = "LP Frq", LinkedParameter = "LPF On/Off", OnColor = bxSslWhite });
+                deviceEntry.ParamSettings.Add("LPF On/Off", new PlugParamSetting { Label = "Off", LabelOn = "On", OnColor = bxSslLedRedColor, TextOnColor = FinderColor.White, OffColor = bxSslLedOffColor, TextOffColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("FLT Position", new PlugParamSetting { Label = "DYN SC", OnColor = bxSslButtonColor, TextOnColor = FinderColor.Black, OffColor = bxSslLedOffColor, TextOffColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("EQ High Gain", new PlugParamSetting { Label = "HF Gain", OnColor = bxSslRed, OnTransparency = bxSslOnTransparency });
+                deviceEntry.ParamSettings.Add("EQ High Frequency", new PlugParamSetting { Label = "HF Freq", OnColor = bxSslRed, OnTransparency = bxSslOnTransparency });
+                deviceEntry.ParamSettings.Add("EQ High Bell", new PlugParamSetting { Label = "SHELF", LabelOn = "BELL", OnColor = bxSslButtonColor, TextOnColor = FinderColor.Black, OffColor = bxSslButtonColor, TextOffColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("EQ Low Gain", new PlugParamSetting { Label = "LF Gain", LinkedParameter = "EQ Type", OnColor = bxSslBrown, OnTransparency = 255, TextOnColor = FinderColor.White, OffColor = bxSslBlack, TextOffColor = FinderColor.White });
+                deviceEntry.ParamSettings.Add("EQ Low Frequency", new PlugParamSetting { Label = "LF Freq", LinkedParameter = "EQ Type", OnColor = bxSslBrown, OnTransparency = 255, TextOnColor = FinderColor.White, OffColor = bxSslBlack, TextOffColor = FinderColor.White });
+                deviceEntry.ParamSettings.Add("EQ Low Bell", new PlugParamSetting { Label = "SHELF", LabelOn = "BELL", OnColor = bxSslButtonColor, TextOnColor = FinderColor.Black, OffColor = bxSslButtonColor, TextOffColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("EQ Type", new PlugParamSetting { Label = "EQ TYPE", OnColor = bxSslButtonColor, TextOnColor = FinderColor.Black, OffColor = bxSslButtonColor, TextOffColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("EQ High Mid Gain", new PlugParamSetting { Label = "HMF Gain", OnColor = bxSslGreen, OnTransparency = bxSslOnTransparency });
+                deviceEntry.ParamSettings.Add("EQ High Mid Frequency", new PlugParamSetting { Label = "HMF Freq", OnColor = bxSslGreen, OnTransparency = bxSslOnTransparency });
+                deviceEntry.ParamSettings.Add("EQ High Mid Q", new PlugParamSetting { Label = "HMF Q", OnColor = bxSslGreen, OnTransparency = bxSslOnTransparency });
+                deviceEntry.ParamSettings.Add("EQ Low Mid Gain", new PlugParamSetting { Label = "LMF Gain", OnColor = bxSslBlue, OnTransparency = (Int32)(bxSslOnTransparency * 0.8) });
+                deviceEntry.ParamSettings.Add("EQ Low Mid Frequency", new PlugParamSetting { Label = "LMF Freq", OnColor = bxSslBlue, OnTransparency = (Int32)(bxSslOnTransparency * 0.8) });
+                deviceEntry.ParamSettings.Add("EQ Low Mid Q", new PlugParamSetting { Label = "LMF Q", OnColor = bxSslBlue, OnTransparency = (Int32)(bxSslOnTransparency * 0.8) });
+                deviceEntry.ParamSettings.Add("LC Ratio", new PlugParamSetting { Label = "LC RATIO", OnColor = bxSslWhite });
+                deviceEntry.ParamSettings.Add("LC Threshold", new PlugParamSetting { Label = "LC THRES", OnColor = bxSslWhite });
+                deviceEntry.ParamSettings.Add("LC Release", new PlugParamSetting { Label = "LC REL", OnColor = bxSslWhite });
+                deviceEntry.ParamSettings.Add("LC Attack", new PlugParamSetting { Label = "FAST", OnColor = bxSslLedRedColor, TextOnColor = FinderColor.White, OffColor = bxSslLedOffColor, TextOffColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("LC Link", new PlugParamSetting { Label = "LINK", OnColor = bxSslYellow, TextOnColor = FinderColor.Black, OffColor = bxSslButtonOffColor, TextOffColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("GE Range", new PlugParamSetting { Label = "GE RANGE", OnColor = bxSslGreen, OnTransparency = bxSslOnTransparency });
+                deviceEntry.ParamSettings.Add("GE Threshold", new PlugParamSetting { Label = "GE THRES", OnColor = bxSslGreen, OnTransparency = bxSslOnTransparency });
+                deviceEntry.ParamSettings.Add("GE Release", new PlugParamSetting { Label = "GE REL", OnColor = bxSslGreen, OnTransparency = bxSslOnTransparency });
+                deviceEntry.ParamSettings.Add("GE Attack", new PlugParamSetting { Label = "FAST", OnColor = bxSslLedRedColor, TextOnColor = FinderColor.White, OffColor = bxSslLedOffColor, TextOffColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("GE Mode", new PlugParamSetting { Label = "EXP", LabelOn = "GATE", OnColor = bxSslButtonColor, TextOnColor = FinderColor.Black, OffColor = bxSslButtonColor, TextOffColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("GE Invert", new PlugParamSetting { Label = "NORM", LabelOn = "INV", OnColor = bxSslButtonColor, TextOnColor = FinderColor.Black, OffColor = bxSslButtonColor, TextOffColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("GE Threshold Range", new PlugParamSetting { Label = "-30 dB", OnColor = bxSslLedRedColor, TextOnColor = FinderColor.White, OffColor = bxSslLedOffColor, TextOffColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("LC Highpass", new PlugParamSetting { Label = "LC HPF", OnColor = bxSslWhite });
+                deviceEntry.ParamSettings.Add("LC 2nd Thresh Level", new PlugParamSetting { Label = "LC REL2", OnColor = bxSslWhite });
+                deviceEntry.ParamSettings.Add("LC Mix", new PlugParamSetting { Label = "LC MIX", OnColor = bxSslWhite });
+                deviceEntry.ParamSettings.Add("In Gain", new PlugParamSetting { Label = "IN GAIN", OnColor = bxSslWhite, OnTransparency = 180, TextOnColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("Virtual Gain", new PlugParamSetting { Label = "V GAIN", OnColor = bxSslRed, OnTransparency = 180 });
+                deviceEntry.ParamSettings.Add("Out Gain", new PlugParamSetting { Label = "OUT GAIN", OnColor = bxSslWhite, OnTransparency = 180, TextOnColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("Phase", new PlugParamSetting { Label = "PHASE", OnColor = bxSslButtonColor, TextOnColor = FinderColor.Black, OffColor = new FinderColor(100, 100, 100), TextOffColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("Stereo Mode", new PlugParamSetting { Label = "ANALOG", LabelOn = "DIGITAL", OnColor = bxSslButtonColor, TextOnColor = FinderColor.Black, OffColor = bxSslYellow, TextOffColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("EQ Position", new PlugParamSetting { Label = "", OnColor = bxSslButtonColor, TextOnColor = FinderColor.Black, UserMenuItems = ["PRE DYN", "DYN SC", "POST DYN"] });
+                deviceEntry.ParamSettings.Add("Dyn Key", new PlugParamSetting { Label = "D 2 KEY", OnColor = bxSslLedRedColor, TextOnColor = FinderColor.White, OffColor = bxSslButtonOffColor, TextOffColor = FinderColor.Black });
 
-            var bxSslCyan = new FinderColor(54, 146, 124);
-            var bxSslMagenta = new FinderColor(197, 80, 148);
-            var bxSslOrange = new FinderColor(218, 109, 44);
-            AddParamSetting("bx_console SSL 4000 G", "Loupedeck User Pages", new PlugParamSettings { UserMenuItems = ["EQ 1", "EQ 2", "DYN", "DN/MX"] });
-            AddParamSetting("bx_console SSL 4000 G", "EQ On/Off", new PlugParamSettings { Label = "EQ", OnColor = bxSslLedGreenColor, TextOnColor = FinderColor.Black, TextOffColor = FinderColor.Black });
-            AddParamSetting("bx_console SSL 4000 G", "Dyn On/Off", new PlugParamSettings { Label = "DYN", OnColor = bxSslLedGreenColor, TextOnColor = FinderColor.Black, TextOffColor = FinderColor.Black });
-            AddParamSetting("bx_console SSL 4000 G", "HPF Frequency", new PlugParamSettings { Label = "HP Frq", LinkedParameter = "HPF On/Off", OnColor = bxSslWhite });
-            AddParamSetting("bx_console SSL 4000 G", "HPF On/Off", new PlugParamSettings { Label = "Off", LabelOn = "On", OnColor = bxSslLedRedColor, TextOnColor = FinderColor.White, OffColor = bxSslLedOffColor, TextOffColor = FinderColor.Black });
-            AddParamSetting("bx_console SSL 4000 G", "LPF Frequency", new PlugParamSettings { Label = "LP Frq", LinkedParameter = "LPF On/Off", OnColor = bxSslWhite });
-            AddParamSetting("bx_console SSL 4000 G", "LPF On/Off", new PlugParamSettings { Label = "Off", LabelOn = "On", OnColor = bxSslLedRedColor, TextOnColor = FinderColor.White, OffColor = bxSslLedOffColor, TextOffColor = FinderColor.Black });
-            AddParamSetting("bx_console SSL 4000 G", "FLT Position", new PlugParamSettings { Label = "DYN SC", OnColor = bxSslButtonColor, TextOnColor = FinderColor.Black, OffColor = bxSslLedOffColor, TextOffColor = FinderColor.Black });
-            AddParamSetting("bx_console SSL 4000 G", "EQ High Gain", new PlugParamSettings { Label = "HF Gain", LinkedParameter = "EQ Type", OnColor = bxSslMagenta, OnTransparency = 255, TextOnColor = FinderColor.White, OffColor = bxSslRed, TextOffColor = FinderColor.White });
-            AddParamSetting("bx_console SSL 4000 G", "EQ High Frequency", new PlugParamSettings { Label = "HF Freq", LinkedParameter = "EQ Type", OnColor = bxSslMagenta, OnTransparency = 255, TextOnColor = FinderColor.White, OffColor = bxSslRed, TextOffColor = FinderColor.White });
-            AddParamSetting("bx_console SSL 4000 G", "EQ High Bell", new PlugParamSettings { Label = "SHELF", LabelOn = "BELL", LinkedParameter = "EQ Type", LinkReversed = true, OnColor = bxSslButtonColor, TextOnColor = FinderColor.Black, OffColor = bxSslButtonColor, TextOffColor = FinderColor.Black });
-            AddParamSetting("bx_console SSL 4000 G", "EQ Low Gain", new PlugParamSettings { Label = "LF Gain", LinkedParameter = "EQ Type", LinkReversed = true, OnColor = bxSslOrange, OnTransparency = 255, TextOnColor = FinderColor.White, OffColor = bxSslBlack, TextOffColor = FinderColor.White });
-            AddParamSetting("bx_console SSL 4000 G", "EQ Low Frequency", new PlugParamSettings { Label = "LF Freq", LinkedParameter = "EQ Type", LinkReversed = true, OnColor = bxSslOrange, OnTransparency = 255, TextOnColor = FinderColor.White, OffColor = bxSslBlack, TextOffColor = FinderColor.White });
-            AddParamSetting("bx_console SSL 4000 G", "EQ Low Bell", new PlugParamSettings { Label = "SHELF", LabelOn = "BELL", LinkedParameter = "EQ Type", LinkReversed = true, OnColor = bxSslButtonColor, TextOnColor = FinderColor.Black, OffColor = bxSslButtonColor, TextOffColor = FinderColor.Black });
-            AddParamSetting("bx_console SSL 4000 G", "EQ Type", new PlugParamSettings { Label = "EQ TYPE", OnColor = bxSslButtonColor, TextOnColor = FinderColor.Black, OffColor = bxSslButtonColor, TextOffColor = FinderColor.Black });
-            AddParamSetting("bx_console SSL 4000 G", "EQ High Mid Gain", new PlugParamSettings { Label = "HMF Gain", OnColor = bxSslCyan, OnTransparency = bxSslOnTransparency });
-            AddParamSetting("bx_console SSL 4000 G", "EQ High Mid Frequency", new PlugParamSettings { Label = "HMF Freq", OnColor = bxSslCyan, OnTransparency = bxSslOnTransparency });
-            AddParamSetting("bx_console SSL 4000 G", "EQ High Mid Q", new PlugParamSettings { Label = "HMF Q", OnColor = bxSslCyan, OnTransparency = bxSslOnTransparency });
-            AddParamSetting("bx_console SSL 4000 G", "EQ High Mid x3", new PlugParamSettings { Label = "x3", LinkedParameter = "EQ Type", OnColor = bxSslButtonColor, TextOnColor = FinderColor.Black });
-            AddParamSetting("bx_console SSL 4000 G", "EQ Low Mid Gain", new PlugParamSettings { Label = "LMF Gain", OnColor = bxSslBlue, OnTransparency = (Int32)(bxSslOnTransparency * 0.8) });
-            AddParamSetting("bx_console SSL 4000 G", "EQ Low Mid Frequency", new PlugParamSettings { Label = "LMF Freq", OnColor = bxSslBlue, OnTransparency = (Int32)(bxSslOnTransparency * 0.8) });
-            AddParamSetting("bx_console SSL 4000 G", "EQ Low Mid Q", new PlugParamSettings { Label = "LMF Q", OnColor = bxSslBlue, OnTransparency = (Int32)(bxSslOnTransparency * 0.8) });
-            AddParamSetting("bx_console SSL 4000 G", "EQ Low Mid /3", new PlugParamSettings { Label = "/3", LinkedParameter = "EQ Type", OnColor = bxSslButtonColor, TextOnColor = FinderColor.Black });
-            AddParamSetting("bx_console SSL 4000 G", "LC Ratio", new PlugParamSettings { Label = "LC RATIO", OnColor = bxSslWhite });
-            AddParamSetting("bx_console SSL 4000 G", "LC Threshold", new PlugParamSettings { Label = "LC THRES", OnColor = bxSslWhite });
-            AddParamSetting("bx_console SSL 4000 G", "LC Release", new PlugParamSettings { Label = "LC REL", OnColor = bxSslWhite });
-            AddParamSetting("bx_console SSL 4000 G", "LC Attack", new PlugParamSettings { Label = "FAST", OnColor = bxSslLedRedColor, TextOnColor = FinderColor.White, OffColor = bxSslLedOffColor, TextOffColor = FinderColor.Black });
-            AddParamSetting("bx_console SSL 4000 G", "LC Link", new PlugParamSettings { Label = "LINK", OnColor = bxSslYellow, TextOnColor = FinderColor.Black, OffColor = bxSslButtonOffColor, TextOffColor = FinderColor.Black });
-            AddParamSetting("bx_console SSL 4000 G", "GE Range", new PlugParamSettings { Label = "GE RANGE", OnColor = bxSslCyan, OnTransparency = bxSslOnTransparency });
-            AddParamSetting("bx_console SSL 4000 G", "GE Threshold", new PlugParamSettings { Label = "GE THRES", OnColor = bxSslCyan, OnTransparency = bxSslOnTransparency });
-            AddParamSetting("bx_console SSL 4000 G", "GE Release", new PlugParamSettings { Label = "GE REL", OnColor = bxSslCyan, OnTransparency = bxSslOnTransparency });
-            AddParamSetting("bx_console SSL 4000 G", "GE Attack", new PlugParamSettings { Label = "FAST", OnColor = bxSslLedRedColor, TextOnColor = FinderColor.White, OffColor = bxSslLedOffColor, TextOffColor = FinderColor.Black });
-            AddParamSetting("bx_console SSL 4000 G", "GE Mode", new PlugParamSettings { Label = "EXP", LabelOn = "GATE", OnColor = bxSslButtonColor, TextOnColor = FinderColor.Black, OffColor = bxSslButtonColor, TextOffColor = FinderColor.Black });
-            AddParamSetting("bx_console SSL 4000 G", "GE Invert", new PlugParamSettings { Label = "NORM", LabelOn = "INV", OnColor = bxSslButtonColor, TextOnColor = FinderColor.Black, OffColor = bxSslButtonColor, TextOffColor = FinderColor.Black });
-            AddParamSetting("bx_console SSL 4000 G", "GE Threshold Range", new PlugParamSettings { Label = "-30 dB", OnColor = bxSslLedRedColor, TextOnColor = FinderColor.White, OffColor = bxSslLedOffColor, TextOffColor = FinderColor.Black });
-            AddParamSetting("bx_console SSL 4000 G", "LC Highpass", new PlugParamSettings { Label = "LC HPF", OnColor = bxSslWhite });
-            AddParamSetting("bx_console SSL 4000 G", "LC 2nd Thresh Level", new PlugParamSettings { Label = "LC REL2", OnColor = bxSslWhite });
-            AddParamSetting("bx_console SSL 4000 G", "LC Mix", new PlugParamSettings { Label = "LC MIX", OnColor = bxSslWhite });
-            AddParamSetting("bx_console SSL 4000 G", "In Gain", new PlugParamSettings { Label = "IN GAIN", OnColor = bxSslWhite, OnTransparency = 180, TextOnColor = FinderColor.Black });
-            AddParamSetting("bx_console SSL 4000 G", "Virtual Gain", new PlugParamSettings { Label = "V GAIN", OnColor = bxSslMagenta, OnTransparency = 180 });
-            AddParamSetting("bx_console SSL 4000 G", "Out Gain", new PlugParamSettings { Label = "OUT GAIN", OnColor = bxSslWhite, OnTransparency = 180, TextOnColor = FinderColor.Black });
-            AddParamSetting("bx_console SSL 4000 G", "Phase", new PlugParamSettings { Label = "PHASE", OnColor = bxSslButtonColor, TextOnColor = FinderColor.Black, OffColor = new FinderColor(100, 100, 100), TextOffColor = FinderColor.Black });
-            AddParamSetting("bx_console SSL 4000 G", "Stereo Mode", new PlugParamSettings { Label = "ANALOG", LabelOn = "DIGITAL", OnColor = bxSslButtonColor, TextOnColor = FinderColor.Black, OffColor = bxSslYellow, TextOffColor = FinderColor.Black });
-            AddParamSetting("bx_console SSL 4000 G", "EQ Position", new PlugParamSettings { Label = "", OnColor = bxSslButtonColor, TextOnColor = FinderColor.Black, UserMenuItems = ["PRE DYN", "DYN SC", "POST DYN"] });
-            AddParamSetting("bx_console SSL 4000 G", "Dyn Key", new PlugParamSettings { Label = "D 2 KEY", OnColor = bxSslLedRedColor, TextOnColor = FinderColor.White, OffColor = bxSslButtonOffColor, TextOffColor = FinderColor.Black });
-
+                deviceEntry = AddPlugParamDeviceEntry("bx_console SSL 4000 G");
+                var bxSslCyan = new FinderColor("BxSslCyan", 54, 146, 124);
+                var bxSslMagenta = new FinderColor("BxSslMagenta", 197, 80, 148);
+                var bxSslOrange = new FinderColor("BxSslOrange", 218, 109, 44);
+                deviceEntry.ParamSettings.Add("Loupedeck User Pages", new PlugParamSetting { UserMenuItems = ["EQ 1", "EQ 2", "DYN", "DN/MX"] });
+                deviceEntry.ParamSettings.Add("EQ On/Off", new PlugParamSetting { Label = "EQ", OnColor = bxSslLedGreenColor, TextOnColor = FinderColor.Black, TextOffColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("Dyn On/Off", new PlugParamSetting { Label = "DYN", OnColor = bxSslLedGreenColor, TextOnColor = FinderColor.Black, TextOffColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("HPF Frequency", new PlugParamSetting { Label = "HP Frq", LinkedParameter = "HPF On/Off", OnColor = bxSslWhite });
+                deviceEntry.ParamSettings.Add("HPF On/Off", new PlugParamSetting { Label = "Off", LabelOn = "On", OnColor = bxSslLedRedColor, TextOnColor = FinderColor.White, OffColor = bxSslLedOffColor, TextOffColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("LPF Frequency", new PlugParamSetting { Label = "LP Frq", LinkedParameter = "LPF On/Off", OnColor = bxSslWhite });
+                deviceEntry.ParamSettings.Add("LPF On/Off", new PlugParamSetting { Label = "Off", LabelOn = "On", OnColor = bxSslLedRedColor, TextOnColor = FinderColor.White, OffColor = bxSslLedOffColor, TextOffColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("FLT Position", new PlugParamSetting { Label = "DYN SC", OnColor = bxSslButtonColor, TextOnColor = FinderColor.Black, OffColor = bxSslLedOffColor, TextOffColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("EQ High Gain", new PlugParamSetting { Label = "HF Gain", LinkedParameter = "EQ Type", OnColor = bxSslMagenta, OnTransparency = 255, TextOnColor = FinderColor.White, OffColor = bxSslRed, TextOffColor = FinderColor.White });
+                deviceEntry.ParamSettings.Add("EQ High Frequency", new PlugParamSetting { Label = "HF Freq", LinkedParameter = "EQ Type", OnColor = bxSslMagenta, OnTransparency = 255, TextOnColor = FinderColor.White, OffColor = bxSslRed, TextOffColor = FinderColor.White });
+                deviceEntry.ParamSettings.Add("EQ High Bell", new PlugParamSetting { Label = "SHELF", LabelOn = "BELL", LinkedParameter = "EQ Type", LinkReversed = true, OnColor = bxSslButtonColor, TextOnColor = FinderColor.Black, OffColor = bxSslButtonColor, TextOffColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("EQ Low Gain", new PlugParamSetting { Label = "LF Gain", LinkedParameter = "EQ Type", LinkReversed = true, OnColor = bxSslOrange, OnTransparency = 255, TextOnColor = FinderColor.White, OffColor = bxSslBlack, TextOffColor = FinderColor.White });
+                deviceEntry.ParamSettings.Add("EQ Low Frequency", new PlugParamSetting { Label = "LF Freq", LinkedParameter = "EQ Type", LinkReversed = true, OnColor = bxSslOrange, OnTransparency = 255, TextOnColor = FinderColor.White, OffColor = bxSslBlack, TextOffColor = FinderColor.White });
+                deviceEntry.ParamSettings.Add("EQ Low Bell", new PlugParamSetting { Label = "SHELF", LabelOn = "BELL", LinkedParameter = "EQ Type", LinkReversed = true, OnColor = bxSslButtonColor, TextOnColor = FinderColor.Black, OffColor = bxSslButtonColor, TextOffColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("EQ Type", new PlugParamSetting { Label = "EQ TYPE", OnColor = bxSslButtonColor, TextOnColor = FinderColor.Black, OffColor = bxSslButtonColor, TextOffColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("EQ High Mid Gain", new PlugParamSetting { Label = "HMF Gain", OnColor = bxSslCyan, OnTransparency = bxSslOnTransparency });
+                deviceEntry.ParamSettings.Add("EQ High Mid Frequency", new PlugParamSetting { Label = "HMF Freq", OnColor = bxSslCyan, OnTransparency = bxSslOnTransparency });
+                deviceEntry.ParamSettings.Add("EQ High Mid Q", new PlugParamSetting { Label = "HMF Q", OnColor = bxSslCyan, OnTransparency = bxSslOnTransparency });
+                deviceEntry.ParamSettings.Add("EQ High Mid x3", new PlugParamSetting { Label = "x3", LinkedParameter = "EQ Type", OnColor = bxSslButtonColor, TextOnColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("EQ Low Mid Gain", new PlugParamSetting { Label = "LMF Gain", OnColor = bxSslBlue, OnTransparency = (Int32)(bxSslOnTransparency * 0.8) });
+                deviceEntry.ParamSettings.Add("EQ Low Mid Frequency", new PlugParamSetting { Label = "LMF Freq", OnColor = bxSslBlue, OnTransparency = (Int32)(bxSslOnTransparency * 0.8) });
+                deviceEntry.ParamSettings.Add("EQ Low Mid Q", new PlugParamSetting { Label = "LMF Q", OnColor = bxSslBlue, OnTransparency = (Int32)(bxSslOnTransparency * 0.8) });
+                deviceEntry.ParamSettings.Add("EQ Low Mid /3", new PlugParamSetting { Label = "/3", LinkedParameter = "EQ Type", OnColor = bxSslButtonColor, TextOnColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("LC Ratio", new PlugParamSetting { Label = "LC RATIO", OnColor = bxSslWhite });
+                deviceEntry.ParamSettings.Add("LC Threshold", new PlugParamSetting { Label = "LC THRES", OnColor = bxSslWhite });
+                deviceEntry.ParamSettings.Add("LC Release", new PlugParamSetting { Label = "LC REL", OnColor = bxSslWhite });
+                deviceEntry.ParamSettings.Add("LC Attack", new PlugParamSetting { Label = "FAST", OnColor = bxSslLedRedColor, TextOnColor = FinderColor.White, OffColor = bxSslLedOffColor, TextOffColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("LC Link", new PlugParamSetting { Label = "LINK", OnColor = bxSslYellow, TextOnColor = FinderColor.Black, OffColor = bxSslButtonOffColor, TextOffColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("GE Range", new PlugParamSetting { Label = "GE RANGE", OnColor = bxSslCyan, OnTransparency = bxSslOnTransparency });
+                deviceEntry.ParamSettings.Add("GE Threshold", new PlugParamSetting { Label = "GE THRES", OnColor = bxSslCyan, OnTransparency = bxSslOnTransparency });
+                deviceEntry.ParamSettings.Add("GE Release", new PlugParamSetting { Label = "GE REL", OnColor = bxSslCyan, OnTransparency = bxSslOnTransparency });
+                deviceEntry.ParamSettings.Add("GE Attack", new PlugParamSetting { Label = "FAST", OnColor = bxSslLedRedColor, TextOnColor = FinderColor.White, OffColor = bxSslLedOffColor, TextOffColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("GE Mode", new PlugParamSetting { Label = "EXP", LabelOn = "GATE", OnColor = bxSslButtonColor, TextOnColor = FinderColor.Black, OffColor = bxSslButtonColor, TextOffColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("GE Invert", new PlugParamSetting { Label = "NORM", LabelOn = "INV", OnColor = bxSslButtonColor, TextOnColor = FinderColor.Black, OffColor = bxSslButtonColor, TextOffColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("GE Threshold Range", new PlugParamSetting { Label = "-30 dB", OnColor = bxSslLedRedColor, TextOnColor = FinderColor.White, OffColor = bxSslLedOffColor, TextOffColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("LC Highpass", new PlugParamSetting { Label = "LC HPF", OnColor = bxSslWhite });
+                deviceEntry.ParamSettings.Add("LC 2nd Thresh Level", new PlugParamSetting { Label = "LC REL2", OnColor = bxSslWhite });
+                deviceEntry.ParamSettings.Add("LC Mix", new PlugParamSetting { Label = "LC MIX", OnColor = bxSslWhite });
+                deviceEntry.ParamSettings.Add("In Gain", new PlugParamSetting { Label = "IN GAIN", OnColor = bxSslWhite, OnTransparency = 180, TextOnColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("Virtual Gain", new PlugParamSetting { Label = "V GAIN", OnColor = bxSslMagenta, OnTransparency = 180 });
+                deviceEntry.ParamSettings.Add("Out Gain", new PlugParamSetting { Label = "OUT GAIN", OnColor = bxSslWhite, OnTransparency = 180, TextOnColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("Phase", new PlugParamSetting { Label = "PHASE", OnColor = bxSslButtonColor, TextOnColor = FinderColor.Black, OffColor = new FinderColor(100, 100, 100), TextOffColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("Stereo Mode", new PlugParamSetting { Label = "ANALOG", LabelOn = "DIGITAL", OnColor = bxSslButtonColor, TextOnColor = FinderColor.Black, OffColor = bxSslYellow, TextOffColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("EQ Position", new PlugParamSetting { Label = "", OnColor = bxSslButtonColor, TextOnColor = FinderColor.Black, UserMenuItems = ["PRE DYN", "DYN SC", "POST DYN"] });
+                deviceEntry.ParamSettings.Add("Dyn Key", new PlugParamSetting { Label = "D 2 KEY", OnColor = bxSslLedRedColor, TextOnColor = FinderColor.White, OffColor = bxSslButtonOffColor, TextOffColor = FinderColor.Black });
+            }
 
             // Waves
 
-            AddParamSetting("SSLGChannel", "HP Frq", new PlugParamSettings { OnColor = new FinderColor(220, 216, 207) });
-            AddParamSetting("SSLGChannel", "LP Frq", new PlugParamSettings { OnColor = new FinderColor(220, 216, 207) });
-            AddParamSetting("SSLGChannel", "FilterSplit", new PlugParamSettings { OnColor = new FinderColor(204, 191, 46), Label = "SPLIT" });
-            AddParamSetting("SSLGChannel", "HF Gain", new PlugParamSettings { OnColor = new FinderColor(177, 53, 63), Mode = PlugParamSettings.PotMode.Symmetric });
-            AddParamSetting("SSLGChannel", "HF Frq", new PlugParamSettings { OnColor = new FinderColor(177, 53, 63) });
-            AddParamSetting("SSLGChannel", "HMF X3", new PlugParamSettings { OnColor = new FinderColor(27, 92, 64), Label = "HMFx3" });
-            AddParamSetting("SSLGChannel", "LF Gain", new PlugParamSettings { OnColor = new FinderColor(180, 180, 180), Mode = PlugParamSettings.PotMode.Symmetric });
-            AddParamSetting("SSLGChannel", "LF Frq", new PlugParamSettings { OnColor = new FinderColor(180, 180, 180) });
-            AddParamSetting("SSLGChannel", "LMF div3", new PlugParamSettings { OnColor = new FinderColor(22, 97, 120), Label = "LMF/3" });
-            AddParamSetting("SSLGChannel", "HMF Gain", new PlugParamSettings { OnColor = new FinderColor(27, 92, 64), Mode = PlugParamSettings.PotMode.Symmetric });
-            AddParamSetting("SSLGChannel", "HMF Frq", new PlugParamSettings { OnColor = new FinderColor(27, 92, 64) });
-            AddParamSetting("SSLGChannel", "HMF Q", new PlugParamSettings { OnColor = new FinderColor(27, 92, 64), Mode = PlugParamSettings.PotMode.Symmetric });
-            AddParamSetting("SSLGChannel", "LMF Gain", new PlugParamSettings { OnColor = new FinderColor(22, 97, 120), Mode = PlugParamSettings.PotMode.Symmetric });
-            AddParamSetting("SSLGChannel", "LMF Frq", new PlugParamSettings { OnColor = new FinderColor(22, 97, 120) });
-            AddParamSetting("SSLGChannel", "LMF Q", new PlugParamSettings { OnColor = new FinderColor(22, 97, 120), Mode = PlugParamSettings.PotMode.Symmetric });
-            AddParamSetting("SSLGChannel", "EQBypass", new PlugParamSettings { OnColor = new FinderColor(226, 61, 80), Label = "EQ BYP" });
-            AddParamSetting("SSLGChannel", "EQDynamic", new PlugParamSettings { OnColor = new FinderColor(241, 171, 53), Label = "FLT DYN SC" });
-            AddParamSetting("SSLGChannel", "CompRatio", new PlugParamSettings { OnColor = new FinderColor(220, 216, 207), Label = "C RATIO" });
-            AddParamSetting("SSLGChannel", "CompThresh", new PlugParamSettings { OnColor = new FinderColor(220, 216, 207), Label = "C THRESH" });
-            AddParamSetting("SSLGChannel", "CompRelease", new PlugParamSettings { OnColor = new FinderColor(220, 216, 207), Label = "C RELEASE" });
-            AddParamSetting("SSLGChannel", "CompFast", new PlugParamSettings { Label = "F.ATK" });
-            AddParamSetting("SSLGChannel", "ExpRange", new PlugParamSettings { OnColor = new FinderColor(27, 92, 64), Label = "E RANGE" });
-            AddParamSetting("SSLGChannel", "ExpThresh", new PlugParamSettings { OnColor = new FinderColor(27, 92, 64), Label = "E THRESH" });
-            AddParamSetting("SSLGChannel", "ExpRelease", new PlugParamSettings { OnColor = new FinderColor(27, 92, 64), Label = "E RELEASE" });
-            AddParamSetting("SSLGChannel", "ExpAttack", new PlugParamSettings { Label = "F.ATK" });
-            AddParamSetting("SSLGChannel", "ExpGate", new PlugParamSettings { Label = "GATE" });
-            AddParamSetting("SSLGChannel", "DynamicBypass", new PlugParamSettings { OnColor = new FinderColor(226, 61, 80), Label = "DYN BYP" });
-            AddParamSetting("SSLGChannel", "DynaminCHOut", new PlugParamSettings { OnColor = new FinderColor(241, 171, 53), Label = "DYN CH OUT" });
-            AddParamSetting("SSLGChannel", "VUInOut", new PlugParamSettings { OnColor = new FinderColor(241, 171, 53), Label = "VU OUT" });
+            deviceEntry = AddPlugParamDeviceEntry("SSLGChannel");
+            deviceEntry.ParamSettings.Add("HP Frq", new PlugParamSetting { OnColor = new FinderColor(220, 216, 207) });
+            deviceEntry.ParamSettings.Add("LP Frq", new PlugParamSetting { OnColor = new FinderColor(220, 216, 207) });
+            deviceEntry.ParamSettings.Add("FilterSplit", new PlugParamSetting { OnColor = new FinderColor(204, 191, 46), Label = "SPLIT" });
+            deviceEntry.ParamSettings.Add("HF Gain", new PlugParamSetting { OnColor = new FinderColor(177, 53, 63), Mode = PlugParamSetting.PotMode.Symmetric });
+            deviceEntry.ParamSettings.Add("HF Frq", new PlugParamSetting { OnColor = new FinderColor(177, 53, 63) });
+            deviceEntry.ParamSettings.Add("HMF X3", new PlugParamSetting { OnColor = new FinderColor(27, 92, 64), Label = "HMFx3" });
+            deviceEntry.ParamSettings.Add("LF Gain", new PlugParamSetting { OnColor = new FinderColor(180, 180, 180), Mode = PlugParamSetting.PotMode.Symmetric });
+            deviceEntry.ParamSettings.Add("LF Frq", new PlugParamSetting { OnColor = new FinderColor(180, 180, 180) });
+            deviceEntry.ParamSettings.Add("LMF div3", new PlugParamSetting { OnColor = new FinderColor(22, 97, 120), Label = "LMF/3" });
+            deviceEntry.ParamSettings.Add("HMF Gain", new PlugParamSetting { OnColor = new FinderColor(27, 92, 64), Mode = PlugParamSetting.PotMode.Symmetric });
+            deviceEntry.ParamSettings.Add("HMF Frq", new PlugParamSetting { OnColor = new FinderColor(27, 92, 64) });
+            deviceEntry.ParamSettings.Add("HMF Q", new PlugParamSetting { OnColor = new FinderColor(27, 92, 64), Mode = PlugParamSetting.PotMode.Symmetric });
+            deviceEntry.ParamSettings.Add("LMF Gain", new PlugParamSetting { OnColor = new FinderColor(22, 97, 120), Mode = PlugParamSetting.PotMode.Symmetric });
+            deviceEntry.ParamSettings.Add("LMF Frq", new PlugParamSetting { OnColor = new FinderColor(22, 97, 120) });
+            deviceEntry.ParamSettings.Add("LMF Q", new PlugParamSetting { OnColor = new FinderColor(22, 97, 120), Mode = PlugParamSetting.PotMode.Symmetric });
+            deviceEntry.ParamSettings.Add("EQBypass", new PlugParamSetting { OnColor = new FinderColor(226, 61, 80), Label = "EQ BYP" });
+            deviceEntry.ParamSettings.Add("EQDynamic", new PlugParamSetting { OnColor = new FinderColor(241, 171, 53), Label = "FLT DYN SC" });
+            deviceEntry.ParamSettings.Add("CompRatio", new PlugParamSetting { OnColor = new FinderColor(220, 216, 207), Label = "C RATIO" });
+            deviceEntry.ParamSettings.Add("CompThresh", new PlugParamSetting { OnColor = new FinderColor(220, 216, 207), Label = "C THRESH" });
+            deviceEntry.ParamSettings.Add("CompRelease", new PlugParamSetting { OnColor = new FinderColor(220, 216, 207), Label = "C RELEASE" });
+            deviceEntry.ParamSettings.Add("CompFast", new PlugParamSetting { Label = "F.ATK" });
+            deviceEntry.ParamSettings.Add("ExpRange", new PlugParamSetting { OnColor = new FinderColor(27, 92, 64), Label = "E RANGE" });
+            deviceEntry.ParamSettings.Add("ExpThresh", new PlugParamSetting { OnColor = new FinderColor(27, 92, 64), Label = "E THRESH" });
+            deviceEntry.ParamSettings.Add("ExpRelease", new PlugParamSetting { OnColor = new FinderColor(27, 92, 64), Label = "E RELEASE" });
+            deviceEntry.ParamSettings.Add("ExpAttack", new PlugParamSetting { Label = "F.ATK" });
+            deviceEntry.ParamSettings.Add("ExpGate", new PlugParamSetting { Label = "GATE" });
+            deviceEntry.ParamSettings.Add("DynamicBypass", new PlugParamSetting { OnColor = new FinderColor(226, 61, 80), Label = "DYN BYP" });
+            deviceEntry.ParamSettings.Add("DynaminCHOut", new PlugParamSetting { OnColor = new FinderColor(241, 171, 53), Label = "DYN CH OUT" });
+            deviceEntry.ParamSettings.Add("VUInOut", new PlugParamSetting { OnColor = new FinderColor(241, 171, 53), Label = "VU OUT" });
 
-            AddParamSetting("RCompressor", "Threshold", new PlugParamSettings { OnColor = new FinderColor(243, 132, 1) });
-            AddParamSetting("RCompressor", "Ratio", new PlugParamSettings { OnColor = new FinderColor(243, 132, 1) });
-            AddParamSetting("RCompressor", "Attack", new PlugParamSettings { OnColor = new FinderColor(243, 132, 1) });
-            AddParamSetting("RCompressor", "Release", new PlugParamSettings { OnColor = new FinderColor(243, 132, 1) });
-            AddParamSetting("RCompressor", "Gain", new PlugParamSettings { OnColor = new FinderColor(243, 132, 1), Mode = PlugParamSettings.PotMode.Symmetric });
-            AddParamSetting("RCompressor", "Trim", new PlugParamSettings { Mode = PlugParamSettings.PotMode.Symmetric });
-            AddParamSetting("RCompressor", "ARC / Manual", new PlugParamSettings { Label = "ARC", LabelOn = "Manual", TextOnColor = new FinderColor(0, 0, 0), TextOffColor = new FinderColor(0, 0, 0) });
-            AddParamSetting("RCompressor", "Electro / Opto", new PlugParamSettings { Label = "Electro", LabelOn = "Opto", TextOnColor = new FinderColor(0, 0, 0), TextOffColor = new FinderColor(0, 0, 0) });
-            AddParamSetting("RCompressor", "Warm / Smooth", new PlugParamSettings { Label = "Warm", LabelOn = "Smooth", TextOnColor = new FinderColor(0, 0, 0), TextOffColor = new FinderColor(0, 0, 0) });
+            deviceEntry = AddPlugParamDeviceEntry("RCompressor");
+            deviceEntry.ParamSettings.Add("Threshold", new PlugParamSetting { OnColor = new FinderColor(243, 132, 1) });
+            deviceEntry.ParamSettings.Add("Ratio", new PlugParamSetting { OnColor = new FinderColor(243, 132, 1) });
+            deviceEntry.ParamSettings.Add("Attack", new PlugParamSetting { OnColor = new FinderColor(243, 132, 1) });
+            deviceEntry.ParamSettings.Add("Release", new PlugParamSetting { OnColor = new FinderColor(243, 132, 1) });
+            deviceEntry.ParamSettings.Add("Gain", new PlugParamSetting { OnColor = new FinderColor(243, 132, 1), Mode = PlugParamSetting.PotMode.Symmetric });
+            deviceEntry.ParamSettings.Add("Trim", new PlugParamSetting { Mode = PlugParamSetting.PotMode.Symmetric });
+            deviceEntry.ParamSettings.Add("ARC / Manual", new PlugParamSetting { Label = "ARC", LabelOn = "Manual", TextOnColor = new FinderColor(0, 0, 0), TextOffColor = new FinderColor(0, 0, 0) });
+            deviceEntry.ParamSettings.Add("Electro / Opto", new PlugParamSetting { Label = "Electro", LabelOn = "Opto", TextOnColor = new FinderColor(0, 0, 0), TextOffColor = new FinderColor(0, 0, 0) });
+            deviceEntry.ParamSettings.Add("Warm / Smooth", new PlugParamSetting { Label = "Warm", LabelOn = "Smooth", TextOnColor = new FinderColor(0, 0, 0), TextOffColor = new FinderColor(0, 0, 0) });
 
-            AddParamSetting("RBass", "Orig. In-Out", new PlugParamSettings { Label = "ORIG IN", OffColor = new FinderColor(230, 230, 230), TextOnColor = FinderColor.Black  });
-            AddParamSetting("RBass", "Intensity", new PlugParamSettings { OnColor = new FinderColor(243, 132, 1), Mode = PlugParamSettings.PotMode.Symmetric });
-            AddParamSetting("RBass", "Frequency", new PlugParamSettings { OnColor = new FinderColor(243, 132, 1) });
-            AddParamSetting("RBass", "Out Gain", new PlugParamSettings { Label = "Gain", OnColor = new FinderColor(243, 132, 1) });
+            deviceEntry = AddPlugParamDeviceEntry("RBass");
+            deviceEntry.ParamSettings.Add("Orig. In-Out", new PlugParamSetting { Label = "ORIG IN", OffColor = new FinderColor(230, 230, 230), TextOnColor = FinderColor.Black  });
+            deviceEntry.ParamSettings.Add("Intensity", new PlugParamSetting { OnColor = new FinderColor(243, 132, 1), Mode = PlugParamSetting.PotMode.Symmetric });
+            deviceEntry.ParamSettings.Add("Frequency", new PlugParamSetting { OnColor = new FinderColor(243, 132, 1) });
+            deviceEntry.ParamSettings.Add("Out Gain", new PlugParamSetting { Label = "Gain", OnColor = new FinderColor(243, 132, 1) });
 
-            AddParamSetting("REQ", "Band1 On/Off", new PlugParamSettings { Label = "Band 1", OnColor = new FinderColor(196, 116, 100), TextOnColor = FinderColor.Black });
-            AddLinked("REQ", "Band1 Gain", "Band1 On/Off", label: "Gain", mode: PlugParamSettings.PotMode.Symmetric);
-            AddLinked("REQ", "Band1 Frq", "Band1 On/Off", label: "Freq");
-            AddLinked("REQ", "Band1 Q", "Band1 On/Off", label: "Q");
-            AddLinked("REQ", "Band1 Type", "Band1 On/Off", label: "", userMenuItems: ["!Bell", "!Low-Shelf", "!Hi-Pass", "!Low-RShelv"]);
-            AddParamSetting("REQ", "Band2 On/Off", new PlugParamSettings { Label = "Band 2", OnColor = new FinderColor(175, 173, 29), TextOnColor = FinderColor.Black });
-            AddLinked("REQ", "Band2 Gain", "Band2 On/Off", label: "Gain", mode: PlugParamSettings.PotMode.Symmetric);
-            AddLinked("REQ", "Band2 Frq", "Band2 On/Off", label: "Freq");
-            AddLinked("REQ", "Band2 Q", "Band2 On/Off", label: "Q");
-            AddLinked("REQ", "Band2 Type", "Band2 On/Off", label: "", userMenuItems: ["!Bell", "!Low-Shelf"]);
-            AddParamSetting("REQ", "Band3 On/Off", new PlugParamSettings { Label = "Band 3", OnColor = new FinderColor(57, 181, 74), TextOnColor = FinderColor.Black });
-            AddLinked("REQ", "Band3 Gain", "Band3 On/Off", label: "Gain", mode: PlugParamSettings.PotMode.Symmetric);
-            AddLinked("REQ", "Band3 Frq", "Band3 On/Off", label: "Freq");
-            AddLinked("REQ", "Band3 Q", "Band3 On/Off", label: "Q");
-            AddLinked("REQ", "Band3 Type", "Band3 On/Off", label: "", userMenuItems: ["!Bell", "!Low-Shelf"]);
-            AddParamSetting("REQ", "Band4 On/Off", new PlugParamSettings { Label = "Band 4", OnColor = new FinderColor(56, 149, 203), TextOnColor = FinderColor.Black });
-            AddLinked("REQ", "Band4 Gain", "Band4 On/Off", label: "Gain", mode: PlugParamSettings.PotMode.Symmetric);
-            AddLinked("REQ", "Band4 Frq", "Band4 On/Off", label: "Freq");
-            AddLinked("REQ", "Band4 Q", "Band4 On/Off", label: "Q");
-            AddLinked("REQ", "Band4 Type", "Band4 On/Off", label: "", userMenuItems: ["!Bell", "!Hi-Shelf"]);
-            AddParamSetting("REQ", "Band5 On/Off", new PlugParamSettings { Label = "Band 5", OnColor = new FinderColor(130, 41, 141), TextOnColor = FinderColor.Black });
-            AddLinked("REQ", "Band5 Gain", "Band5 On/Off", label: "Gain", mode: PlugParamSettings.PotMode.Symmetric);
-            AddLinked("REQ", "Band5 Frq", "Band5 On/Off", label: "Freq");
-            AddLinked("REQ", "Band5 Q", "Band5 On/Off", label: "Q");
-            AddLinked("REQ", "Band5 Type", "Band5 On/Off", label: "", userMenuItems: ["!Bell", "!Hi-Shelf"]);
-            AddParamSetting("REQ", "Band6 On/Off", new PlugParamSettings { Label = "Band 6", OnColor = new FinderColor(199, 48, 105), TextOnColor = FinderColor.Black });
-            AddLinked("REQ", "Band6 Gain", "Band6 On/Off", label: "Gain", mode: PlugParamSettings.PotMode.Symmetric);
-            AddLinked("REQ", "Band6 Frq", "Band6 On/Off", label: "Freq");
-            AddLinked("REQ", "Band6 Q", "Band6 On/Off", label: "Q");
-            AddLinked("REQ", "Band6 Type", "Band6 On/Off", label: "", userMenuItems: ["!Bell", "!Hi-Shelf", "!Low-Pass", "!Hi-RShelv"]);
-            AddParamSetting("REQ", "Fader left Out", new PlugParamSettings { Label = "Output", OnColor = new FinderColor(242, 101, 34) });
-            AddParamSetting("REQ", "Gain-L (link)", new PlugParamSettings { Label = "Out L", OnColor = new FinderColor(242, 101, 34) });
-            AddParamSetting("REQ", "Gain-R", new PlugParamSettings { Label = "Out R", OnColor = new FinderColor(242, 101, 34) });
+            deviceEntry = AddPlugParamDeviceEntry("REQ");
+            deviceEntry.ParamSettings.Add("Band1 On/Off", new PlugParamSetting { Label = "Band 1", OnColor = new FinderColor(196, 116, 100), TextOnColor = FinderColor.Black });
+            AddLinked(deviceEntry, "Band1 Gain", "Band1 On/Off", label: "Gain", mode: PlugParamSetting.PotMode.Symmetric);
+            AddLinked(deviceEntry, "Band1 Frq", "Band1 On/Off", label: "Freq");
+            AddLinked(deviceEntry, "Band1 Q", "Band1 On/Off", label: "Q");
+            AddLinked(deviceEntry, "Band1 Type", "Band1 On/Off", label: "", userMenuItems: ["!Bell", "!Low-Shelf", "!Hi-Pass", "!Low-RShelv"]);
+            deviceEntry.ParamSettings.Add("Band2 On/Off", new PlugParamSetting { Label = "Band 2", OnColor = new FinderColor(175, 173, 29), TextOnColor = FinderColor.Black });
+            AddLinked(deviceEntry, "Band2 Gain", "Band2 On/Off", label: "Gain", mode: PlugParamSetting.PotMode.Symmetric);
+            AddLinked(deviceEntry, "Band2 Frq", "Band2 On/Off", label: "Freq");
+            AddLinked(deviceEntry, "Band2 Q", "Band2 On/Off", label: "Q");
+            AddLinked(deviceEntry, "Band2 Type", "Band2 On/Off", label: "", userMenuItems: ["!Bell", "!Low-Shelf"]);
+            deviceEntry.ParamSettings.Add("Band3 On/Off", new PlugParamSetting { Label = "Band 3", OnColor = new FinderColor(57, 181, 74), TextOnColor = FinderColor.Black });
+            AddLinked(deviceEntry, "Band3 Gain", "Band3 On/Off", label: "Gain", mode: PlugParamSetting.PotMode.Symmetric);
+            AddLinked(deviceEntry, "Band3 Frq", "Band3 On/Off", label: "Freq");
+            AddLinked(deviceEntry, "Band3 Q", "Band3 On/Off", label: "Q");
+            AddLinked(deviceEntry, "Band3 Type", "Band3 On/Off", label: "", userMenuItems: ["!Bell", "!Low-Shelf"]);
+            deviceEntry.ParamSettings.Add("Band4 On/Off", new PlugParamSetting { Label = "Band 4", OnColor = new FinderColor(56, 149, 203), TextOnColor = FinderColor.Black });
+            AddLinked(deviceEntry, "Band4 Gain", "Band4 On/Off", label: "Gain", mode: PlugParamSetting.PotMode.Symmetric);
+            AddLinked(deviceEntry, "Band4 Frq", "Band4 On/Off", label: "Freq");
+            AddLinked(deviceEntry, "Band4 Q", "Band4 On/Off", label: "Q");
+            AddLinked(deviceEntry, "Band4 Type", "Band4 On/Off", label: "", userMenuItems: ["!Bell", "!Hi-Shelf"]);
+            deviceEntry.ParamSettings.Add("Band5 On/Off", new PlugParamSetting { Label = "Band 5", OnColor = new FinderColor(130, 41, 141), TextOnColor = FinderColor.Black });
+            AddLinked(deviceEntry, "Band5 Gain", "Band5 On/Off", label: "Gain", mode: PlugParamSetting.PotMode.Symmetric);
+            AddLinked(deviceEntry, "Band5 Frq", "Band5 On/Off", label: "Freq");
+            AddLinked(deviceEntry, "Band5 Q", "Band5 On/Off", label: "Q");
+            AddLinked(deviceEntry, "Band5 Type", "Band5 On/Off", label: "", userMenuItems: ["!Bell", "!Hi-Shelf"]);
+            deviceEntry.ParamSettings.Add("Band6 On/Off", new PlugParamSetting { Label = "Band 6", OnColor = new FinderColor(199, 48, 105), TextOnColor = FinderColor.Black });
+            AddLinked(deviceEntry, "Band6 Gain", "Band6 On/Off", label: "Gain", mode: PlugParamSetting.PotMode.Symmetric);
+            AddLinked(deviceEntry, "Band6 Frq", "Band6 On/Off", label: "Freq");
+            AddLinked(deviceEntry, "Band6 Q", "Band6 On/Off", label: "Q");
+            AddLinked(deviceEntry, "Band6 Type", "Band6 On/Off", label: "", userMenuItems: ["!Bell", "!Hi-Shelf", "!Low-Pass", "!Hi-RShelv"]);
+            deviceEntry.ParamSettings.Add("Fader left Out", new PlugParamSetting { Label = "Output", OnColor = new FinderColor(242, 101, 34) });
+            deviceEntry.ParamSettings.Add("Gain-L (link)", new PlugParamSetting { Label = "Out L", OnColor = new FinderColor(242, 101, 34) });
+            deviceEntry.ParamSettings.Add("Gain-R", new PlugParamSetting { Label = "Out R", OnColor = new FinderColor(242, 101, 34) });
 
-            AddParamSetting("RVerb", "", new PlugParamSettings { OnColor = new FinderColor(244, 134, 2), TextOnColor = FinderColor.Black });
-            AddParamSetting("RVerb", "Dmp Low-F Ratio", new PlugParamSettings { Label = "Dmp Lo Rto", OnColor = new FinderColor(74, 149, 155) });
-            AddParamSetting("RVerb", "Dmp Low-F Freq", new PlugParamSettings { Label = "Dmp Lo Frq", OnColor = new FinderColor(74, 149, 155) });
-            AddParamSetting("RVerb", "Dmp Hi-F Ratio", new PlugParamSettings { Label = "Dmp Hi Rto", OnColor = new FinderColor(74, 149, 155) });
-            AddParamSetting("RVerb", "Dmp Hi-F Freq", new PlugParamSettings { Label = "Dmp Hi Frq", OnColor = new FinderColor(74, 149, 155) });
-            AddParamSetting("RVerb", "EQ Low-F Gain", new PlugParamSettings { Label = "EQ Lo Gn", OnColor = new FinderColor(74, 149, 155) });
-            AddParamSetting("RVerb", "EQ Low-F Freq", new PlugParamSettings { Label = "EQ Lo Frq", OnColor = new FinderColor(74, 149, 155) });
-            AddParamSetting("RVerb", "EQ Hi-F Gain", new PlugParamSettings { Label = "EQ Hi Gn", OnColor = new FinderColor(74, 149, 155) });
-            AddParamSetting("RVerb", "EQ Hi-F Freq", new PlugParamSettings { Label = "EQ Hi Frq", OnColor = new FinderColor(74, 149, 155) });
+            deviceEntry = AddPlugParamDeviceEntry("RVerb");
+            deviceEntry.ParamSettings.Add("", new PlugParamSetting { OnColor = new FinderColor(244, 134, 2), TextOnColor = FinderColor.Black });
+            deviceEntry.ParamSettings.Add("Dmp Low-F Ratio", new PlugParamSetting { Label = "Dmp Lo Rto", OnColor = new FinderColor(74, 149, 155) });
+            deviceEntry.ParamSettings.Add("Dmp Low-F Freq", new PlugParamSetting { Label = "Dmp Lo Frq", OnColor = new FinderColor(74, 149, 155) });
+            deviceEntry.ParamSettings.Add("Dmp Hi-F Ratio", new PlugParamSetting { Label = "Dmp Hi Rto", OnColor = new FinderColor(74, 149, 155) });
+            deviceEntry.ParamSettings.Add("Dmp Hi-F Freq", new PlugParamSetting { Label = "Dmp Hi Frq", OnColor = new FinderColor(74, 149, 155) });
+            deviceEntry.ParamSettings.Add("EQ Low-F Gain", new PlugParamSetting { Label = "EQ Lo Gn", OnColor = new FinderColor(74, 149, 155) });
+            deviceEntry.ParamSettings.Add("EQ Low-F Freq", new PlugParamSetting { Label = "EQ Lo Frq", OnColor = new FinderColor(74, 149, 155) });
+            deviceEntry.ParamSettings.Add("EQ Hi-F Gain", new PlugParamSetting { Label = "EQ Hi Gn", OnColor = new FinderColor(74, 149, 155) });
+            deviceEntry.ParamSettings.Add("EQ Hi-F Freq", new PlugParamSetting { Label = "EQ Hi Frq", OnColor = new FinderColor(74, 149, 155) });
 
+            deviceEntry = AddPlugParamDeviceEntry("L1 Limiter");
+            deviceEntry.ParamSettings.Add("Threshold", new PlugParamSetting { OnColor = new FinderColor(243, 132, 1) });
+            deviceEntry.ParamSettings.Add("Ceiling", new PlugParamSetting { OnColor = new FinderColor(255, 172, 66) });
+            deviceEntry.ParamSettings.Add("Release", new PlugParamSetting { OnColor = new FinderColor(54, 206, 206) });
+            deviceEntry.ParamSettings.Add("Auto Release", new PlugParamSetting { Label = "AUTO", OnColor = new FinderColor(54, 206, 206) });
 
-            AddParamSetting("L1 limiter", "Threshold", new PlugParamSettings { OnColor = new FinderColor(243, 132, 1) });
-            AddParamSetting("L1 limiter", "Ceiling", new PlugParamSettings { OnColor = new FinderColor(255, 172, 66) });
-            AddParamSetting("L1 limiter", "Release", new PlugParamSettings { OnColor = new FinderColor(54, 206, 206) });
-            AddParamSetting("L1 limiter", "Auto Release", new PlugParamSettings { Label = "AUTO", OnColor = new FinderColor(54, 206, 206) });
+            deviceEntry = AddPlugParamDeviceEntry("PuigTec EQP1A");
+            deviceEntry.ParamSettings.Add("OnOff", new PlugParamSetting { Label = "IN", OnColor = new FinderColor(203, 53, 53) });
+            deviceEntry.ParamSettings.Add("LowBoost", new PlugParamSetting { Label = "Low Boost", OnColor = new FinderColor(96, 116, 115) });
+            deviceEntry.ParamSettings.Add("LowAtten", new PlugParamSetting { Label = "Low Atten", OnColor = new FinderColor(96, 116, 115) });
+            deviceEntry.ParamSettings.Add("HiBoost", new PlugParamSetting { Label = "High Boost", OnColor = new FinderColor(96, 116, 115) });
+            deviceEntry.ParamSettings.Add("HiAtten", new PlugParamSetting { Label = "High Atten", OnColor = new FinderColor(96, 116, 115) });
+            deviceEntry.ParamSettings.Add("LowFrequency", new PlugParamSetting { Label = "Low Freq", OnColor = new FinderColor(96, 116, 115), DialSteps = 3 });
+            deviceEntry.ParamSettings.Add("HiFrequency", new PlugParamSetting { Label = "High Freq", OnColor = new FinderColor(96, 116, 115), DialSteps = 6 });
+            deviceEntry.ParamSettings.Add("Bandwidth", new PlugParamSetting { Label = "Bandwidth", OnColor = new FinderColor(96, 116, 115) });
+            deviceEntry.ParamSettings.Add("AttenSelect", new PlugParamSetting { Label = "Atten Sel", OnColor = new FinderColor(96, 116, 115), DialSteps = 2 });
+            deviceEntry.ParamSettings.Add("Mains", new PlugParamSetting { OnColor = new FinderColor(96, 116, 115), DialSteps = 2 });
+            deviceEntry.ParamSettings.Add("Gain", new PlugParamSetting { OnColor = new FinderColor(96, 116, 115), Mode = PlugParamSetting.PotMode.Symmetric });
 
-            AddParamSetting("PuigTec EQP1A", "OnOff", new PlugParamSettings { Label = "IN", OnColor = new FinderColor(203, 53, 53) });
-            AddParamSetting("PuigTec EQP1A", "LowBoost", new PlugParamSettings { Label = "Low Boost", OnColor = new FinderColor(96, 116, 115) });
-            AddParamSetting("PuigTec EQP1A", "LowAtten", new PlugParamSettings { Label = "Low Atten", OnColor = new FinderColor(96, 116, 115) });
-            AddParamSetting("PuigTec EQP1A", "HiBoost", new PlugParamSettings { Label = "High Boost", OnColor = new FinderColor(96, 116, 115) });
-            AddParamSetting("PuigTec EQP1A", "HiAtten", new PlugParamSettings { Label = "High Atten", OnColor = new FinderColor(96, 116, 115) });
-            AddParamSetting("PuigTec EQP1A", "LowFrequency", new PlugParamSettings { Label = "Low Freq", OnColor = new FinderColor(96, 116, 115), DialSteps = 3 });
-            AddParamSetting("PuigTec EQP1A", "HiFrequency", new PlugParamSettings { Label = "High Freq", OnColor = new FinderColor(96, 116, 115), DialSteps = 6 });
-            AddParamSetting("PuigTec EQP1A", "Bandwidth", new PlugParamSettings { Label = "Bandwidth", OnColor = new FinderColor(96, 116, 115) });
-            AddParamSetting("PuigTec EQP1A", "AttenSelect", new PlugParamSettings { Label = "Atten Sel", OnColor = new FinderColor(96, 116, 115), DialSteps = 2 });
-            AddParamSetting("PuigTec EQP1A", "Mains", new PlugParamSettings { OnColor = new FinderColor(96, 116, 115), DialSteps = 2 });
-            AddParamSetting("PuigTec EQP1A", "Gain", new PlugParamSettings { OnColor = new FinderColor(96, 116, 115), Mode = PlugParamSettings.PotMode.Symmetric });
+            deviceEntry = AddPlugParamDeviceEntry("Smack Attack");
+            deviceEntry.ParamSettings.Add("Attack", new PlugParamSetting { OnColor = new FinderColor(9, 217, 179), Mode = PlugParamSetting.PotMode.Symmetric });
+            deviceEntry.ParamSettings.Add("AttackSensitivity", new PlugParamSetting { Label = "Sensitivity", OnColor = new FinderColor(9, 217, 179) });
+            deviceEntry.ParamSettings.Add("AttackDuration", new PlugParamSetting { Label = "Duration", OnColor = new FinderColor(9, 217, 179) });
+            deviceEntry.ParamSettings.Add("AttackShape", new PlugParamSetting { Label = "", OnColor = new FinderColor(30, 30, 30), UserMenuItems = ["!sm_Needle", "!sm_Nail", "!sm_BluntA"], DialSteps = 2, HideValueBar = true });
+            deviceEntry.ParamSettings.Add("Sustain", new PlugParamSetting { OnColor = new FinderColor(230, 172, 5), Mode = PlugParamSetting.PotMode.Symmetric });
+            deviceEntry.ParamSettings.Add("SustainSensitivity", new PlugParamSetting { Label = "Sensitivity", OnColor = new FinderColor(230, 172, 5) });
+            deviceEntry.ParamSettings.Add("SustainDuration", new PlugParamSetting { Label = "Duration", OnColor = new FinderColor(230, 172, 5) });
+            deviceEntry.ParamSettings.Add("SustainShape", new PlugParamSetting { Label = "", OnColor = new FinderColor(30, 30, 30), UserMenuItems = ["!sm_Linear", "!sm_Nonlinear", "!sm_BluntS"], DialSteps = 2, HideValueBar = true });
+            deviceEntry.ParamSettings.Add("Guard", new PlugParamSetting { TextOnColor = new FinderColor(0, 198, 250), UserMenuItems = ["Off", "Clip", "Limit"], DialSteps = 2, HideValueBar = true });
+            deviceEntry.ParamSettings.Add("Mix", new PlugParamSetting { OnColor = new FinderColor(0, 198, 250) });
+            deviceEntry.ParamSettings.Add("Output", new PlugParamSetting { OnColor = new FinderColor(0, 198, 250), Mode = PlugParamSetting.PotMode.Symmetric });
 
-            AddParamSetting("Smack Attack", "Attack", new PlugParamSettings { OnColor = new FinderColor(9, 217, 179), Mode = PlugParamSettings.PotMode.Symmetric });
-            AddParamSetting("Smack Attack", "AttackSensitivity", new PlugParamSettings { Label = "Sensitivity", OnColor = new FinderColor(9, 217, 179) });
-            AddParamSetting("Smack Attack", "AttackDuration", new PlugParamSettings { Label = "Duration", OnColor = new FinderColor(9, 217, 179) });
-            AddParamSetting("Smack Attack", "AttackShape", new PlugParamSettings { Label = "", OnColor = new FinderColor(30, 30, 30), UserMenuItems = ["!sm_Needle", "!sm_Nail", "!sm_BluntA"], DialSteps = 2, HideValueBar = true });
-            AddParamSetting("Smack Attack", "Sustain", new PlugParamSettings { OnColor = new FinderColor(230, 172, 5), Mode = PlugParamSettings.PotMode.Symmetric });
-            AddParamSetting("Smack Attack", "SustainSensitivity", new PlugParamSettings { Label = "Sensitivity", OnColor = new FinderColor(230, 172, 5) });
-            AddParamSetting("Smack Attack", "SustainDuration", new PlugParamSettings { Label = "Duration", OnColor = new FinderColor(230, 172, 5) });
-            AddParamSetting("Smack Attack", "SustainShape", new PlugParamSettings { Label = "", OnColor = new FinderColor(30, 30, 30), UserMenuItems = ["!sm_Linear", "!sm_Nonlinear", "!sm_BluntS"], DialSteps = 2, HideValueBar = true });
-            AddParamSetting("Smack Attack", "Guard", new PlugParamSettings { TextOnColor = new FinderColor(0, 198, 250), UserMenuItems = ["Off", "Clip", "Limit"], DialSteps = 2, HideValueBar = true });
-            AddParamSetting("Smack Attack", "Mix", new PlugParamSettings { OnColor = new FinderColor(0, 198, 250) });
-            AddParamSetting("Smack Attack", "Output", new PlugParamSettings { OnColor = new FinderColor(0, 198, 250), Mode = PlugParamSettings.PotMode.Symmetric });
+            {
+                deviceEntry = AddPlugParamDeviceEntry("Brauer Motion");
+                deviceEntry.ParamSettings.Add("Loupedeck User Pages", new PlugParamSetting { UserMenuItems = ["MAIN", "PNR 1", "PNR 2", "T/D 1", "T/D 2", "MIX"] });
+                var path1Color = new FinderColor(139, 195, 74);
+                var path2Color = new FinderColor(230, 74, 25);
+                var bgColor = new FinderColor(12, 80, 124);
+                var buttonBgColor = new FinderColor(3, 18, 31);
+                var textColor = new FinderColor(105, 133, 157);
+                var checkOnColor = new FinderColor(7, 152, 202);
+                deviceEntry.ParamSettings.Add("Mute 1", new PlugParamSetting { Label = "MUTE 1", OnColor = path1Color, TextOnColor = buttonBgColor, OffColor = buttonBgColor, TextOffColor = path1Color });
+                deviceEntry.ParamSettings.Add("Mute 2", new PlugParamSetting { Label = "MUTE 2", OnColor = path2Color, TextOnColor = buttonBgColor, OffColor = buttonBgColor, TextOffColor = path2Color });
+                deviceEntry.ParamSettings.Add("Path 1 A Marker", new PlugParamSetting { Label = "A", OnColor = bgColor, TextOnColor = path1Color, BarOnColor = path1Color });
+                deviceEntry.ParamSettings.Add("Path 1 B Marker", new PlugParamSetting { Label = "B", OnColor = bgColor, TextOnColor = path1Color, BarOnColor = path1Color });
+                deviceEntry.ParamSettings.Add("Path 1 Start Marker", new PlugParamSetting { Label = "START", OnColor = bgColor, TextOnColor = path1Color, BarOnColor = path1Color });
+                deviceEntry.ParamSettings.Add("Path 2 A Marker", new PlugParamSetting { Label = "A", OnColor = bgColor, TextOnColor = path2Color, BarOnColor = path2Color });
+                deviceEntry.ParamSettings.Add("Path 2 B Marker", new PlugParamSetting { Label = "B", OnColor = bgColor, TextOnColor = path2Color, BarOnColor = path2Color });
+                deviceEntry.ParamSettings.Add("Path 2 Start Marker", new PlugParamSetting { Label = "START", OnColor = bgColor, TextOnColor = path2Color, BarOnColor = path2Color });
+                deviceEntry.ParamSettings.Add("Panner 1 Mode", new PlugParamSetting { Label = "", OnColor = buttonBgColor, TextOnColor = path1Color, UserMenuItems = ["SYNC", "FREE", "INPUT", "MANUAL"] });
+                deviceEntry.ParamSettings.Add("Panner 2 Mode", new PlugParamSetting { Label = "", OnColor = buttonBgColor, TextOnColor = path2Color, UserMenuItems = ["SYNC", "FREE", "INPUT", "MANUAL"] });
+                deviceEntry.ParamSettings.Add("Link", new PlugParamSetting { Label = "LINK", OnColor = buttonBgColor, TextOnColor = new FinderColor(0, 192, 255), OffColor = buttonBgColor, TextOffColor = new FinderColor(60, 60, 60) });
+                deviceEntry.ParamSettings.Add("Path 1", new PlugParamSetting { Label = "", OnColor = buttonBgColor, TextOnColor = new FinderColor(102, 157, 203), UserMenuItems = ["CLASSIC", "CIRCLE", "CIRC PHASE", "X LIGHTS"] });
+                deviceEntry.ParamSettings.Add("Modulator 1", new PlugParamSetting { Label = "", OnColor = buttonBgColor, TextOnColor = new FinderColor(102, 157, 203), UserMenuItems = ["!bm_Sine", "!bm_Triangle", "!bm_Saw", "!bm_Square"] });
+                deviceEntry.ParamSettings.Add("Reverse 1", new PlugParamSetting { Label = "REVERSE", OffColor = buttonBgColor, TextOffColor = textColor, OnColor = checkOnColor, TextOnColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("Mod Delay On/Off 1", new PlugParamSetting { Label = "OFF", LabelOn = "ON", OffColor = buttonBgColor, TextOffColor = textColor, OnColor = checkOnColor, TextOnColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("Speed 1", new PlugParamSetting { Label = "SPEED 1", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path1Color });
+                deviceEntry.ParamSettings.Add("Offset 1", new PlugParamSetting { Label = "OFFSET 1", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path1Color });
+                deviceEntry.ParamSettings.Add("Depth 1", new PlugParamSetting { Label = "DEPTH 1", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path1Color });
+                deviceEntry.ParamSettings.Add("Width 1", new PlugParamSetting { Label = "WIDTH 1", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path1Color });
+                deviceEntry.ParamSettings.Add("Pre Delay 1", new PlugParamSetting { Label = "PRE DLY 1", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path1Color });
+                deviceEntry.ParamSettings.Add("Mod Delay 1", new PlugParamSetting { Label = "MOD DLY 1", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path1Color });
+                deviceEntry.ParamSettings.Add("Path 2", new PlugParamSetting { Label = "", OnColor = buttonBgColor, TextOnColor = new FinderColor(102, 157, 203), UserMenuItems = ["CLASSIC", "CIRCLE", "CIRC PHASE", "X LIGHTS"] });
+                deviceEntry.ParamSettings.Add("Modulator 2", new PlugParamSetting { Label = "", OnColor = buttonBgColor, TextOnColor = new FinderColor(102, 157, 203), UserMenuItems = ["!bm_Sine", "!bm_Triangle", "!bm_Saw", "!bm_Square"] });
+                deviceEntry.ParamSettings.Add("Reverse 2", new PlugParamSetting { Label = "REVERSE", OffColor = buttonBgColor, TextOffColor = textColor, OnColor = checkOnColor, TextOnColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("Mod Delay On/Off 2", new PlugParamSetting { Label = "OFF", LabelOn = "ON", OffColor = buttonBgColor, TextOffColor = textColor, OnColor = checkOnColor, TextOnColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("Speed 2", new PlugParamSetting { Label = "SPEED 2", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path2Color });
+                deviceEntry.ParamSettings.Add("Offset 2", new PlugParamSetting { Label = "OFFSET 2", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path2Color });
+                deviceEntry.ParamSettings.Add("Depth 2", new PlugParamSetting { Label = "DEPTH 2", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path2Color });
+                deviceEntry.ParamSettings.Add("Width 2", new PlugParamSetting { Label = "WIDTH 2", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path2Color });
+                deviceEntry.ParamSettings.Add("Pre Delay 2", new PlugParamSetting { Label = "PRE DLY 2", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path2Color });
+                deviceEntry.ParamSettings.Add("Mod Delay 2", new PlugParamSetting { Label = "MOD DLY 2", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path2Color });
+                deviceEntry.ParamSettings.Add("Trigger Mode 1", new PlugParamSetting { Label = "", OnColor = buttonBgColor, TextOnColor = new FinderColor(102, 157, 203), UserMenuItems = ["OFF", "SIMPLE", "ONE-SHOT", "RETRIGGER", "S-TRIG REV", "A TO B"] });
+                deviceEntry.ParamSettings.Add("Trigger A to B 1", new PlugParamSetting { Label = "A TO B", LabelOn = "B TO A", OffColor = buttonBgColor, TextOffColor = textColor, OnColor = buttonBgColor, TextOnColor = textColor });
+                deviceEntry.ParamSettings.Add("Trigger Sensitivity 1", new PlugParamSetting { Label = "SENS 1", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path1Color });
+                deviceEntry.ParamSettings.Add("Trigger HP 1", new PlugParamSetting { Label = "HOLD 1", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path1Color });
+                deviceEntry.ParamSettings.Add("Dynamics 1", new PlugParamSetting { Label = "", OnColor = buttonBgColor, TextOnColor = new FinderColor(102, 157, 203), UserMenuItems = ["OFF", "PANNER 1", "DIRECT", "OUTPUT"] });
+                deviceEntry.ParamSettings.Add("Drive 1", new PlugParamSetting { Label = "DRIVE 1", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path1Color });
+                deviceEntry.ParamSettings.Add("Ratio 1", new PlugParamSetting { Label = "RATIO 1", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path1Color });
+                deviceEntry.ParamSettings.Add("Dynamics HP 1", new PlugParamSetting { Label = "HP 1", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path1Color });
+                deviceEntry.ParamSettings.Add("Dynamics LP 1", new PlugParamSetting { Label = "LP 1", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path1Color });
+                deviceEntry.ParamSettings.Add("Trigger Mode 2", new PlugParamSetting { Label = "", OnColor = buttonBgColor, TextOnColor = new FinderColor(102, 157, 203), UserMenuItems = ["OFF", "SIMPLE", "ONE-SHOT", "RETRIGGER", "S-TRIG REV", "A TO B"] });
+                deviceEntry.ParamSettings.Add("Trigger A to B 2", new PlugParamSetting { Label = "A TO B", LabelOn = "B TO A", OffColor = buttonBgColor, TextOffColor = textColor, OnColor = buttonBgColor, TextOnColor = textColor });
+                deviceEntry.ParamSettings.Add("Trigger Sensitivity 2", new PlugParamSetting { Label = "SENS 2", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path2Color });
+                deviceEntry.ParamSettings.Add("Trigger HP 2", new PlugParamSetting { Label = "HOLD 2", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path2Color });
+                deviceEntry.ParamSettings.Add("Dynamics 2", new PlugParamSetting { Label = "", OnColor = buttonBgColor, TextOnColor = new FinderColor(102, 157, 203), UserMenuItems = ["OFF", "PANNER 1", "DIRECT", "OUTPUT"] });
+                deviceEntry.ParamSettings.Add("Drive 2", new PlugParamSetting { Label = "DRIVE 2", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path2Color });
+                deviceEntry.ParamSettings.Add("Ratio 2", new PlugParamSetting { Label = "RATIO 2", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path2Color });
+                deviceEntry.ParamSettings.Add("Dynamics HP 2", new PlugParamSetting { Label = "HP 2", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path2Color });
+                deviceEntry.ParamSettings.Add("Dynamics LP 2", new PlugParamSetting { Label = "LP 2", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path2Color });
+                deviceEntry.ParamSettings.Add("Panner 1 Level", new PlugParamSetting { Label = "PANNER 1", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path1Color });
+                deviceEntry.ParamSettings.Add("Panner 2 Level", new PlugParamSetting { Label = "PANNER 2", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path2Color });
+                deviceEntry.ParamSettings.Add("Input", new PlugParamSetting { Label = "INPUT", OnColor = bgColor, TextOnColor = textColor });
+                deviceEntry.ParamSettings.Add("Output", new PlugParamSetting { Label = "OUTPUT", OnColor = bgColor, TextOnColor = textColor });
+                deviceEntry.ParamSettings.Add("Mix", new PlugParamSetting { Label = "MIX", OnColor = bgColor, TextOnColor = textColor });
+                deviceEntry.ParamSettings.Add("Start/Stop 1", new PlugParamSetting { Label = "START 1", LabelOn = "STOP 1", OffColor = buttonBgColor, TextOffColor = path1Color, OnColor = path1Color, TextOnColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("Start/Stop 2", new PlugParamSetting { Label = "START 2", LabelOn = "STOP 2", OffColor = buttonBgColor, TextOffColor = path2Color, OnColor = path2Color, TextOnColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("Ex-SC 1", new PlugParamSetting { Label = "EXT SC 1", OffColor = buttonBgColor, TextOffColor = path1Color, OnColor = path1Color, TextOnColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("Ex-SC 2", new PlugParamSetting { Label = "EXT SC 2", OffColor = buttonBgColor, TextOffColor = path2Color, OnColor = path2Color, TextOnColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("Auto Reset", new PlugParamSetting { Label = "AUTO RESET", OffColor = buttonBgColor, TextOffColor = textColor, OnColor = checkOnColor, TextOnColor = FinderColor.Black });
+            }
+            {
+                deviceEntry = AddPlugParamDeviceEntry("Abbey Road Chambers");
+                var mixColor = new FinderColor("MixColor", 254, 251, 248);
+                var mainCtrlColor = new FinderColor("MainCtrlColor", 52, 139, 125);
+                var typeColor = new FinderColor("TypeColor", 90, 92, 88);
+                var delayButtonColor = new FinderColor("DelayButtonColor", 38, 39, 37);
+                var optionsOffBgColor = new FinderColor("OptionsOffBgColor", 100, 99, 95);
+                deviceEntry.ParamSettings.Add("Input Level", new PlugParamSetting { Label = "INPUT", OnColor = mixColor });
+                deviceEntry.ParamSettings.Add("Output", new PlugParamSetting { Label = "OUTPUT", OnColor = mixColor });
+                deviceEntry.ParamSettings.Add("Reverb Mix", new PlugParamSetting { Label = "REVERB", OnColor = mixColor });
+                deviceEntry.ParamSettings.Add("Dry/Wet", new PlugParamSetting { Label = "DRY/WET", OnColor = mixColor });
+                deviceEntry.ParamSettings.Add("Reverb Time X", new PlugParamSetting { Label = "TIME X", OnColor = mainCtrlColor, TextOnColor = FinderColor.White });
+                deviceEntry.ParamSettings.Add("RS106 Top Cut", new PlugParamSetting { Label = "TOP CUT", OnColor = new FinderColor(222, 211, 202), TextOnColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("RS106 Bass Cut", new PlugParamSetting { Label = "BASS CUT", OnColor = new FinderColor(222, 211, 202), TextOnColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("RS127 Gain", new PlugParamSetting { Label = "GAIN", Mode = PlugParamSetting.PotMode.Symmetric, OnColor = new FinderColor(123, 124, 119), TextOnColor = FinderColor.White });
+                deviceEntry.ParamSettings.Add("RS127 Freq", new PlugParamSetting { Label = "FREQ", OnColor = new FinderColor(123, 124, 119), TextOnColor = FinderColor.White, DialSteps = 2 });
+                deviceEntry.ParamSettings.Add("Reverb Type", new PlugParamSetting { Label = "", OnColor = mixColor, TextOnColor = FinderColor.Black, UserMenuItems = ["CHMBR 2", "MIRROR", "STONE"] });
+                AddLinked(deviceEntry, "Mic", "Reverb Type", label: "M", linkReversed: true, onColor: typeColor, textOnColor: FinderColor.White, userMenuItems: ["KM53", "MK2H"]);
+                deviceEntry.ParamSettings.Add("Mic Position", new PlugParamSetting { Label = "P", OnColor = typeColor, TextOnColor = FinderColor.White, UserMenuItems = ["WALL", "CLASSIC", "ROOM"] });
+                AddLinked(deviceEntry, "Speaker", "Reverb Type", label: "S", linkReversed: true, onColor: typeColor, textOnColor: FinderColor.White, userMenuItems: ["ALTEC", "B&W"]);
+                AddLinked(deviceEntry, "Speaker Facing", "Reverb Type", label: "F", linkReversed: true, onColor: typeColor, textOnColor: FinderColor.White, userMenuItems: ["ROOM", "WALL"]);
+                deviceEntry.ParamSettings.Add("Filters To Chamber On/Off", new PlugParamSetting { Label = "FILTERS", OnColor = FinderColor.White, TextOnColor = FinderColor.Black, OffColor = optionsOffBgColor, TextOffColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("ARChambers On/Off", new PlugParamSetting { Label = "STEED", OnColor = optionsOffBgColor, TextOnColor = FinderColor.White, OffColor = optionsOffBgColor, TextOffColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("Feedback", new PlugParamSetting { Label = "FEEDBACK", OnColor = mainCtrlColor, TextOnColor = FinderColor.White });
+                deviceEntry.ParamSettings.Add("Top Cut FB", new PlugParamSetting { Label = "TOP CUT", OnColor = mainCtrlColor, TextOnColor = FinderColor.White });
+                deviceEntry.ParamSettings.Add("Mid FB", new PlugParamSetting { Label = "MID", Mode = PlugParamSetting.PotMode.Symmetric, OnColor = mainCtrlColor, TextOnColor = FinderColor.White });
+                deviceEntry.ParamSettings.Add("Bass Cut FB", new PlugParamSetting { Label = "BASS CUT", OnColor = mainCtrlColor, TextOnColor = FinderColor.White });
+                deviceEntry.ParamSettings.Add("Drive On/Off", new PlugParamSetting { Label = "OFF", LabelOn = "ON", OnColor = FinderColor.White, TextOnColor = FinderColor.Black, OffColor = optionsOffBgColor, TextOffColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("Drive", new PlugParamSetting { Label = "DRIVE", OnColor = mainCtrlColor, TextOnColor = FinderColor.White });
+                deviceEntry.ParamSettings.Add("Delay Mod", new PlugParamSetting { Label = "MOD", OnColor = mainCtrlColor, TextOnColor = FinderColor.White });
+                deviceEntry.ParamSettings.Add("Delay Time", new PlugParamSetting { Label = "DELAY L", OnColor = mainCtrlColor, TextOnColor = FinderColor.White });
+                deviceEntry.ParamSettings.Add("Delay Time R", new PlugParamSetting { Label = "DELAY R", OnColor = mainCtrlColor, TextOnColor = FinderColor.White });
+                deviceEntry.ParamSettings.Add("Delay Link", new PlugParamSetting { Label = "LINK", OnColor = delayButtonColor, TextOnColor = new FinderColor(255, 211, 10), OffColor = delayButtonColor, TextOffColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("Delay Sync On/Off", new PlugParamSetting { Label = "SYNC", OnColor = delayButtonColor, TextOnColor = new FinderColor(255, 211, 10), OffColor = delayButtonColor, TextOffColor = FinderColor.Black });
+            }
+            {
+                deviceEntry = AddPlugParamDeviceEntry("H-Delay");
+                var hybridLineColor = new FinderColor("LineColor", 220, 148, 49);
+                var hybridButtonOnColor = new FinderColor("ButtonOnColor", 142, 137, 116);
+                var hybridButtonOffColor = new FinderColor("ButtonOffColor", 215, 209, 186);
+                var hybridButtonTextOnColor = new FinderColor("TextOnColor", 247, 230, 25);
+                var hybridButtonTextOffColor = new FinderColor("TextOffColor", BitmapColor.Black);
+                deviceEntry.ParamSettings.Add("Sync", new PlugParamSetting { Label = "", OnColor = hybridButtonOnColor, TextOnColor = hybridButtonTextOnColor, OffColor = hybridButtonOffColor, TextOffColor = hybridButtonTextOffColor, UserMenuItems = ["BPM", "HOST", "MS"] });
+                deviceEntry.ParamSettings.Add("Delay BPM", new PlugParamSetting { Label = "DELAY", LinkedParameter = "Sync", LinkedStates = "0,1", DialSteps = 19, OnColor = hybridLineColor, OnTransparency = 255, TextOnColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("Delay Sec", new PlugParamSetting { Label = "DELAY", LinkedParameter = "Sync", LinkedStates = "2", OnColor = hybridLineColor, OnTransparency = 255, TextOnColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("Feedback", new PlugParamSetting { Label = "FEEDBACK", OnColor = hybridLineColor, OnTransparency = 255, TextOnColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("Mix", new PlugParamSetting { Label = "DRY/WET", OnColor = hybridLineColor, OnTransparency = 255, TextOnColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("Output", new PlugParamSetting { Label = "OUTPUT", Mode = PlugParamSetting.PotMode.Symmetric, OnColor = hybridLineColor, OnTransparency = 255, TextOnColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("Analog", new PlugParamSetting { Label = "ANALOG", OnColor = hybridLineColor, OnTransparency = 255, TextOnColor = FinderColor.Black, DialSteps = 4 });
+                deviceEntry.ParamSettings.Add("Phase L", new PlugParamSetting { Label = "PHASE L", OnColor = hybridButtonOnColor, TextOnColor = hybridButtonTextOnColor, OffColor = hybridButtonOffColor, TextOffColor = hybridButtonTextOffColor });
+                deviceEntry.ParamSettings.Add("Phase R", new PlugParamSetting { Label = "PHASE R", OnColor = hybridButtonOnColor, TextOnColor = hybridButtonTextOnColor, OffColor = hybridButtonOffColor, TextOffColor = hybridButtonTextOffColor });
+                deviceEntry.ParamSettings.Add("PingPong", new PlugParamSetting { Label = "PINGPONG", OnColor = hybridButtonOnColor, TextOnColor = hybridButtonTextOnColor, OffColor = hybridButtonOffColor, TextOffColor = hybridButtonTextOffColor });
+                deviceEntry.ParamSettings.Add("LoFi", new PlugParamSetting { Label = "LoFi", OnColor = hybridButtonOnColor, TextOnColor = hybridButtonTextOnColor, OffColor = hybridButtonOffColor, TextOffColor = hybridButtonTextOffColor });
+                deviceEntry.ParamSettings.Add("Depth", new PlugParamSetting { Label = "DEPTH", OnColor = hybridLineColor, OnTransparency = 255, TextOnColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("Rate", new PlugParamSetting { Label = "RATE", OnColor = hybridLineColor, OnTransparency = 255, TextOnColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("HiPass", new PlugParamSetting { Label = "HIPASS", OnColor = hybridLineColor, OnTransparency = 255, TextOnColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("LoPass", new PlugParamSetting { Label = "LOPASS", OnColor = hybridLineColor, OnTransparency = 255, TextOnColor = FinderColor.Black });
 
-            AddParamSetting("Brauer Motion", "Loupedeck User Pages", new PlugParamSettings { UserMenuItems = ["MAIN", "PNR 1", "PNR 2", "T/D 1", "T/D 2", "MIX"] });
-            var path1Color = new FinderColor(139, 195, 74);
-            var path2Color = new FinderColor(230, 74, 25);
-            var bgColor = new FinderColor(12, 80, 124);
-            var buttonBgColor = new FinderColor(3, 18, 31);
-            var textColor = new FinderColor(105, 133, 157);
-            var checkOnColor = new FinderColor(7, 152, 202);
-            AddParamSetting("Brauer Motion", "Mute 1", new PlugParamSettings { Label = "MUTE 1", OnColor = path1Color, TextOnColor = buttonBgColor, OffColor = buttonBgColor, TextOffColor = path1Color });
-            AddParamSetting("Brauer Motion", "Mute 2", new PlugParamSettings { Label = "MUTE 2", OnColor = path2Color, TextOnColor = buttonBgColor, OffColor = buttonBgColor, TextOffColor = path2Color });
-            AddParamSetting("Brauer Motion", "Path 1 A Marker", new PlugParamSettings { Label = "A", OnColor = bgColor, TextOnColor = path1Color, BarOnColor = path1Color });
-            AddParamSetting("Brauer Motion", "Path 1 B Marker", new PlugParamSettings { Label = "B", OnColor = bgColor, TextOnColor = path1Color, BarOnColor = path1Color });
-            AddParamSetting("Brauer Motion", "Path 1 Start Marker", new PlugParamSettings { Label = "START", OnColor = bgColor, TextOnColor = path1Color, BarOnColor = path1Color });
-            AddParamSetting("Brauer Motion", "Path 2 A Marker", new PlugParamSettings { Label = "A", OnColor = bgColor, TextOnColor = path2Color, BarOnColor = path2Color });
-            AddParamSetting("Brauer Motion", "Path 2 B Marker", new PlugParamSettings { Label = "B", OnColor = bgColor, TextOnColor = path2Color, BarOnColor = path2Color });
-            AddParamSetting("Brauer Motion", "Path 2 Start Marker", new PlugParamSettings { Label = "START", OnColor = bgColor, TextOnColor = path2Color, BarOnColor = path2Color });
-            AddParamSetting("Brauer Motion", "Panner 1 Mode", new PlugParamSettings { Label = "", OnColor = buttonBgColor, TextOnColor = path1Color, UserMenuItems = ["SYNC", "FREE", "INPUT", "MANUAL"] });
-            AddParamSetting("Brauer Motion", "Panner 2 Mode", new PlugParamSettings { Label = "", OnColor = buttonBgColor, TextOnColor = path2Color, UserMenuItems = ["SYNC", "FREE", "INPUT", "MANUAL"] });
-            AddParamSetting("Brauer Motion", "Link", new PlugParamSettings { Label = "LINK", OnColor = buttonBgColor, TextOnColor = new FinderColor(0, 192, 255), OffColor = buttonBgColor, TextOffColor = new FinderColor(60, 60, 60) });
-            AddParamSetting("Brauer Motion", "Path 1", new PlugParamSettings { Label = "", OnColor = buttonBgColor, TextOnColor = new FinderColor(102, 157, 203), UserMenuItems = ["CLASSIC", "CIRCLE", "CIRC PHASE", "X LIGHTS"] });
-            AddParamSetting("Brauer Motion", "Modulator 1", new PlugParamSettings { Label = "", OnColor = buttonBgColor, TextOnColor = new FinderColor(102, 157, 203), UserMenuItems = ["!bm_Sine", "!bm_Triangle", "!bm_Saw", "!bm_Square"] });
-            AddParamSetting("Brauer Motion", "Reverse 1", new PlugParamSettings { Label = "REVERSE", OffColor = buttonBgColor, TextOffColor = textColor, OnColor = checkOnColor, TextOnColor = FinderColor.Black });
-            AddParamSetting("Brauer Motion", "Mod Delay On/Off 1", new PlugParamSettings { Label = "OFF", LabelOn = "ON", OffColor = buttonBgColor, TextOffColor = textColor, OnColor = checkOnColor, TextOnColor = FinderColor.Black });
-            AddParamSetting("Brauer Motion", "Speed 1", new PlugParamSettings { Label = "SPEED 1", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path1Color });
-            AddParamSetting("Brauer Motion", "Offset 1", new PlugParamSettings { Label = "OFFSET 1", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path1Color });
-            AddParamSetting("Brauer Motion", "Depth 1", new PlugParamSettings { Label = "DEPTH 1", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path1Color });
-            AddParamSetting("Brauer Motion", "Width 1", new PlugParamSettings { Label = "WIDTH 1", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path1Color });
-            AddParamSetting("Brauer Motion", "Pre Delay 1", new PlugParamSettings { Label = "PRE DLY 1", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path1Color });
-            AddParamSetting("Brauer Motion", "Mod Delay 1", new PlugParamSettings { Label = "MOD DLY 1", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path1Color });
-            AddParamSetting("Brauer Motion", "Path 2", new PlugParamSettings { Label = "", OnColor = buttonBgColor, TextOnColor = new FinderColor(102, 157, 203), UserMenuItems = ["CLASSIC", "CIRCLE", "CIRC PHASE", "X LIGHTS"] });
-            AddParamSetting("Brauer Motion", "Modulator 2", new PlugParamSettings { Label = "", OnColor = buttonBgColor, TextOnColor = new FinderColor(102, 157, 203), UserMenuItems = ["!bm_Sine", "!bm_Triangle", "!bm_Saw", "!bm_Square"] });
-            AddParamSetting("Brauer Motion", "Reverse 2", new PlugParamSettings { Label = "REVERSE", OffColor = buttonBgColor, TextOffColor = textColor, OnColor = checkOnColor, TextOnColor = FinderColor.Black });
-            AddParamSetting("Brauer Motion", "Mod Delay On/Off 2", new PlugParamSettings { Label = "OFF", LabelOn = "ON", OffColor = buttonBgColor, TextOffColor = textColor, OnColor = checkOnColor, TextOnColor = FinderColor.Black });
-            AddParamSetting("Brauer Motion", "Speed 2", new PlugParamSettings { Label = "SPEED 2", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path2Color });
-            AddParamSetting("Brauer Motion", "Offset 2", new PlugParamSettings { Label = "OFFSET 2", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path2Color });
-            AddParamSetting("Brauer Motion", "Depth 2", new PlugParamSettings { Label = "DEPTH 2", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path2Color });
-            AddParamSetting("Brauer Motion", "Width 2", new PlugParamSettings { Label = "WIDTH 2", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path2Color });
-            AddParamSetting("Brauer Motion", "Pre Delay 2", new PlugParamSettings { Label = "PRE DLY 2", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path2Color });
-            AddParamSetting("Brauer Motion", "Mod Delay 2", new PlugParamSettings { Label = "MOD DLY 2", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path2Color });
-            AddParamSetting("Brauer Motion", "Trigger Mode 1", new PlugParamSettings { Label = "", OnColor = buttonBgColor, TextOnColor = new FinderColor(102, 157, 203), UserMenuItems = ["OFF", "SIMPLE", "ONE-SHOT", "RETRIGGER", "S-TRIG REV", "A TO B"] });
-            AddParamSetting("Brauer Motion", "Trigger A to B 1", new PlugParamSettings { Label = "A TO B", LabelOn = "B TO A", OffColor = buttonBgColor, TextOffColor = textColor, OnColor = buttonBgColor, TextOnColor = textColor });
-            AddParamSetting("Brauer Motion", "Trigger Sensitivity 1", new PlugParamSettings { Label = "SENS 1", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path1Color });
-            AddParamSetting("Brauer Motion", "Trigger HP 1", new PlugParamSettings { Label = "HOLD 1", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path1Color });
-            AddParamSetting("Brauer Motion", "Dynamics 1", new PlugParamSettings { Label = "", OnColor = buttonBgColor, TextOnColor = new FinderColor(102, 157, 203), UserMenuItems = ["OFF", "PANNER 1", "DIRECT", "OUTPUT"] });
-            AddParamSetting("Brauer Motion", "Drive 1", new PlugParamSettings { Label = "DRIVE 1", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path1Color });
-            AddParamSetting("Brauer Motion", "Ratio 1", new PlugParamSettings { Label = "RATIO 1", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path1Color });
-            AddParamSetting("Brauer Motion", "Dynamics HP 1", new PlugParamSettings { Label = "HP 1", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path1Color });
-            AddParamSetting("Brauer Motion", "Dynamics LP 1", new PlugParamSettings { Label = "LP 1", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path1Color });
-            AddParamSetting("Brauer Motion", "Trigger Mode 2", new PlugParamSettings { Label = "", OnColor = buttonBgColor, TextOnColor = new FinderColor(102, 157, 203), UserMenuItems = ["OFF", "SIMPLE", "ONE-SHOT", "RETRIGGER", "S-TRIG REV", "A TO B"] });
-            AddParamSetting("Brauer Motion", "Trigger A to B 2", new PlugParamSettings { Label = "A TO B", LabelOn = "B TO A", OffColor = buttonBgColor, TextOffColor = textColor, OnColor = buttonBgColor, TextOnColor = textColor });
-            AddParamSetting("Brauer Motion", "Trigger Sensitivity 2", new PlugParamSettings { Label = "SENS 2", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path2Color });
-            AddParamSetting("Brauer Motion", "Trigger HP 2", new PlugParamSettings { Label = "HOLD 2", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path2Color });
-            AddParamSetting("Brauer Motion", "Dynamics 2", new PlugParamSettings { Label = "", OnColor = buttonBgColor, TextOnColor = new FinderColor(102, 157, 203), UserMenuItems = ["OFF", "PANNER 1", "DIRECT", "OUTPUT"] });
-            AddParamSetting("Brauer Motion", "Drive 2", new PlugParamSettings { Label = "DRIVE 2", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path2Color });
-            AddParamSetting("Brauer Motion", "Ratio 2", new PlugParamSettings { Label = "RATIO 2", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path2Color });
-            AddParamSetting("Brauer Motion", "Dynamics HP 2", new PlugParamSettings { Label = "HP 2", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path2Color });
-            AddParamSetting("Brauer Motion", "Dynamics LP 2", new PlugParamSettings { Label = "LP 2", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path2Color });
-            AddParamSetting("Brauer Motion", "Panner 1 Level", new PlugParamSettings { Label = "PANNER 1", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path1Color });
-            AddParamSetting("Brauer Motion", "Panner 2 Level", new PlugParamSettings { Label = "PANNER 2", OnColor = bgColor, TextOnColor = textColor, BarOnColor = path2Color });
-            AddParamSetting("Brauer Motion", "Input", new PlugParamSettings { Label = "INPUT", OnColor = bgColor, TextOnColor = textColor });
-            AddParamSetting("Brauer Motion", "Output", new PlugParamSettings { Label = "OUTPUT", OnColor = bgColor, TextOnColor = textColor });
-            AddParamSetting("Brauer Motion", "Mix", new PlugParamSettings { Label = "MIX", OnColor = bgColor, TextOnColor = textColor });
-            AddParamSetting("Brauer Motion", "Start/Stop 1", new PlugParamSettings { Label = "START 1", LabelOn = "STOP 1", OffColor = buttonBgColor, TextOffColor = path1Color, OnColor = path1Color, TextOnColor = FinderColor.Black });
-            AddParamSetting("Brauer Motion", "Start/Stop 2", new PlugParamSettings { Label = "START 2", LabelOn = "STOP 2", OffColor = buttonBgColor, TextOffColor = path2Color, OnColor = path2Color, TextOnColor = FinderColor.Black });
-            AddParamSetting("Brauer Motion", "Ex-SC 1", new PlugParamSettings { Label = "EXT SC 1", OffColor = buttonBgColor, TextOffColor = path1Color, OnColor = path1Color, TextOnColor = FinderColor.Black });
-            AddParamSetting("Brauer Motion", "Ex-SC 2", new PlugParamSettings { Label = "EXT SC 2", OffColor = buttonBgColor, TextOffColor = path2Color, OnColor = path2Color, TextOnColor = FinderColor.Black });
-            AddParamSetting("Brauer Motion", "Auto Reset", new PlugParamSettings { Label = "AUTO RESET", OffColor = buttonBgColor, TextOffColor = textColor, OnColor = checkOnColor, TextOnColor = FinderColor.Black });
+                deviceEntry = AddPlugParamDeviceEntry("H-Comp");
+                deviceEntry.ParamSettings.Add("Threshold", new PlugParamSetting { Label = "THRESH", OnColor = hybridLineColor, OnTransparency = 255, TextOnColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("Meter Select", new PlugParamSetting { Label = "", OnColor = hybridButtonOnColor, TextOnColor = hybridButtonTextOnColor, OffColor = hybridButtonOffColor, TextOffColor = hybridButtonTextOffColor, UserMenuItems = ["IN", "GR", "OUT"] });
+                deviceEntry.ParamSettings.Add("Punch", new PlugParamSetting { Label = "PUNCH", OnColor = hybridLineColor, OnTransparency = 255, TextOnColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("Ratio", new PlugParamSetting { Label = "RATIO", OnColor = hybridLineColor, OnTransparency = 255, TextOnColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("Attack", new PlugParamSetting { Label = "ATTACK", OnColor = hybridLineColor, OnTransparency = 255, TextOnColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("Limiter", new PlugParamSetting { Label = "LIMITER", OnColor = hybridButtonOnColor, TextOnColor = hybridButtonTextOnColor, OffColor = hybridButtonOffColor, TextOffColor = hybridButtonTextOffColor });
+                deviceEntry.ParamSettings.Add("Sync", new PlugParamSetting { Label = "", OnColor = hybridButtonOnColor, TextOnColor = hybridButtonTextOnColor, OffColor = hybridButtonOffColor, TextOffColor = hybridButtonTextOffColor, UserMenuItems = ["BPM", "HOST", "MS"] });
+                deviceEntry.ParamSettings.Add("Release", new PlugParamSetting { LinkedParameter = "Sync", Label = "RELEASE", LinkedStates = "2", OnColor = hybridLineColor, OnTransparency = 255, TextOnColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("ReleaseBPM", new PlugParamSetting { LinkedParameter = "Sync", Label = "RELEASE", LinkedStates = "0,1", DialSteps = 19, OnColor = hybridLineColor, OnTransparency = 255, TextOnColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("Mix", new PlugParamSetting { Label = "DRY/WET", OnColor = hybridLineColor, OnTransparency = 255, TextOnColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("Output", new PlugParamSetting { Label = "OUTPUT", Mode = PlugParamSetting.PotMode.Symmetric, OnColor = hybridLineColor, OnTransparency = 255, TextOnColor = FinderColor.Black });
+                deviceEntry.ParamSettings.Add("Analog", new PlugParamSetting { Label = "ANALOG", OnColor = hybridLineColor, OnTransparency = 255, TextOnColor = FinderColor.Black, DialSteps = 4 });
+            }
 
-            var mixColor = new FinderColor(254, 251, 248);
-            var mainCtrlColor = new FinderColor(52, 139, 125);
-            var typeColor = new FinderColor(90, 92, 88);
-            var delayButtonColor = new FinderColor(38, 39, 37);
-            var optionsOffBgColor = new FinderColor(100, 99, 95);
-            AddParamSetting("Abbey Road Chambers", "Input Level", new PlugParamSettings { Label = "INPUT", OnColor = mixColor });
-            AddParamSetting("Abbey Road Chambers", "Output", new PlugParamSettings { Label = "OUTPUT", OnColor = mixColor });
-            AddParamSetting("Abbey Road Chambers", "Reverb Mix", new PlugParamSettings { Label = "REVERB", OnColor = mixColor });
-            AddParamSetting("Abbey Road Chambers", "Dry/Wet", new PlugParamSettings { Label = "DRY/WET", OnColor = mixColor });
-            AddParamSetting("Abbey Road Chambers", "Reverb Time X", new PlugParamSettings { Label = "TIME X", OnColor = mainCtrlColor, TextOnColor = FinderColor.White });
-            AddParamSetting("Abbey Road Chambers", "RS106 Top Cut", new PlugParamSettings { Label = "TOP CUT", OnColor = new FinderColor(222, 211, 202), TextOnColor = FinderColor.Black });
-            AddParamSetting("Abbey Road Chambers", "RS106 Bass Cut", new PlugParamSettings { Label = "BASS CUT", OnColor = new FinderColor(222, 211, 202), TextOnColor = FinderColor.Black });
-            AddParamSetting("Abbey Road Chambers", "RS127 Gain", new PlugParamSettings { Label = "GAIN", Mode = PlugParamSettings.PotMode.Symmetric, OnColor = new FinderColor(123, 124, 119), TextOnColor = FinderColor.White });
-            AddParamSetting("Abbey Road Chambers", "RS127 Freq", new PlugParamSettings { Label = "FREQ", OnColor = new FinderColor(123, 124, 119), TextOnColor = FinderColor.White, DialSteps = 2 });
-            AddParamSetting("Abbey Road Chambers", "Reverb Type", new PlugParamSettings { Label = "", OnColor = mixColor, TextOnColor = FinderColor.Black, UserMenuItems = ["CHMBR 2", "MIRROR", "STONE"] });
-            AddLinked("Abbey Road Chambers", "Mic", "Reverb Type", label: "M", linkReversed: true, onColor: typeColor, textOnColor: FinderColor.White, userMenuItems: ["KM53", "MK2H"]);
-            AddParamSetting("Abbey Road Chambers", "Mic Position", new PlugParamSettings { Label = "P", OnColor = typeColor, TextOnColor = FinderColor.White, UserMenuItems = ["WALL", "CLASSIC", "ROOM"] });
-            AddLinked("Abbey Road Chambers", "Speaker", "Reverb Type", label: "S", linkReversed: true, onColor: typeColor, textOnColor: FinderColor.White, userMenuItems: ["ALTEC", "B&W"]);
-            AddLinked("Abbey Road Chambers", "Speaker Facing", "Reverb Type", label: "F", linkReversed: true, onColor: typeColor, textOnColor: FinderColor.White, userMenuItems: ["ROOM", "WALL"]);
-            AddParamSetting("Abbey Road Chambers", "Filters To Chamber On/Off", new PlugParamSettings { Label = "FILTERS", OnColor = FinderColor.White, TextOnColor = FinderColor.Black, OffColor = optionsOffBgColor, TextOffColor = FinderColor.Black });
-            AddParamSetting("Abbey Road Chambers", "ARChambers On/Off", new PlugParamSettings { Label = "STEED", OnColor = optionsOffBgColor, TextOnColor = FinderColor.White, OffColor = optionsOffBgColor, TextOffColor = FinderColor.Black });
-            AddParamSetting("Abbey Road Chambers", "Feedback", new PlugParamSettings { Label = "FEEDBACK", OnColor = mainCtrlColor, TextOnColor = FinderColor.White });
-            AddParamSetting("Abbey Road Chambers", "Top Cut FB", new PlugParamSettings { Label = "TOP CUT", OnColor = mainCtrlColor, TextOnColor = FinderColor.White });
-            AddParamSetting("Abbey Road Chambers", "Mid FB", new PlugParamSettings { Label = "MID", Mode = PlugParamSettings.PotMode.Symmetric, OnColor = mainCtrlColor, TextOnColor = FinderColor.White });
-            AddParamSetting("Abbey Road Chambers", "Bass Cut FB", new PlugParamSettings { Label = "BASS CUT", OnColor = mainCtrlColor, TextOnColor = FinderColor.White });
-            AddParamSetting("Abbey Road Chambers", "Drive On/Off", new PlugParamSettings { Label = "OFF", LabelOn = "ON", OnColor = FinderColor.White, TextOnColor = FinderColor.Black, OffColor = optionsOffBgColor, TextOffColor = FinderColor.Black });
-            AddParamSetting("Abbey Road Chambers", "Drive", new PlugParamSettings { Label = "DRIVE", OnColor = mainCtrlColor, TextOnColor = FinderColor.White });
-            AddParamSetting("Abbey Road Chambers", "Delay Mod", new PlugParamSettings { Label = "MOD", OnColor = mainCtrlColor, TextOnColor = FinderColor.White });
-            AddParamSetting("Abbey Road Chambers", "Delay Time", new PlugParamSettings { Label = "DELAY L", OnColor = mainCtrlColor, TextOnColor = FinderColor.White });
-            AddParamSetting("Abbey Road Chambers", "Delay Time R", new PlugParamSettings { Label = "DELAY R", OnColor = mainCtrlColor, TextOnColor = FinderColor.White });
-            AddParamSetting("Abbey Road Chambers", "Delay Link", new PlugParamSettings { Label = "LINK", OnColor = delayButtonColor, TextOnColor = new FinderColor(255, 211, 10), OffColor = delayButtonColor, TextOffColor = FinderColor.Black });
-            AddParamSetting("Abbey Road Chambers", "Delay Sync On/Off", new PlugParamSettings { Label = "SYNC", OnColor = delayButtonColor, TextOnColor = new FinderColor(255, 211, 10), OffColor = delayButtonColor, TextOffColor = FinderColor.Black });
+            deviceEntry = AddPlugParamDeviceEntry("Sibilance");
+            deviceEntry.ParamSettings.Add("Monitor", new PlugParamSetting { OnColor = new FinderColor(0, 195, 230) });
+            deviceEntry.ParamSettings.Add("Lookahead", new PlugParamSetting { OnColor = new FinderColor(0, 195, 230) });
 
-            var hybridLineColor = new FinderColor(220, 148, 49);
-            var hybridButtonOnColor = new FinderColor(142, 137, 116);
-            var hybridButtonOffColor = new FinderColor(215, 209, 186);
-            var hybridButtonTextOnColor = new FinderColor(247, 230, 25);
-            var hybridButtonTextOffColor = FinderColor.Black;
-            AddParamSetting("H-Delay", "Sync", new PlugParamSettings { Label = "", OnColor = hybridButtonOnColor, TextOnColor = hybridButtonTextOnColor, OffColor = hybridButtonOffColor, TextOffColor = hybridButtonTextOffColor, UserMenuItems = ["BPM", "HOST", "MS"] });
-            AddParamSetting("H-Delay", "Delay BPM", new PlugParamSettings { Label = "DELAY", LinkedParameter = "Sync", LinkedStates = "0,1", DialSteps = 19, OnColor = hybridLineColor, OnTransparency = 255, TextOnColor = FinderColor.Black });
-            AddParamSetting("H-Delay", "Delay Sec", new PlugParamSettings { Label = "DELAY", LinkedParameter = "Sync", LinkedStates = "2", OnColor = hybridLineColor, OnTransparency = 255, TextOnColor = FinderColor.Black });
-            AddParamSetting("H-Delay", "Feedback", new PlugParamSettings { Label = "FEEDBACK", OnColor = hybridLineColor, OnTransparency = 255, TextOnColor = FinderColor.Black });
-            AddParamSetting("H-Delay", "Mix", new PlugParamSettings { Label = "DRY/WET", OnColor = hybridLineColor, OnTransparency = 255, TextOnColor = FinderColor.Black });
-            AddParamSetting("H-Delay", "Output", new PlugParamSettings { Label = "OUTPUT", Mode = PlugParamSettings.PotMode.Symmetric, OnColor = hybridLineColor, OnTransparency = 255, TextOnColor = FinderColor.Black });
-            AddParamSetting("H-Delay", "Analog", new PlugParamSettings { Label = "ANALOG", OnColor = hybridLineColor, OnTransparency = 255, TextOnColor = FinderColor.Black, DialSteps = 4 });
-            AddParamSetting("H-Delay", "Phase L", new PlugParamSettings { Label = "PHASE L", OnColor = hybridButtonOnColor, TextOnColor = hybridButtonTextOnColor, OffColor = hybridButtonOffColor, TextOffColor = hybridButtonTextOffColor });
-            AddParamSetting("H-Delay", "Phase R", new PlugParamSettings { Label = "PHASE R", OnColor = hybridButtonOnColor, TextOnColor = hybridButtonTextOnColor, OffColor = hybridButtonOffColor, TextOffColor = hybridButtonTextOffColor });
-            AddParamSetting("H-Delay", "PingPong", new PlugParamSettings { Label = "PINGPONG", OnColor = hybridButtonOnColor, TextOnColor = hybridButtonTextOnColor, OffColor = hybridButtonOffColor, TextOffColor = hybridButtonTextOffColor });
-            AddParamSetting("H-Delay", "LoFi", new PlugParamSettings { Label = "LoFi", OnColor = hybridButtonOnColor, TextOnColor = hybridButtonTextOnColor, OffColor = hybridButtonOffColor, TextOffColor = hybridButtonTextOffColor });
-            AddParamSetting("H-Delay", "Depth", new PlugParamSettings { Label = "DEPTH", OnColor = hybridLineColor, OnTransparency = 255, TextOnColor = FinderColor.Black });
-            AddParamSetting("H-Delay", "Rate", new PlugParamSettings { Label = "RATE", OnColor = hybridLineColor, OnTransparency = 255, TextOnColor = FinderColor.Black });
-            AddParamSetting("H-Delay", "HiPass", new PlugParamSettings { Label = "HIPASS", OnColor = hybridLineColor, OnTransparency = 255, TextOnColor = FinderColor.Black });
-            AddParamSetting("H-Delay", "LoPass", new PlugParamSettings { Label = "LOPASS", OnColor = hybridLineColor, OnTransparency = 255, TextOnColor = FinderColor.Black });
+            deviceEntry = AddPlugParamDeviceEntry("MondoMod");
+            deviceEntry.ParamSettings.Add("", new PlugParamSetting { OnColor = new FinderColor(102, 255, 51) });
+            deviceEntry.ParamSettings.Add("AM On/Off", new PlugParamSetting { Label = "AM", LabelOn = "AM ON", OnColor = new FinderColor(102, 255, 51), TextOnColor = FinderColor.Black });
+            deviceEntry.ParamSettings.Add("FM On/Off", new PlugParamSetting { Label = "FM", LabelOn = "FM ON", OnColor = new FinderColor(102, 255, 51), TextOnColor = FinderColor.Black });
+            deviceEntry.ParamSettings.Add("Pan On/Off", new PlugParamSetting { Label = "Pan", LabelOn = "FM ON", OnColor = new FinderColor(102, 255, 51), TextOnColor = FinderColor.Black });
+            deviceEntry.ParamSettings.Add("Sync On/Off", new PlugParamSetting { Label = "Manual", LabelOn = "Auto", OnColor = new FinderColor(181, 214, 165), TextOnColor = FinderColor.Black });
+            deviceEntry.ParamSettings.Add("Waveform", new PlugParamSetting { OnColor = new FinderColor(102, 255, 51), DialSteps = 4, HideValueBar = true });
 
-            AddParamSetting("H-Comp", "Threshold", new PlugParamSettings { Label = "THRESH", OnColor = hybridLineColor, OnTransparency = 255, TextOnColor = FinderColor.Black });
-            AddParamSetting("H-Comp", "Meter Select", new PlugParamSettings { Label = "", OnColor = hybridButtonOnColor, TextOnColor = hybridButtonTextOnColor, OffColor = hybridButtonOffColor, TextOffColor = hybridButtonTextOffColor, UserMenuItems = ["IN", "GR", "OUT"] });
-            AddParamSetting("H-Comp", "Punch", new PlugParamSettings { Label = "PUNCH", OnColor = hybridLineColor, OnTransparency = 255, TextOnColor = FinderColor.Black });
-            AddParamSetting("H-Comp", "Ratio", new PlugParamSettings { Label = "RATIO", OnColor = hybridLineColor, OnTransparency = 255, TextOnColor = FinderColor.Black });
-            AddParamSetting("H-Comp", "Attack", new PlugParamSettings { Label = "ATTACK", OnColor = hybridLineColor, OnTransparency = 255, TextOnColor = FinderColor.Black });
-            AddParamSetting("H-Comp", "Limiter", new PlugParamSettings { Label = "LIMITER", OnColor = hybridButtonOnColor, TextOnColor = hybridButtonTextOnColor, OffColor = hybridButtonOffColor, TextOffColor = hybridButtonTextOffColor });
-            AddParamSetting("H-Comp", "Sync", new PlugParamSettings { Label = "", OnColor = hybridButtonOnColor, TextOnColor = hybridButtonTextOnColor, OffColor = hybridButtonOffColor, TextOffColor = hybridButtonTextOffColor, UserMenuItems = ["BPM", "HOST", "MS"] });
-            AddParamSetting("H-Comp", "Release", new PlugParamSettings { LinkedParameter = "Sync", Label = "RELEASE", LinkedStates = "2", OnColor = hybridLineColor, OnTransparency = 255, TextOnColor = FinderColor.Black });
-            AddParamSetting("H-Comp", "ReleaseBPM", new PlugParamSettings { LinkedParameter = "Sync", Label = "RELEASE", LinkedStates = "0,1", DialSteps = 19, OnColor = hybridLineColor, OnTransparency = 255, TextOnColor = FinderColor.Black });
-            AddParamSetting("H-Comp", "Mix", new PlugParamSettings { Label = "DRY/WET", OnColor = hybridLineColor, OnTransparency = 255, TextOnColor = FinderColor.Black });
-            AddParamSetting("H-Comp", "Output", new PlugParamSettings { Label = "OUTPUT", Mode = PlugParamSettings.PotMode.Symmetric, OnColor = hybridLineColor, OnTransparency = 255, TextOnColor = FinderColor.Black });
-            AddParamSetting("H-Comp", "Analog", new PlugParamSettings { Label = "ANALOG", OnColor = hybridLineColor, OnTransparency = 255, TextOnColor = FinderColor.Black, DialSteps = 4 });
+            deviceEntry = AddPlugParamDeviceEntry("LoAir");
+            deviceEntry.ParamSettings.Add("LoAir", new PlugParamSetting { Mode = PlugParamSetting.PotMode.Symmetric });
+            deviceEntry.ParamSettings.Add("Lo", new PlugParamSetting { Mode = PlugParamSetting.PotMode.Symmetric });
+            deviceEntry.ParamSettings.Add("Align", new PlugParamSetting { OnColor = new FinderColor(206, 175, 43), TextOnColor = FinderColor.Black });
 
-
-            AddParamSetting("Sibilance", "Monitor", new PlugParamSettings { OnColor = new FinderColor(0, 195, 230) });
-            AddParamSetting("Sibilance", "Lookahead", new PlugParamSettings { OnColor = new FinderColor(0, 195, 230) });
-
-            AddParamSetting("MondoMod", "", new PlugParamSettings { OnColor = new FinderColor(102, 255, 51) });
-            AddParamSetting("MondoMod", "AM On/Off", new PlugParamSettings { Label = "AM", LabelOn = "AM ON", OnColor = new FinderColor(102, 255, 51), TextOnColor = FinderColor.Black });
-            AddParamSetting("MondoMod", "FM On/Off", new PlugParamSettings { Label = "FM", LabelOn = "FM ON", OnColor = new FinderColor(102, 255, 51), TextOnColor = FinderColor.Black });
-            AddParamSetting("MondoMod", "Pan On/Off", new PlugParamSettings { Label = "Pan", LabelOn = "FM ON", OnColor = new FinderColor(102, 255, 51), TextOnColor = FinderColor.Black });
-            AddParamSetting("MondoMod", "Sync On/Off", new PlugParamSettings { Label = "Manual", LabelOn = "Auto", OnColor = new FinderColor(181, 214, 165), TextOnColor = FinderColor.Black });
-            AddParamSetting("MondoMod", "Waveform", new PlugParamSettings { OnColor = new FinderColor(102, 255, 51), DialSteps = 4, HideValueBar = true });
-
-            AddParamSetting("LoAir", "LoAir", new PlugParamSettings { Mode = PlugParamSettings.PotMode.Symmetric });
-            AddParamSetting("LoAir", "Lo", new PlugParamSettings { Mode = PlugParamSettings.PotMode.Symmetric });
-            AddParamSetting("LoAir", "Align", new PlugParamSettings { OnColor = new FinderColor(206, 175, 43), TextOnColor = FinderColor.Black });
-
-            AddParamSetting("CLA Unplugged", "Bass Color", new PlugParamSettings { Label = "", UserMenuItems = [ "OFF", "SUB", "LOWER", "UPPER" ] });
-            AddParamSetting("CLA Unplugged", "Bass", new PlugParamSettings { OnColor = new FinderColor(210, 209, 96), Mode = PlugParamSettings.PotMode.Symmetric });
-            AddParamSetting("CLA Unplugged", "Treble Color", new PlugParamSettings { Label = "", UserMenuItems = ["OFF", "BITE", "TOP", "ROOF"] });
-            AddParamSetting("CLA Unplugged", "Treble", new PlugParamSettings { OnColor = new FinderColor(210, 209, 96), Mode = PlugParamSettings.PotMode.Symmetric });
-            AddParamSetting("CLA Unplugged", "Compress", new PlugParamSettings { OnColor = new FinderColor(210, 209, 96), Mode = PlugParamSettings.PotMode.Symmetric });
-            AddParamSetting("CLA Unplugged", "Compress Color", new PlugParamSettings { Label = "", UserMenuItems = ["OFF", "PUSH", "SPANK", "WALL"] });
-            AddParamSetting("CLA Unplugged", "Reverb 1", new PlugParamSettings { OnColor = new FinderColor(210, 209, 96), Mode = PlugParamSettings.PotMode.Symmetric });
-            AddParamSetting("CLA Unplugged", "Reverb 1 Color", new PlugParamSettings { Label = "", UserMenuItems = ["OFF", "ROOM", "HALL", "CHAMBER"] });
-            AddParamSetting("CLA Unplugged", "Reverb 2", new PlugParamSettings { OnColor = new FinderColor(210, 209, 96), Mode = PlugParamSettings.PotMode.Symmetric });
-            AddParamSetting("CLA Unplugged", "Reverb 2 Color", new PlugParamSettings { Label = "", UserMenuItems = ["OFF", "TIGHT", "LARGE", "CANYON"] });
-            AddParamSetting("CLA Unplugged", "Delay", new PlugParamSettings { OnColor = new FinderColor(210, 209, 96), Mode = PlugParamSettings.PotMode.Symmetric });
-            AddParamSetting("CLA Unplugged", "Delay Color", new PlugParamSettings { Label = "", UserMenuItems = ["OFF", "SLAP", "EIGHT", "QUARTER"] });
-            AddParamSetting("CLA Unplugged", "Sensitivity", new PlugParamSettings { Label = "Input Sens", OnColor = new FinderColor(210, 209, 96), Mode = PlugParamSettings.PotMode.Symmetric });
-            AddParamSetting("CLA Unplugged", "Output", new PlugParamSettings { OnColor = new FinderColor(210, 209, 96), Mode = PlugParamSettings.PotMode.Symmetric });
-            AddParamSetting("CLA Unplugged", "PreDelay 1", new PlugParamSettings { Label = "Pre Rvrb 1", OnColor = new FinderColor(210, 209, 96), DialSteps = 13 });
-            AddParamSetting("CLA Unplugged", "PreDelay 2", new PlugParamSettings { Label = "Pre Rvrb 2", OnColor = new FinderColor(210, 209, 96), DialSteps = 13 });
-            AddParamSetting("CLA Unplugged", "PreDelay 1 On", new PlugParamSettings { Label = "OFF", LabelOn = "ON", OnColor = new FinderColor(210, 209, 96), TextOnColor = FinderColor.Black });
-            AddParamSetting("CLA Unplugged", "PreDelay 2 On", new PlugParamSettings { Label = "OFF", LabelOn = "ON", OnColor = new FinderColor(210, 209, 96), TextOnColor = FinderColor.Black });
-            AddParamSetting("CLA Unplugged", "Direct", new PlugParamSettings { OnColor = new FinderColor(80, 80, 80), OffColor = new FinderColor(240, 228, 87),
+            deviceEntry = AddPlugParamDeviceEntry("CLA Unplugged");
+            deviceEntry.ParamSettings.Add("Bass Color", new PlugParamSetting { Label = "", UserMenuItems = [ "OFF", "SUB", "LOWER", "UPPER" ] });
+            deviceEntry.ParamSettings.Add("Bass", new PlugParamSetting { OnColor = new FinderColor(210, 209, 96), Mode = PlugParamSetting.PotMode.Symmetric });
+            deviceEntry.ParamSettings.Add("Treble Color", new PlugParamSetting { Label = "", UserMenuItems = ["OFF", "BITE", "TOP", "ROOF"] });
+            deviceEntry.ParamSettings.Add("Treble", new PlugParamSetting { OnColor = new FinderColor(210, 209, 96), Mode = PlugParamSetting.PotMode.Symmetric });
+            deviceEntry.ParamSettings.Add("Compress", new PlugParamSetting { OnColor = new FinderColor(210, 209, 96), Mode = PlugParamSetting.PotMode.Symmetric });
+            deviceEntry.ParamSettings.Add("Compress Color", new PlugParamSetting { Label = "", UserMenuItems = ["OFF", "PUSH", "SPANK", "WALL"] });
+            deviceEntry.ParamSettings.Add("Reverb 1", new PlugParamSetting { OnColor = new FinderColor(210, 209, 96), Mode = PlugParamSetting.PotMode.Symmetric });
+            deviceEntry.ParamSettings.Add("Reverb 1 Color", new PlugParamSetting { Label = "", UserMenuItems = ["OFF", "ROOM", "HALL", "CHAMBER"] });
+            deviceEntry.ParamSettings.Add("Reverb 2", new PlugParamSetting { OnColor = new FinderColor(210, 209, 96), Mode = PlugParamSetting.PotMode.Symmetric });
+            deviceEntry.ParamSettings.Add("Reverb 2 Color", new PlugParamSetting { Label = "", UserMenuItems = ["OFF", "TIGHT", "LARGE", "CANYON"] });
+            deviceEntry.ParamSettings.Add("Delay", new PlugParamSetting { OnColor = new FinderColor(210, 209, 96), Mode = PlugParamSetting.PotMode.Symmetric });
+            deviceEntry.ParamSettings.Add("Delay Color", new PlugParamSetting { Label = "", UserMenuItems = ["OFF", "SLAP", "EIGHT", "QUARTER"] });
+            deviceEntry.ParamSettings.Add("Sensitivity", new PlugParamSetting { Label = "Input Sens", OnColor = new FinderColor(210, 209, 96), Mode = PlugParamSetting.PotMode.Symmetric });
+            deviceEntry.ParamSettings.Add("Output", new PlugParamSetting { OnColor = new FinderColor(210, 209, 96), Mode = PlugParamSetting.PotMode.Symmetric });
+            deviceEntry.ParamSettings.Add("PreDelay 1", new PlugParamSetting { Label = "Pre Rvrb 1", OnColor = new FinderColor(210, 209, 96), DialSteps = 13 });
+            deviceEntry.ParamSettings.Add("PreDelay 2", new PlugParamSetting { Label = "Pre Rvrb 2", OnColor = new FinderColor(210, 209, 96), DialSteps = 13 });
+            deviceEntry.ParamSettings.Add("PreDelay 1 On", new PlugParamSetting { Label = "OFF", LabelOn = "ON", OnColor = new FinderColor(210, 209, 96), TextOnColor = FinderColor.Black });
+            deviceEntry.ParamSettings.Add("PreDelay 2 On", new PlugParamSetting { Label = "OFF", LabelOn = "ON", OnColor = new FinderColor(210, 209, 96), TextOnColor = FinderColor.Black });
+            deviceEntry.ParamSettings.Add("Direct", new PlugParamSetting { OnColor = new FinderColor(80, 80, 80), OffColor = new FinderColor(240, 228, 87),
                                                                            TextOnColor = FinderColor.Black, TextOffColor = FinderColor.Black });
 
-            AddParamSetting("CLA-76", "Revision", new PlugParamSettings { Label = "Bluey", LabelOn = "Blacky", OffColor = new FinderColor(62, 141, 180), TextOffColor = FinderColor.White, 
-                                                                                                           OnColor = FinderColor.Black, TextOnColor = FinderColor.White });
-            AddParamSetting("CLA-76", "Ratio", new PlugParamSettings { UserMenuItems = ["20", "12", "8", "4", "ALL"] });
-            AddParamSetting("CLA-76", "Analog", new PlugParamSettings { Label = "A", UserMenuItems = ["50Hz", "60Hz", "Off"], TextOnColor = new FinderColor(254, 246, 212) });
-            AddParamSetting("CLA-76", "Meter", new PlugParamSettings { UserMenuItems = ["GR", "IN", "OUT"] });
-            AddParamSetting("CLA-76", "Comp Off", new PlugParamSettings { OnColor = new FinderColor(162, 38, 38), TextOnColor = FinderColor.White });
+            deviceEntry = AddPlugParamDeviceEntry("CLA-76");
+            deviceEntry.ParamSettings.Add("Revision", new PlugParamSetting { Label = "Bluey", LabelOn = "Blacky", OffColor = new FinderColor(62, 141, 180), TextOffColor = FinderColor.White, 
+                                                                              OnColor = FinderColor.Black, TextOnColor = FinderColor.White });
+            deviceEntry.ParamSettings.Add("Ratio", new PlugParamSetting { UserMenuItems = ["20", "12", "8", "4", "ALL"] });
+            deviceEntry.ParamSettings.Add("Analog", new PlugParamSetting { Label = "A", UserMenuItems = ["50Hz", "60Hz", "Off"], TextOnColor = new FinderColor(254, 246, 212) });
+            deviceEntry.ParamSettings.Add("Meter", new PlugParamSetting { UserMenuItems = ["GR", "IN", "OUT"] });
+            deviceEntry.ParamSettings.Add("Comp Off", new PlugParamSetting { OnColor = new FinderColor(162, 38, 38), TextOnColor = FinderColor.White });
 
             // Black Rooster Audio
 
             {
-                var barOnColor = new FinderColor(242, 202, 75);
-                var knobOnColor = new FinderColor(210, 204, 182);
-                AddParamSetting("VLA-2A", "Power", new PlugParamSettings { Label = "OFF", LabelOn = "ON", OnColor = new FinderColor(212, 86, 27) });
-                AddParamSetting("VLA-2A", "Mode", new PlugParamSettings { Label = "COMPRESS", LabelOn = "LIMIT", OffColor = FinderColor.Black, TextOffColor = FinderColor.White });
-                AddParamSetting("VLA-2A", "ExSidech", new PlugParamSettings { Label = "EXT SC OFF", LabelOn = "EXT SC ON", OffColor = FinderColor.Black, TextOffColor = FinderColor.White });
-                AddParamSetting("VLA-2A", "CellSel", new PlugParamSettings { Label = "CEL", UserMenuItems = ["A", "B", "C"] });
-                AddParamSetting("VLA-2A", "VULevel", new PlugParamSettings { Label = "VU", UserMenuItems = ["IN", "GR", "OUT"] });
-                AddParamSetting("VLA-2A", "Gain", new PlugParamSettings { Label = "GAIN", OnColor = knobOnColor, TextOnColor = FinderColor.Black, BarOnColor = barOnColor, OnTransparency = 255 });
-                AddParamSetting("VLA-2A", "PeakRedc", new PlugParamSettings { Label = "PK REDCT", OnColor = knobOnColor, TextOnColor = FinderColor.Black, BarOnColor = barOnColor, OnTransparency = 255 });
-                AddParamSetting("VLA-2A", "Emphasis", new PlugParamSettings { Label = "EMPHASIS", OnColor = knobOnColor, TextOnColor = FinderColor.Black, BarOnColor = barOnColor, OnTransparency = 255 });
-                AddParamSetting("VLA-2A", "Makeup", new PlugParamSettings { Label = "MAKEUP", OnColor = knobOnColor, TextOnColor = FinderColor.Black, BarOnColor = barOnColor, OnTransparency = 255 });
-                AddParamSetting("VLA-2A", "Mix", new PlugParamSettings { Label = "MIX", OnColor = knobOnColor, TextOnColor = FinderColor.Black, BarOnColor = barOnColor, OnTransparency = 255 });
+                deviceEntry = AddPlugParamDeviceEntry("VLA-2A");
+                var barOnColor = new FinderColor("BarOnColor", 242, 202, 75);
+                var knobOnColor = new FinderColor("KnobOnColor", 210, 204, 182);
+                deviceEntry.ParamSettings.Add("Power", new PlugParamSetting { Label = "OFF", LabelOn = "ON", OnColor = new FinderColor(212, 86, 27) });
+                deviceEntry.ParamSettings.Add("Mode", new PlugParamSetting { Label = "COMPRESS", LabelOn = "LIMIT", OffColor = FinderColor.Black, TextOffColor = FinderColor.White });
+                deviceEntry.ParamSettings.Add("ExSidech", new PlugParamSetting { Label = "EXT SC OFF", LabelOn = "EXT SC ON", OffColor = FinderColor.Black, TextOffColor = FinderColor.White });
+                deviceEntry.ParamSettings.Add("CellSel", new PlugParamSetting { Label = "CEL", UserMenuItems = ["A", "B", "C"] });
+                deviceEntry.ParamSettings.Add("VULevel", new PlugParamSetting { Label = "VU", UserMenuItems = ["IN", "GR", "OUT"] });
+                deviceEntry.ParamSettings.Add("Gain", new PlugParamSetting { Label = "GAIN", OnColor = knobOnColor, TextOnColor = FinderColor.Black, BarOnColor = barOnColor, OnTransparency = 255 });
+                deviceEntry.ParamSettings.Add("PeakRedc", new PlugParamSetting { Label = "PK REDCT", OnColor = knobOnColor, TextOnColor = FinderColor.Black, BarOnColor = barOnColor, OnTransparency = 255 });
+                deviceEntry.ParamSettings.Add("Emphasis", new PlugParamSetting { Label = "EMPHASIS", OnColor = knobOnColor, TextOnColor = FinderColor.Black, BarOnColor = barOnColor, OnTransparency = 255 });
+                deviceEntry.ParamSettings.Add("Makeup", new PlugParamSetting { Label = "MAKEUP", OnColor = knobOnColor, TextOnColor = FinderColor.Black, BarOnColor = barOnColor, OnTransparency = 255 });
+                deviceEntry.ParamSettings.Add("Mix", new PlugParamSetting { Label = "MIX", OnColor = knobOnColor, TextOnColor = FinderColor.Black, BarOnColor = barOnColor, OnTransparency = 255 });
             }
             {
-                var barOnColor = FinderColor.White;
-                AddParamSetting("VLA-3A", "Power", new PlugParamSettings { Label = "OFF", LabelOn = "ON", OnColor = new FinderColor(212, 86, 27) });
-                AddParamSetting("VLA-3A", "Mode", new PlugParamSettings { Label = "COMPRESS", LabelOn = "LIMIT", OffColor = FinderColor.Black, TextOffColor = FinderColor.White });
-                AddParamSetting("VLA-3A", "VULevel", new PlugParamSettings { Label = "VU", UserMenuItems = ["IN", "GR", "OUT"] });
-                AddParamSetting("VLA-3A", "Gain", new PlugParamSettings { Label = "GAIN", BarOnColor = barOnColor });
-                AddParamSetting("VLA-3A", "PeakRedc", new PlugParamSettings { Label = "PK REDCT", BarOnColor = barOnColor });
+                deviceEntry = AddPlugParamDeviceEntry("VLA-3A");
+                var barOnColor = new FinderColor("BarOnColor", BitmapColor.White);
+                deviceEntry.ParamSettings.Add("Power", new PlugParamSetting { Label = "OFF", LabelOn = "ON", OnColor = new FinderColor(212, 86, 27) });
+                deviceEntry.ParamSettings.Add("Mode", new PlugParamSetting { Label = "COMPRESS", LabelOn = "LIMIT", OffColor = FinderColor.Black, TextOffColor = FinderColor.White });
+                deviceEntry.ParamSettings.Add("VULevel", new PlugParamSetting { Label = "VU", UserMenuItems = ["IN", "GR", "OUT"] });
+                deviceEntry.ParamSettings.Add("Gain", new PlugParamSetting { Label = "GAIN", BarOnColor = barOnColor });
+                deviceEntry.ParamSettings.Add("PeakRedc", new PlugParamSetting { Label = "PK REDCT", BarOnColor = barOnColor });
             }
             {
-                var barOnColor = new FinderColor(255, 161, 75);
-                var knobOnColor = new FinderColor(199, 183, 160);
-                AddParamSetting("RO-140", "Power", new PlugParamSettings { Label = "OFF", LabelOn = "ON", OnColor = new FinderColor(212, 86, 27) });
-                AddParamSetting("RO-140", "Material", new PlugParamSettings { Label = "", UserMenuItems = ["STEEL", "ALUMINUM", "BRONZE", "SILVER", "GOLD", "TITANIUM"] });
-                AddParamSetting("RO-140", "Mode", new PlugParamSettings { Label = "", UserMenuItems = ["MONO", "MONO>ST", "STEREO" ] });
-                AddParamSetting("RO-140", "Low", new PlugParamSettings { Label = "LOW", OnColor = knobOnColor, TextOnColor = FinderColor.Black, BarOnColor = barOnColor, OnTransparency = 255 });
-                AddParamSetting("RO-140", "Mid", new PlugParamSettings { Label = "MID", OnColor = knobOnColor, TextOnColor = FinderColor.Black, BarOnColor = barOnColor, OnTransparency = 255 });
-                AddParamSetting("RO-140", "High", new PlugParamSettings { Label = "HIGH", OnColor = knobOnColor, TextOnColor = FinderColor.Black, BarOnColor = barOnColor, OnTransparency = 255 });
-                AddParamSetting("RO-140", "Damper", new PlugParamSettings { Label = "DAMPER", OnColor = knobOnColor, TextOnColor = FinderColor.Black, BarOnColor = new FinderColor(200, 155, 127), OnTransparency = 255, DialSteps = 9 });
-                AddParamSetting("RO-140", "PreDelay", new PlugParamSettings { Label = "PRE/DELAY", OnColor = knobOnColor, TextOnColor = FinderColor.Black, BarOnColor = barOnColor, OnTransparency = 255 });
-                AddParamSetting("RO-140", "Size", new PlugParamSettings { Label = "SIZE", OnColor = knobOnColor, TextOnColor = FinderColor.Black, BarOnColor = barOnColor, OnTransparency = 255 });
-                AddParamSetting("RO-140", "BassCut", new PlugParamSettings { Label = "BASS CUT", OnColor = knobOnColor, TextOnColor = FinderColor.Black, BarOnColor = barOnColor, OnTransparency = 255 });
-                AddParamSetting("RO-140", "Mix", new PlugParamSettings { Label = "MIX", OnColor = knobOnColor, TextOnColor = FinderColor.Black, BarOnColor = barOnColor, OnTransparency = 255 });
-                AddParamSetting("RO-140", "Input", new PlugParamSettings { Label = "INPUT", OnColor = knobOnColor, TextOnColor = FinderColor.Black, BarOnColor = barOnColor, OnTransparency = 255 });
-                AddParamSetting("RO-140", "Output", new PlugParamSettings { Label = "OUTPUT", OnColor = knobOnColor, TextOnColor = FinderColor.Black, BarOnColor = barOnColor, OnTransparency = 255 });
+                deviceEntry = AddPlugParamDeviceEntry("RO-140");
+                var barOnColor = new FinderColor("BarOnColor", 255, 161, 75);
+                var knobOnColor = new FinderColor("KnobOnColor", 199, 183, 160);
+                deviceEntry.ParamSettings.Add("Power", new PlugParamSetting { Label = "OFF", LabelOn = "ON", OnColor = new FinderColor(212, 86, 27) });
+                deviceEntry.ParamSettings.Add("Material", new PlugParamSetting { Label = "", UserMenuItems = ["STEEL", "ALUMINUM", "BRONZE", "SILVER", "GOLD", "TITANIUM"] });
+                deviceEntry.ParamSettings.Add("Mode", new PlugParamSetting { Label = "", UserMenuItems = ["MONO", "MONO>ST", "STEREO" ] });
+                deviceEntry.ParamSettings.Add("Low", new PlugParamSetting { Label = "LOW", OnColor = knobOnColor, TextOnColor = FinderColor.Black, BarOnColor = barOnColor, OnTransparency = 255 });
+                deviceEntry.ParamSettings.Add("Mid", new PlugParamSetting { Label = "MID", OnColor = knobOnColor, TextOnColor = FinderColor.Black, BarOnColor = barOnColor, OnTransparency = 255 });
+                deviceEntry.ParamSettings.Add("High", new PlugParamSetting { Label = "HIGH", OnColor = knobOnColor, TextOnColor = FinderColor.Black, BarOnColor = barOnColor, OnTransparency = 255 });
+                deviceEntry.ParamSettings.Add("Damper", new PlugParamSetting { Label = "DAMPER", OnColor = knobOnColor, TextOnColor = FinderColor.Black, BarOnColor = new FinderColor(200, 155, 127), OnTransparency = 255, DialSteps = 9 });
+                deviceEntry.ParamSettings.Add("PreDelay", new PlugParamSetting { Label = "PRE/DELAY", OnColor = knobOnColor, TextOnColor = FinderColor.Black, BarOnColor = barOnColor, OnTransparency = 255 });
+                deviceEntry.ParamSettings.Add("Size", new PlugParamSetting { Label = "SIZE", OnColor = knobOnColor, TextOnColor = FinderColor.Black, BarOnColor = barOnColor, OnTransparency = 255 });
+                deviceEntry.ParamSettings.Add("BassCut", new PlugParamSetting { Label = "BASS CUT", OnColor = knobOnColor, TextOnColor = FinderColor.Black, BarOnColor = barOnColor, OnTransparency = 255 });
+                deviceEntry.ParamSettings.Add("Mix", new PlugParamSetting { Label = "MIX", OnColor = knobOnColor, TextOnColor = FinderColor.Black, BarOnColor = barOnColor, OnTransparency = 255 });
+                deviceEntry.ParamSettings.Add("Input", new PlugParamSetting { Label = "INPUT", OnColor = knobOnColor, TextOnColor = FinderColor.Black, BarOnColor = barOnColor, OnTransparency = 255 });
+                deviceEntry.ParamSettings.Add("Output", new PlugParamSetting { Label = "OUTPUT", OnColor = knobOnColor, TextOnColor = FinderColor.Black, BarOnColor = barOnColor, OnTransparency = 255 });
             }
 
             // Analog Obsession
+            deviceEntry = AddPlugParamDeviceEntry("Rare");
+            deviceEntry.ParamSettings.Add("Bypass", new PlugParamSetting { Label = "IN", OnColor = new FinderColor(191, 0, 22) });
+            deviceEntry.ParamSettings.Add("Low Boost", new PlugParamSetting { Label = "Low Boost", OnColor = new FinderColor(93, 161, 183) });
+            deviceEntry.ParamSettings.Add("Low Atten", new PlugParamSetting { Label = "Low Atten", OnColor = new FinderColor(93, 161, 183) });
+            deviceEntry.ParamSettings.Add("High Boost", new PlugParamSetting { Label = "High Boost", OnColor = new FinderColor(93, 161, 183) });
+            deviceEntry.ParamSettings.Add("High Atten", new PlugParamSetting { Label = "High Atten", OnColor = new FinderColor(93, 161, 183) });
+            deviceEntry.ParamSettings.Add("Low Frequency", new PlugParamSetting { Label = "Low Freq", OnColor = new FinderColor(93, 161, 183), DialSteps = 3 });
+            deviceEntry.ParamSettings.Add("High Freqency", new PlugParamSetting { Label = "High Freq", OnColor = new FinderColor(93, 161, 183), DialSteps = 6 });
+            deviceEntry.ParamSettings.Add("High Bandwidth", new PlugParamSetting { Label = "Bandwidth", OnColor = new FinderColor(93, 161, 183) });
+            deviceEntry.ParamSettings.Add("High Atten Freqency", new PlugParamSetting { Label = "Atten Sel", OnColor = new FinderColor(93, 161, 183), DialSteps = 2 });
 
-            AddParamSetting("Rare", "Bypass", new PlugParamSettings { Label = "IN", OnColor = new FinderColor(191, 0, 22) });
-            AddParamSetting("Rare", "Low Boost", new PlugParamSettings { Label = "Low Boost", OnColor = new FinderColor(93, 161, 183) });
-            AddParamSetting("Rare", "Low Atten", new PlugParamSettings { Label = "Low Atten", OnColor = new FinderColor(93, 161, 183) });
-            AddParamSetting("Rare", "High Boost", new PlugParamSettings { Label = "High Boost", OnColor = new FinderColor(93, 161, 183) });
-            AddParamSetting("Rare", "High Atten", new PlugParamSettings { Label = "High Atten", OnColor = new FinderColor(93, 161, 183) });
-            AddParamSetting("Rare", "Low Frequency", new PlugParamSettings { Label = "Low Freq", OnColor = new FinderColor(93, 161, 183), DialSteps = 3 });
-            AddParamSetting("Rare", "High Freqency", new PlugParamSettings { Label = "High Freq", OnColor = new FinderColor(93, 161, 183), DialSteps = 6 });
-            AddParamSetting("Rare", "High Bandwidth", new PlugParamSettings { Label = "Bandwidth", OnColor = new FinderColor(93, 161, 183) });
-            AddParamSetting("Rare", "High Atten Freqency", new PlugParamSettings { Label = "Atten Sel", OnColor = new FinderColor(93, 161, 183), DialSteps = 2 });
-
-            AddParamSetting("LALA", "Bypass", new PlugParamSettings { Label = "OFF", LabelOn = "ON", TextOnColor = new FinderColor(0, 0, 0), TextOffColor = new FinderColor(0, 0, 0), OnColor = new FinderColor(185, 182, 163) });
-            AddParamSetting("LALA", "Gain", new PlugParamSettings { Label = "GAIN", OnColor = new FinderColor(185, 182, 163) });
-            AddParamSetting("LALA", "Peak Reduction", new PlugParamSettings { Label = "REDUCTION", OnColor = new FinderColor(185, 182, 163) });
-            AddParamSetting("LALA", "Mode", new PlugParamSettings { Label = "LIMIT", LabelOn = "COMP", TextOnColor = new FinderColor(0, 0, 0), 
+            deviceEntry = AddPlugParamDeviceEntry("LALA");
+            deviceEntry.ParamSettings.Add("Bypass", new PlugParamSetting { Label = "OFF", LabelOn = "ON", TextOnColor = new FinderColor(0, 0, 0), TextOffColor = new FinderColor(0, 0, 0), OnColor = new FinderColor(185, 182, 163) });
+            deviceEntry.ParamSettings.Add("Gain", new PlugParamSetting { Label = "GAIN", OnColor = new FinderColor(185, 182, 163) });
+            deviceEntry.ParamSettings.Add("Peak Reduction", new PlugParamSetting { Label = "REDUCTION", OnColor = new FinderColor(185, 182, 163) });
+            deviceEntry.ParamSettings.Add("Mode", new PlugParamSetting { Label = "LIMIT", LabelOn = "COMP", TextOnColor = new FinderColor(0, 0, 0), 
                                                                                                    TextOffColor = new FinderColor(0, 0, 0),
                                                                                                    OnColor = new FinderColor(185, 182, 163),
                                                                                                    OffColor = new FinderColor(185, 182, 163) });
-            AddParamSetting("LALA", "1:3", new PlugParamSettings { Label = "MIX", OnColor = new FinderColor(185, 182, 163) });
-            AddParamSetting("LALA", "2:1", new PlugParamSettings { Label = "HPF", OnColor = new FinderColor(185, 182, 163) });
-            AddParamSetting("LALA", "MF", new PlugParamSettings { OnColor = new FinderColor(185, 182, 163) });
-            AddParamSetting("LALA", "MG", new PlugParamSettings { OnColor = new FinderColor(185, 182, 163), Mode = PlugParamSettings.PotMode.Symmetric });
-            AddParamSetting("LALA", "HF", new PlugParamSettings { OnColor = new FinderColor(185, 182, 163) });
-            AddParamSetting("LALA", "External Sidechain", new PlugParamSettings { Label = "SIDECHAIN", OnColor = new FinderColor(185, 182, 163) });
+            deviceEntry.ParamSettings.Add("1:3", new PlugParamSetting { Label = "MIX", OnColor = new FinderColor(185, 182, 163) });
+            deviceEntry.ParamSettings.Add("2:1", new PlugParamSetting { Label = "HPF", OnColor = new FinderColor(185, 182, 163) });
+            deviceEntry.ParamSettings.Add("MF", new PlugParamSetting { OnColor = new FinderColor(185, 182, 163) });
+            deviceEntry.ParamSettings.Add("MG", new PlugParamSetting { OnColor = new FinderColor(185, 182, 163), Mode = PlugParamSetting.PotMode.Symmetric });
+            deviceEntry.ParamSettings.Add("HF", new PlugParamSetting { OnColor = new FinderColor(185, 182, 163) });
+            deviceEntry.ParamSettings.Add("External Sidechain", new PlugParamSetting { Label = "SIDECHAIN", OnColor = new FinderColor(185, 182, 163) });
 
-            AddParamSetting("FETish", "", new PlugParamSettings { OnColor = new FinderColor(24, 86, 119) });
-            AddParamSetting("FETish", "Bypass", new PlugParamSettings { Label = "IN", OnColor = new FinderColor(24, 86, 119) });
-            AddParamSetting("FETish", "Input", new PlugParamSettings { Label = "INPUT", OnColor = new FinderColor(186, 175, 176) });
-            AddParamSetting("FETish", "Output", new PlugParamSettings { Label = "OUTPUT", OnColor = new FinderColor(186, 175, 176) });
-            AddParamSetting("FETish", "Ratio", new PlugParamSettings { OnColor = new FinderColor(186, 175, 176), DialSteps = 16 });
-            AddParamSetting("FETish", "Sidechain", new PlugParamSettings { Label = "EXT", OnColor = new FinderColor(24, 86, 119) });
-            AddParamSetting("FETish", "Mid Frequency", new PlugParamSettings { Label = "MF", OnColor = new FinderColor(24, 86, 119) });
-            AddParamSetting("FETish", "Mid Gain", new PlugParamSettings { Label = "MG", OnColor = new FinderColor(24, 86, 119), Mode = PlugParamSettings.PotMode.Symmetric });
+            deviceEntry = AddPlugParamDeviceEntry("FETish");
+            deviceEntry.ParamSettings.Add("", new PlugParamSetting { OnColor = new FinderColor(24, 86, 119) });
+            deviceEntry.ParamSettings.Add("Bypass", new PlugParamSetting { Label = "IN", OnColor = new FinderColor(24, 86, 119) });
+            deviceEntry.ParamSettings.Add("Input", new PlugParamSetting { Label = "INPUT", OnColor = new FinderColor(186, 175, 176) });
+            deviceEntry.ParamSettings.Add("Output", new PlugParamSetting { Label = "OUTPUT", OnColor = new FinderColor(186, 175, 176) });
+            deviceEntry.ParamSettings.Add("Ratio", new PlugParamSetting { OnColor = new FinderColor(186, 175, 176), DialSteps = 16 });
+            deviceEntry.ParamSettings.Add("Sidechain", new PlugParamSetting { Label = "EXT", OnColor = new FinderColor(24, 86, 119) });
+            deviceEntry.ParamSettings.Add("Mid Frequency", new PlugParamSetting { Label = "MF", OnColor = new FinderColor(24, 86, 119) });
+            deviceEntry.ParamSettings.Add("Mid Gain", new PlugParamSetting { Label = "MG", OnColor = new FinderColor(24, 86, 119), Mode = PlugParamSetting.PotMode.Symmetric });
 
-            AddParamSetting("dBComp", "", new PlugParamSettings { OnColor = new FinderColor(105, 99, 94) });
-            AddParamSetting("dBComp", "Output Gain", new PlugParamSettings { Label = "Output", OnColor = new FinderColor(105, 99, 94) });
-            AddParamSetting("dBComp", "1:4U", new PlugParamSettings { Label = "EXT SC", OnColor = new FinderColor(208, 207, 203), TextOnColor = FinderColor.Black });
+            deviceEntry = AddPlugParamDeviceEntry("dBComp");
+            deviceEntry.ParamSettings.Add("", new PlugParamSetting { OnColor = new FinderColor(105, 99, 94) });
+            deviceEntry.ParamSettings.Add("Output Gain", new PlugParamSetting { Label = "Output", OnColor = new FinderColor(105, 99, 94) });
+            deviceEntry.ParamSettings.Add("1:4U", new PlugParamSetting { Label = "EXT SC", OnColor = new FinderColor(208, 207, 203), TextOnColor = FinderColor.Black });
 
-            AddParamSetting("BUSTERse", "Bypass", new PlugParamSettings { Label = "MAIN", OnColor = new FinderColor(255, 254, 228), TextOnColor = FinderColor.Black });
-            AddParamSetting("BUSTERse", "Turbo", new PlugParamSettings { Label = "TURBO", OnColor = new FinderColor(255, 254, 228), TextOnColor = FinderColor.Black });
-            AddParamSetting("BUSTERse", "XFormer", new PlugParamSettings { Label = "XFORMER", OnColor = new FinderColor(255, 254, 228), TextOnColor = FinderColor.Black });
-            AddParamSetting("BUSTERse", "Threshold", new PlugParamSettings { Label = "THRESH", OnColor = new FinderColor(174, 164, 167) });
-            AddParamSetting("BUSTERse", "Attack Time", new PlugParamSettings { Label = "ATTACK", OnColor = new FinderColor(174, 164, 167), DialSteps = 5 });
-            AddParamSetting("BUSTERse", "Ratio", new PlugParamSettings { Label = "RATIO", OnColor = new FinderColor(174, 164, 167), DialSteps = 5 });
-            AddParamSetting("BUSTERse", "Make-Up Gain", new PlugParamSettings { Label = "MAKE-UP", OnColor = new FinderColor(174, 164, 167) });
-            AddParamSetting("BUSTERse", "Release Time", new PlugParamSettings { Label = "RELEASE", OnColor = new FinderColor(174, 164, 167), DialSteps = 4 });
-            AddParamSetting("BUSTERse", "Compressor Mix", new PlugParamSettings { Label = "MIX", OnColor = new FinderColor(174, 164, 167) });
-            AddParamSetting("BUSTERse", "External Sidechain", new PlugParamSettings { Label = "EXT", OnColor = new FinderColor(255, 254, 228), TextOnColor = FinderColor.Black });
-            AddParamSetting("BUSTERse", "HF", new PlugParamSettings { OnColor = new FinderColor(174, 164, 167) });
-            AddParamSetting("BUSTERse", "Mid Gain", new PlugParamSettings { Label = "MID", OnColor = new FinderColor(174, 164, 167), Mode = PlugParamSettings.PotMode.Symmetric });
-            AddParamSetting("BUSTERse", "HPF", new PlugParamSettings { OnColor = new FinderColor(174, 164, 167) });
-            AddParamSetting("BUSTERse", "Boost", new PlugParamSettings { Label = "TR BOOST", OnColor = new FinderColor(174, 164, 167) });
-            AddParamSetting("BUSTERse", "Transient Tilt", new PlugParamSettings { Label = "TR TILT", OnColor = new FinderColor(174, 164, 167), Mode = PlugParamSettings.PotMode.Symmetric });
-            AddParamSetting("BUSTERse", "Transient Mix", new PlugParamSettings { Label = "TR MIX", OnColor = new FinderColor(174, 164, 167) });
+            deviceEntry = AddPlugParamDeviceEntry("BUSTERse");
+            deviceEntry.ParamSettings.Add("Bypass", new PlugParamSetting { Label = "MAIN", OnColor = new FinderColor(255, 254, 228), TextOnColor = FinderColor.Black });
+            deviceEntry.ParamSettings.Add("Turbo", new PlugParamSetting { Label = "TURBO", OnColor = new FinderColor(255, 254, 228), TextOnColor = FinderColor.Black });
+            deviceEntry.ParamSettings.Add("XFormer", new PlugParamSetting { Label = "XFORMER", OnColor = new FinderColor(255, 254, 228), TextOnColor = FinderColor.Black });
+            deviceEntry.ParamSettings.Add("Threshold", new PlugParamSetting { Label = "THRESH", OnColor = new FinderColor(174, 164, 167) });
+            deviceEntry.ParamSettings.Add("Attack Time", new PlugParamSetting { Label = "ATTACK", OnColor = new FinderColor(174, 164, 167), DialSteps = 5 });
+            deviceEntry.ParamSettings.Add("Ratio", new PlugParamSetting { Label = "RATIO", OnColor = new FinderColor(174, 164, 167), DialSteps = 5 });
+            deviceEntry.ParamSettings.Add("Make-Up Gain", new PlugParamSetting { Label = "MAKE-UP", OnColor = new FinderColor(174, 164, 167) });
+            deviceEntry.ParamSettings.Add("Release Time", new PlugParamSetting { Label = "RELEASE", OnColor = new FinderColor(174, 164, 167), DialSteps = 4 });
+            deviceEntry.ParamSettings.Add("Compressor Mix", new PlugParamSetting { Label = "MIX", OnColor = new FinderColor(174, 164, 167) });
+            deviceEntry.ParamSettings.Add("External Sidechain", new PlugParamSetting { Label = "EXT", OnColor = new FinderColor(255, 254, 228), TextOnColor = FinderColor.Black });
+            deviceEntry.ParamSettings.Add("HF", new PlugParamSetting { OnColor = new FinderColor(174, 164, 167) });
+            deviceEntry.ParamSettings.Add("Mid Gain", new PlugParamSetting { Label = "MID", OnColor = new FinderColor(174, 164, 167), Mode = PlugParamSetting.PotMode.Symmetric });
+            deviceEntry.ParamSettings.Add("HPF", new PlugParamSetting { OnColor = new FinderColor(174, 164, 167) });
+            deviceEntry.ParamSettings.Add("Boost", new PlugParamSetting { Label = "TR BOOST", OnColor = new FinderColor(174, 164, 167) });
+            deviceEntry.ParamSettings.Add("Transient Tilt", new PlugParamSetting { Label = "TR TILT", OnColor = new FinderColor(174, 164, 167), Mode = PlugParamSetting.PotMode.Symmetric });
+            deviceEntry.ParamSettings.Add("Transient Mix", new PlugParamSetting { Label = "TR MIX", OnColor = new FinderColor(174, 164, 167) });
 
-            AddParamSetting("BritChannel", "", new PlugParamSettings { OnColor = new FinderColor(141, 134, 137), Mode = PlugParamSettings.PotMode.Symmetric });
-            AddParamSetting("BritChannel", "Bypass", new PlugParamSettings { Label = "IN", OnColor = new FinderColor(241, 223, 219), TextOnColor = FinderColor.Black });
-            AddParamSetting("BritChannel", "Mic Pre", new PlugParamSettings { Label = "MIC", OnColor = new FinderColor(241, 223, 219), TextOnColor = FinderColor.Black });
-            AddParamSetting("BritChannel", "Mid Freq", new PlugParamSettings { OnColor = new FinderColor(141, 134, 137), DialSteps = 6 });
-            AddParamSetting("BritChannel", "Low Freq", new PlugParamSettings { OnColor = new FinderColor(141, 134, 137), DialSteps = 4 });
-            AddParamSetting("BritChannel", "HighPass", new PlugParamSettings { Label = "High Pass", OnColor = new FinderColor(49, 81, 119), DialSteps = 4 });
-            AddParamSetting("BritChannel", "Preamp Gain", new PlugParamSettings { Label = "PRE GAIN", OnColor = new FinderColor(160, 53, 50), Mode = PlugParamSettings.PotMode.Symmetric });
-            AddParamSetting("BritChannel", "Output Trim", new PlugParamSettings { Label = "OUT TRIM", OnColor = new FinderColor(124, 117, 115), Mode = PlugParamSettings.PotMode.Symmetric });
+            deviceEntry = AddPlugParamDeviceEntry("BritChannel");
+            deviceEntry.ParamSettings.Add("", new PlugParamSetting { OnColor = new FinderColor(141, 134, 137), Mode = PlugParamSetting.PotMode.Symmetric });
+            deviceEntry.ParamSettings.Add("Bypass", new PlugParamSetting { Label = "IN", OnColor = new FinderColor(241, 223, 219), TextOnColor = FinderColor.Black });
+            deviceEntry.ParamSettings.Add("Mic Pre", new PlugParamSetting { Label = "MIC", OnColor = new FinderColor(241, 223, 219), TextOnColor = FinderColor.Black });
+            deviceEntry.ParamSettings.Add("Mid Freq", new PlugParamSetting { OnColor = new FinderColor(141, 134, 137), DialSteps = 6 });
+            deviceEntry.ParamSettings.Add("Low Freq", new PlugParamSetting { OnColor = new FinderColor(141, 134, 137), DialSteps = 4 });
+            deviceEntry.ParamSettings.Add("HighPass", new PlugParamSetting { Label = "High Pass", OnColor = new FinderColor(49, 81, 119), DialSteps = 4 });
+            deviceEntry.ParamSettings.Add("Preamp Gain", new PlugParamSetting { Label = "PRE GAIN", OnColor = new FinderColor(160, 53, 50), Mode = PlugParamSetting.PotMode.Symmetric });
+            deviceEntry.ParamSettings.Add("Output Trim", new PlugParamSetting { Label = "OUT TRIM", OnColor = new FinderColor(124, 117, 115), Mode = PlugParamSetting.PotMode.Symmetric });
 
             // Acon Digital
 
-            AddParamSetting("Acon Digital Equalize 2", "Gain-bandwidth link", new PlugParamSettings { Label = "Link", OnColor = new FinderColor(230, 159, 0), TextOnColor = FinderColor.Black });
-            AddParamSetting("Acon Digital Equalize 2", "Solo 1", new PlugParamSettings { OnColor = new FinderColor(230, 159, 0), TextOnColor = FinderColor.Black });
-            AddParamSetting("Acon Digital Equalize 2", "Bypass 1", new PlugParamSettings { OnColor = new FinderColor(230, 159, 0), TextOnColor = FinderColor.Black });
-            AddParamSetting("Acon Digital Equalize 2", "Frequency 1", new PlugParamSettings { OnColor = new FinderColor(221, 125, 125) });
-            AddParamSetting("Acon Digital Equalize 2", "Gain 1", new PlugParamSettings { OnColor = new FinderColor(221, 125, 125) });
-            AddParamSetting("Acon Digital Equalize 2", "Filter type 1", new PlugParamSettings { Label = "Filter 1", OnColor = new FinderColor(221, 125, 125), DialSteps = 8, HideValueBar = true });
-            AddParamSetting("Acon Digital Equalize 2", "Band width 1", new PlugParamSettings { Label = "Bandwidth 1", OnColor = new FinderColor(221, 125, 125) });
-            AddParamSetting("Acon Digital Equalize 2", "Slope 1", new PlugParamSettings { OnColor = new FinderColor(221, 125, 125) });
-            AddParamSetting("Acon Digital Equalize 2", "Resonance 1", new PlugParamSettings { OnColor = new FinderColor(221, 125, 125) });
-            AddParamSetting("Acon Digital Equalize 2", "Solo 2", new PlugParamSettings { OnColor = new FinderColor(230, 159, 0), TextOnColor = FinderColor.Black });
-            AddParamSetting("Acon Digital Equalize 2", "Bypass 2", new PlugParamSettings { OnColor = new FinderColor(230, 159, 0), TextOnColor = FinderColor.Black });
-            AddParamSetting("Acon Digital Equalize 2", "Frequency 2", new PlugParamSettings { OnColor = new FinderColor(204, 133, 61) });
-            AddParamSetting("Acon Digital Equalize 2", "Gain 2", new PlugParamSettings { OnColor = new FinderColor(204, 133, 61) });
-            AddParamSetting("Acon Digital Equalize 2", "Filter type 2", new PlugParamSettings { Label = "Filter 2", OnColor = new FinderColor(204, 133, 61), DialSteps = 8, HideValueBar = true });
-            AddParamSetting("Acon Digital Equalize 2", "Band width 2", new PlugParamSettings { Label = "Bandwidth 2", OnColor = new FinderColor(204, 133, 61) });
-            AddParamSetting("Acon Digital Equalize 2", "Slope 2", new PlugParamSettings { OnColor = new FinderColor(204, 133, 61) });
-            AddParamSetting("Acon Digital Equalize 2", "Resonance 2", new PlugParamSettings { OnColor = new FinderColor(204, 133, 61) });
-            AddParamSetting("Acon Digital Equalize 2", "Solo 3", new PlugParamSettings { OnColor = new FinderColor(230, 159, 0), TextOnColor = FinderColor.Black });
-            AddParamSetting("Acon Digital Equalize 2", "Bypass 3", new PlugParamSettings { OnColor = new FinderColor(230, 159, 0), TextOnColor = FinderColor.Black });
-            AddParamSetting("Acon Digital Equalize 2", "Frequency 3", new PlugParamSettings { OnColor = new FinderColor(204, 204, 61) });
-            AddParamSetting("Acon Digital Equalize 2", "Gain 3", new PlugParamSettings { OnColor = new FinderColor(204, 204, 61) });
-            AddParamSetting("Acon Digital Equalize 2", "Filter type 3", new PlugParamSettings { Label = "Filter 3", OnColor = new FinderColor(204, 204, 61), DialSteps = 8, HideValueBar = true });
-            AddParamSetting("Acon Digital Equalize 2", "Band width 3", new PlugParamSettings { Label = "Bandwidth 3", OnColor = new FinderColor(204, 204, 61) });
-            AddParamSetting("Acon Digital Equalize 2", "Slope 3", new PlugParamSettings { OnColor = new FinderColor(204, 204, 61) });
-            AddParamSetting("Acon Digital Equalize 2", "Resonance 3", new PlugParamSettings { OnColor = new FinderColor(204, 204, 61) });
-            AddParamSetting("Acon Digital Equalize 2", "Solo 4", new PlugParamSettings { OnColor = new FinderColor(230, 159, 0), TextOnColor = FinderColor.Black });
-            AddParamSetting("Acon Digital Equalize 2", "Bypass 4", new PlugParamSettings { OnColor = new FinderColor(230, 159, 0), TextOnColor = FinderColor.Black });
-            AddParamSetting("Acon Digital Equalize 2", "Frequency 4", new PlugParamSettings { OnColor = new FinderColor(61, 204, 61) });
-            AddParamSetting("Acon Digital Equalize 2", "Gain 4", new PlugParamSettings { OnColor = new FinderColor(61, 204, 61) });
-            AddParamSetting("Acon Digital Equalize 2", "Filter type 4", new PlugParamSettings { Label = "Filter 4", OnColor = new FinderColor(61, 204, 61), DialSteps = 8, HideValueBar = true });
-            AddParamSetting("Acon Digital Equalize 2", "Band width 4", new PlugParamSettings { Label = "Bandwidth 4", OnColor = new FinderColor(61, 204, 61) });
-            AddParamSetting("Acon Digital Equalize 2", "Slope 4", new PlugParamSettings { OnColor = new FinderColor(61, 204, 61) });
-            AddParamSetting("Acon Digital Equalize 2", "Resonance 4", new PlugParamSettings { OnColor = new FinderColor(61, 204, 61) });
-            AddParamSetting("Acon Digital Equalize 2", "Solo 5", new PlugParamSettings { OnColor = new FinderColor(230, 159, 0), TextOnColor = FinderColor.Black });
-            AddParamSetting("Acon Digital Equalize 2", "Bypass 5", new PlugParamSettings { OnColor = new FinderColor(230, 159, 0), TextOnColor = FinderColor.Black });
-            AddParamSetting("Acon Digital Equalize 2", "Frequency 5", new PlugParamSettings { OnColor = new FinderColor(61, 204, 133) });
-            AddParamSetting("Acon Digital Equalize 2", "Gain 5", new PlugParamSettings { OnColor = new FinderColor(61, 204, 133) });
-            AddParamSetting("Acon Digital Equalize 2", "Filter type 5", new PlugParamSettings { Label = "Filter 5", OnColor = new FinderColor(61, 204, 133), DialSteps = 8, HideValueBar = true });
-            AddParamSetting("Acon Digital Equalize 2", "Band width 5", new PlugParamSettings { Label = "Bandwidth 5", OnColor = new FinderColor(61, 204, 133) });
-            AddParamSetting("Acon Digital Equalize 2", "Slope 5", new PlugParamSettings { OnColor = new FinderColor(61, 204, 133) });
-            AddParamSetting("Acon Digital Equalize 2", "Resonance 5", new PlugParamSettings { OnColor = new FinderColor(61, 204, 133) });
-            AddParamSetting("Acon Digital Equalize 2", "Solo 6", new PlugParamSettings { OnColor = new FinderColor(230, 159, 0), TextOnColor = FinderColor.Black });
-            AddParamSetting("Acon Digital Equalize 2", "Bypass 6", new PlugParamSettings { OnColor = new FinderColor(230, 159, 0), TextOnColor = FinderColor.Black });
-            AddParamSetting("Acon Digital Equalize 2", "Frequency 6", new PlugParamSettings { OnColor = new FinderColor(173, 221, 125) });
-            AddParamSetting("Acon Digital Equalize 2", "Gain 6", new PlugParamSettings { OnColor = new FinderColor(173, 221, 125) });
-            AddParamSetting("Acon Digital Equalize 2", "Filter type 6", new PlugParamSettings { Label = "Filter 6", OnColor = new FinderColor(173, 221, 125), DialSteps = 8, HideValueBar = true });
-            AddParamSetting("Acon Digital Equalize 2", "Band width 6", new PlugParamSettings { Label = "Bandwidth 6 ", OnColor = new FinderColor(173, 221, 125) });
-            AddParamSetting("Acon Digital Equalize 2", "Slope 6", new PlugParamSettings { OnColor = new FinderColor(173, 221, 125) });
-            AddParamSetting("Acon Digital Equalize 2", "Resonance 6", new PlugParamSettings { OnColor = new FinderColor(173, 221, 125) });
+            deviceEntry = AddPlugParamDeviceEntry("Acon Digital Equalize 2");
+            deviceEntry.ParamSettings.Add("Gain-bandwidth link", new PlugParamSetting { Label = "Link", OnColor = new FinderColor(230, 159, 0), TextOnColor = FinderColor.Black });
+            deviceEntry.ParamSettings.Add("Solo 1", new PlugParamSetting { OnColor = new FinderColor(230, 159, 0), TextOnColor = FinderColor.Black });
+            deviceEntry.ParamSettings.Add("Bypass 1", new PlugParamSetting { OnColor = new FinderColor(230, 159, 0), TextOnColor = FinderColor.Black });
+            deviceEntry.ParamSettings.Add("Frequency 1", new PlugParamSetting { OnColor = new FinderColor(221, 125, 125) });
+            deviceEntry.ParamSettings.Add("Gain 1", new PlugParamSetting { OnColor = new FinderColor(221, 125, 125) });
+            deviceEntry.ParamSettings.Add("Filter type 1", new PlugParamSetting { Label = "Filter 1", OnColor = new FinderColor(221, 125, 125), DialSteps = 8, HideValueBar = true });
+            deviceEntry.ParamSettings.Add("Band width 1", new PlugParamSetting { Label = "Bandwidth 1", OnColor = new FinderColor(221, 125, 125) });
+            deviceEntry.ParamSettings.Add("Slope 1", new PlugParamSetting { OnColor = new FinderColor(221, 125, 125) });
+            deviceEntry.ParamSettings.Add("Resonance 1", new PlugParamSetting { OnColor = new FinderColor(221, 125, 125) });
+            deviceEntry.ParamSettings.Add("Solo 2", new PlugParamSetting { OnColor = new FinderColor(230, 159, 0), TextOnColor = FinderColor.Black });
+            deviceEntry.ParamSettings.Add("Bypass 2", new PlugParamSetting { OnColor = new FinderColor(230, 159, 0), TextOnColor = FinderColor.Black });
+            deviceEntry.ParamSettings.Add("Frequency 2", new PlugParamSetting { OnColor = new FinderColor(204, 133, 61) });
+            deviceEntry.ParamSettings.Add("Gain 2", new PlugParamSetting { OnColor = new FinderColor(204, 133, 61) });
+            deviceEntry.ParamSettings.Add("Filter type 2", new PlugParamSetting { Label = "Filter 2", OnColor = new FinderColor(204, 133, 61), DialSteps = 8, HideValueBar = true });
+            deviceEntry.ParamSettings.Add("Band width 2", new PlugParamSetting { Label = "Bandwidth 2", OnColor = new FinderColor(204, 133, 61) });
+            deviceEntry.ParamSettings.Add("Slope 2", new PlugParamSetting { OnColor = new FinderColor(204, 133, 61) });
+            deviceEntry.ParamSettings.Add("Resonance 2", new PlugParamSetting { OnColor = new FinderColor(204, 133, 61) });
+            deviceEntry.ParamSettings.Add("Solo 3", new PlugParamSetting { OnColor = new FinderColor(230, 159, 0), TextOnColor = FinderColor.Black });
+            deviceEntry.ParamSettings.Add("Bypass 3", new PlugParamSetting { OnColor = new FinderColor(230, 159, 0), TextOnColor = FinderColor.Black });
+            deviceEntry.ParamSettings.Add("Frequency 3", new PlugParamSetting { OnColor = new FinderColor(204, 204, 61) });
+            deviceEntry.ParamSettings.Add("Gain 3", new PlugParamSetting { OnColor = new FinderColor(204, 204, 61) });
+            deviceEntry.ParamSettings.Add("Filter type 3", new PlugParamSetting { Label = "Filter 3", OnColor = new FinderColor(204, 204, 61), DialSteps = 8, HideValueBar = true });
+            deviceEntry.ParamSettings.Add("Band width 3", new PlugParamSetting { Label = "Bandwidth 3", OnColor = new FinderColor(204, 204, 61) });
+            deviceEntry.ParamSettings.Add("Slope 3", new PlugParamSetting { OnColor = new FinderColor(204, 204, 61) });
+            deviceEntry.ParamSettings.Add("Resonance 3", new PlugParamSetting { OnColor = new FinderColor(204, 204, 61) });
+            deviceEntry.ParamSettings.Add("Solo 4", new PlugParamSetting { OnColor = new FinderColor(230, 159, 0), TextOnColor = FinderColor.Black });
+            deviceEntry.ParamSettings.Add("Bypass 4", new PlugParamSetting { OnColor = new FinderColor(230, 159, 0), TextOnColor = FinderColor.Black });
+            deviceEntry.ParamSettings.Add("Frequency 4", new PlugParamSetting { OnColor = new FinderColor(61, 204, 61) });
+            deviceEntry.ParamSettings.Add("Gain 4", new PlugParamSetting { OnColor = new FinderColor(61, 204, 61) });
+            deviceEntry.ParamSettings.Add("Filter type 4", new PlugParamSetting { Label = "Filter 4", OnColor = new FinderColor(61, 204, 61), DialSteps = 8, HideValueBar = true });
+            deviceEntry.ParamSettings.Add("Band width 4", new PlugParamSetting { Label = "Bandwidth 4", OnColor = new FinderColor(61, 204, 61) });
+            deviceEntry.ParamSettings.Add("Slope 4", new PlugParamSetting { OnColor = new FinderColor(61, 204, 61) });
+            deviceEntry.ParamSettings.Add("Resonance 4", new PlugParamSetting { OnColor = new FinderColor(61, 204, 61) });
+            deviceEntry.ParamSettings.Add("Solo 5", new PlugParamSetting { OnColor = new FinderColor(230, 159, 0), TextOnColor = FinderColor.Black });
+            deviceEntry.ParamSettings.Add("Bypass 5", new PlugParamSetting { OnColor = new FinderColor(230, 159, 0), TextOnColor = FinderColor.Black });
+            deviceEntry.ParamSettings.Add("Frequency 5", new PlugParamSetting { OnColor = new FinderColor(61, 204, 133) });
+            deviceEntry.ParamSettings.Add("Gain 5", new PlugParamSetting { OnColor = new FinderColor(61, 204, 133) });
+            deviceEntry.ParamSettings.Add("Filter type 5", new PlugParamSetting { Label = "Filter 5", OnColor = new FinderColor(61, 204, 133), DialSteps = 8, HideValueBar = true });
+            deviceEntry.ParamSettings.Add("Band width 5", new PlugParamSetting { Label = "Bandwidth 5", OnColor = new FinderColor(61, 204, 133) });
+            deviceEntry.ParamSettings.Add("Slope 5", new PlugParamSetting { OnColor = new FinderColor(61, 204, 133) });
+            deviceEntry.ParamSettings.Add("Resonance 5", new PlugParamSetting { OnColor = new FinderColor(61, 204, 133) });
+            deviceEntry.ParamSettings.Add("Solo 6", new PlugParamSetting { OnColor = new FinderColor(230, 159, 0), TextOnColor = FinderColor.Black });
+            deviceEntry.ParamSettings.Add("Bypass 6", new PlugParamSetting { OnColor = new FinderColor(230, 159, 0), TextOnColor = FinderColor.Black });
+            deviceEntry.ParamSettings.Add("Frequency 6", new PlugParamSetting { OnColor = new FinderColor(173, 221, 125) });
+            deviceEntry.ParamSettings.Add("Gain 6", new PlugParamSetting { OnColor = new FinderColor(173, 221, 125) });
+            deviceEntry.ParamSettings.Add("Filter type 6", new PlugParamSetting { Label = "Filter 6", OnColor = new FinderColor(173, 221, 125), DialSteps = 8, HideValueBar = true });
+            deviceEntry.ParamSettings.Add("Band width 6", new PlugParamSetting { Label = "Bandwidth 6 ", OnColor = new FinderColor(173, 221, 125) });
+            deviceEntry.ParamSettings.Add("Slope 6", new PlugParamSetting { OnColor = new FinderColor(173, 221, 125) });
+            deviceEntry.ParamSettings.Add("Resonance 6", new PlugParamSetting { OnColor = new FinderColor(173, 221, 125) });
 
-            AddParamSetting("Acon Digital Verberate 2", "Dry Mute", new PlugParamSettings { Label = "Mute", OnColor = new FinderColor(212, 160, 40), TextOnColor = FinderColor.Black });
-            AddParamSetting("Acon Digital Verberate 2", "Reverb Mute", new PlugParamSettings { Label = "Mute", OnColor = new FinderColor(212, 160, 40), TextOnColor = FinderColor.Black });
-            AddParamSetting("Acon Digital Verberate 2", "ER Mute", new PlugParamSettings { Label = "Mute", OnColor = new FinderColor(212, 160, 40), TextOnColor = FinderColor.Black });
-            AddParamSetting("Acon Digital Verberate 2", "Freeze", new PlugParamSettings { OnColor = new FinderColor(230, 173, 43), TextOnColor = FinderColor.Black });
-            AddParamSetting("Acon Digital Verberate 2", "Stereo Spread", new PlugParamSettings { Label = "Spread" });
-            AddParamSetting("Acon Digital Verberate 2", "EarlyReflectionsType", new PlugParamSettings { Label = "ER Type", DialSteps = 14, HideValueBar = true });
-            AddParamSetting("Acon Digital Verberate 2", "Algorithm", new PlugParamSettings { Label = "Vivid", LabelOn = "Legacy", TextOnColor = FinderColor.White, TextOffColor = FinderColor.White });
-            AddParamSetting("Acon Digital Verberate 2", "Decay High Cut Enable", new PlugParamSettings { Label = "Decay HC", OnColor = new FinderColor(221, 85, 255) });
-            AddLinked("Acon Digital Verberate 2", "Decay High Cut Frequency", "Decay High Cut Enable", label: "Freq");
-            AddLinked("Acon Digital Verberate 2", "Decay High Cut Slope", "Decay High Cut Enable", label: "Slope");
-            AddParamSetting("Acon Digital Verberate 2", "EQ High Cut Enable", new PlugParamSettings { Label = "EQ HC", OnColor = new FinderColor(221, 85, 255) });
-            AddLinked("Acon Digital Verberate 2", "EQ High Cut Frequency", "EQ High Cut Enable", label: "Freq");
-            AddLinked("Acon Digital Verberate 2", "EQ High Cut Slope", "EQ High Cut Enable", label: "Slope");
+            deviceEntry = AddPlugParamDeviceEntry("Acon Digital Verberate 2");
+            deviceEntry.ParamSettings.Add("Dry Mute", new PlugParamSetting { Label = "Mute", OnColor = new FinderColor(212, 160, 40), TextOnColor = FinderColor.Black });
+            deviceEntry.ParamSettings.Add("Reverb Mute", new PlugParamSetting { Label = "Mute", OnColor = new FinderColor(212, 160, 40), TextOnColor = FinderColor.Black });
+            deviceEntry.ParamSettings.Add("ER Mute", new PlugParamSetting { Label = "Mute", OnColor = new FinderColor(212, 160, 40), TextOnColor = FinderColor.Black });
+            deviceEntry.ParamSettings.Add("Freeze", new PlugParamSetting { OnColor = new FinderColor(230, 173, 43), TextOnColor = FinderColor.Black });
+            deviceEntry.ParamSettings.Add("Stereo Spread", new PlugParamSetting { Label = "Spread" });
+            deviceEntry.ParamSettings.Add("EarlyReflectionsType", new PlugParamSetting { Label = "ER Type", DialSteps = 14, HideValueBar = true });
+            deviceEntry.ParamSettings.Add("Algorithm", new PlugParamSetting { Label = "Vivid", LabelOn = "Legacy", TextOnColor = FinderColor.White, TextOffColor = FinderColor.White });
+            deviceEntry.ParamSettings.Add("Decay High Cut Enable", new PlugParamSetting { Label = "Decay HC", OnColor = new FinderColor(221, 85, 255) });
+            AddLinked(deviceEntry, "Decay High Cut Frequency", "Decay High Cut Enable", label: "Freq");
+            AddLinked(deviceEntry, "Decay High Cut Slope", "Decay High Cut Enable", label: "Slope");
+            deviceEntry.ParamSettings.Add("EQ High Cut Enable", new PlugParamSetting { Label = "EQ HC", OnColor = new FinderColor(221, 85, 255) });
+            AddLinked(deviceEntry, "EQ High Cut Frequency", "EQ High Cut Enable", label: "Freq");
+            AddLinked(deviceEntry, "EQ High Cut Slope", "EQ High Cut Enable", label: "Slope");
 
 
             // AXP
 
-            AddParamSetting("AXP SoftAmp PSA", "Enable", new PlugParamSettings { Label = "ENABLE" });
-            AddParamSetting("AXP SoftAmp PSA", "Preamp", new PlugParamSettings { Label = "PRE-AMP", OnColor = new FinderColor(200, 200, 200) });
-            AddParamSetting("AXP SoftAmp PSA", "Asymm", new PlugParamSettings { Label = "ASYMM", OnColor = new FinderColor(237, 244, 1), TextOnColor = FinderColor.Black });
-            AddParamSetting("AXP SoftAmp PSA", "Buzz", new PlugParamSettings { Label = "BUZZ", OnColor = new FinderColor(200, 200, 200), Mode = PlugParamSettings.PotMode.Symmetric });
-            AddParamSetting("AXP SoftAmp PSA", "Punch", new PlugParamSettings { Label = "PUNCH", OnColor = new FinderColor(200, 200, 200), Mode = PlugParamSettings.PotMode.Symmetric });
-            AddParamSetting("AXP SoftAmp PSA", "Crunch", new PlugParamSettings { Label = "CRUNCH", OnColor = new FinderColor(200, 200, 200) });
-            AddParamSetting("AXP SoftAmp PSA", "SoftClip", new PlugParamSettings { Label = "SOFT CLIP", OnColor = new FinderColor(234, 105, 30), TextOnColor = FinderColor.Black });
-            AddParamSetting("AXP SoftAmp PSA", "Drive", new PlugParamSettings { Label = "DRIVE", OnColor = new FinderColor(200, 200, 200) });
-            AddParamSetting("AXP SoftAmp PSA", "Level", new PlugParamSettings { Label = "LEVEL", OnColor = new FinderColor(200, 200, 200) });
-            AddParamSetting("AXP SoftAmp PSA", "Limiter", new PlugParamSettings { Label = "LIMITER", OnColor = new FinderColor(237, 0, 0), TextOnColor = FinderColor.Black });
-            AddParamSetting("AXP SoftAmp PSA", "Low", new PlugParamSettings { Label = "LOW", OnColor = new FinderColor(200, 200, 200), Mode = PlugParamSettings.PotMode.Symmetric });
-            AddParamSetting("AXP SoftAmp PSA", "High", new PlugParamSettings { Label = "HIGH", OnColor = new FinderColor(200, 200, 200), Mode = PlugParamSettings.PotMode.Symmetric });
-            AddParamSetting("AXP SoftAmp PSA", "SpkReso", new PlugParamSettings { Label = "SHAPE", OnColor = new FinderColor(120, 120, 120) });
-            AddParamSetting("AXP SoftAmp PSA", "SpkRoll", new PlugParamSettings { Label = "ROLL-OFF", OnColor = new FinderColor(120, 120, 120) });
-            AddParamSetting("AXP SoftAmp PSA", "PSI_En", new PlugParamSettings { Label = "PSI DNS", OnColor = new FinderColor(10, 178, 255), TextOnColor = FinderColor.Black });
-            AddLinked("AXP SoftAmp PSA", "PSI_Thr", "PSI_En", label: "THRESHOLD");
-            AddParamSetting("AXP SoftAmp PSA", "OS_Enab", new PlugParamSettings { Label = "SQUEEZO", OnColor = new FinderColor(209, 155, 104), TextOnColor = FinderColor.Black });
-            AddLinked("AXP SoftAmp PSA", "OS_Gain", "OS_Enab", label: "GAIN");
-            AddLinked("AXP SoftAmp PSA", "OS_Bias", "OS_Enab", label: "BIAS");
-            AddLinked("AXP SoftAmp PSA", "OS_Level", "OS_Enab", label: "LEVEL");
+            deviceEntry = AddPlugParamDeviceEntry("AXP SoftAmp PSA");
+            deviceEntry.ParamSettings.Add("Enable", new PlugParamSetting { Label = "ENABLE" });
+            deviceEntry.ParamSettings.Add("Preamp", new PlugParamSetting { Label = "PRE-AMP", OnColor = new FinderColor(200, 200, 200) });
+            deviceEntry.ParamSettings.Add("Asymm", new PlugParamSetting { Label = "ASYMM", OnColor = new FinderColor(237, 244, 1), TextOnColor = FinderColor.Black });
+            deviceEntry.ParamSettings.Add("Buzz", new PlugParamSetting { Label = "BUZZ", OnColor = new FinderColor(200, 200, 200), Mode = PlugParamSetting.PotMode.Symmetric });
+            deviceEntry.ParamSettings.Add("Punch", new PlugParamSetting { Label = "PUNCH", OnColor = new FinderColor(200, 200, 200), Mode = PlugParamSetting.PotMode.Symmetric });
+            deviceEntry.ParamSettings.Add("Crunch", new PlugParamSetting { Label = "CRUNCH", OnColor = new FinderColor(200, 200, 200) });
+            deviceEntry.ParamSettings.Add("SoftClip", new PlugParamSetting { Label = "SOFT CLIP", OnColor = new FinderColor(234, 105, 30), TextOnColor = FinderColor.Black });
+            deviceEntry.ParamSettings.Add("Drive", new PlugParamSetting { Label = "DRIVE", OnColor = new FinderColor(200, 200, 200) });
+            deviceEntry.ParamSettings.Add("Level", new PlugParamSetting { Label = "LEVEL", OnColor = new FinderColor(200, 200, 200) });
+            deviceEntry.ParamSettings.Add("Limiter", new PlugParamSetting { Label = "LIMITER", OnColor = new FinderColor(237, 0, 0), TextOnColor = FinderColor.Black });
+            deviceEntry.ParamSettings.Add("Low", new PlugParamSetting { Label = "LOW", OnColor = new FinderColor(200, 200, 200), Mode = PlugParamSetting.PotMode.Symmetric });
+            deviceEntry.ParamSettings.Add("High", new PlugParamSetting { Label = "HIGH", OnColor = new FinderColor(200, 200, 200), Mode = PlugParamSetting.PotMode.Symmetric });
+            deviceEntry.ParamSettings.Add("SpkReso", new PlugParamSetting { Label = "SHAPE", OnColor = new FinderColor(120, 120, 120) });
+            deviceEntry.ParamSettings.Add("SpkRoll", new PlugParamSetting { Label = "ROLL-OFF", OnColor = new FinderColor(120, 120, 120) });
+            deviceEntry.ParamSettings.Add("PSI_En", new PlugParamSetting { Label = "PSI DNS", OnColor = new FinderColor(10, 178, 255), TextOnColor = FinderColor.Black });
+            AddLinked(deviceEntry, "PSI_Thr", "PSI_En", label: "THRESHOLD");
+            deviceEntry.ParamSettings.Add("OS_Enab", new PlugParamSetting { Label = "SQUEEZO", OnColor = new FinderColor(209, 155, 104), TextOnColor = FinderColor.Black });
+            AddLinked(deviceEntry, "OS_Gain", "OS_Enab", label: "GAIN");
+            AddLinked(deviceEntry, "OS_Bias", "OS_Enab", label: "BIAS");
+            AddLinked(deviceEntry, "OS_Level", "OS_Enab", label: "LEVEL");
 
             // Izotope
 
-            AddParamSetting("Neutron 4 Transient Shaper", "TS B1 Attack", new PlugParamSettings { Label = "1: Attack", OnColor = new FinderColor(255, 96, 28), PaintLabelBg = false });
-            AddParamSetting("Neutron 4 Transient Shaper", "TS B1 Sustain", new PlugParamSettings { Label = "1: Sustain", OnColor = new FinderColor(255, 96, 28), PaintLabelBg = false });
-            AddParamSetting("Neutron 4 Transient Shaper", "TS B1 Bypass", new PlugParamSettings { Label = "Bypass", OnColor = new FinderColor(255, 96, 28), TextOnColor = FinderColor.Black });
-            AddParamSetting("Neutron 4 Transient Shaper", "TS B2 Attack", new PlugParamSettings { Label = "2: Attack", OnColor = new FinderColor(63, 191, 173), PaintLabelBg = false });
-            AddParamSetting("Neutron 4 Transient Shaper", "TS B2 Sustain", new PlugParamSettings { Label = "2: Sustain", OnColor = new FinderColor(63, 191, 173), PaintLabelBg = false });
-            AddParamSetting("Neutron 4 Transient Shaper", "TS B2 Bypass", new PlugParamSettings { Label = "Bypass", OnColor = new FinderColor(63, 191, 173), TextOnColor = FinderColor.Black });
-            AddParamSetting("Neutron 4 Transient Shaper", "TS B3 Attack", new PlugParamSettings { Label = "3: Attack", OnColor = new FinderColor(196, 232, 107), PaintLabelBg = false });
-            AddParamSetting("Neutron 4 Transient Shaper", "TS B3 Sustain", new PlugParamSettings { Label = "3: Sustain", OnColor = new FinderColor(196, 232, 107), PaintLabelBg = false });
-            AddParamSetting("Neutron 4 Transient Shaper", "TS B3 Bypass", new PlugParamSettings { Label = "Bypass", OnColor = new FinderColor(196, 232, 107), TextOnColor = FinderColor.Black });
-            AddParamSetting("Neutron 4 Transient Shaper", "Global Input Gain", new PlugParamSettings { Label = "In" });
-            AddParamSetting("Neutron 4 Transient Shaper", "Global Output Gain", new PlugParamSettings { Label = "Out" });
-            AddParamSetting("Neutron 4 Transient Shaper", "Sum to Mono", new PlugParamSettings { Label = "Mono", OnColor = new FinderColor(255, 96, 28), TextOnColor = FinderColor.Black });
-            AddParamSetting("Neutron 4 Transient Shaper", "Swap Channels", new PlugParamSettings { Label = "Swap", OnColor = new FinderColor(255, 96, 28), TextOnColor = FinderColor.Black });
-            AddParamSetting("Neutron 4 Transient Shaper", "Invert Phase", new PlugParamSettings { OnColor = new FinderColor(255, 96, 28), TextOnColor = FinderColor.Black });
-            AddParamSetting("Neutron 4 Transient Shaper", "TS Global Mix", new PlugParamSettings { Label = "Mix", OnColor = new FinderColor(255, 96, 28) });
+            deviceEntry = AddPlugParamDeviceEntry("Neutron 4 Transient Shaper");
+            deviceEntry.ParamSettings.Add("TS B1 Attack", new PlugParamSetting { Label = "1: Attack", OnColor = new FinderColor(255, 96, 28), PaintLabelBg = false });
+            deviceEntry.ParamSettings.Add("TS B1 Sustain", new PlugParamSetting { Label = "1: Sustain", OnColor = new FinderColor(255, 96, 28), PaintLabelBg = false });
+            deviceEntry.ParamSettings.Add("TS B1 Bypass", new PlugParamSetting { Label = "Bypass", OnColor = new FinderColor(255, 96, 28), TextOnColor = FinderColor.Black });
+            deviceEntry.ParamSettings.Add("TS B2 Attack", new PlugParamSetting { Label = "2: Attack", OnColor = new FinderColor(63, 191, 173), PaintLabelBg = false });
+            deviceEntry.ParamSettings.Add("TS B2 Sustain", new PlugParamSetting { Label = "2: Sustain", OnColor = new FinderColor(63, 191, 173), PaintLabelBg = false });
+            deviceEntry.ParamSettings.Add("TS B2 Bypass", new PlugParamSetting { Label = "Bypass", OnColor = new FinderColor(63, 191, 173), TextOnColor = FinderColor.Black });
+            deviceEntry.ParamSettings.Add("TS B3 Attack", new PlugParamSetting { Label = "3: Attack", OnColor = new FinderColor(196, 232, 107), PaintLabelBg = false });
+            deviceEntry.ParamSettings.Add("TS B3 Sustain", new PlugParamSetting { Label = "3: Sustain", OnColor = new FinderColor(196, 232, 107), PaintLabelBg = false });
+            deviceEntry.ParamSettings.Add("TS B3 Bypass", new PlugParamSetting { Label = "Bypass", OnColor = new FinderColor(196, 232, 107), TextOnColor = FinderColor.Black });
+            deviceEntry.ParamSettings.Add("Global Input Gain", new PlugParamSetting { Label = "In" });
+            deviceEntry.ParamSettings.Add("Global Output Gain", new PlugParamSetting { Label = "Out" });
+            deviceEntry.ParamSettings.Add("Sum to Mono", new PlugParamSetting { Label = "Mono", OnColor = new FinderColor(255, 96, 28), TextOnColor = FinderColor.Black });
+            deviceEntry.ParamSettings.Add("Swap Channels", new PlugParamSetting { Label = "Swap", OnColor = new FinderColor(255, 96, 28), TextOnColor = FinderColor.Black });
+            deviceEntry.ParamSettings.Add("Invert Phase", new PlugParamSetting { OnColor = new FinderColor(255, 96, 28), TextOnColor = FinderColor.Black });
+            deviceEntry.ParamSettings.Add("TS Global Mix", new PlugParamSetting { Label = "Mix", OnColor = new FinderColor(255, 96, 28) });
 
-            AddParamSetting("Trash", "B2 Trash Drive", new PlugParamSettings { Label = "Drive", OnColor = new FinderColor(240, 0, 133), Mode = PlugParamSettings.PotMode.Symmetric, PaintLabelBg = false });
-            AddParamSetting("Trash", "B2 Trash Tilt Gain", new PlugParamSettings { Label = "Tilt", OnColor = new FinderColor(240, 0, 133), Mode = PlugParamSettings.PotMode.Symmetric, PaintLabelBg = false });
-            AddParamSetting("Trash", "B2 Trash Tilt Frequency", new PlugParamSettings { Label = "Frequency", OnColor = new FinderColor(240, 0, 133), PaintLabelBg = false });
-            AddParamSetting("Trash", "B2 Trash Mix", new PlugParamSettings { Label = "Mix", OnColor = new FinderColor(240, 0, 133), PaintLabelBg = false });
-            AddParamSetting("Trash", "B2 Trash Blend X", new PlugParamSettings { Label = "X", OnColor = new FinderColor(240, 0, 133), Mode = PlugParamSettings.PotMode.Symmetric, PaintLabelBg = false });
-            AddParamSetting("Trash", "B2 Trash Blend Y", new PlugParamSettings { Label = "Y", OnColor = new FinderColor(240, 0, 133), Mode = PlugParamSettings.PotMode.Symmetric, PaintLabelBg = false });
-            AddParamSetting("Trash", "B2 Trash Top Left Style", new PlugParamSettings { Label = "Style", OnColor = new FinderColor(240, 0, 133), Mode = PlugParamSettings.PotMode.Symmetric, PaintLabelBg = false });
-            AddParamSetting("Trash", "B2 Trash Top Right Style", new PlugParamSettings { Label = "Style", OnColor = new FinderColor(240, 0, 133), Mode = PlugParamSettings.PotMode.Symmetric, PaintLabelBg = false });
-            AddParamSetting("Trash", "B2 Trash Bottom Left Style", new PlugParamSettings { Label = "Style", OnColor = new FinderColor(240, 0, 133), Mode = PlugParamSettings.PotMode.Symmetric, PaintLabelBg = false });
-            AddParamSetting("Trash", "B2 Trash Bottom Right Style", new PlugParamSettings { Label = "Style", OnColor = new FinderColor(240, 0, 133), Mode = PlugParamSettings.PotMode.Symmetric, PaintLabelBg = false });
-            AddParamSetting("Trash", "Global Input Gain", new PlugParamSettings { Label = "IN" });
-            AddParamSetting("Trash", "Global Output Gain", new PlugParamSettings { Label = "OUT" });
-            AddParamSetting("Trash", "Auto Gain Enabled", new PlugParamSettings { Label = "Auto Gain" });
-            AddParamSetting("Trash", "Limiter Enabled", new PlugParamSettings { Label = "Limiter" });
 
+            deviceEntry = AddPlugParamDeviceEntry("Trash");
+            deviceEntry.ParamSettings.Add("B2 Trash Drive", new PlugParamSetting { Label = "Drive", OnColor = new FinderColor(240, 0, 133), Mode = PlugParamSetting.PotMode.Symmetric, PaintLabelBg = false });
+            deviceEntry.ParamSettings.Add("B2 Trash Tilt Gain", new PlugParamSetting { Label = "Tilt", OnColor = new FinderColor(240, 0, 133), Mode = PlugParamSetting.PotMode.Symmetric, PaintLabelBg = false });
+            deviceEntry.ParamSettings.Add("B2 Trash Tilt Frequency", new PlugParamSetting { Label = "Frequency", OnColor = new FinderColor(240, 0, 133), PaintLabelBg = false });
+            deviceEntry.ParamSettings.Add("B2 Trash Mix", new PlugParamSetting { Label = "Mix", OnColor = new FinderColor(240, 0, 133), PaintLabelBg = false });
+            deviceEntry.ParamSettings.Add("B2 Trash Blend X", new PlugParamSetting { Label = "X", OnColor = new FinderColor(240, 0, 133), Mode = PlugParamSetting.PotMode.Symmetric, PaintLabelBg = false });
+            deviceEntry.ParamSettings.Add("B2 Trash Blend Y", new PlugParamSetting { Label = "Y", OnColor = new FinderColor(240, 0, 133), Mode = PlugParamSetting.PotMode.Symmetric, PaintLabelBg = false });
+            deviceEntry.ParamSettings.Add("B2 Trash Top Left Style", new PlugParamSetting { Label = "Style", OnColor = new FinderColor(240, 0, 133), Mode = PlugParamSetting.PotMode.Symmetric, PaintLabelBg = false });
+            deviceEntry.ParamSettings.Add("B2 Trash Top Right Style", new PlugParamSetting { Label = "Style", OnColor = new FinderColor(240, 0, 133), Mode = PlugParamSetting.PotMode.Symmetric, PaintLabelBg = false });
+            deviceEntry.ParamSettings.Add("B2 Trash Bottom Left Style", new PlugParamSetting { Label = "Style", OnColor = new FinderColor(240, 0, 133), Mode = PlugParamSetting.PotMode.Symmetric, PaintLabelBg = false });
+            deviceEntry.ParamSettings.Add("B2 Trash Bottom Right Style", new PlugParamSetting { Label = "Style", OnColor = new FinderColor(240, 0, 133), Mode = PlugParamSetting.PotMode.Symmetric, PaintLabelBg = false });
+            deviceEntry.ParamSettings.Add("Global Input Gain", new PlugParamSetting { Label = "IN" });
+            deviceEntry.ParamSettings.Add("Global Output Gain", new PlugParamSetting { Label = "OUT" });
+            deviceEntry.ParamSettings.Add("Auto Gain Enabled", new PlugParamSetting { Label = "Auto Gain" });
+            deviceEntry.ParamSettings.Add("Limiter Enabled", new PlugParamSetting { Label = "Limiter" });
 
             // Tokio Dawn Labs
-            AddParamSetting("TDR Kotelnikov", "", new PlugParamSettings { OnColor = new FinderColor(42, 75, 124) });
-            AddParamSetting("TDR Kotelnikov", "SC Stereo Diff", new PlugParamSettings { Label = "Stereo Diff", OnColor = new FinderColor(42, 75, 124) });
+            deviceEntry = AddPlugParamDeviceEntry("TDR Kotelnikov");
+            deviceEntry.ParamSettings.Add("", new PlugParamSetting { OnColor = new FinderColor(42, 75, 124) });
+            deviceEntry.ParamSettings.Add("SC Stereo Diff", new PlugParamSetting { Label = "Stereo Diff", OnColor = new FinderColor(42, 75, 124) });
         }
     }
 }

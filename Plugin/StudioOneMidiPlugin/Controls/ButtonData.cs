@@ -219,7 +219,7 @@
 
         public static String PluginName { get; set; }
 
-        public static readonly PlugSettingsFinder UserPlugSettingsFinder = new PlugSettingsFinder(new PlugSettingsFinder.PlugParamSettings
+        public static readonly PlugSettingsFinder UserPlugSettingsFinder = new PlugSettingsFinder(new PlugSettingsFinder.PlugParamSetting
         {
             OnColor = BgColorAssigned,
             OffColor = BgColorAssigned,
@@ -381,10 +381,17 @@
                 // the label sent by the plugin) may be empty if the plugin is buggy and doesn't send anything, but labelText may still have
                 // text if an override is defined for the button position.
                 //
-                var labelText = userButtonActive ? UserPlugSettingsFinder.GetLabelOnShort(deviceEntry, cd.UserLabel, buttonIdx, isUser: true)
+                var userLabelText = userButtonActive ? UserPlugSettingsFinder.GetLabelOnShort(deviceEntry, cd.UserLabel, buttonIdx, isUser: true)
                                                  : UserPlugSettingsFinder.GetLabelShort(deviceEntry, cd.UserLabel, buttonIdx, isUser: true);
+                var menuItems = UserPlugSettingsFinder.GetUserMenuItems(deviceEntry, cd.UserLabel, buttonIdx, isUser: true);
+                if (menuItems != null)
+                {
+                    if (userLabelText.Length > 0)
+                        userLabelText += ": ";
+                    userLabelText += menuItems[cd.UserValue / (127 / (menuItems.Length - 1))];
+                }
 
-                var drawCircle = labelText.Length > 0 && UserPlugSettingsFinder.ShowUserButtonCircle(deviceEntry, cd.UserLabel, buttonIdx);
+                var drawCircle = userLabelText.Length > 0 && UserPlugSettingsFinder.ShowUserButtonCircle(deviceEntry, cd.UserLabel, buttonIdx);
                 var tx = 0;
                 var tw = bb.Width;
                 if (UserPlugSettingsFinder.HasMenu(deviceEntry, cd.UserLabel, buttonIdx))
@@ -396,17 +403,16 @@
                                                               : UserPlugSettingsFinder.GetTextOffColor(deviceEntry, cd.UserLabel, buttonIdx, isUser: true)
                                            : BitmapColor.Black;
                 if (userButtonMenuActive) tc = BitmapColor.White;
-                var bc = (labelText.Length > 0 || UserPlugSettingsFinder.GetLabel(deviceEntry, cd.UserLabel, buttonIdx, isUser: true).Length > 0)
-                                                  && userButtonEnabled ? userButtonActive ? UserPlugSettingsFinder.GetOnColor(deviceEntry, cd.UserLabel, buttonIdx, isUser: true)
-                                                                       : UserPlugSettingsFinder.GetOffColor(deviceEntry, cd.UserLabel, buttonIdx, isUser: true)
-                                                 : BgColorUnassigned;
+                var bc = userLabelText.Length > 0 && userButtonEnabled ? userButtonActive ? UserPlugSettingsFinder.GetOnColor(deviceEntry, cd.UserLabel, buttonIdx, isUser: true)
+                                                                                          : UserPlugSettingsFinder.GetOffColor(deviceEntry, cd.UserLabel, buttonIdx, isUser: true)
+                                                                       : BgColorUnassigned;
                 if (userButtonMenuActive)
                 {
                     var stroke = 2;
                     bb.FillRectangle(0, uby, bb.Width, ubh, new BitmapColor(120, 120, 120));
                     bb.FillRectangle(0, uby + stroke, bb.Width, ubh - 2 * stroke - 2, new BitmapColor(40, 40, 40));
                 }
-                else if (labelText.Length > 0)
+                else if (userLabelText.Length > 0)
                 {
                     bb.FillRectangle(0, uby, bb.Width, ubh, drawCircle ? BgColorUserCircle : bc);
                 }
@@ -422,13 +428,7 @@
                     tw = bb.Width - ubh * 2;
                 }
 
-                var menuItems = UserPlugSettingsFinder.GetUserMenuItems(deviceEntry, cd.UserLabel, buttonIdx, isUser: true);
-                if (menuItems != null)
-                {
-                    if (labelText.Length > 0) labelText += ": "; 
-                    labelText += menuItems[cd.UserValue / (127 / (menuItems.Length - 1))];
-                }
-                bb.DrawImage(LabelImageLoader.GetImage(labelText, tw, TitleHeight, tc), tx, uby);
+                bb.DrawImage(LabelImageLoader.GetImage(userLabelText, tw, TitleHeight, tc), tx, uby);
             }
             else
             {
@@ -1021,7 +1021,7 @@
         String TopDisplayText;
         protected Boolean IsUserButton = false;
         protected String PluginName;
-        protected PlugSettingsFinder UserPlugSettingsFinder = new PlugSettingsFinder(new PlugSettingsFinder.PlugParamSettings { OnColor = FinderColor.Black,
+        protected PlugSettingsFinder UserPlugSettingsFinder = new PlugSettingsFinder(new PlugSettingsFinder.PlugParamSetting { OnColor = FinderColor.Black,
                                                                                                                                 OffColor = FinderColor.Black,
                                                                                                                                 TextOnColor = FinderColor.White,
                                                                                                                                 TextOffColor = FinderColor.Black});

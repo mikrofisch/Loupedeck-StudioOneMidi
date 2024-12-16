@@ -17,7 +17,7 @@
         public String Title { get; set; }
         public String PluginName { get; set; }
         public String PluginParameter { get; set; }
-        public PlugSettingsFinder.PlugParamSettings.PotMode Mode { get; set; }
+        public PlugSettingsFinder.PlugParamSetting.PotMode Mode { get; set; }
         public Boolean ShowCircle { get; set; }
         public Byte R { get; set; }
         public Byte G { get; set; }
@@ -62,8 +62,8 @@
             if (mode == WindowMode.Dial)
             {
                 this.spShowCircle.Visibility = Visibility.Collapsed;
-                this.rbPositive.IsChecked = configData.Mode == PlugSettingsFinder.PlugParamSettings.PotMode.Positive;
-                this.rbSymmetric.IsChecked = configData.Mode == PlugSettingsFinder.PlugParamSettings.PotMode.Symmetric;
+                this.rbPositive.IsChecked = configData.Mode == PlugSettingsFinder.PlugParamSetting.PotMode.Positive;
+                this.rbSymmetric.IsChecked = configData.Mode == PlugSettingsFinder.PlugParamSetting.PotMode.Symmetric;
             }
             else if (mode == WindowMode.Button)
             {
@@ -118,12 +118,11 @@
             PlugSettingsFinder.Init(this.Plugin, forceReload: true);
 
             var deviceEntry = this.UserPlugSettingsFinder.GetPlugParamDeviceEntry(this.ConfigData.PluginName);
-
             var onColor = this.UserPlugSettingsFinder.GetOnColor(deviceEntry, this.ConfigData.PluginParameter, 0);
 
             this.ConfigData.Mode = this.UserPlugSettingsFinder.GetMode(deviceEntry, this.ConfigData.PluginParameter, 0);
-            this.rbPositive.IsChecked = this.ConfigData.Mode == PlugSettingsFinder.PlugParamSettings.PotMode.Positive;
-            this.rbSymmetric.IsChecked = this.ConfigData.Mode == PlugSettingsFinder.PlugParamSettings.PotMode.Symmetric;
+            this.rbPositive.IsChecked = this.ConfigData.Mode == PlugSettingsFinder.PlugParamSetting.PotMode.Positive;
+            this.rbSymmetric.IsChecked = this.ConfigData.Mode == PlugSettingsFinder.PlugParamSetting.PotMode.Symmetric;
             this.tbColorR.Text = onColor.R.ToString();
             this.tbColorG.Text = onColor.G.ToString();
             this.tbColorB.Text = onColor.B.ToString();
@@ -133,21 +132,21 @@
         {
             if (this.gPotMode.IsVisible)
             {
-                this.SetPluginSetting(PlugSettingsFinder.PlugParamSettings.strMode, $"{(this.rbPositive.IsChecked == true ? 0 : 1)}");
+                this.SetPluginSetting(PlugSettingsFinder.PlugParamSetting.strMode, $"{(this.rbPositive.IsChecked == true ? 0 : 1)}");
             }
             if (this.spShowCircle.IsVisible)
             {
-                this.SetPluginSetting(PlugSettingsFinder.PlugParamSettings.strShowCircle, $"{(this.chShowCircle.IsChecked == true ? 1 : 0)}");
+                this.SetPluginSetting(PlugSettingsFinder.PlugParamSetting.strShowCircle, $"{(this.chShowCircle.IsChecked == true ? 1 : 0)}");
             }
 
             var onColorHex = ((Byte)this.tbColorR.Text.ParseInt32()).ToString("X2") +
                              ((Byte)this.tbColorG.Text.ParseInt32()).ToString("X2") +
                              ((Byte)this.tbColorB.Text.ParseInt32()).ToString("X2");
-            this.SetPluginSetting(PlugSettingsFinder.PlugParamSettings.strOnColor, onColorHex);
-            this.SetPluginSetting(PlugSettingsFinder.PlugParamSettings.strLabel, this.tbLabel.Text);
+            this.SetPluginSetting(PlugSettingsFinder.PlugParamSetting.strOnColor, onColorHex);
+            this.SetPluginSetting(PlugSettingsFinder.PlugParamSetting.strLabel, this.tbLabel.Text);
             if (this.tbLinkedParam.IsVisible)
             {
-                this.SetPluginSetting(PlugSettingsFinder.PlugParamSettings.strLinkedParameter, this.tbLinkedParam.Text);
+                this.SetPluginSetting(PlugSettingsFinder.PlugParamSetting.strLinkedParameter, this.tbLinkedParam.Text);
             }
             this.Close();
         }

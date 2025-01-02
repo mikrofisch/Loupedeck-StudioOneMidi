@@ -76,6 +76,12 @@ class LoupedeckCTComponent extends LoupedeckSharedComponent {
         Host.GUI.Commands.deferCommand("Transport", "Locate Selection");
         Host.GUI.Commands.deferCommand("Edit", "Deselect All");
     }
+    // Split across all tracks at cursor and select all events from split point to end of song
+    onSplitAllAndSelectToEnd(value) {
+        Host.GUI.Commands.deferCommand("Edit", "Select All");
+        Host.GUI.Commands.deferCommand("Edit", "Split at Cursor");
+        Host.GUI.Commands.deferCommand("Edit", "Select from Event to End");
+    }
     updateModeParams() {
         this.assignMode.setValue(this.assignment.mode, true);
         this.assignString.string = this.assignment.getModeString();

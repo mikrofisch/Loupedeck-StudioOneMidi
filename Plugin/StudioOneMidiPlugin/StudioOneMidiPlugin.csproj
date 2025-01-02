@@ -45,6 +45,7 @@
     <None Remove="Resources\arranger_80px.png" />
     <None Remove="Resources\arranger_pg1_80px.png" />
     <None Remove="Resources\arranger_pg2_80px.png" />
+    <None Remove="Resources\AudioPluginConfig.xml" />
     <None Remove="Resources\autopunch_52px.png" />
     <None Remove="Resources\autopunch_on_52px.png" />
     <None Remove="Resources\autopunch_sm_52px.png" />
@@ -236,6 +237,7 @@
     <None Remove="Resources\show_markers_52px.png" />
     <None Remove="Resources\show_outputs_52px.png" />
     <None Remove="Resources\show_scenes_52px.png" />
+    <None Remove="Resources\split_all_and_select_to_end_52px.png" />
     <None Remove="Resources\stop_52px.png" />
     <None Remove="Resources\stop_on_52px.png" />
     <None Remove="Resources\tempo_tap_52px.png" />
@@ -298,6 +300,7 @@
     <EmbeddedResource Include="Resources\arranger_80px.png" />
     <EmbeddedResource Include="Resources\arranger_pg1_80px.png" />
     <EmbeddedResource Include="Resources\arranger_pg2_80px.png" />
+    <EmbeddedResource Include="Resources\AudioPluginConfig.xml" />
     <EmbeddedResource Include="Resources\autopunch_52px.png" />
     <EmbeddedResource Include="Resources\autopunch_on_52px.png" />
     <EmbeddedResource Include="Resources\autopunch_sm_52px.png" />
@@ -483,6 +486,7 @@
     <EmbeddedResource Include="Resources\show_outputs_52px.png" />
     <EmbeddedResource Include="Resources\show_scenes_52px.png" />
     <EmbeddedResource Include="Resources\plugtype_stereo_20px.png" />
+    <EmbeddedResource Include="Resources\split_all_and_select_to_end_52px.png" />
     <EmbeddedResource Include="Resources\stop_52px.png" />
     <EmbeddedResource Include="Resources\stop_on_52px.png" />
     <EmbeddedResource Include="Resources\tempo_tap_52px.png" />

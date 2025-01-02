@@ -66,6 +66,9 @@
 		<Control name="snapStepFwd"      type="trigger" options="receive"> <MidiMessage status="#90" address="#37" channel="0"/> </Control>
 		<Control name="snapStepRev"      type="trigger" options="receive"> <MidiMessage status="#90" address="#38" channel="0"/> </Control>
 
+		<!-- Special Commands -->
+		<Control name="splitAllAndSelectToEnd" type="trigger" options="receive"> <MidiMessage status="#90" address="#3B" channel="0"/> </Control>
+
 		<!-- Mixer Bank Selectors -->
 		<Control name="miditracksButton"      type="trigger" options="receive"> <MidiMessage status="#90" address="#3E" channel="0"/> </Control>
 		<Control name="inputsButton"          type="trigger" options="receive"> <MidiMessage status="#90" address="#3F" channel="0"/> </Control>
@@ -489,6 +492,8 @@
 			<!-- <Command control="wheel" command.category="Edit" command.name="Nudge" command2.category="Edit" command2.name="Nudge Back"/> -->
 			<Invoke control="snapStepFwd" onReceive="onSnapStepFwd"/>
 			<Invoke control="snapStepRev" onReceive="onSnapStepRev"/>
+
+			<Invoke control="splitAllAndSelectToEnd" onReceive="onSplitAllAndSelectToEnd"/>
 
 			<!-- <Toggle control="cycleButton" param="loop"/> -->
 			<Command control="cycleButton" command.category="Transport" command.name="Toggle Loop"/>

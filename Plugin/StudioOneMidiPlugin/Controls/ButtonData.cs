@@ -10,8 +10,8 @@
     public abstract class ButtonData
     {
         public static readonly BitmapColor DefaultSelectionBgColor = new BitmapColor(60, 60, 60);
+        public const Int32 LabelFontSize = 15;
         protected const Int32 TrackNameH = 24;
-        protected const Int32 LabelFontSize = 15;
         protected const Int32 DescFontSize = 14;
         protected const Int32 TrackNameFontSize = 14;
 
@@ -424,10 +424,9 @@
                     var cr = ubh/2 - 5;
                     if (userButtonActive) bb.FillCircle(cx, cy, cr, tc);
                     else                  bb.DrawArc(cx, cy, cr, 0, 360, tc, 2);
-                    tx = ubh;
-                    tw = bb.Width - ubh * 2;
+//                    tx = ubh;
+                    tw = bb.Width - tx * 2;
                 }
-
                 bb.DrawImage(LabelImageLoader.GetImage(userLabelText, tw, TitleHeight, tc), tx, uby);
             }
             else

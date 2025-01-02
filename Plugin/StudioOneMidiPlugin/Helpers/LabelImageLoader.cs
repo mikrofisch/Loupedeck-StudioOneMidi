@@ -1,11 +1,8 @@
 ﻿namespace Loupedeck.StudioOneMidiPlugin.Helpers
 {
     using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
+
+    using Loupedeck.StudioOneMidiPlugin.Controls;
 
     // Class to return an image for a button label. The image will contain either the label text
     // or an icon that must be present as an embedded resource. To load an icon the label text
@@ -30,12 +27,12 @@
                     }
                     else
                     {
-                        bb.DrawText(label, tc);
+                        bb.DrawText(label, tc, ButtonData.LabelFontSize);
                     }
                 }
                 catch (ArgumentException)
                 {
-                    bb.DrawText(label.Substring(1), tc);
+                    bb.DrawText(label.Substring(1), tc, ButtonData.LabelFontSize);
                 }
             }
             return bb.ToImage();

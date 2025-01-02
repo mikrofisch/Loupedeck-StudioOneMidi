@@ -45,12 +45,12 @@
         public static implicit operator BitmapColor(FinderColor f) => f != null ? f.Color : new BitmapColor();
         public static explicit operator FinderColor(BitmapColor b) => new FinderColor(b);
 
-        public static FinderColor Transparent => new FinderColor(BitmapColor.Transparent);
+        // public static FinderColor Transparent => new FinderColor(BitmapColor.Transparent);
         public static FinderColor White => new FinderColor(BitmapColor.White);
         public static FinderColor Black => new FinderColor(BitmapColor.Black);
 
         public BitmapColor Color { get; set; }
-        public readonly String Name;   // name of the referenced color in the device's color list
+        public String Name { get; private set; }   // name of the referenced color in the device's color list
 
         public Boolean XmlRenderAsNameRef = false;
 
@@ -80,8 +80,32 @@
 
         public void ReadXml(System.Xml.XmlReader reader)
         {
-            var str = reader.ReadString();
-            reader.ReadEndElement();
+            // var str = reader.ReadString();
+            reader.MoveToContent();
+
+            if (reader.HasAttributes)
+            {
+                this.Name = reader.GetAttribute("name");
+            }
+
+            var content = reader.ReadElementContentAsString();
+            if (content == "white")
+            {
+                this.Color = BitmapColor.White;
+            }
+            else if (content == "black")
+            {
+                this.Color = BitmapColor.Black;
+            }
+            else if (content.StartsWith("rgb("))
+            {
+                var rgb = content.Substring(4, content.Length - 5).Split(',');
+                this.Color = new BitmapColor(Convert.ToByte(rgb[0]), Convert.ToByte(rgb[1]), Convert.ToByte(rgb[2]));
+            }
+            else
+            {
+                this.Name = content;
+            }
         }
 
         public void WriteXml(System.Xml.XmlWriter writer)
@@ -119,10 +143,8 @@
 
     public class PlugSettingsFinder
     {
-        const String ConfigFileName = "AudioPluginConfig.xml";
         public const Int32 DefaultOnTransparency = 80;
 
-        [XmlInclude(typeof(S1TopControlColors))]
         public class PlugParamSetting
         {
             public enum PotMode { Positive, Symmetric };
@@ -135,6 +157,7 @@
             public Boolean PaintLabelBg { get; set; } = true;
 
             public FinderColor OnColor { get; set; }
+            [DefaultValueAttribute(DefaultOnTransparency)]
             public Int32 OnTransparency { get; set; } = DefaultOnTransparency;
             public FinderColor OffColor { get; set; }
             //            [XmlElement, DefaultValue(null)]
@@ -186,8 +209,8 @@
 
         public PlugParamSetting DefaultPlugParamSettings { get; private set; } = new PlugParamSetting
         {
-            OnColor = FinderColor.Transparent,
-            OffColor = FinderColor.Transparent,
+            OnColor = FinderColor.Black,
+            OffColor = FinderColor.Black,
             TextOnColor = FinderColor.White,
             TextOffColor = FinderColor.White,
             BarOnColor = FinderColor.White
@@ -205,6 +228,9 @@
 
         public class XmlConfig
         {
+            public static readonly String ConfigFolderPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Loupedeck-StudioOneMidiPlugin");
+            public const String ConfigFileName = "AudioPluginConfig.xml";
+
             public class PluginConfig
             {
                 [XmlAttribute]
@@ -217,7 +243,7 @@
             [XmlElement("PluginConfig")]
             public readonly List<PluginConfig> PluginConfigs = [];
 
-            private void ProcessColorSetting(PluginConfig p, FinderColor c)
+            private void ProcessColorSettingForWrite(PluginConfig p, FinderColor c)
             {
                 if (c!= null && !c.Name.IsNullOrEmpty())
                 {
@@ -238,27 +264,78 @@
                 }
             }
 
-            public void WriteXml()
+            private void ProcessColorSettingForRead(PluginConfig p, FinderColor c)
             {
-                var configFolderPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Loupedeck-StudioOneMidiPlugin");
-                if (!Directory.Exists(configFolderPath))
+                // If the colour is referenced by name, we get the RGB values from
+                // the colour list (in an automatically created config XML file there
+                // won't be any RGB values in a colour that is referenced by name)
+                //
+                if (c != null && !c.Name.IsNullOrEmpty())
                 {
-                    Directory.CreateDirectory(configFolderPath);
+                    // Find RGB values in colour list
+                    foreach (var cc in p.Colors)
+                    {
+                        if (cc.Name == c.Name)
+                        {
+                            c.Color = cc.Color;
+                            break;
+                        }
+                    }
                 }
-                var configFilePath = System.IO.Path.Combine(configFolderPath, ConfigFileName);
+            }
 
-                foreach (var deviceEntry in PlugParamDict)
+
+
+            public void ReadXmlStream(Stream reader, Dictionary<String, PlugParamDeviceEntry> plugParamDict)
+            {
+                var serializer = new XmlSerializer(typeof(XmlConfig));
+
+                    // Call the Deserialize method to restore the object's state.
+                    var p = (XmlConfig)serializer.Deserialize(reader);
+
+                // Create plugin device entries and dereference colour names in parameter settings
+                //
+                foreach (var cfgDeviceEntry in p.PluginConfigs)
+                {
+                    var deviceEntry = new PlugParamDeviceEntry { };
+                    foreach (var paramSettings in cfgDeviceEntry.ParamSettings)
+                    {
+                        // Get colour values for colours that are referenced by name.
+                        this.ProcessColorSettingForRead(cfgDeviceEntry, paramSettings.OnColor);
+                        this.ProcessColorSettingForRead(cfgDeviceEntry, paramSettings.OffColor);
+                        this.ProcessColorSettingForRead(cfgDeviceEntry, paramSettings.TextOnColor);
+                        this.ProcessColorSettingForRead(cfgDeviceEntry, paramSettings.TextOffColor);
+                        this.ProcessColorSettingForRead(cfgDeviceEntry, paramSettings.BarOnColor);
+
+                        deviceEntry.ParamSettings.Add(paramSettings.Name, paramSettings);
+                    }
+
+                    // Add or update the device entry in the dictionary.
+                    plugParamDict[cfgDeviceEntry.PluginName] = deviceEntry;
+                }
+            }
+
+            public void WriteXmlCfgFile(String configFileName, Dictionary<String, PlugParamDeviceEntry> plugParamDict)
+            {
+                if (!Directory.Exists(ConfigFolderPath))
+                {
+                    Directory.CreateDirectory(ConfigFolderPath);
+                }
+                var configFilePath = System.IO.Path.Combine(ConfigFolderPath, configFileName);
+                var writer = new StreamWriter(configFilePath);
+
+                foreach (var deviceEntry in plugParamDict)
                 {
                     var cfgDeviceEntry = new PluginConfig { PluginName = deviceEntry.Key };
                     foreach (var paramSettings in deviceEntry.Value.ParamSettings)
                     {
                         paramSettings.Value.Name = paramSettings.Key;
 
-                        this.ProcessColorSetting(cfgDeviceEntry, paramSettings.Value.OnColor);
-                        this.ProcessColorSetting(cfgDeviceEntry, paramSettings.Value.OffColor);
-                        this.ProcessColorSetting(cfgDeviceEntry, paramSettings.Value.TextOnColor);
-                        this.ProcessColorSetting(cfgDeviceEntry, paramSettings.Value.TextOffColor);
-                        this.ProcessColorSetting(cfgDeviceEntry, paramSettings.Value.BarOnColor);
+                        this.ProcessColorSettingForWrite(cfgDeviceEntry, paramSettings.Value.OnColor);
+                        this.ProcessColorSettingForWrite(cfgDeviceEntry, paramSettings.Value.OffColor);
+                        this.ProcessColorSettingForWrite(cfgDeviceEntry, paramSettings.Value.TextOnColor);
+                        this.ProcessColorSettingForWrite(cfgDeviceEntry, paramSettings.Value.TextOffColor);
+                        this.ProcessColorSettingForWrite(cfgDeviceEntry, paramSettings.Value.BarOnColor);
 
                         cfgDeviceEntry.ParamSettings.Add(paramSettings.Value); 
                     }
@@ -267,7 +344,6 @@
                 }
 
                 var serializer = new XmlSerializer(typeof(XmlConfig));
-                var writer = new StreamWriter(configFilePath);
 
                 serializer.Serialize(writer, this);
                 writer.Close();
@@ -283,10 +359,33 @@
             }
             if (PlugParamDict.Count == 0)
             {
-                InitColorDict();
-
                 var xmlCfg = new XmlConfig();
-                xmlCfg.WriteXml();
+
+                // InitColorDict();
+
+                // Read default settings from embedded resource.
+                var assembly = System.Reflection.Assembly.GetExecutingAssembly();
+
+                var resourceName = assembly.GetManifestResourceNames().Single(str => str.EndsWith(XmlConfig.ConfigFileName));
+                using (Stream reader = assembly.GetManifestResourceStream(resourceName))
+                {
+                    xmlCfg.ReadXmlStream(reader, PlugParamDict);
+                }
+
+                // Read user settings from file.
+                var configFilePath = System.IO.Path.Combine(XmlConfig.ConfigFolderPath, XmlConfig.ConfigFileName);
+                if (File.Exists(configFilePath))
+                {
+                    using (Stream reader = new FileStream(configFilePath, FileMode.Open))
+                    {
+                        xmlCfg.ReadXmlStream(reader, PlugParamDict);
+                    }
+                }
+                else
+                {
+                    // Create user settings config file.
+                    xmlCfg.WriteXmlCfgFile(XmlConfig.ConfigFileName, PlugParamDict);
+                }
 
                 // Read Loupedeck plugin settings
 
@@ -519,16 +618,15 @@
             });
         }
 
-        public class S1TopControlColors : PlugParamSetting
+        private static PlugParamSetting CreateS1TopControlSettings(String label)
         {
-            public S1TopControlColors() { }
-            public S1TopControlColors(String label = null)
+            return new PlugParamSetting
             {
-                this.OnColor = new FinderColor(54, 84, 122);
-                this.OffColor = new FinderColor(27, 34, 37);
-                this.TextOffColor = new FinderColor(58, 117, 195);
-                this.Label = label;
-            }
+                OnColor = new FinderColor(54, 84, 122),
+                OffColor = new FinderColor(27, 34, 37),
+                TextOffColor = new FinderColor(58, 117, 195),
+                Label = label
+            };
         }
 
         private static void InitColorDict()
@@ -539,10 +637,10 @@
             deviceEntry.ParamSettings.Add("Global Bypass", new PlugParamSetting { OnColor = new FinderColor(204, 156, 107), IconName = "bypass" });
 
             deviceEntry = AddPlugParamDeviceEntry("Pro EQ");
-            deviceEntry.ParamSettings.Add("Show Controls", new S1TopControlColors(label: "Band Controls"));
-            deviceEntry.ParamSettings.Add("Show Dynamics", new S1TopControlColors(label: "Dynamics"));
-            deviceEntry.ParamSettings.Add("High Quality", new S1TopControlColors());
-            deviceEntry.ParamSettings.Add("View Mode", new S1TopControlColors(label: "Curves"));
+            deviceEntry.ParamSettings.Add("Show Controls", CreateS1TopControlSettings("Band Controls"));
+            deviceEntry.ParamSettings.Add("Show Dynamics", CreateS1TopControlSettings("Dynamics"));
+            deviceEntry.ParamSettings.Add("High Quality", CreateS1TopControlSettings(""));
+            deviceEntry.ParamSettings.Add("View Mode", CreateS1TopControlSettings("Curves"));
             deviceEntry.ParamSettings.Add("LF-Active", new PlugParamSetting { OnColor = new FinderColor(255, 120, 38), Label = "LF", ShowUserButtonCircle = true });
             deviceEntry.ParamSettings.Add("MF-Active", new PlugParamSetting { OnColor = new FinderColor(107, 224, 44), Label = "MF", ShowUserButtonCircle = true });
             deviceEntry.ParamSettings.Add("HF-Active", new PlugParamSetting { OnColor = new FinderColor(75, 212, 250), Label = "HF", ShowUserButtonCircle = true });
@@ -580,12 +678,12 @@
             deviceEntry.ParamSettings.Add("Loupedeck User Pages", new PlugParamSetting { UserMenuItems = ["Gate", "Comp", "EQ 1", "EQ 2", "Limiter"] });
             deviceEntry.ParamSettings.Add("Hi Pass Filter", new PlugParamSetting { Label = "Hi Pass" });
             deviceEntry.ParamSettings.Add("Gate On", new PlugParamSetting { OnColor = new FinderColor(250, 250, 193), TextOnColor = FinderColor.Black, Label = "Gate ON" });
-            deviceEntry.ParamSettings.Add("Range", new PlugParamSetting { OffColor = FinderColor.Transparent, LinkedParameter = "Expander", LinkReversed = true });
+            deviceEntry.ParamSettings.Add("Range", new PlugParamSetting { OffColor = FinderColor.Black, LinkedParameter = "Expander", LinkReversed = true });
             deviceEntry.ParamSettings.Add("Expander", new PlugParamSetting { OnColor = new FinderColor(193, 202, 214), TextOnColor = FinderColor.Black });
             deviceEntry.ParamSettings.Add("Key Listen", new PlugParamSetting { OnColor = new FinderColor(193, 202, 214), TextOnColor = FinderColor.Black });
             deviceEntry.ParamSettings.Add("Compressor On", new PlugParamSetting { OnColor = new FinderColor(250, 250, 193), TextOnColor = FinderColor.Black, Label = "Cmpr ON" });
-            deviceEntry.ParamSettings.Add("Attack", new PlugParamSetting { OffColor = FinderColor.Transparent, LinkedParameter = "Auto", LinkReversed = true });
-            deviceEntry.ParamSettings.Add("Release", new PlugParamSetting { OffColor = FinderColor.Transparent, LinkedParameter = "Auto", LinkReversed = true });
+            deviceEntry.ParamSettings.Add("Attack", new PlugParamSetting { OffColor = FinderColor.Black, LinkedParameter = "Auto", LinkReversed = true });
+            deviceEntry.ParamSettings.Add("Release", new PlugParamSetting { OffColor = FinderColor.Black, LinkedParameter = "Auto", LinkReversed = true });
             deviceEntry.ParamSettings.Add("Auto", new PlugParamSetting { OnColor = new FinderColor(193, 202, 214), TextOnColor = FinderColor.Black });
             deviceEntry.ParamSettings.Add("Soft Knee", new PlugParamSetting { OnColor = new FinderColor(193, 202, 214), TextOnColor = FinderColor.Black });
             deviceEntry.ParamSettings.Add("Peak Reduction", new PlugParamSetting { Label = "Pk Reductn" });
@@ -616,16 +714,16 @@
             deviceEntry.ParamSettings.Add("Limiter On", new PlugParamSetting { OnColor = new FinderColor(250, 250, 193), TextOnColor = FinderColor.Black, Label = "Limiter ON" });
 
             deviceEntry = AddPlugParamDeviceEntry("Compressor");
-            deviceEntry.ParamSettings.Add("LookAhead", new S1TopControlColors());
-            deviceEntry.ParamSettings.Add("Link Channels", new S1TopControlColors(label: "CH Link"));
-            deviceEntry.ParamSettings.Add("Attack", new PlugParamSetting { OffColor = FinderColor.Transparent, LinkedParameter = "Auto Speed", LinkReversed = true });
-            deviceEntry.ParamSettings.Add("Release", new PlugParamSetting { OffColor = FinderColor.Transparent, LinkedParameter = "Auto Speed", LinkReversed = true });
+            deviceEntry.ParamSettings.Add("LookAhead", CreateS1TopControlSettings(""));
+            deviceEntry.ParamSettings.Add("Link Channels", CreateS1TopControlSettings("CH Link"));
+            deviceEntry.ParamSettings.Add("Attack", new PlugParamSetting { OffColor = FinderColor.Black, LinkedParameter = "Auto Speed", LinkReversed = true });
+            deviceEntry.ParamSettings.Add("Release", new PlugParamSetting { OffColor = FinderColor.Black, LinkedParameter = "Auto Speed", LinkReversed = true });
             deviceEntry.ParamSettings.Add("Auto Speed", new PlugParamSetting { Label = "Auto" });
             deviceEntry.ParamSettings.Add("Adaptive Speed", new PlugParamSetting { Label = "Adaptive" });
-            deviceEntry.ParamSettings.Add("Gain", new PlugParamSetting { Label = "Makeup", OffColor = FinderColor.Transparent, LinkedParameter = "Auto Gain", LinkReversed = true });
+            deviceEntry.ParamSettings.Add("Gain", new PlugParamSetting { Label = "Makeup", OffColor = FinderColor.Black, LinkedParameter = "Auto Gain", LinkReversed = true });
             deviceEntry.ParamSettings.Add("Auto Gain", new PlugParamSetting { Label = "Auto" });
-            deviceEntry.ParamSettings.Add("Sidechain LC-Freq", new PlugParamSetting { Label = "Side LC", OffColor = FinderColor.Transparent, LinkedParameter = "Sidechain Filter" });
-            deviceEntry.ParamSettings.Add("Sidechain HC-Freq", new PlugParamSetting { Label = "Side HC", OffColor = FinderColor.Transparent, LinkedParameter = "Sidechain Filter" });
+            deviceEntry.ParamSettings.Add("Sidechain LC-Freq", new PlugParamSetting { Label = "Side LC", OffColor = FinderColor.Black, LinkedParameter = "Sidechain Filter" });
+            deviceEntry.ParamSettings.Add("Sidechain HC-Freq", new PlugParamSetting { Label = "Side HC", OffColor = FinderColor.Black, LinkedParameter = "Sidechain Filter" });
             deviceEntry.ParamSettings.Add("Sidechain Filter", new PlugParamSetting { Label = "Filter" });
             deviceEntry.ParamSettings.Add("Sidechain Listen", new PlugParamSetting { Label = "Listen" });
             deviceEntry.ParamSettings.Add("Swap Frequencies", new PlugParamSetting { Label = "Swap" });
@@ -633,7 +731,7 @@
             deviceEntry = AddPlugParamDeviceEntry("Limiter");
             deviceEntry.ParamSettings.Add("Mode ", new PlugParamSetting { Label = "A", LabelOn = "B", OnColor = new FinderColor(40, 40, 40), OffColor = new FinderColor(40, 40, 40),
                                                                              TextOnColor = new FinderColor(171, 197, 226), TextOffColor = new FinderColor(171, 197, 226) });
-            deviceEntry.ParamSettings.Add("True Peak Limiting", new S1TopControlColors(label: "True Peak"));
+            deviceEntry.ParamSettings.Add("True Peak Limiting", CreateS1TopControlSettings("True Peak"));
             AddLinked(deviceEntry, "SoftClipper", "True Peak Limiting", label: " Soft Clip", linkReversed: true);
             deviceEntry.ParamSettings.Add("Attack", new PlugParamSetting { DialSteps = 2, HideValueBar = true } );
 

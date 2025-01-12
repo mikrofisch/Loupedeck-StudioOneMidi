@@ -9,6 +9,8 @@
     using System.Xml.Schema;
     using System.Xml;
     using System.Xml.Serialization;
+    using System.Reflection;
+
 
 
     // BitmapColor objects that have not been explicitly assigned to a
@@ -147,6 +149,7 @@
 
         public class PlugParamSetting
         {
+            [DefaultValueAttribute(Positive)]
             public enum PotMode { Positive, Symmetric };
             public PotMode Mode { get; set; } = PotMode.Positive;
             [DefaultValueAttribute(false)]
@@ -175,6 +178,9 @@
                                                                     // if the linked parameter has multipe states
             [DefaultValueAttribute(100)]
             public Int32 DialSteps { get; set; } = 100;             // Number of steps for a mode dial
+
+            [DefaultValueAttribute(-1)]
+            public Int32 MaxValuePrecision { get; set; } = -1;      // Maximum number of decimal places for the value display (-1 = no limit)
 
             public String[] UserMenuItems;                          // Items for user button menu
 
@@ -297,6 +303,8 @@
                 //
                 foreach (var cfgDeviceEntry in p.PluginConfigs)
                 {
+                    PlugParamSetting defaultSettings = null;
+
                     var deviceEntry = new PlugParamDeviceEntry { };
                     foreach (var paramSettings in cfgDeviceEntry.ParamSettings)
                     {
@@ -306,6 +314,33 @@
                         this.ProcessColorSettingForRead(cfgDeviceEntry, paramSettings.TextOnColor);
                         this.ProcessColorSettingForRead(cfgDeviceEntry, paramSettings.TextOffColor);
                         this.ProcessColorSettingForRead(cfgDeviceEntry, paramSettings.BarOnColor);
+
+                        if (paramSettings.Name == "")
+                        {
+                            defaultSettings = paramSettings;
+                        }
+                        else if (defaultSettings != null)
+                        {
+                            var globalDefaultSettings = new PlugParamSetting();
+
+                            // If there is a parameter setting with an empty name, use it to set local default
+                            // values for parameters that have the same value as the global default.
+                            // This is using reflection to iterate over all properties of the PlugParamSetting class.
+                            //
+                            PropertyInfo[] properties = typeof(PlugParamSetting).GetProperties();
+                            foreach (PropertyInfo property in properties)
+                            {
+                                var paramValue = property.GetValue(paramSettings);
+                                var defaultValue = property.GetValue(defaultSettings);
+                                var globalDefaultValue = property.GetValue(globalDefaultSettings);
+
+                                if ((paramValue?.Equals(globalDefaultValue) == true) ||
+                                    (paramValue == null && globalDefaultValue == null))
+                                {
+                                    property.SetValue(paramSettings, defaultValue);
+                                }
+                            }
+                        }
 
                         deviceEntry.ParamSettings.Add(paramSettings.Name, paramSettings);
                     }
@@ -569,6 +604,7 @@
         public Boolean HideValueBar(PlugParamDeviceEntry deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false) => this.GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx).HideValueBar;
         public Boolean ShowUserButtonCircle(PlugParamDeviceEntry deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false) => this.GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx).ShowUserButtonCircle;
         public Int32 GetDialSteps(PlugParamDeviceEntry deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false) => this.GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx).DialSteps;
+        public Int32 GetMaxValuePrecision(PlugParamDeviceEntry deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false) => this.GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx).MaxValuePrecision;
         public String[] GetUserMenuItems(PlugParamDeviceEntry deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false) => this.GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx).UserMenuItems;
         public Boolean HasMenu(PlugParamDeviceEntry deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false) => this.GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx).UserMenuItems != null;
         public static String SettingName(String pluginName, String parameterName, String setting) => strPlugParamSettingsID + pluginName + "|" + parameterName + "|" + setting;

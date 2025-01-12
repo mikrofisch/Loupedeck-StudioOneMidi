@@ -28,6 +28,8 @@
         
         private static readonly Boolean[] IsActive = new Boolean[StudioOneMidiPlugin.ChannelCount];
 
+        // Custom settings for value display that is invoked when individual faders
+        // get reconfigured on the fly to show specific parameters such as tempo.
         private class CustomParams
         {
             public BitmapColor BgColor = BitmapColor.Black;
@@ -299,8 +301,11 @@
             else
             {
                 // In custom mode limit the number of decimal places to 2. Hard wired for now.
-                var valStr = customParams != null ? Regex.Replace(cd.ValueStr, @"(\d+)([.,]?)(\d{0,2})\d*\s?(\D*)", "$1$2$3 $4")
-                                                  : cd.ValueStr;
+                var maxValuePrecision = customParams != null ? 2
+                                                             : UserPlugSettingsFinder.GetMaxValuePrecision(deviceEntry, cd.Label, currentChannel);
+
+                var valStr = maxValuePrecision >= 0 ? Regex.Replace(cd.ValueStr, @"(\d+)([.,]?)(\d{0," + maxValuePrecision + @"})\d*\s?(\D*)", "$1$2$3 $4")
+                                                    : cd.ValueStr;
 
                 bb.DrawText(valStr.Replace(' ', '\n'), 0, bb.Height / 4, bb.Width, bb.Height / 2, valueColor);
             }

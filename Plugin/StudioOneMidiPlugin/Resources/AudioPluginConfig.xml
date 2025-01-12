@@ -3755,12 +3755,12 @@
         <Label>EMPHASIS</Label>
       </PlugParamSetting>
       <PlugParamSetting name="Makeup">
-        <Mode>Positive</Mode>
+        <Mode>Symmetric</Mode>
         <OnColor>KnobOnColor</OnColor>
         <OnTransparency>255</OnTransparency>
         <TextOnColor>black</TextOnColor>
         <BarOnColor>BarOnColor</BarOnColor>
-        <Label>MAKEUP</Label>
+        <Label>MAKE UP</Label>
       </PlugParamSetting>
       <PlugParamSetting name="Mix">
         <Mode>Positive</Mode>
@@ -4934,6 +4934,226 @@
         <Mode>Positive</Mode>
         <OnColor>rgb(42,75,124)</OnColor>
         <Label>Stereo Diff</Label>
+      </PlugParamSetting>
+    </ParamSettings>
+  </PluginConfig>
+  <PluginConfig PluginName="ConsoleXChannel">
+    <Colors>
+      <Color name="BassColor">rgb(131, 69, 39)</Color>
+      <Color name="LowMidColor">rgb(20, 119, 169)</Color>
+      <Color name="HighMidColor">rgb(51, 119, 51)</Color>
+      <Color name="TrebleColor">rgb(178, 39, 42)</Color>
+      <Color name="StoneColor">rgb(119, 80, 129)</Color>
+      <Color name="FireColor">rgb(255, 124, 33)</Color>
+      <Color name="GateColor">rgb(51, 119, 51)</Color>
+    </Colors>
+    <ParamSettings>
+      <PlugParamSetting name="Loupedeck User Pages">
+        <UserMenuItems>
+          <string>BS/LM</string>
+          <string>HM/TR</string>
+          <string>DYN</string>
+          <string>COMP</string>
+          <string>GATE</string>
+          <string>MASTER</string>
+        </UserMenuItems>
+      </PlugParamSetting>
+      <PlugParamSetting name="">
+        <OnTransparency>255</OnTransparency>
+        <MaxValuePrecision>3</MaxValuePrecision>
+      </PlugParamSetting>
+      <PlugParamSetting name="Bass">
+        <OnColor>BassColor</OnColor>
+      </PlugParamSetting>
+      <PlugParamSetting name="Bass Reso">
+        <OnColor>BassColor</OnColor>
+      </PlugParamSetting>
+      <PlugParamSetting name="Bass Freq">
+        <OnColor>BassColor</OnColor>
+      </PlugParamSetting>
+      <PlugParamSetting name="LowMid">
+        <OnColor>LowMidColor</OnColor>
+      </PlugParamSetting>
+      <PlugParamSetting name="LowMid Reso">
+        <OnColor>LowMidColor</OnColor>
+      </PlugParamSetting>
+      <PlugParamSetting name="LowMid Freq">
+        <OnColor>LowMidColor</OnColor>
+      </PlugParamSetting>
+      <PlugParamSetting name="HighMid">
+        <OnColor>HighMidColor</OnColor>
+      </PlugParamSetting>
+      <PlugParamSetting name="HighMid Reso">
+        <OnColor>HighMidColor</OnColor>
+      </PlugParamSetting>
+      <PlugParamSetting name="HighMid Freq">
+        <OnColor>HighMidColor</OnColor>
+      </PlugParamSetting>
+      <PlugParamSetting name="Treble">
+        <OnColor>TrebleColor</OnColor>
+      </PlugParamSetting>
+      <PlugParamSetting name="Treble Reso">
+        <OnColor>TrebleColor</OnColor>
+      </PlugParamSetting>
+      <PlugParamSetting name="Treble Freq">
+        <OnColor>TrebleColor</OnColor>
+      </PlugParamSetting>
+      <PlugParamSetting name="Stone">
+        <OnColor>StoneColor</OnColor>
+      </PlugParamSetting>
+      <PlugParamSetting name="SC Threshold">
+        <OnColor>StoneColor</OnColor>
+      </PlugParamSetting>
+      <PlugParamSetting name="SG Threshold">
+        <OnColor>StoneColor</OnColor>
+      </PlugParamSetting>
+      <PlugParamSetting name="Fire">
+        <OnColor>FireColor</OnColor>
+      </PlugParamSetting>
+      <PlugParamSetting name="FC Threshold">
+        <OnColor>FireColor</OnColor>
+      </PlugParamSetting>
+      <PlugParamSetting name="FG Threshold">
+        <OnColor>FireColor</OnColor>
+      </PlugParamSetting>
+      <PlugParamSetting name="SG Ratio">
+        <OnColor>GateColor</OnColor>
+      </PlugParamSetting>
+      <PlugParamSetting name="SG Sustain">
+        <OnColor>GateColor</OnColor>
+      </PlugParamSetting>
+      <PlugParamSetting name="SG Release">
+        <OnColor>GateColor</OnColor>
+      </PlugParamSetting>
+      <PlugParamSetting name="FG Ratio">
+        <OnColor>GateColor</OnColor>
+      </PlugParamSetting>
+      <PlugParamSetting name="FG Sustain">
+        <OnColor>GateColor</OnColor>
+      </PlugParamSetting>
+      <PlugParamSetting name="FG Release">
+        <OnColor>GateColor</OnColor>
+      </PlugParamSetting>
+      <PlugParamSetting name="Air">
+        <OnColor>rgb(242, 233, 30)</OnColor>
+        <TextOnColor>black</TextOnColor>
+      </PlugParamSetting>
+      <PlugParamSetting name="Top dB">
+        <OnColor>TrebleColor</OnColor>
+      </PlugParamSetting>
+      <PlugParamSetting name="SC Ratio">
+        <BarOnColor>white</BarOnColor>
+      </PlugParamSetting>
+      <PlugParamSetting name="SC ATtack">
+        <BarOnColor>white</BarOnColor>
+        <Label>SC Attack</Label>F
+      </PlugParamSetting>
+      <PlugParamSetting name="SC Release">
+        <BarOnColor>white</BarOnColor>
+      </PlugParamSetting>
+      <PlugParamSetting name="FC Ratio">
+        <BarOnColor>white</BarOnColor>
+      </PlugParamSetting>
+      <PlugParamSetting name="FC Attack">
+        <BarOnColor>white</BarOnColor>
+      </PlugParamSetting>
+      <PlugParamSetting name="FC Release">
+        <BarOnColor>white</BarOnColor>
+      </PlugParamSetting>
+      <PlugParamSetting name="Lowpass">
+        <BarOnColor>white</BarOnColor>
+      </PlugParamSetting>
+      <PlugParamSetting name="Highpass">
+        <BarOnColor>white</BarOnColor>
+      </PlugParamSetting>
+      <PlugParamSetting name="Fader">
+        <BarOnColor>white</BarOnColor>
+      </PlugParamSetting>
+      <PlugParamSetting name="Range">
+        <BarOnColor>white</BarOnColor>
+      </PlugParamSetting>
+    </ParamSettings>
+  </PluginConfig>
+  <PluginConfig PluginName="ToTape864">
+    <Colors />
+    <ParamSettings>
+      <PlugParamSetting name="">
+        <MaxValuePrecision>3</MaxValuePrecision>
+      </PlugParamSetting>
+      <PlugParamSetting name="FlutSpd">
+        <Label>Flutter Speed</Label>
+      </PlugParamSetting>
+      <PlugParamSetting name="HeadBmp">
+        <Label>Head Bump</Label>
+      </PlugParamSetting>
+      <PlugParamSetting name="HeadFrq">
+        <Label>Head Frequency</Label>
+        <MaxValuePrecision>1</MaxValuePrecision>
+      </PlugParamSetting>
+    </ParamSettings>
+  </PluginConfig>
+  <PluginConfig PluginName="PurestGain64">
+    <Colors />
+    <ParamSettings>
+      <PlugParamSetting name="">
+        <MaxValuePrecision>3</MaxValuePrecision>
+      </PlugParamSetting>
+      <PlugParamSetting name="Gain">
+        <Mode>Symmetric</Mode>
+      </PlugParamSetting>
+      <PlugParamSetting name="Slow Fad">
+        <Label>Slow Fade</Label>
+      </PlugParamSetting>
+    </ParamSettings>
+  </PluginConfig>
+  <PluginConfig PluginName="PurestFade64">
+    <Colors />
+    <ParamSettings>
+      <PlugParamSetting name="">
+        <MaxValuePrecision>3</MaxValuePrecision>
+      </PlugParamSetting>
+      <PlugParamSetting name="Gain">
+        <Mode>Symmetric</Mode>
+      </PlugParamSetting>
+    </ParamSettings>
+  </PluginConfig>
+  <PluginConfig PluginName="OrbitKick64">
+    <Colors />
+    <ParamSettings>
+      <PlugParamSetting name="">
+        <MaxValuePrecision>3</MaxValuePrecision>
+      </PlugParamSetting>
+    </ParamSettings>
+  </PluginConfig>
+  <PluginConfig PluginName="Cans64">
+    <Colors />
+    <ParamSettings>
+      <PlugParamSetting name="">
+        <MaxValuePrecision>3</MaxValuePrecision>
+      </PlugParamSetting>
+      <PlugParamSetting name="Room">
+        <DialSteps>4</DialSteps>
+      </PlugParamSetting>
+    </ParamSettings>
+  </PluginConfig>
+  <PluginConfig PluginName="Cabs64">
+    <Colors />
+    <ParamSettings>
+      <PlugParamSetting name="">
+        <MaxValuePrecision>3</MaxValuePrecision>
+      </PlugParamSetting>
+      <PlugParamSetting name="CabType">
+        <Label>Cab Type</Label>
+        <DialSteps>5</DialSteps>
+      </PlugParamSetting>
+      <PlugParamSetting name="CabSize">
+        <Label>Cab Size</Label>
+      </PlugParamSetting>
+      <PlugParamSetting name="Rm Loud">
+        <Label>Room Loudness</Label>
+      </PlugParamSetting>
+      <PlugParamSetting name="OffAxis">
+        <Label>Off Axis</Label>
       </PlugParamSetting>
     </ParamSettings>
   </PluginConfig>

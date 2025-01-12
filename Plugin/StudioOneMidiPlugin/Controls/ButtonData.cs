@@ -359,6 +359,13 @@
 
                 var deviceEntry = UserPlugSettingsFinder.GetPlugParamDeviceEntry(pluginName);
 
+                // Get the text for the user button label first so that we know if there is anything to show. Note that cd.UserLabel (which contains
+                // the label sent by the plugin) may be empty if the plugin is buggy and doesn't send anything, but labelText may still have
+                // text if an override is defined for the button position.
+                //
+                var userLabelText = userButtonActive ? UserPlugSettingsFinder.GetLabelOnShort(deviceEntry, cd.UserLabel, buttonIdx, isUser: true)
+                                                 : UserPlugSettingsFinder.GetLabelShort(deviceEntry, cd.UserLabel, buttonIdx, isUser: true);
+
                 // User Pot
                 //
                 if (UserPlugSettingsFinder.GetLabel(deviceEntry, cd.Label, buttonIdx).Length > 0)
@@ -370,19 +377,13 @@
                     }
                 }
                 bb.DrawText(cd.Description, 0, 0, bb.Width, TitleHeight, TextDescColor, DescFontSize);
-                bb.DrawText(UserPlugSettingsFinder.GetLabelShort(deviceEntry, cd.Label, buttonIdx), 0, bb.Height / 2 - TitleHeight / 2, bb.Width, TitleHeight, 
+                bb.DrawText(userLabelText.Length > 0 ? UserPlugSettingsFinder.GetLabelShort(deviceEntry, cd.Label, buttonIdx) :
+                                                       UserPlugSettingsFinder.GetLabel(deviceEntry, cd.Label, buttonIdx), 0, bb.Height / 2 - TitleHeight / 2, bb.Width, TitleHeight, 
                             buttonEnabled ? UserPlugSettingsFinder.GetTextOnColor(deviceEntry, cd.Label, buttonIdx)
                                           : UserPlugSettingsFinder.GetTextOffColor(deviceEntry, cd.Label, buttonIdx), LabelFontSize);
 
                 // User Button
                 //
-
-                // Get the text for the user button label first so that we know if there is anything to show. Note that cd.UserLabel (which contains
-                // the label sent by the plugin) may be empty if the plugin is buggy and doesn't send anything, but labelText may still have
-                // text if an override is defined for the button position.
-                //
-                var userLabelText = userButtonActive ? UserPlugSettingsFinder.GetLabelOnShort(deviceEntry, cd.UserLabel, buttonIdx, isUser: true)
-                                                 : UserPlugSettingsFinder.GetLabelShort(deviceEntry, cd.UserLabel, buttonIdx, isUser: true);
                 var menuItems = UserPlugSettingsFinder.GetUserMenuItems(deviceEntry, cd.UserLabel, buttonIdx, isUser: true);
                 if (menuItems != null)
                 {

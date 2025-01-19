@@ -11,7 +11,7 @@
 
         public StudioOneButton()
         {
-            this.ActionImageChangedTimer = new System.Timers.Timer(10);
+            this.ActionImageChangedTimer = new System.Timers.Timer(100);
             this.ActionImageChangedTimer.AutoReset = false;
             this.ActionImageChangedTimer.Elapsed += (Object sender, System.Timers.ElapsedEventArgs e) =>
             {

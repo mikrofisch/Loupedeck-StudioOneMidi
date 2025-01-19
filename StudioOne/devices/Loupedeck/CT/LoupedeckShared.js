@@ -293,7 +293,7 @@ class LoupedeckSharedComponent extends FocusChannelPanComponent {
             PreSonus.HostUtils.openEditorAndFocus(this, element);
             if (this.hasControlLinkFocus() && !this.assignment.controlLinkFocus) {
                 this.assignment.controlLinkFocus = true;
-                this.updateAssignment();
+                // this.updateAssignment();
             }
         }
 //            else {

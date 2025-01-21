@@ -139,7 +139,8 @@ namespace Loupedeck.StudioOneMidiPlugin
             Autopunch
         }
         public RecPreMode CurrentRecPreMode = RecPreMode.Off;
-    
+        public event EventHandler<RecPreMode> RecPreModeChanged;
+
         public enum ChannelFaderMode
         {
             Send,
@@ -356,6 +357,7 @@ namespace Loupedeck.StudioOneMidiPlugin
 
         public void EmitChannelActiveChanged(ChannelActiveParams cap) =>
             this.ChannelActiveCanged?.Invoke(this, cap);
+
         public override void RunCommand(String commandName, String parameter)
         {
 		}
@@ -483,6 +485,7 @@ namespace Loupedeck.StudioOneMidiPlugin
                             this.CurrentRecPreMode = RecPreMode.Off;
                         }
                         CommandNoteReceived.Invoke(this, ce);
+                        this.RecPreModeChanged?.Invoke(this, this.CurrentRecPreMode);
                     }
                     else if (ce.NoteNumber >= UserPageMidiBase && ce.NoteNumber < UserPageMidiBase + MaxUserPages)
                     {

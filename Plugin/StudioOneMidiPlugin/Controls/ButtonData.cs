@@ -40,9 +40,9 @@
         private BitmapImage Icon;
 
         public PropertyButtonData(int channelIndex,
-                                      ChannelProperty.PropertyType bt,
-                                      TrackNameMode tm = TrackNameMode.ShowFull,
-                                      string iconName = null)
+                                  ChannelProperty.PropertyType bt,
+                                  TrackNameMode tm = TrackNameMode.ShowFull,
+                                  string iconName = null)
         {
             this.ChannelIndex = channelIndex;
             this.Type = bt;

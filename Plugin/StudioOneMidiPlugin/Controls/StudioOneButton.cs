@@ -9,7 +9,7 @@
 
         private readonly System.Timers.Timer ActionImageChangedTimer;
 
-        public StudioOneButton()
+        public StudioOneButton() : base()
         {
             this.ActionImageChangedTimer = new System.Timers.Timer(100);
             this.ActionImageChangedTimer.AutoReset = false;
@@ -26,6 +26,7 @@
                 }
             };
 
+            this.IsWidget = true;
         }
 
         protected override bool OnLoad()

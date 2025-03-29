@@ -4,7 +4,6 @@
     using System.Collections.Generic;
 
     using Melanchall.DryWetMidi.Core;
-    using Melanchall.DryWetMidi.Common;
 
     using static Loupedeck.StudioOneMidiPlugin.StudioOneMidiPlugin;
 
@@ -201,6 +200,7 @@
             this.AddButton(ButtonLayer.ChannelPropertiesPlay, modeID, 0, new OneWayCommandButtonData(14, 0x06, "Track List", "track_list", arrangerBgColor));
             this.AddButton(ButtonLayer.ChannelPropertiesPlay, modeID, 1, new OneWayCommandButtonData(14, 0x04, "Inspector", "inspector", arrangerBgColor));
             this.AddButton(ButtonLayer.ChannelPropertiesPlay, modeID, 3, new OneWayCommandButtonData(14, 0x38, "Show Automation", "show_automation", arrangerBgColor));
+            this.AddButton(ButtonLayer.ChannelPropertiesPlay, modeID, 4, new OneWayCommandButtonData(15, 0x2A, "Marker Track", "ruler_marker", arrangerBgColor));
 
             // Console
             modeID = (Int32)PlayLayerMode.ConsoleActivated;

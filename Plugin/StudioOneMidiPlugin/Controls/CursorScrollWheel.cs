@@ -1,10 +1,6 @@
 ﻿namespace Loupedeck.StudioOneMidiPlugin.Controls
 {
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
     using Melanchall.DryWetMidi.Common;
 
     using Melanchall.DryWetMidi.Core;

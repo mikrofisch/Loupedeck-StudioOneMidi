@@ -16,7 +16,7 @@
         private BitmapImage IconArm, IconMonitor;
         private ChannelProperty.PropertyType MultiPropertyType = ChannelProperty.PropertyType.Mute;
 
-        public ChannelPropertyButton()
+        public ChannelPropertyButton() : base()
         {
             this.DisplayName = "Channel Property Button";
             this.Description = "Property controls for currently selected channel";
@@ -40,6 +40,8 @@
 
             this.ActionEditor.ListboxItemsRequested += this.OnActionEditorListboxItemsRequested;
             this.ActionEditor.ControlValueChanged += this.OnActionEditorControlValueChanged;
+
+            this.IsWidget = true;
         }
 
         protected override Boolean OnLoad()
@@ -104,6 +106,7 @@
 
         protected override BitmapImage GetCommandImage(ActionEditorActionParameters actionParameters, Int32 imageWidth, Int32 imageHeight)
         {
+            if (actionParameters == null) return null;
             if (!actionParameters.TryGetInt32(PropertySelector, out var controlProperty)) return null;
             if (!actionParameters.TryGetInt32(ButtonTitleSelector, out var trackNameMode)) return null;
             if (!actionParameters.TryGetInt32(ChannelSelector, out var channelIndex)) return null;

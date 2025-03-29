@@ -45,8 +45,8 @@
 		<Control name="groupSuspend6"               type="trigger" options="receive"> <MidiMessage status="#90" address="#27" channel="14"/> </Control>
 		<Control name="groupSuspend7"               type="trigger" options="receive"> <MidiMessage status="#90" address="#28" channel="14"/> </Control>
 		<Control name="groupSuspend8"               type="trigger" options="receive"> <MidiMessage status="#90" address="#29" channel="14"/> </Control>
-		<Control name="trackActivatePreviousLayer"  type="trigger" options="receive"> <MidiMessage status="#90" address="#30" channel="14"/> </Control>
-		<Control name="trackActivateNextLayer"      type="trigger" options="receive"> <MidiMessage status="#90" address="#31" channel="14"/> </Control>
+		<Control name="trackReplaceEventPrevLayer"  type="trigger" options="receive"> <MidiMessage status="#90" address="#30" channel="14"/> </Control>
+		<Control name="trackReplaceEventNextLayer"  type="trigger" options="receive"> <MidiMessage status="#90" address="#31" channel="14"/> </Control>
 		<Control name="trackAddLayer"               type="trigger" options="receive"> <MidiMessage status="#90" address="#32" channel="14"/> </Control>
 		<Control name="trackRemoveLayer"            type="trigger" options="receive"> <MidiMessage status="#90" address="#33" channel="14"/> </Control>
 		<Control name="trackExpandLayers"           type="trigger" options="receive"> <MidiMessage status="#90" address="#34" channel="14"/> </Control>
@@ -227,8 +227,8 @@
 			<Command control="groupSuspend6"                 command.category="Group"      command.name="Suspend Group 6"/>
 			<Command control="groupSuspend7"                 command.category="Group"      command.name="Suspend Group 7"/>
 			<Command control="groupSuspend8"                 command.category="Group"      command.name="Suspend Group 8"/>
-			<Command control="trackActivatePreviousLayer"    command.category="Track"      command.name="Activate Previous Layer"/>
-			<Command control="trackActivateNextLayer"        command.category="Track"      command.name="Activate Next Layer"/>
+			<Command control="trackReplaceEventPrevLayer"    command.category="Track"      command.name="Replace Event With Previous Layer"/>
+			<Command control="trackReplaceEventNextLayer"    command.category="Track"      command.name="Replace Event With Next Layer"/>
 			<Command control="trackAddLayer"                 command.category="Track"      command.name="Add Layer"/>
 			<Command control="trackRemoveLayer"              command.category="Track"      command.name="Remove Layer"/>
 			<Command control="trackExpandLayers"             command.category="Track"      command.name="Expand Layers"/>

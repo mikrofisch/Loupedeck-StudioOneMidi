@@ -200,10 +200,11 @@
 
         public class PlugParamDeviceEntry
         {
+            public String ManufacturerName = "";    // Used for categorizing the plugin in the Loupedeck plugin configuration app
             public Dictionary<String, PlugParamSetting> ParamSettings = [];
         }
-
         private static readonly Dictionary<String, PlugParamDeviceEntry> PlugParamDict = [];
+        
         private const String strPlugParamSettingsID = "[ps]";  // for plugin settings
 
         private String LastPluginName, LastPluginParameter;
@@ -234,13 +235,15 @@
 
         public class XmlConfig
         {
-            public static readonly String ConfigFolderPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Loupedeck-StudioOneMidiPlugin");
+            public static readonly String ConfigFolderPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Loupedeck-AudioPluginConfig");
             public const String ConfigFileName = "AudioPluginConfig.xml";
 
             public class PluginConfig
             {
                 [XmlAttribute]
-                public String PluginName;
+                public String PluginName = "";          // Used to identify the plugin configuration
+                [XmlAttribute]
+                public String ManufacturerName = "";    // Used for categorizing the plugin in the Loupedeck plugin configuration app
 
                 public List<FinderColor> Colors = [];
                 public List<PlugParamSetting> ParamSettings = [];
@@ -296,8 +299,8 @@
             {
                 var serializer = new XmlSerializer(typeof(XmlConfig));
 
-                    // Call the Deserialize method to restore the object's state.
-                    var p = (XmlConfig)serializer.Deserialize(reader);
+                // Call the Deserialize method to restore the object's state.
+                var p = (XmlConfig)serializer.Deserialize(reader);
 
                 // Create plugin device entries and dereference colour names in parameter settings
                 //
@@ -346,6 +349,7 @@
                     }
 
                     // Add or update the device entry in the dictionary.
+                    deviceEntry.ManufacturerName = cfgDeviceEntry.ManufacturerName;
                     plugParamDict[cfgDeviceEntry.PluginName] = deviceEntry;
                 }
             }
@@ -361,7 +365,7 @@
 
                 foreach (var deviceEntry in plugParamDict)
                 {
-                    var cfgDeviceEntry = new PluginConfig { PluginName = deviceEntry.Key };
+                    var cfgDeviceEntry = new PluginConfig { PluginName = deviceEntry.Key, ManufacturerName = deviceEntry.Value.ManufacturerName };
                     foreach (var paramSettings in deviceEntry.Value.ParamSettings)
                     {
                         paramSettings.Value.Name = paramSettings.Key;

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <XmlConfig xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <PluginConfig PluginName="">
+  <PluginConfig PluginName="" ManufacturerName="">
     <Colors />
     <ParamSettings>
       <PlugParamSetting name="Bypass">
@@ -15,7 +15,7 @@
       </PlugParamSetting>
     </ParamSettings>
   </PluginConfig>
-  <PluginConfig PluginName="Pro EQ">
+  <PluginConfig PluginName="Pro EQ" ManufacturerName="Presonus">
     <Colors />
     <ParamSettings>
       <PlugParamSetting name="Show Controls">
@@ -37,7 +37,6 @@
         <OnColor>rgb(54,84,122)</OnColor>
         <OffColor>rgb(27,34,37)</OffColor>
         <TextOffColor>rgb(58,117,195)</TextOffColor>
-        <Label />
       </PlugParamSetting>
       <PlugParamSetting name="View Mode">
         <Mode>Positive</Mode>
@@ -249,7 +248,7 @@
       </PlugParamSetting>
     </ParamSettings>
   </PluginConfig>
-  <PluginConfig PluginName="Fat Channel">
+  <PluginConfig PluginName="Fat Channel" ManufacturerName="Presonus">
     <Colors />
     <ParamSettings>
       <PlugParamSetting name="Loupedeck User Pages">
@@ -475,7 +474,7 @@
       </PlugParamSetting>
     </ParamSettings>
   </PluginConfig>
-  <PluginConfig PluginName="Compressor">
+  <PluginConfig PluginName="Compressor" ManufacturerName="Presonus">
     <Colors />
     <ParamSettings>
       <PlugParamSetting name="LookAhead">
@@ -483,7 +482,6 @@
         <OnColor>rgb(54,84,122)</OnColor>
         <OffColor>rgb(27,34,37)</OffColor>
         <TextOffColor>rgb(58,117,195)</TextOffColor>
-        <Label />
       </PlugParamSetting>
       <PlugParamSetting name="Link Channels">
         <Mode>Positive</Mode>
@@ -549,7 +547,7 @@
       </PlugParamSetting>
     </ParamSettings>
   </PluginConfig>
-  <PluginConfig PluginName="Limiter">
+  <PluginConfig PluginName="Limiter" ManufacturerName="Presonus">
     <Colors />
     <ParamSettings>
       <PlugParamSetting name="Mode ">
@@ -585,7 +583,7 @@
       </PlugParamSetting>
     </ParamSettings>
   </PluginConfig>
-  <PluginConfig PluginName="Flanger">
+  <PluginConfig PluginName="Flanger" ManufacturerName="Presonus">
     <Colors />
     <ParamSettings>
       <PlugParamSetting name="">
@@ -608,7 +606,7 @@
       </PlugParamSetting>
     </ParamSettings>
   </PluginConfig>
-  <PluginConfig PluginName="Phaser">
+  <PluginConfig PluginName="Phaser" ManufacturerName="Presonus">
     <Colors />
     <ParamSettings>
       <PlugParamSetting name="">
@@ -652,7 +650,7 @@
       </PlugParamSetting>
     </ParamSettings>
   </PluginConfig>
-  <PluginConfig PluginName="Analog Delay">
+  <PluginConfig PluginName="Analog Delay" ManufacturerName="Presonus">
     <Colors>
       <Color name="ButtonOncolor">rgb(255,59,58)</Color>
       <Color name="ButtonOffColor">rgb(84,18,18)</Color>
@@ -744,7 +742,6 @@
         </UserMenuItems>
         <Mode>Positive</Mode>
         <OnColor>rgb(30,51,33)</OnColor>
-        <Label />
       </PlugParamSetting>
       <PlugParamSetting name="Low Cut">
         <Mode>Positive</Mode>
@@ -811,7 +808,7 @@
       </PlugParamSetting>
     </ParamSettings>
   </PluginConfig>
-  <PluginConfig PluginName="Alpine Desk">
+  <PluginConfig PluginName="Alpine Desk" ManufacturerName="Presonus">
     <Colors />
     <ParamSettings>
       <PlugParamSetting name="Boost">
@@ -871,7 +868,7 @@
       </PlugParamSetting>
     </ParamSettings>
   </PluginConfig>
-  <PluginConfig PluginName="Brit Console">
+  <PluginConfig PluginName="Brit Console" ManufacturerName="Presonus">
     <Colors />
     <ParamSettings>
       <PlugParamSetting name="Boost">
@@ -949,7 +946,7 @@
       </PlugParamSetting>
     </ParamSettings>
   </PluginConfig>
-  <PluginConfig PluginName="CTC-1">
+  <PluginConfig PluginName="CTC-1" ManufacturerName="Presonus">
     <Colors />
     <ParamSettings>
       <PlugParamSetting name="Boost">
@@ -1009,7 +1006,7 @@
       </PlugParamSetting>
     </ParamSettings>
   </PluginConfig>
-  <PluginConfig PluginName="Porta Casstte">
+  <PluginConfig PluginName="Porta Casstte" ManufacturerName="Presonus">
     <Colors />
     <ParamSettings>
       <PlugParamSetting name="Boost">
@@ -1077,7 +1074,7 @@
       </PlugParamSetting>
     </ParamSettings>
   </PluginConfig>
-  <PluginConfig PluginName="Console Shaper">
+  <PluginConfig PluginName="Console Shaper" ManufacturerName="Presonus">
     <Colors />
     <ParamSettings>
       <PlugParamSetting name="Preamp On">
@@ -1101,7 +1098,7 @@
       </PlugParamSetting>
     </ParamSettings>
   </PluginConfig>
-  <PluginConfig PluginName="bx_console SSL 4000 E">
+  <PluginConfig PluginName="bx_console SSL 4000 E" ManufacturerName="Brainworx">
     <Colors>
       <Color name="BxSslLedGreenColor">rgb(95,255,48)</Color>
       <Color name="BxSslWhite">rgb(206,206,206)</Color>
@@ -1416,7 +1413,6 @@
         <Mode>Positive</Mode>
         <OnColor>BxSslButtonOnColor</OnColor>
         <TextOnColor>black</TextOnColor>
-        <Label />
       </PlugParamSetting>
       <PlugParamSetting name="Dyn Key">
         <Mode>Positive</Mode>
@@ -1428,7 +1424,7 @@
       </PlugParamSetting>
     </ParamSettings>
   </PluginConfig>
-  <PluginConfig PluginName="bx_console SSL 4000 G">
+  <PluginConfig PluginName="bx_console SSL 4000 G" ManufacturerName="Brainworx">
     <Colors>
       <Color name="BxSslLedGreenColor">rgb(95,255,48)</Color>
       <Color name="BxSslWhite">rgb(206,206,206)</Color>
@@ -1772,7 +1768,6 @@
         <Mode>Positive</Mode>
         <OnColor>BxSslButtonOnColor</OnColor>
         <TextOnColor>black</TextOnColor>
-        <Label />
       </PlugParamSetting>
       <PlugParamSetting name="Dyn Key">
         <Mode>Positive</Mode>
@@ -1784,7 +1779,7 @@
       </PlugParamSetting>
     </ParamSettings>
   </PluginConfig>
-  <PluginConfig PluginName="SSLGChannel">
+  <PluginConfig PluginName="SSLGChannel" ManufacturerName="Waves">
     <Colors />
     <ParamSettings>
       <PlugParamSetting name="HP Frq">
@@ -1919,7 +1914,7 @@
       </PlugParamSetting>
     </ParamSettings>
   </PluginConfig>
-  <PluginConfig PluginName="RCompressor">
+  <PluginConfig PluginName="RCompressor" ManufacturerName="Waves">
     <Colors />
     <ParamSettings>
       <PlugParamSetting name="Threshold">
@@ -1968,7 +1963,7 @@
       </PlugParamSetting>
     </ParamSettings>
   </PluginConfig>
-  <PluginConfig PluginName="RBass">
+  <PluginConfig PluginName="RBass" ManufacturerName="Waves">
     <Colors />
     <ParamSettings>
       <PlugParamSetting name="Orig. In-Out">
@@ -1992,7 +1987,7 @@
       </PlugParamSetting>
     </ParamSettings>
   </PluginConfig>
-  <PluginConfig PluginName="REQ">
+  <PluginConfig PluginName="REQ" ManufacturerName="Waves">
     <Colors />
     <ParamSettings>
       <PlugParamSetting name="Band1 On/Off">
@@ -2035,7 +2030,6 @@
         <Mode>Positive</Mode>
         <OnColor>rgb(196,116,100)</OnColor>
         <TextOnColor>black</TextOnColor>
-        <Label />
         <LinkedParameter>Band1 On/Off</LinkedParameter>
         <LinkedStates />
       </PlugParamSetting>
@@ -2077,7 +2071,6 @@
         <Mode>Positive</Mode>
         <OnColor>rgb(175,173,29)</OnColor>
         <TextOnColor>black</TextOnColor>
-        <Label />
         <LinkedParameter>Band2 On/Off</LinkedParameter>
         <LinkedStates />
       </PlugParamSetting>
@@ -2119,7 +2112,6 @@
         <Mode>Positive</Mode>
         <OnColor>rgb(57,181,74)</OnColor>
         <TextOnColor>black</TextOnColor>
-        <Label />
         <LinkedParameter>Band3 On/Off</LinkedParameter>
         <LinkedStates />
       </PlugParamSetting>
@@ -2161,7 +2153,6 @@
         <Mode>Positive</Mode>
         <OnColor>rgb(56,149,203)</OnColor>
         <TextOnColor>black</TextOnColor>
-        <Label />
         <LinkedParameter>Band4 On/Off</LinkedParameter>
         <LinkedStates />
       </PlugParamSetting>
@@ -2203,7 +2194,6 @@
         <Mode>Positive</Mode>
         <OnColor>rgb(130,41,141)</OnColor>
         <TextOnColor>black</TextOnColor>
-        <Label />
         <LinkedParameter>Band5 On/Off</LinkedParameter>
         <LinkedStates />
       </PlugParamSetting>
@@ -2247,7 +2237,6 @@
         <Mode>Positive</Mode>
         <OnColor>rgb(199,48,105)</OnColor>
         <TextOnColor>black</TextOnColor>
-        <Label />
         <LinkedParameter>Band6 On/Off</LinkedParameter>
         <LinkedStates />
       </PlugParamSetting>
@@ -2268,7 +2257,7 @@
       </PlugParamSetting>
     </ParamSettings>
   </PluginConfig>
-  <PluginConfig PluginName="RVerb">
+  <PluginConfig PluginName="RVerb" ManufacturerName="Waves">
     <Colors />
     <ParamSettings>
       <PlugParamSetting name="">
@@ -2279,46 +2268,54 @@
       <PlugParamSetting name="Dmp Low-F Ratio">
         <Mode>Positive</Mode>
         <OnColor>rgb(74,149,155)</OnColor>
+        <TextOnColor>black</TextOnColor>
         <Label>Dmp Lo Rto</Label>
       </PlugParamSetting>
       <PlugParamSetting name="Dmp Low-F Freq">
         <Mode>Positive</Mode>
         <OnColor>rgb(74,149,155)</OnColor>
+        <TextOnColor>black</TextOnColor>
         <Label>Dmp Lo Frq</Label>
       </PlugParamSetting>
       <PlugParamSetting name="Dmp Hi-F Ratio">
         <Mode>Positive</Mode>
         <OnColor>rgb(74,149,155)</OnColor>
+        <TextOnColor>black</TextOnColor>
         <Label>Dmp Hi Rto</Label>
       </PlugParamSetting>
       <PlugParamSetting name="Dmp Hi-F Freq">
         <Mode>Positive</Mode>
         <OnColor>rgb(74,149,155)</OnColor>
+        <TextOnColor>black</TextOnColor>
         <Label>Dmp Hi Frq</Label>
       </PlugParamSetting>
       <PlugParamSetting name="EQ Low-F Gain">
         <Mode>Positive</Mode>
         <OnColor>rgb(74,149,155)</OnColor>
+        <TextOnColor>black</TextOnColor>
         <Label>EQ Lo Gn</Label>
       </PlugParamSetting>
       <PlugParamSetting name="EQ Low-F Freq">
         <Mode>Positive</Mode>
         <OnColor>rgb(74,149,155)</OnColor>
+        <TextOnColor>black</TextOnColor>
         <Label>EQ Lo Frq</Label>
       </PlugParamSetting>
       <PlugParamSetting name="EQ Hi-F Gain">
         <Mode>Positive</Mode>
         <OnColor>rgb(74,149,155)</OnColor>
+        <TextOnColor>black</TextOnColor>
         <Label>EQ Hi Gn</Label>
       </PlugParamSetting>
       <PlugParamSetting name="EQ Hi-F Freq">
         <Mode>Positive</Mode>
         <OnColor>rgb(74,149,155)</OnColor>
+        <TextOnColor>black</TextOnColor>
         <Label>EQ Hi Frq</Label>
       </PlugParamSetting>
     </ParamSettings>
   </PluginConfig>
-  <PluginConfig PluginName="L1 Limiter">
+  <PluginConfig PluginName="L1 Limiter" ManufacturerName="Waves">
     <Colors />
     <ParamSettings>
       <PlugParamSetting name="Threshold">
@@ -2340,7 +2337,7 @@
       </PlugParamSetting>
     </ParamSettings>
   </PluginConfig>
-  <PluginConfig PluginName="PuigTec EQP1A">
+  <PluginConfig PluginName="PuigTec EQP1A" ManufacturerName="Waves">
     <Colors />
     <ParamSettings>
       <PlugParamSetting name="OnOff">
@@ -2402,7 +2399,7 @@
       </PlugParamSetting>
     </ParamSettings>
   </PluginConfig>
-  <PluginConfig PluginName="Smack Attack">
+  <PluginConfig PluginName="Smack Attack" ManufacturerName="Waves">
     <Colors />
     <ParamSettings>
       <PlugParamSetting name="Attack">
@@ -2428,7 +2425,6 @@
         <Mode>Positive</Mode>
         <HideValueBar>true</HideValueBar>
         <OnColor>rgb(30,30,30)</OnColor>
-        <Label />
         <DialSteps>2</DialSteps>
       </PlugParamSetting>
       <PlugParamSetting name="Sustain">
@@ -2454,7 +2450,6 @@
         <Mode>Positive</Mode>
         <HideValueBar>true</HideValueBar>
         <OnColor>rgb(30,30,30)</OnColor>
-        <Label />
         <DialSteps>2</DialSteps>
       </PlugParamSetting>
       <PlugParamSetting name="Guard">
@@ -2478,7 +2473,7 @@
       </PlugParamSetting>
     </ParamSettings>
   </PluginConfig>
-  <PluginConfig PluginName="Brauer Motion">
+  <PluginConfig PluginName="Brauer Motion" ManufacturerName="Waves">
     <Colors />
     <ParamSettings>
       <PlugParamSetting name="Loupedeck User Pages">
@@ -2560,7 +2555,6 @@
         <Mode>Positive</Mode>
         <OnColor>rgb(3,18,31)</OnColor>
         <TextOnColor>rgb(139,195,74)</TextOnColor>
-        <Label />
       </PlugParamSetting>
       <PlugParamSetting name="Panner 2 Mode">
         <UserMenuItems>
@@ -2572,7 +2566,6 @@
         <Mode>Positive</Mode>
         <OnColor>rgb(3,18,31)</OnColor>
         <TextOnColor>rgb(230,74,25)</TextOnColor>
-        <Label />
       </PlugParamSetting>
       <PlugParamSetting name="Link">
         <Mode>Positive</Mode>
@@ -2592,7 +2585,6 @@
         <Mode>Positive</Mode>
         <OnColor>rgb(3,18,31)</OnColor>
         <TextOnColor>rgb(102,157,203)</TextOnColor>
-        <Label />
       </PlugParamSetting>
       <PlugParamSetting name="Modulator 1">
         <UserMenuItems>
@@ -2604,7 +2596,6 @@
         <Mode>Positive</Mode>
         <OnColor>rgb(3,18,31)</OnColor>
         <TextOnColor>rgb(102,157,203)</TextOnColor>
-        <Label />
       </PlugParamSetting>
       <PlugParamSetting name="Reverse 1">
         <Mode>Positive</Mode>
@@ -2675,7 +2666,6 @@
         <Mode>Positive</Mode>
         <OnColor>rgb(3,18,31)</OnColor>
         <TextOnColor>rgb(102,157,203)</TextOnColor>
-        <Label />
       </PlugParamSetting>
       <PlugParamSetting name="Modulator 2">
         <UserMenuItems>
@@ -2687,7 +2677,6 @@
         <Mode>Positive</Mode>
         <OnColor>rgb(3,18,31)</OnColor>
         <TextOnColor>rgb(102,157,203)</TextOnColor>
-        <Label />
       </PlugParamSetting>
       <PlugParamSetting name="Reverse 2">
         <Mode>Positive</Mode>
@@ -2760,7 +2749,6 @@
         <Mode>Positive</Mode>
         <OnColor>rgb(3,18,31)</OnColor>
         <TextOnColor>rgb(102,157,203)</TextOnColor>
-        <Label />
       </PlugParamSetting>
       <PlugParamSetting name="Trigger A to B 1">
         <Mode>Positive</Mode>
@@ -2795,7 +2783,6 @@
         <Mode>Positive</Mode>
         <OnColor>rgb(3,18,31)</OnColor>
         <TextOnColor>rgb(102,157,203)</TextOnColor>
-        <Label />
       </PlugParamSetting>
       <PlugParamSetting name="Drive 1">
         <Mode>Positive</Mode>
@@ -2837,7 +2824,6 @@
         <Mode>Positive</Mode>
         <OnColor>rgb(3,18,31)</OnColor>
         <TextOnColor>rgb(102,157,203)</TextOnColor>
-        <Label />
       </PlugParamSetting>
       <PlugParamSetting name="Trigger A to B 2">
         <Mode>Positive</Mode>
@@ -2872,7 +2858,6 @@
         <Mode>Positive</Mode>
         <OnColor>rgb(3,18,31)</OnColor>
         <TextOnColor>rgb(102,157,203)</TextOnColor>
-        <Label />
       </PlugParamSetting>
       <PlugParamSetting name="Drive 2">
         <Mode>Positive</Mode>
@@ -2978,7 +2963,7 @@
       </PlugParamSetting>
     </ParamSettings>
   </PluginConfig>
-  <PluginConfig PluginName="Abbey Road Chambers">
+  <PluginConfig PluginName="Abbey Road Chambers" ManufacturerName="Waves">
     <Colors>
       <Color name="MixColor">rgb(254,251,248)</Color>
       <Color name="MainCtrlColor">rgb(52,139,125)</Color>
@@ -3047,7 +3032,6 @@
         <Mode>Positive</Mode>
         <OnColor>MixColor</OnColor>
         <TextOnColor>black</TextOnColor>
-        <Label />
       </PlugParamSetting>
       <PlugParamSetting name="Mic">
         <UserMenuItems>
@@ -3190,7 +3174,7 @@
       </PlugParamSetting>
     </ParamSettings>
   </PluginConfig>
-  <PluginConfig PluginName="H-Delay">
+  <PluginConfig PluginName="H-Delay" ManufacturerName="Waves">
     <Colors>
       <Color name="ButtonOnColor">rgb(142,137,116)</Color>
       <Color name="ButtonOffColor">rgb(215,209,186)</Color>
@@ -3210,7 +3194,6 @@
         <OffColor>ButtonOffColor</OffColor>
         <TextOnColor>TextOnColor</TextOnColor>
         <TextOffColor>TextOffColor</TextOffColor>
-        <Label />
       </PlugParamSetting>
       <PlugParamSetting name="Delay BPM">
         <Mode>Positive</Mode>
@@ -3322,7 +3305,7 @@
       </PlugParamSetting>
     </ParamSettings>
   </PluginConfig>
-  <PluginConfig PluginName="H-Comp">
+  <PluginConfig PluginName="H-Comp" ManufacturerName="Waves">
     <Colors>
       <Color name="LineColor">rgb(220,148,49)</Color>
       <Color name="ButtonOnColor">rgb(142,137,116)</Color>
@@ -3349,7 +3332,6 @@
         <OffColor>ButtonOffColor</OffColor>
         <TextOnColor>TextOnColor</TextOnColor>
         <TextOffColor>TextOffColor</TextOffColor>
-        <Label />
       </PlugParamSetting>
       <PlugParamSetting name="Punch">
         <Mode>Positive</Mode>
@@ -3391,7 +3373,6 @@
         <OffColor>ButtonOffColor</OffColor>
         <TextOnColor>TextOnColor</TextOnColor>
         <TextOffColor>TextOffColor</TextOffColor>
-        <Label />
       </PlugParamSetting>
       <PlugParamSetting name="Release">
         <Mode>Positive</Mode>
@@ -3436,7 +3417,7 @@
       </PlugParamSetting>
     </ParamSettings>
   </PluginConfig>
-  <PluginConfig PluginName="Sibilance">
+  <PluginConfig PluginName="Sibilance" ManufacturerName="Waves">
     <Colors />
     <ParamSettings>
       <PlugParamSetting name="Monitor">
@@ -3449,7 +3430,7 @@
       </PlugParamSetting>
     </ParamSettings>
   </PluginConfig>
-  <PluginConfig PluginName="MondoMod">
+  <PluginConfig PluginName="MondoMod" ManufacturerName="Waves">
     <Colors />
     <ParamSettings>
       <PlugParamSetting name="">
@@ -3492,7 +3473,7 @@
       </PlugParamSetting>
     </ParamSettings>
   </PluginConfig>
-  <PluginConfig PluginName="LoAir">
+  <PluginConfig PluginName="LoAir" ManufacturerName="Waves">
     <Colors />
     <ParamSettings>
       <PlugParamSetting name="LoAir">
@@ -3508,7 +3489,7 @@
       </PlugParamSetting>
     </ParamSettings>
   </PluginConfig>
-  <PluginConfig PluginName="CLA Unplugged">
+  <PluginConfig PluginName="CLA Unplugged" ManufacturerName="Waves">
     <Colors />
     <ParamSettings>
       <PlugParamSetting name="Bass Color">
@@ -3519,7 +3500,6 @@
           <string>UPPER</string>
         </UserMenuItems>
         <Mode>Positive</Mode>
-        <Label />
       </PlugParamSetting>
       <PlugParamSetting name="Bass">
         <Mode>Symmetric</Mode>
@@ -3533,7 +3513,6 @@
           <string>ROOF</string>
         </UserMenuItems>
         <Mode>Positive</Mode>
-        <Label />
       </PlugParamSetting>
       <PlugParamSetting name="Treble">
         <Mode>Symmetric</Mode>
@@ -3551,7 +3530,6 @@
           <string>WALL</string>
         </UserMenuItems>
         <Mode>Positive</Mode>
-        <Label />
       </PlugParamSetting>
       <PlugParamSetting name="Reverb 1">
         <Mode>Symmetric</Mode>
@@ -3565,7 +3543,6 @@
           <string>CHAMBER</string>
         </UserMenuItems>
         <Mode>Positive</Mode>
-        <Label />
       </PlugParamSetting>
       <PlugParamSetting name="Reverb 2">
         <Mode>Symmetric</Mode>
@@ -3579,7 +3556,6 @@
           <string>CANYON</string>
         </UserMenuItems>
         <Mode>Positive</Mode>
-        <Label />
       </PlugParamSetting>
       <PlugParamSetting name="Delay">
         <Mode>Symmetric</Mode>
@@ -3593,7 +3569,6 @@
           <string>QUARTER</string>
         </UserMenuItems>
         <Mode>Positive</Mode>
-        <Label />
       </PlugParamSetting>
       <PlugParamSetting name="Sensitivity">
         <Mode>Symmetric</Mode>
@@ -3639,7 +3614,7 @@
       </PlugParamSetting>
     </ParamSettings>
   </PluginConfig>
-  <PluginConfig PluginName="CLA-76">
+  <PluginConfig PluginName="CLA-76" ManufacturerName="Waves">
     <Colors />
     <ParamSettings>
       <PlugParamSetting name="Revision">
@@ -3686,7 +3661,7 @@
       </PlugParamSetting>
     </ParamSettings>
   </PluginConfig>
-  <PluginConfig PluginName="VLA-2A">
+  <PluginConfig PluginName="VLA-2A" ManufacturerName="Black Rooster Audio">
     <Colors>
       <Color name="KnobOnColor">rgb(210,204,182)</Color>
       <Color name="BarOnColor">rgb(242,202,75)</Color>
@@ -3772,7 +3747,7 @@
       </PlugParamSetting>
     </ParamSettings>
   </PluginConfig>
-  <PluginConfig PluginName="VLA-3A">
+  <PluginConfig PluginName="VLA-3A" ManufacturerName="Black Rooster Audio">
     <Colors>
       <Color name="BarOnColor">white</Color>
     </Colors>
@@ -3811,7 +3786,7 @@
       </PlugParamSetting>
     </ParamSettings>
   </PluginConfig>
-  <PluginConfig PluginName="RO-140">
+  <PluginConfig PluginName="RO-140" ManufacturerName="Black Rooster Audio">
     <Colors>
       <Color name="KnobOnColor">rgb(199,183,160)</Color>
       <Color name="BarOnColor">rgb(255,161,75)</Color>
@@ -3833,7 +3808,6 @@
           <string>TITANIUM</string>
         </UserMenuItems>
         <Mode>Positive</Mode>
-        <Label />
       </PlugParamSetting>
       <PlugParamSetting name="Mode">
         <UserMenuItems>
@@ -3842,7 +3816,6 @@
           <string>STEREO</string>
         </UserMenuItems>
         <Mode>Positive</Mode>
-        <Label />
       </PlugParamSetting>
       <PlugParamSetting name="Low">
         <Mode>Positive</Mode>
@@ -3927,10 +3900,10 @@
       </PlugParamSetting>
     </ParamSettings>
   </PluginConfig>
-  <PluginConfig PluginName="VEQ-1P">
+  <PluginConfig PluginName="VEQ-1P" ManufacturerName="Black Rooster Audio">
     <Colors>
-      <Color name="KnobOnColor">rgb(60, 107, 151)</Color>
-      <Color name="BarOnColor">rgb(79, 139, 188)</Color>
+      <Color name="KnobOnColor">rgb(60,107,151)</Color>
+      <Color name="BarOnColor">rgb(79,139,188)</Color>
     </Colors>
     <ParamSettings>
       <PlugParamSetting name="EQIn">
@@ -3969,25 +3942,25 @@
         <Label>BNDWDTH</Label>
       </PlugParamSetting>
       <PlugParamSetting name="LowFreq">
-          <Mode>Positive</Mode>
-          <OnColor>KnobOnColor</OnColor>
-          <BarOnColor>BarOnColor</BarOnColor>
-          <Label>LO FREQ</Label>
-          <DialSteps>3</DialSteps>
+        <Mode>Positive</Mode>
+        <OnColor>KnobOnColor</OnColor>
+        <BarOnColor>BarOnColor</BarOnColor>
+        <Label>LO FREQ</Label>
+        <DialSteps>3</DialSteps>
       </PlugParamSetting>
       <PlugParamSetting name="HighFreq">
-          <Mode>Positive</Mode>
-          <OnColor>KnobOnColor</OnColor>
-          <BarOnColor>BarOnColor</BarOnColor>
-          <Label>HI FREQ</Label>
-          <DialSteps>6</DialSteps>
+        <Mode>Positive</Mode>
+        <OnColor>KnobOnColor</OnColor>
+        <BarOnColor>BarOnColor</BarOnColor>
+        <Label>HI FREQ</Label>
+        <DialSteps>6</DialSteps>
       </PlugParamSetting>
       <PlugParamSetting name="AttenSel">
-          <Mode>Positive</Mode>
-          <OnColor>KnobOnColor</OnColor>
-          <BarOnColor>BarOnColor</BarOnColor>
-          <Label>ATTEN SEL</Label>
-          <DialSteps>2</DialSteps>
+        <Mode>Positive</Mode>
+        <OnColor>KnobOnColor</OnColor>
+        <BarOnColor>BarOnColor</BarOnColor>
+        <Label>ATTEN SEL</Label>
+        <DialSteps>2</DialSteps>
       </PlugParamSetting>
       <PlugParamSetting name="Power">
         <Mode>Positive</Mode>
@@ -3997,7 +3970,7 @@
       </PlugParamSetting>
     </ParamSettings>
   </PluginConfig>
-  <PluginConfig PluginName="Rare">
+  <PluginConfig PluginName="Rare" ManufacturerName="Analog Obsession">
     <Colors />
     <ParamSettings>
       <PlugParamSetting name="Bypass">
@@ -4050,7 +4023,7 @@
       </PlugParamSetting>
     </ParamSettings>
   </PluginConfig>
-  <PluginConfig PluginName="LALA">
+  <PluginConfig PluginName="LALA" ManufacturerName="Analog Obsession">
     <Colors />
     <ParamSettings>
       <PlugParamSetting name="Bypass">
@@ -4109,7 +4082,7 @@
       </PlugParamSetting>
     </ParamSettings>
   </PluginConfig>
-  <PluginConfig PluginName="FETish">
+  <PluginConfig PluginName="FETish" ManufacturerName="Analog Obsession">
     <Colors />
     <ParamSettings>
       <PlugParamSetting name="">
@@ -4153,7 +4126,7 @@
       </PlugParamSetting>
     </ParamSettings>
   </PluginConfig>
-  <PluginConfig PluginName="dBComp">
+  <PluginConfig PluginName="dBComp" ManufacturerName="Analog Obsession">
     <Colors />
     <ParamSettings>
       <PlugParamSetting name="">
@@ -4173,7 +4146,7 @@
       </PlugParamSetting>
     </ParamSettings>
   </PluginConfig>
-  <PluginConfig PluginName="BUSTERse">
+  <PluginConfig PluginName="BUSTERse" ManufacturerName="Analog Obsession">
     <Colors />
     <ParamSettings>
       <PlugParamSetting name="Bypass">
@@ -4263,7 +4236,7 @@
       </PlugParamSetting>
     </ParamSettings>
   </PluginConfig>
-  <PluginConfig PluginName="BritChannel">
+  <PluginConfig PluginName="BritChannel" ManufacturerName="Analog Obsession">
     <Colors />
     <ParamSettings>
       <PlugParamSetting name="">
@@ -4271,29 +4244,29 @@
         <OnColor>rgb(141,134,137)</OnColor>
       </PlugParamSetting>
       <PlugParamSetting name="Bypass">
-        <Mode>Positive</Mode>
+        <Mode>Symmetric</Mode>
         <OnColor>rgb(241,223,219)</OnColor>
         <TextOnColor>black</TextOnColor>
         <Label>IN</Label>
       </PlugParamSetting>
       <PlugParamSetting name="Mic Pre">
-        <Mode>Positive</Mode>
+        <Mode>Symmetric</Mode>
         <OnColor>rgb(241,223,219)</OnColor>
         <TextOnColor>black</TextOnColor>
         <Label>MIC</Label>
       </PlugParamSetting>
       <PlugParamSetting name="Mid Freq">
-        <Mode>Positive</Mode>
+        <Mode>Symmetric</Mode>
         <OnColor>rgb(141,134,137)</OnColor>
         <DialSteps>6</DialSteps>
       </PlugParamSetting>
       <PlugParamSetting name="Low Freq">
-        <Mode>Positive</Mode>
+        <Mode>Symmetric</Mode>
         <OnColor>rgb(141,134,137)</OnColor>
         <DialSteps>4</DialSteps>
       </PlugParamSetting>
       <PlugParamSetting name="HighPass">
-        <Mode>Positive</Mode>
+        <Mode>Symmetric</Mode>
         <OnColor>rgb(49,81,119)</OnColor>
         <Label>High Pass</Label>
         <DialSteps>4</DialSteps>
@@ -4310,7 +4283,7 @@
       </PlugParamSetting>
     </ParamSettings>
   </PluginConfig>
-  <PluginConfig PluginName="Acon Digital Equalize 2">
+  <PluginConfig PluginName="Acon Digital Equalize 2" ManufacturerName="Acon Digital">
     <Colors />
     <ParamSettings>
       <PlugParamSetting name="Gain-bandwidth link">
@@ -4549,7 +4522,7 @@
       </PlugParamSetting>
     </ParamSettings>
   </PluginConfig>
-  <PluginConfig PluginName="Acon Digital Verberate 2">
+  <PluginConfig PluginName="Acon Digital Verberate 2" ManufacturerName="Acon Digital">
     <Colors />
     <ParamSettings>
       <PlugParamSetting name="Dry Mute">
@@ -4632,7 +4605,7 @@
       </PlugParamSetting>
     </ParamSettings>
   </PluginConfig>
-  <PluginConfig PluginName="AXP SoftAmp PSA">
+  <PluginConfig PluginName="AXP SoftAmp PSA" ManufacturerName="AXP">
     <Colors />
     <ParamSettings>
       <PlugParamSetting name="Enable">
@@ -4753,7 +4726,7 @@
       </PlugParamSetting>
     </ParamSettings>
   </PluginConfig>
-  <PluginConfig PluginName="Neutron 4 Transient Shaper">
+  <PluginConfig PluginName="Neutron 4 Transient Shaper" ManufacturerName="iZotope">
     <Colors />
     <ParamSettings>
       <PlugParamSetting name="TS B1 Attack">
@@ -4842,7 +4815,7 @@
       </PlugParamSetting>
     </ParamSettings>
   </PluginConfig>
-  <PluginConfig PluginName="Trash">
+  <PluginConfig PluginName="Trash" ManufacturerName="iZotope">
     <Colors />
     <ParamSettings>
       <PlugParamSetting name="B2 Trash Drive">
@@ -4923,7 +4896,7 @@
       </PlugParamSetting>
     </ParamSettings>
   </PluginConfig>
-  <PluginConfig PluginName="TDR Kotelnikov">
+  <PluginConfig PluginName="TDR Kotelnikov" ManufacturerName="Tokyo Dawn Labs">
     <Colors />
     <ParamSettings>
       <PlugParamSetting name="">
@@ -4937,15 +4910,15 @@
       </PlugParamSetting>
     </ParamSettings>
   </PluginConfig>
-  <PluginConfig PluginName="ConsoleXChannel">
+  <PluginConfig PluginName="ConsoleXChannel" ManufacturerName="Airwindows">
     <Colors>
-      <Color name="BassColor">rgb(131, 69, 39)</Color>
-      <Color name="LowMidColor">rgb(20, 119, 169)</Color>
-      <Color name="HighMidColor">rgb(51, 119, 51)</Color>
-      <Color name="TrebleColor">rgb(178, 39, 42)</Color>
-      <Color name="StoneColor">rgb(119, 80, 129)</Color>
-      <Color name="FireColor">rgb(255, 124, 33)</Color>
-      <Color name="GateColor">rgb(51, 119, 51)</Color>
+      <Color name="BassColor">rgb(131,69,39)</Color>
+      <Color name="LowMidColor">rgb(20,119,169)</Color>
+      <Color name="HighMidColor">rgb(51,119,51)</Color>
+      <Color name="TrebleColor">rgb(178,39,42)</Color>
+      <Color name="StoneColor">rgb(119,80,129)</Color>
+      <Color name="FireColor">rgb(255,124,33)</Color>
+      <Color name="GateColor">rgb(51,119,51)</Color>
     </Colors>
     <ParamSettings>
       <PlugParamSetting name="Loupedeck User Pages">
@@ -4957,203 +4930,308 @@
           <string>GATE</string>
           <string>MASTER</string>
         </UserMenuItems>
+        <Mode>Positive</Mode>
       </PlugParamSetting>
       <PlugParamSetting name="">
+        <Mode>Positive</Mode>
         <OnTransparency>255</OnTransparency>
         <MaxValuePrecision>3</MaxValuePrecision>
       </PlugParamSetting>
       <PlugParamSetting name="Bass">
+        <Mode>Positive</Mode>
         <OnColor>BassColor</OnColor>
+        <OnTransparency>255</OnTransparency>
+        <MaxValuePrecision>3</MaxValuePrecision>
       </PlugParamSetting>
       <PlugParamSetting name="Bass Reso">
+        <Mode>Positive</Mode>
         <OnColor>BassColor</OnColor>
+        <OnTransparency>255</OnTransparency>
+        <MaxValuePrecision>3</MaxValuePrecision>
       </PlugParamSetting>
       <PlugParamSetting name="Bass Freq">
+        <Mode>Positive</Mode>
         <OnColor>BassColor</OnColor>
+        <OnTransparency>255</OnTransparency>
+        <MaxValuePrecision>3</MaxValuePrecision>
       </PlugParamSetting>
       <PlugParamSetting name="LowMid">
+        <Mode>Positive</Mode>
         <OnColor>LowMidColor</OnColor>
+        <OnTransparency>255</OnTransparency>
+        <MaxValuePrecision>3</MaxValuePrecision>
       </PlugParamSetting>
       <PlugParamSetting name="LowMid Reso">
+        <Mode>Positive</Mode>
         <OnColor>LowMidColor</OnColor>
+        <OnTransparency>255</OnTransparency>
+        <MaxValuePrecision>3</MaxValuePrecision>
       </PlugParamSetting>
       <PlugParamSetting name="LowMid Freq">
+        <Mode>Positive</Mode>
         <OnColor>LowMidColor</OnColor>
+        <OnTransparency>255</OnTransparency>
+        <MaxValuePrecision>3</MaxValuePrecision>
       </PlugParamSetting>
       <PlugParamSetting name="HighMid">
+        <Mode>Positive</Mode>
         <OnColor>HighMidColor</OnColor>
+        <OnTransparency>255</OnTransparency>
+        <MaxValuePrecision>3</MaxValuePrecision>
       </PlugParamSetting>
       <PlugParamSetting name="HighMid Reso">
+        <Mode>Positive</Mode>
         <OnColor>HighMidColor</OnColor>
+        <OnTransparency>255</OnTransparency>
+        <MaxValuePrecision>3</MaxValuePrecision>
       </PlugParamSetting>
       <PlugParamSetting name="HighMid Freq">
+        <Mode>Positive</Mode>
         <OnColor>HighMidColor</OnColor>
+        <OnTransparency>255</OnTransparency>
+        <MaxValuePrecision>3</MaxValuePrecision>
       </PlugParamSetting>
       <PlugParamSetting name="Treble">
+        <Mode>Positive</Mode>
         <OnColor>TrebleColor</OnColor>
+        <OnTransparency>255</OnTransparency>
+        <MaxValuePrecision>3</MaxValuePrecision>
       </PlugParamSetting>
       <PlugParamSetting name="Treble Reso">
+        <Mode>Positive</Mode>
         <OnColor>TrebleColor</OnColor>
+        <OnTransparency>255</OnTransparency>
+        <MaxValuePrecision>3</MaxValuePrecision>
       </PlugParamSetting>
       <PlugParamSetting name="Treble Freq">
+        <Mode>Positive</Mode>
         <OnColor>TrebleColor</OnColor>
+        <OnTransparency>255</OnTransparency>
+        <MaxValuePrecision>3</MaxValuePrecision>
       </PlugParamSetting>
       <PlugParamSetting name="Stone">
+        <Mode>Positive</Mode>
         <OnColor>StoneColor</OnColor>
+        <OnTransparency>255</OnTransparency>
+        <MaxValuePrecision>3</MaxValuePrecision>
       </PlugParamSetting>
       <PlugParamSetting name="SC Threshold">
+        <Mode>Positive</Mode>
         <OnColor>StoneColor</OnColor>
+        <OnTransparency>255</OnTransparency>
+        <MaxValuePrecision>3</MaxValuePrecision>
       </PlugParamSetting>
       <PlugParamSetting name="SG Threshold">
+        <Mode>Positive</Mode>
         <OnColor>StoneColor</OnColor>
+        <OnTransparency>255</OnTransparency>
+        <MaxValuePrecision>3</MaxValuePrecision>
       </PlugParamSetting>
       <PlugParamSetting name="Fire">
+        <Mode>Positive</Mode>
         <OnColor>FireColor</OnColor>
+        <OnTransparency>255</OnTransparency>
+        <MaxValuePrecision>3</MaxValuePrecision>
       </PlugParamSetting>
       <PlugParamSetting name="FC Threshold">
+        <Mode>Positive</Mode>
         <OnColor>FireColor</OnColor>
+        <OnTransparency>255</OnTransparency>
+        <MaxValuePrecision>3</MaxValuePrecision>
       </PlugParamSetting>
       <PlugParamSetting name="FG Threshold">
+        <Mode>Positive</Mode>
         <OnColor>FireColor</OnColor>
+        <OnTransparency>255</OnTransparency>
+        <MaxValuePrecision>3</MaxValuePrecision>
       </PlugParamSetting>
       <PlugParamSetting name="SG Ratio">
+        <Mode>Positive</Mode>
         <OnColor>GateColor</OnColor>
+        <OnTransparency>255</OnTransparency>
+        <MaxValuePrecision>3</MaxValuePrecision>
       </PlugParamSetting>
       <PlugParamSetting name="SG Sustain">
+        <Mode>Positive</Mode>
         <OnColor>GateColor</OnColor>
+        <OnTransparency>255</OnTransparency>
+        <MaxValuePrecision>3</MaxValuePrecision>
       </PlugParamSetting>
       <PlugParamSetting name="SG Release">
+        <Mode>Positive</Mode>
         <OnColor>GateColor</OnColor>
+        <OnTransparency>255</OnTransparency>
+        <MaxValuePrecision>3</MaxValuePrecision>
       </PlugParamSetting>
       <PlugParamSetting name="FG Ratio">
+        <Mode>Positive</Mode>
         <OnColor>GateColor</OnColor>
+        <OnTransparency>255</OnTransparency>
+        <MaxValuePrecision>3</MaxValuePrecision>
       </PlugParamSetting>
       <PlugParamSetting name="FG Sustain">
+        <Mode>Positive</Mode>
         <OnColor>GateColor</OnColor>
+        <OnTransparency>255</OnTransparency>
+        <MaxValuePrecision>3</MaxValuePrecision>
       </PlugParamSetting>
       <PlugParamSetting name="FG Release">
+        <Mode>Positive</Mode>
         <OnColor>GateColor</OnColor>
+        <OnTransparency>255</OnTransparency>
+        <MaxValuePrecision>3</MaxValuePrecision>
       </PlugParamSetting>
       <PlugParamSetting name="Air">
-        <OnColor>rgb(242, 233, 30)</OnColor>
+        <Mode>Positive</Mode>
+        <OnColor>rgb(242,233,30)</OnColor>
+        <OnTransparency>255</OnTransparency>
         <TextOnColor>black</TextOnColor>
+        <MaxValuePrecision>3</MaxValuePrecision>
       </PlugParamSetting>
       <PlugParamSetting name="Top dB">
+        <Mode>Positive</Mode>
         <OnColor>TrebleColor</OnColor>
+        <OnTransparency>255</OnTransparency>
+        <MaxValuePrecision>3</MaxValuePrecision>
       </PlugParamSetting>
       <PlugParamSetting name="SC Ratio">
+        <Mode>Positive</Mode>
+        <OnTransparency>255</OnTransparency>
         <BarOnColor>white</BarOnColor>
+        <MaxValuePrecision>3</MaxValuePrecision>
       </PlugParamSetting>
       <PlugParamSetting name="SC ATtack">
+        <Mode>Positive</Mode>
+        <OnTransparency>255</OnTransparency>
         <BarOnColor>white</BarOnColor>
-        <Label>SC Attack</Label>F
+        <Label>SC Attack</Label>
+        <MaxValuePrecision>3</MaxValuePrecision>
       </PlugParamSetting>
       <PlugParamSetting name="SC Release">
+        <Mode>Positive</Mode>
+        <OnTransparency>255</OnTransparency>
         <BarOnColor>white</BarOnColor>
+        <MaxValuePrecision>3</MaxValuePrecision>
       </PlugParamSetting>
       <PlugParamSetting name="FC Ratio">
+        <Mode>Positive</Mode>
+        <OnTransparency>255</OnTransparency>
         <BarOnColor>white</BarOnColor>
+        <MaxValuePrecision>3</MaxValuePrecision>
       </PlugParamSetting>
       <PlugParamSetting name="FC Attack">
+        <Mode>Positive</Mode>
+        <OnTransparency>255</OnTransparency>
         <BarOnColor>white</BarOnColor>
+        <MaxValuePrecision>3</MaxValuePrecision>
       </PlugParamSetting>
       <PlugParamSetting name="FC Release">
+        <Mode>Positive</Mode>
+        <OnTransparency>255</OnTransparency>
         <BarOnColor>white</BarOnColor>
+        <MaxValuePrecision>3</MaxValuePrecision>
       </PlugParamSetting>
       <PlugParamSetting name="Lowpass">
+        <Mode>Positive</Mode>
+        <OnTransparency>255</OnTransparency>
         <BarOnColor>white</BarOnColor>
+        <MaxValuePrecision>3</MaxValuePrecision>
       </PlugParamSetting>
       <PlugParamSetting name="Highpass">
+        <Mode>Positive</Mode>
+        <OnTransparency>255</OnTransparency>
         <BarOnColor>white</BarOnColor>
+        <MaxValuePrecision>3</MaxValuePrecision>
       </PlugParamSetting>
       <PlugParamSetting name="Fader">
+        <Mode>Positive</Mode>
+        <OnTransparency>255</OnTransparency>
         <BarOnColor>white</BarOnColor>
+        <MaxValuePrecision>3</MaxValuePrecision>
       </PlugParamSetting>
       <PlugParamSetting name="Range">
+        <Mode>Positive</Mode>
+        <OnTransparency>255</OnTransparency>
         <BarOnColor>white</BarOnColor>
+        <MaxValuePrecision>3</MaxValuePrecision>
       </PlugParamSetting>
     </ParamSettings>
   </PluginConfig>
-  <PluginConfig PluginName="ToTape864">
+  <PluginConfig PluginName="ToTape864" ManufacturerName="Airwindows">
     <Colors />
     <ParamSettings>
       <PlugParamSetting name="">
+        <Mode>Positive</Mode>
         <MaxValuePrecision>3</MaxValuePrecision>
       </PlugParamSetting>
       <PlugParamSetting name="FlutSpd">
+        <Mode>Positive</Mode>
         <Label>Flutter Speed</Label>
+        <MaxValuePrecision>3</MaxValuePrecision>
       </PlugParamSetting>
       <PlugParamSetting name="HeadBmp">
+        <Mode>Positive</Mode>
         <Label>Head Bump</Label>
+        <MaxValuePrecision>3</MaxValuePrecision>
       </PlugParamSetting>
       <PlugParamSetting name="HeadFrq">
+        <Mode>Positive</Mode>
         <Label>Head Frequency</Label>
         <MaxValuePrecision>1</MaxValuePrecision>
       </PlugParamSetting>
     </ParamSettings>
   </PluginConfig>
-  <PluginConfig PluginName="PurestGain64">
+  <PluginConfig PluginName="PurestGain64" ManufacturerName="Airwindows">
     <Colors />
     <ParamSettings>
       <PlugParamSetting name="">
+        <Mode>Positive</Mode>
         <MaxValuePrecision>3</MaxValuePrecision>
       </PlugParamSetting>
       <PlugParamSetting name="Gain">
         <Mode>Symmetric</Mode>
+        <MaxValuePrecision>3</MaxValuePrecision>
       </PlugParamSetting>
       <PlugParamSetting name="Slow Fad">
+        <Mode>Positive</Mode>
         <Label>Slow Fade</Label>
+        <MaxValuePrecision>3</MaxValuePrecision>
       </PlugParamSetting>
     </ParamSettings>
   </PluginConfig>
-  <PluginConfig PluginName="PurestFade64">
+  <PluginConfig PluginName="PurestFade64" ManufacturerName="Airwindows">
     <Colors />
     <ParamSettings>
       <PlugParamSetting name="">
+        <Mode>Positive</Mode>
         <MaxValuePrecision>3</MaxValuePrecision>
       </PlugParamSetting>
       <PlugParamSetting name="Gain">
         <Mode>Symmetric</Mode>
-      </PlugParamSetting>
-    </ParamSettings>
-  </PluginConfig>
-  <PluginConfig PluginName="OrbitKick64">
-    <Colors />
-    <ParamSettings>
-      <PlugParamSetting name="">
         <MaxValuePrecision>3</MaxValuePrecision>
       </PlugParamSetting>
     </ParamSettings>
   </PluginConfig>
-  <PluginConfig PluginName="Cans64">
+  <PluginConfig PluginName="OrbitKick64" ManufacturerName="Airwindows">
     <Colors />
     <ParamSettings>
       <PlugParamSetting name="">
+        <Mode>Positive</Mode>
+        <MaxValuePrecision>3</MaxValuePrecision>
+      </PlugParamSetting>
+    </ParamSettings>
+  </PluginConfig>
+  <PluginConfig PluginName="Cans64" ManufacturerName="Airwindows">
+    <Colors />
+    <ParamSettings>
+      <PlugParamSetting name="">
+        <Mode>Positive</Mode>
         <MaxValuePrecision>3</MaxValuePrecision>
       </PlugParamSetting>
       <PlugParamSetting name="Room">
+        <Mode>Positive</Mode>
         <DialSteps>4</DialSteps>
-      </PlugParamSetting>
-    </ParamSettings>
-  </PluginConfig>
-  <PluginConfig PluginName="Cabs64">
-    <Colors />
-    <ParamSettings>
-      <PlugParamSetting name="">
         <MaxValuePrecision>3</MaxValuePrecision>
-      </PlugParamSetting>
-      <PlugParamSetting name="CabType">
-        <Label>Cab Type</Label>
-        <DialSteps>5</DialSteps>
-      </PlugParamSetting>
-      <PlugParamSetting name="CabSize">
-        <Label>Cab Size</Label>
-      </PlugParamSetting>
-      <PlugParamSetting name="Rm Loud">
-        <Label>Room Loudness</Label>
-      </PlugParamSetting>
-      <PlugParamSetting name="OffAxis">
-        <Label>Off Axis</Label>
       </PlugParamSetting>
     </ParamSettings>
   </PluginConfig>

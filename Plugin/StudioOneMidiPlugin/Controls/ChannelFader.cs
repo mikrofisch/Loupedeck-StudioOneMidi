@@ -2,9 +2,11 @@
 {
     using System;
     using System.Text.RegularExpressions;
-    using System.Threading;
 
     using static Loupedeck.StudioOneMidiPlugin.StudioOneMidiPlugin;
+
+    using PluginSettings;
+    using Helpers;
 
     public class ChannelFader : ActionEditorAdjustment
 	{
@@ -16,11 +18,11 @@
 
         private SelectButtonMode SelectMode = SelectButtonMode.Select;
         private FaderMode FaderMode = FaderMode.Volume;
-        private static BitmapImage IconVolume, IconPan;
-        private String PluginName;
+        private static BitmapImage? IconVolume, IconPan;
+        private String PluginName = "";
         private static readonly PlugSettingsFinder UserPlugSettingsFinder = new PlugSettingsFinder(new PlugSettingsFinder.PlugParamSetting
         {
-            OnColor = new FinderColor(DefaultBarColor),     // Used for volume bar
+            OnColor = new FinderColor(ColorConv.Convert(DefaultBarColor)),     // Used for volume bar
             OffColor = new FinderColor(80, 80, 80),         // Used for volume bar
             TextOnColor = FinderColor.White,
             TextOffColor = new FinderColor(80, 80, 80)
@@ -36,8 +38,6 @@
             public BitmapColor BarColor = DefaultBarColor;
         }
         private readonly CustomParams[] CustomSettings = new CustomParams[StudioOneMidiPlugin.ChannelCount];
-
-        private Boolean IsUserConfigWindowOpen = false;
 
         public ChannelFader() : base(hasReset: true)
 		{
@@ -68,18 +68,18 @@
 
         protected override bool OnLoad()
         {
-            var plugin = base.Plugin as StudioOneMidiPlugin;
+            var plugin = (StudioOneMidiPlugin)base.Plugin;
             plugin.channelFader = this;
 
-            plugin.ChannelDataChanged += (Object sender, EventArgs e) => {
+            plugin.ChannelDataChanged += (Object? sender, EventArgs e) => {
                 this.ActionImageChanged();
             };
 
-            plugin.ChannelValueChanged += (Object sender, EventArgs e) => {
+            plugin.ChannelValueChanged += (Object? sender, EventArgs e) => {
                 this.ActionImageChanged();
             };
 
-            plugin.SelectModeChanged += (Object sender, SelectButtonMode e) =>
+            plugin.SelectModeChanged += (Object? sender, SelectButtonMode e) =>
             {
                 this.SelectMode = e;
                 Array.Clear(this.CustomSettings);
@@ -87,7 +87,7 @@
                 this.ActionImageChanged();
             };
 
-            plugin.SelectButtonCustomModeChanged += (Object sender, SelectButtonCustomParams cp) =>
+            plugin.SelectButtonCustomModeChanged += (Object? sender, SelectButtonCustomParams cp) =>
             {
 
                 this.CustomSettings[cp.ButtonIndex] = new CustomParams
@@ -99,25 +99,25 @@
                 this.ActionImageChanged(); 
             };
 
-            plugin.FaderModeChanged += (Object sender, FaderMode e) =>
+            plugin.FaderModeChanged += (Object? sender, FaderMode e) =>
             {
                 this.FaderMode = e;
                 this.ActionImageChanged();
             };
 
-            plugin.FocusDeviceChanged += (Object sender, String e) =>
+            plugin.FocusDeviceChanged += (Object? sender, String e) =>
             {
                 this.PluginName = getPluginName(e);
                 this.ActionImageChanged();
             };
 
-            plugin.ChannelActiveCanged += (Object sender, ChannelActiveParams e) =>
+            plugin.ChannelActiveCanged += (Object? sender, ChannelActiveParams e) =>
             {
                 IsActive[e.ChannelIndex] = e.IsActive;
                 this.ActionImageChanged();
             };
 
-            plugin.UserPageChanged += (Object sender, Int32 e) =>
+            plugin.UserPageChanged += (Object? sender, Int32 e) =>
             {
                 UserPlugSettingsFinder.CurrentUserPage = e;
             };
@@ -125,11 +125,11 @@
             return true;
         }
 
-        private void OnActionEditorControlValueChanged(Object sender, ActionEditorControlValueChangedEventArgs e)
+        private void OnActionEditorControlValueChanged(Object? sender, ActionEditorControlValueChangedEventArgs e)
         {
         }
 
-        private void OnActionEditorListboxItemsRequested(Object sender, ActionEditorListboxItemsRequestedEventArgs e)
+        private void OnActionEditorListboxItemsRequested(Object? sender, ActionEditorListboxItemsRequestedEventArgs e)
         {
             if (e.ControlName.EqualsNoCase(ChannelSelector))
             {
@@ -156,13 +156,14 @@
         protected override bool ApplyAdjustment(ActionEditorActionParameters actionParameters, int diff)
 		{
             if (!actionParameters.TryGetString(ChannelSelector, out var channelIndex)) return false;
-
+            
             ChannelData cd = this.GetChannel(channelIndex);
 
             var deviceEntry = UserPlugSettingsFinder.GetPlugParamDeviceEntry(this.PluginName);
+            if (deviceEntry == null) return false;
 
             var stepDivisions = UserPlugSettingsFinder.GetDialSteps(deviceEntry, cd.Label, cd.ChannelID + 1);
-            if (stepDivisions > 50 && (this.Plugin as StudioOneMidiPlugin).ShiftPressed)
+            if (stepDivisions > 50 && ((StudioOneMidiPlugin)this.Plugin).ShiftPressed)
             {
                 stepDivisions *= 6;
             }
@@ -171,22 +172,25 @@
             return true;
 		}
 
-		protected override BitmapImage GetCommandImage(ActionEditorActionParameters actionParameters, Int32 imageWidth, Int32 imageHeight)
+		protected override BitmapImage? GetCommandImage(ActionEditorActionParameters actionParameters, Int32 imageWidth, Int32 imageHeight)
         {
+
+            if (actionParameters == null) return null;
             if (!actionParameters.TryGetString(ChannelSelector, out var channelIndex)) return null;
             if (!actionParameters.TryGetString(ControlOrientationSelector, out var controlOrientation)) return null;
 
-            var deviceEntry = UserPlugSettingsFinder.GetPlugParamDeviceEntry(this.PluginName);
+            var bb = new BitmapBuilder(imageWidth, imageHeight);
 
             ChannelData cd = this.GetChannel(channelIndex);
             var currentChannel = cd.ChannelID + 1;
 
             var customParams = cd.ChannelID < this.CustomSettings.Length ? this.CustomSettings[cd.ChannelID] : null;
-
-            var bb = new BitmapBuilder(imageWidth, imageHeight);
-            bb.FillRectangle(0, 0, imageWidth, imageHeight, customParams != null 
+            bb.FillRectangle(0, 0, imageWidth, imageHeight, customParams != null
                                                             ? customParams.BgColor
                                                             : BitmapColor.Black);
+
+            var deviceEntry = UserPlugSettingsFinder.GetPlugParamDeviceEntry(this.PluginName);
+            if (deviceEntry == null) return bb.ToImage();
 
             if (this.SelectMode == SelectButtonMode.FX)
             {
@@ -226,7 +230,7 @@
             var valueColor = BitmapColor.White;
             var valBarColor = customParams != null 
                               ? customParams.BarColor
-                              : UserPlugSettingsFinder.GetBarOnColor(deviceEntry, cd.Label, currentChannel);
+                              : ColorConv.Convert(UserPlugSettingsFinder.GetBarOnColor(deviceEntry, cd.Label, currentChannel));
 
             if (this.SelectMode == SelectButtonMode.Select)
             {
@@ -254,8 +258,8 @@
 
             if (cd.ChannelID < IsActive.Length && !IsActive[cd.ChannelID])
             {
-                valueColor = UserPlugSettingsFinder.GetTextOffColor(deviceEntry, cd.Label, currentChannel);
-                valBarColor = UserPlugSettingsFinder.GetOffColor(deviceEntry, cd.Label, currentChannel);
+                valueColor = ColorConv.Convert(UserPlugSettingsFinder.GetTextOffColor(deviceEntry, cd.Label, currentChannel));
+                valBarColor = ColorConv.Convert(UserPlugSettingsFinder.GetOffColor(deviceEntry, cd.Label, currentChannel));
             }
 
             if (UserPlugSettingsFinder.HideValueBar(deviceEntry, cd.Label, currentChannel)) valBarColor = BitmapColor.Transparent;
@@ -314,7 +318,7 @@
 
 		private ChannelData GetChannel(String actionParameter)
 		{
-			return (this.Plugin as StudioOneMidiPlugin).channelData[actionParameter];
+			return ((StudioOneMidiPlugin)this.Plugin).channelData[actionParameter];
 		}
 
         protected override Boolean RunCommand(ActionEditorActionParameters actionParameters)
@@ -343,7 +347,7 @@
             {
                 if (this.SelectMode == SelectButtonMode.User)
                 {
-                    this.OpenUserConfigWindow(cd.Label);
+                    // Open the user configuration editor
                 }
             }
 
@@ -367,42 +371,5 @@
         //
         //    return true;
         // }
-
-        public void OpenUserConfigWindow(String pluginParameter)
-        {
-            if (this.IsUserConfigWindowOpen)
-                return;
-
-            var deviceEntry = UserPlugSettingsFinder.GetPlugParamDeviceEntry(this.PluginName);
-
-            var volBarColor = UserPlugSettingsFinder.GetOnColor(deviceEntry, pluginParameter, 0);
-
-            var t = new Thread(() => {
-                var w = new UserControlConfig(UserControlConfig.WindowMode.Dial,
-                                              this.Plugin,
-                                              UserPlugSettingsFinder,
-                                              new UserControlConfigData { PluginName = this.PluginName,
-                                                                          PluginParameter = pluginParameter,
-                                                                          Mode = UserPlugSettingsFinder.GetMode(deviceEntry, pluginParameter, 0),
-                                                                          R = volBarColor.R,
-                                                                          G = volBarColor.G,
-                                                                          B = volBarColor.B,
-                                                                          LinkedParameter = UserPlugSettingsFinder.GetLinkedParameter(deviceEntry, pluginParameter, 0),
-                                                                          Label = UserPlugSettingsFinder.GetLabel(deviceEntry, pluginParameter, 0) } );
-                w.Closed += (_, _) =>
-                {
-                    this.IsUserConfigWindowOpen = false;
-                    PlugSettingsFinder.Init(this.Plugin, forceReload: true);
-                    (this.Plugin as StudioOneMidiPlugin).EmitChannelDataChanged();
-                };
-                w.Show();
-                System.Windows.Threading.Dispatcher.Run();
-            });
-
-            t.SetApartmentState(ApartmentState.STA);
-            t.Start();
-
-            this.IsUserConfigWindowOpen = true;
-        }
     }
 }

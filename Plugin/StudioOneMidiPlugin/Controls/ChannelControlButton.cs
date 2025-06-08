@@ -31,7 +31,7 @@
         {
             base.OnLoad();
 
-            this.plugin.CommandNoteReceived += (object sender, NoteOnEvent e) =>
+            this.plugin.CommandNoteReceived += (object? sender, NoteOnEvent e) =>
             {
                 var idx = $"{e.NoteNumber}";
 

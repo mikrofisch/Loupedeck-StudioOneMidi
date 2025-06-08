@@ -6,7 +6,8 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
     using static Loupedeck.StudioOneMidiPlugin.StudioOneMidiPlugin;
     using System.Threading;
     using Melanchall.DryWetMidi.Core;
-    using System.Diagnostics;
+
+    using PluginSettings;
 
     // Button for channel selection functions. These are used in the left and
     // right columns of the channel modes keypad. Different selection modes allow
@@ -39,32 +40,34 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
         {
             base.OnLoad();
 
-            this.plugin.UserButtonChanged += (Object sender, UserButtonParams e) =>
+            ((StudioOneMidiPlugin)Plugin).UserButtonChanged += (Object? sender, UserButtonParams e) =>
             {
                 var bd = this.buttonData[e.channelIndex.ToString()];
-                bd.UserButtonActive = e.isActive();
+                if (bd != null) bd.UserButtonActive = e.isActive();
             };
-            this.plugin.UserPageChanged += (Object sender, Int32 e) => SelectButtonData.UserPlugSettingsFinder.CurrentUserPage = e;
-            this.plugin.FocusDeviceChanged += (Object sender, String e) => SelectButtonData.FocusDeviceName = e;
-            this.plugin.ChannelDataChanged += (Object sender, EventArgs e) => 
+            ((StudioOneMidiPlugin)Plugin).UserPageChanged += (Object? sender, Int32 e) => SelectButtonData.UserPlugSettingsFinder.CurrentUserPage = e;
+            ((StudioOneMidiPlugin)Plugin).FocusDeviceChanged += (Object? sender, String e) => SelectButtonData.FocusDeviceName = e;
+            ((StudioOneMidiPlugin)Plugin).ChannelDataChanged += (Object? sender, EventArgs e) => 
             {
                 this.UpdateAllActionImages();
             };
 
-            this.plugin.SelectModeChanged += (Object sender, SelectButtonMode e) =>
+            ((StudioOneMidiPlugin)Plugin).SelectModeChanged += (Object? sender, SelectButtonMode e) =>
             {
                 for (var i = 0; i < StudioOneMidiPlugin.ChannelCount; i++)
                 {
                     var bd = this.buttonData[i.ToString()];
-                    bd.CurrentMode = e;
+                    if (bd != null) bd.CurrentMode = e;
                 }
                 this.ListenToMidi = false;
                 this.UpdateAllActionImages();
             };
 
-            this.plugin.SelectButtonCustomModeChanged += (object sender, SelectButtonCustomParams cp) =>
+            ((StudioOneMidiPlugin)Plugin).SelectButtonCustomModeChanged += (Object? sender, SelectButtonCustomParams cp) =>
             {
-                this.buttonData[cp.ButtonIndex.ToString()].SetCustomMode(cp);
+                var bd = this.buttonData[cp.ButtonIndex.ToString()];
+                if (bd != null) bd.SetCustomMode(cp);
+
                 if (cp.MidiCode > 0)
                 {
                     this.ListenToMidi = true;
@@ -72,33 +75,37 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
                 this.UpdateAllActionImages();
             };
 
-            this.plugin.PropertySelectionChanged += (object sender, ChannelProperty.PropertyType e) =>
+            ((StudioOneMidiPlugin)Plugin).PropertySelectionChanged += (Object? sender, ChannelProperty.PropertyType e) =>
             {
                 SelectButtonData.SelectionPropertyType = e;
                 this.UpdateAllActionImages();
             };
 
-            this.plugin.FocusDeviceChanged += (object sender, string e) =>
+            ((StudioOneMidiPlugin)Plugin).FocusDeviceChanged += (Object? sender, string e) =>
             {
                 SelectButtonData.PluginName = getPluginName(e);
             };
 
-            this.plugin.UserButtonMenuActivated += (object sender, UserButtonMenuParams e) =>
+            ((StudioOneMidiPlugin)Plugin).UserButtonMenuActivated += (Object? sender, UserButtonMenuParams e) =>
             {
                 if (e.ChannelIndex >= 0)
                 {
-                    this.buttonData[e.ChannelIndex.ToString()].UserButtonMenuActive = e.IsActive;
-                    this.UpdateAllActionImages();
+                    var bd = this.buttonData[e.ChannelIndex.ToString()];
+                    if (bd != null)
+                    {
+                        bd.UserButtonMenuActive = e.IsActive;
+                        this.UpdateAllActionImages();
+                    }
                 }
             };
 
-            this.plugin.CommandNoteReceived += (object sender, NoteOnEvent e) =>
+            ((StudioOneMidiPlugin)Plugin).CommandNoteReceived += (Object? sender, NoteOnEvent e) =>
             {
                 if (this.ListenToMidi)
                 {
-                    foreach (KeyValuePair<String, SelectButtonData> bd in this.buttonData)
+                    foreach (KeyValuePair<String, SelectButtonData?> bd in this.buttonData)
                     {
-                        if (bd.Value.CurrentMode == SelectButtonMode.Custom && bd.Value.CurrentCustomParams.MidiCode == e.NoteNumber)
+                        if (bd.Value != null && bd.Value.CurrentMode == SelectButtonMode.Custom && bd.Value.CurrentCustomParams.MidiCode == e.NoteNumber)
                         {
                             bd.Value.CustomIsActivated = e.Velocity > 0;
                         }
@@ -113,12 +120,20 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
         protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
         {
             var bd = this.buttonData[actionParameter];
+            if (bd == null) throw new InvalidOperationException("Uninitialised ButtonData");
+
             var sendChannelActiveChange = false;
             if (bd.CurrentMode == SelectButtonMode.User)
             {
                 // Check linked parameter dependencies every time channels are updated.
                 //
                 var deviceEntry = SelectButtonData.UserPlugSettingsFinder.GetPlugParamDeviceEntry(SelectButtonData.PluginName);
+                if (deviceEntry == null)
+                {
+                    // Debug.WriteLine("ChannelSelectButton getCommandImage deviceEntry is null for " + SelectButtonData.PluginName);
+                    return bd.getImage(imageSize);
+                }
+
                 var linkedParameter = SelectButtonData.UserPlugSettingsFinder.GetLinkedParameter(deviceEntry, bd.Label, 0);
                 var linkedParameterUser = SelectButtonData.UserPlugSettingsFinder.GetLinkedParameter(deviceEntry, bd.UserLabel, 0);
 
@@ -128,7 +143,9 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
                 {
                     foreach (var sbd in this.buttonData.Values)
                     {
-                        var cd = this.plugin.channelData[sbd.ChannelIndex.ToString()];
+                        if (sbd == null) continue;
+
+                        var cd = ((StudioOneMidiPlugin)Plugin).channelData[sbd.ChannelIndex.ToString()];
 
                         if (cd.UserLabel == linkedParameterUser)   // user button
                         {
@@ -143,7 +160,8 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
                                 if (userMenuItems != null && userMenuItems.Length > 1)
                                 {
                                     var menuIndex = (Int32)Math.Round((Double)cd.UserValue / 127 * (userMenuItems.Length - 1));
-                                    bd.Enabled = linkedStates.Contains(menuIndex.ToString()) ^ SelectButtonData.UserPlugSettingsFinder.GetLinkReversed(deviceEntry, bd.Label, 0);
+                                    bd.Enabled = linkedStates != null ? linkedStates.Contains(menuIndex.ToString()) ^ SelectButtonData.UserPlugSettingsFinder.GetLinkReversed(deviceEntry, bd.Label, 0)
+                                                                      : true;
                                     sendChannelActiveChange = true;
                                 }
                             }
@@ -164,7 +182,7 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
             }
             if (sendChannelActiveChange)
             {
-                this.plugin.EmitChannelActiveChanged(new ChannelActiveParams { ChannelIndex = bd.ChannelIndex, IsActive = bd.Enabled });
+                ((StudioOneMidiPlugin)Plugin).EmitChannelActiveChanged(new ChannelActiveParams { ChannelIndex = bd.ChannelIndex, IsActive = bd.Enabled });
             }
 
             return bd.getImage(imageSize);
@@ -174,56 +192,10 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
         {
             if (touchEvent.EventType.IsLongPress())
             {
-                if (this.buttonData[actionParameter].CurrentMode == SelectButtonMode.User)
-                {
-                    ChannelData cd = this.plugin.channelData[actionParameter];
-
-                    this.OpenUserConfigWindow(cd.UserLabel);
-                }
                 return true;
             }
 
             return base.ProcessTouchEvent(actionParameter, touchEvent);
-        }
-
-        public void OpenUserConfigWindow(String pluginParameter)
-        {
-            if (this.IsUserConfigWindowOpen)
-            {
-                return;
-            }
-
-            var deviceEntry = SelectButtonData.UserPlugSettingsFinder.GetPlugParamDeviceEntry(SelectButtonData.PluginName);
-            var onColor = SelectButtonData.UserPlugSettingsFinder.GetOnColor(deviceEntry, pluginParameter, 0);
-
-            var t = new Thread(() => {
-                var w = new UserControlConfig(UserControlConfig.WindowMode.Button,
-                                              this.Plugin,
-                                              SelectButtonData.UserPlugSettingsFinder,
-                                              new UserControlConfigData
-                                              {
-                                                  PluginName = SelectButtonData.PluginName,
-                                                  PluginParameter = pluginParameter,
-                                                  ShowCircle = SelectButtonData.UserPlugSettingsFinder.GetShowCircle(deviceEntry, pluginParameter, 0),
-                                                  R = onColor.R,
-                                                  G = onColor.G,
-                                                  B = onColor.B,
-                                                  Label = SelectButtonData.UserPlugSettingsFinder.GetLabel(deviceEntry, pluginParameter, 0)
-                                              });
-                w.Closed += (_, _) =>
-                {
-                    this.IsUserConfigWindowOpen = false;
-                    PlugSettingsFinder.Init(this.Plugin, forceReload: true);
-                    (this.Plugin as StudioOneMidiPlugin).EmitChannelDataChanged();
-                };
-                w.Show();
-                System.Windows.Threading.Dispatcher.Run();
-            });
-
-            t.SetApartmentState(ApartmentState.STA);
-            t.Start();
-
-            this.IsUserConfigWindowOpen = true;
         }
 
     }

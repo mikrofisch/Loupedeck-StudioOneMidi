@@ -100,7 +100,7 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
 					var e = new ControlChangeEvent();
 					e.ControlNumber = (SevenBitNumber)1; // Moduleation wheel
 					e.ControlValue = (SevenBitNumber)Math.Max(0, Math.Min(adj.value * 10, 127));
-					plugin.midiOut.SendEvent(e);
+					plugin.MidiOut.SendEvent(e);
 				};
 				adjustments.Add(adj);
 			}
@@ -112,7 +112,7 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
 					var e = new PitchBendEvent();
 					adj.value += delta;
 					e.PitchValue = (ushort)(Math.Max(0, Math.Min(8192 + adj.value * 500, 16383)));
-					plugin.midiOut.SendEvent(e);
+					plugin.MidiOut.SendEvent(e);
 				};
 				// Reset the pitch bend after release
 				adj.Release = () => {
@@ -120,7 +120,7 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
 
 					var e = new PitchBendEvent();
 					e.PitchValue = 8192;
-					plugin.midiOut.SendEvent(e);
+					plugin.MidiOut.SendEvent(e);
 				};
 				adjustments.Add(adj);
 			}
@@ -230,7 +230,7 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
 				NoteOnEvent e = new NoteOnEvent();
 				e.Velocity = (SevenBitNumber)(127);
 				e.NoteNumber = (SevenBitNumber)(noteNumber);
-				plugin.midiOut.SendEvent(e);
+				plugin.MidiOut.SendEvent(e);
 
 				return true;
 			}
@@ -241,7 +241,7 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
 				NoteOffEvent e = new NoteOffEvent();
 				e.Velocity = (SevenBitNumber)(127);
 				e.NoteNumber = (SevenBitNumber)(noteNumber);
-				plugin.midiOut.SendEvent(e);
+				plugin.MidiOut.SendEvent(e);
 
 				if (currentHorizontalAdjustment.Release != null)
 					currentHorizontalAdjustment.Release();

@@ -8,7 +8,7 @@
         }
         protected override void RunCommand(string actionParameter)
         {
-            (base.Plugin as StudioOneMidiPlugin).OpenConfigWindow();
+            // Not configuration interface implemented for now
         }
     }
 }

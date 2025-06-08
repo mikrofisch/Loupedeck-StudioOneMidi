@@ -143,7 +143,7 @@
             this.AddButton(new OneWayCommandButtonData(15, 0x17, "Zoom Out Vertical Fine", "zoom_out_v"), "Zoom");
             this.AddButton(new OneWayCommandButtonData(15, 0x18, "Zoom Undo", "zoom_undo"), "Zoom");
             this.AddButton(new OneWayCommandButtonData(15, 0x19, "Zoom Redo", "zoom_redo"), "Zoom");
-            this.AddButton(new OneWayCommandButtonData(15, 0x1A, "Toggle Zoom", "zoom_toogle_noauto"), "Zoom");
+            this.AddButton(new OneWayCommandButtonData(15, 0x1A, 0x1B, "Toggle Zoom", "zoom_toogle_noauto"), "Zoom");
             this.AddButton(new OneWayCommandButtonData(15, 0x1B, "Zoom Full", "zoom_full"), "Zoom");
             this.AddButton(new OneWayCommandButtonData(15, 0x1C, "Zoom Full Horizontally", "zoom_full_h"), "Zoom");
             this.AddButton(new OneWayCommandButtonData(15, 0x1D, "Zoom Full Vertically", "zoom_full_v"), "Zoom");
@@ -190,13 +190,17 @@
 		{
             base.OnLoad();
 
-            this.plugin.CommandNoteReceived += (object sender, NoteOnEvent e) =>
+            if (this.plugin == null) throw new InvalidOperationException("Uninitialised Plugin");
+
+            this.plugin.CommandNoteReceived += (object? sender, NoteOnEvent e) =>
             {
                 var idx = $"{e.Channel}:{e.NoteNumber}";
 
                 if (!this.buttonData.ContainsKey(idx)) return;
 
                 var bd = this.buttonData[idx];
+                if (bd == null) throw new InvalidOperationException("Uninitialised ButtonData");
+
                 bd.Activated = e.Velocity > 0;
                 this.ActionImageChanged(idx);
             };

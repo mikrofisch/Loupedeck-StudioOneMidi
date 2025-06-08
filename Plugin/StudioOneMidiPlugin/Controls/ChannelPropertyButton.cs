@@ -7,8 +7,6 @@
     //
     internal class ChannelPropertyButton : ActionEditorCommand
     {
-        protected StudioOneMidiPlugin plugin;
-
         private const String PropertySelector = "propertySelector";
         private const String ChannelSelector = "channelSelector";
         private const String ButtonTitleSelector = "buttonTitleSelector";
@@ -46,14 +44,12 @@
 
         protected override Boolean OnLoad()
         {
-            this.plugin = base.Plugin as StudioOneMidiPlugin;
-
-            this.plugin.ChannelDataChanged += (object sender, EventArgs e) =>
+            ((StudioOneMidiPlugin)Plugin).ChannelDataChanged += (object? sender, EventArgs e) =>
             {
                 this.ActionImageChanged();
             };
 
-            this.plugin.PropertySelectionChanged += (object sender, ChannelProperty.PropertyType e) =>
+            ((StudioOneMidiPlugin)Plugin).PropertySelectionChanged += (object? sender, ChannelProperty.PropertyType e) =>
             {
                 this.MultiPropertyType = e;
                 this.ActionImageChanged();
@@ -61,11 +57,11 @@
             return true;
         }
 
-        private void OnActionEditorControlValueChanged(Object sender, ActionEditorControlValueChangedEventArgs e)
+        private void OnActionEditorControlValueChanged(Object? sender, ActionEditorControlValueChangedEventArgs e)
         {
         }
 
-        private void OnActionEditorListboxItemsRequested(Object sender, ActionEditorListboxItemsRequestedEventArgs e)
+        private void OnActionEditorListboxItemsRequested(Object? sender, ActionEditorListboxItemsRequestedEventArgs e)
         {
             /*
              * This does not work (yet)
@@ -104,22 +100,19 @@
             }
         }
 
-        protected override BitmapImage GetCommandImage(ActionEditorActionParameters actionParameters, Int32 imageWidth, Int32 imageHeight)
+        protected override BitmapImage? GetCommandImage(ActionEditorActionParameters actionParameters, Int32 imageWidth, Int32 imageHeight)
         {
-            if (actionParameters == null) return null;
             if (!actionParameters.TryGetInt32(PropertySelector, out var controlProperty)) return null;
             if (!actionParameters.TryGetInt32(ButtonTitleSelector, out var trackNameMode)) return null;
             if (!actionParameters.TryGetInt32(ChannelSelector, out var channelIndex)) return null;
 
             if (channelIndex == StudioOneMidiPlugin.ChannelCount && controlProperty < 8)
             {
-                BitmapImage icon = null;
-                if ((ChannelProperty.PropertyType)controlProperty == ChannelProperty.PropertyType.Arm)
-                    icon = this.IconArm;
-                if ((ChannelProperty.PropertyType)controlProperty == ChannelProperty.PropertyType.Monitor)
-                    icon = this.IconMonitor;
+                BitmapImage? icon = null;
+                if ((ChannelProperty.PropertyType)controlProperty == ChannelProperty.PropertyType.Arm) icon = this.IconArm;
+                if ((ChannelProperty.PropertyType)controlProperty == ChannelProperty.PropertyType.Monitor) icon = this.IconMonitor;
 
-                ChannelData cd = this.plugin.channelData[channelIndex.ToString()];
+                ChannelData cd = ((StudioOneMidiPlugin)Plugin).channelData[channelIndex.ToString()];
                 return PropertyButtonData.drawImage(new BitmapBuilder(imageWidth, imageHeight),
                                                     (ChannelProperty.PropertyType)controlProperty,
                                                     cd.BoolProperty[controlProperty],
@@ -143,7 +136,7 @@
                 }
 
                 return SelectButtonData.drawImage(new BitmapBuilder(imageWidth, imageHeight),
-                                                  this.plugin.channelData[channelIndex.ToString()],
+                                                  ((StudioOneMidiPlugin)Plugin).channelData[channelIndex.ToString()],
                                                   StudioOneMidiPlugin.SelectButtonMode.Select,
                                                   userButtonActive: false,
                                                   commandProperty: (ChannelProperty.PropertyType) controlProperty);
@@ -155,7 +148,7 @@
             if (!actionParameters.TryGetInt32(PropertySelector, out var controlProperty)) return false;
             if (!actionParameters.TryGetString(ChannelSelector, out var channelIndex)) return false;
 
-            ChannelData cd = this.plugin.channelData[channelIndex];
+            ChannelData cd = ((StudioOneMidiPlugin)Plugin).channelData[channelIndex];
 
             if (controlProperty >= 8)
             {

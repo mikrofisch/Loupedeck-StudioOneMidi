@@ -22,7 +22,7 @@
         {
             base.OnLoad();
 
-            this.plugin.PropertySelectionChanged += (object sender, ChannelProperty.PropertyType e) =>
+            ((StudioOneMidiPlugin)base.Plugin).PropertySelectionChanged += (object? sender, ChannelProperty.PropertyType e) =>
             {
                 this.UpdateAllActionImages();
             };

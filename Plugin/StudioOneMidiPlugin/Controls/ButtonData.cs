@@ -1,11 +1,12 @@
 ﻿namespace Loupedeck.StudioOneMidiPlugin.Controls
 {
-    using System;
-    using System.CodeDom;
-    using System.Diagnostics;
-
     using Loupedeck.StudioOneMidiPlugin.Helpers;
+    using PluginSettings;
+    using System;
+    using System.Diagnostics;
+    using System.Windows.Controls;
     using static Loupedeck.StudioOneMidiPlugin.StudioOneMidiPlugin;
+    using static PluginSettings.PlugSettingsFinder;
 
     public abstract class ButtonData
     {
@@ -15,11 +16,39 @@
         protected const Int32 DescFontSize = 14;
         protected const Int32 TrackNameFontSize = 14;
 
-        protected StudioOneMidiPlugin Plugin;
+        protected StudioOneMidiPlugin? _plugin;
 
+        protected StudioOneMidiPlugin Plugin
+        {
+            get
+            {
+                if (this._plugin == null) throw new InvalidOperationException("Plugin is not set for this ButtonData instance."); // Should never happen
+                return this._plugin;
+            }
+            set => this._plugin = value;
+        }
         public virtual void OnLoad(StudioOneMidiPlugin plugin) => this.Plugin = plugin;
         public abstract BitmapImage getImage(PluginImageSize imageSize);
         public abstract void runCommand();
+
+        protected BitmapImage? GetIcon(PlugParamSetting ps, String parameterName)
+        {
+            if (ps.IconName != null)
+            {
+                return EmbeddedResources.ReadImage(EmbeddedResources.FindFile($"{ps.IconName}_52px.png"));
+            }
+            return null;
+        }
+
+        protected BitmapImage? GetIconOn(PlugParamSetting ps, String parameterName)
+        {
+            if (ps.IconNameOn != null)
+            {
+                return EmbeddedResources.ReadImage(EmbeddedResources.FindFile($"{ps.IconNameOn}_52px.png"));
+            }
+            return null;
+        }
+
     }
 
     public class PropertyButtonData : ButtonData
@@ -37,12 +66,12 @@
         private int ChannelIndex;
         private ChannelProperty.PropertyType Type;
         private TrackNameMode ShowTrackName;
-        private BitmapImage Icon;
+        private BitmapImage? Icon;
 
         public PropertyButtonData(int channelIndex,
                                   ChannelProperty.PropertyType bt,
                                   TrackNameMode tm = TrackNameMode.ShowFull,
-                                  string iconName = null)
+                                  string? iconName = null)
         {
             this.ChannelIndex = channelIndex;
             this.Type = bt;
@@ -64,11 +93,11 @@
 
             // bb.FillRectangle(0, 0, bb.Width, bb.Height, new BitmapColor(20, 20, 20));
             return PropertyButtonData.drawImage(new BitmapBuilder(imageSize),
-                                                    this.Type,
-                                                    cd.BoolProperty[(Int32)this.Type],
-                                                    this.ShowTrackName,
+                                                    Type,
+                                                    cd.BoolProperty[(Int32)Type],
+                                                    ShowTrackName,
                                                     cd.Label,
-                                                    this.Icon);
+                                                    Icon);
         }
 
         public static BitmapImage drawImage(BitmapBuilder bb,
@@ -76,7 +105,7 @@
                                             Boolean isSelected,
                                             TrackNameMode showTrackName,
                                             String trackName,
-                                            BitmapImage icon)
+                                            BitmapImage? icon)
         {
             bb.FillRectangle(0, 0, bb.Width, bb.Height, BitmapColor.Black);
 
@@ -192,9 +221,9 @@
         public Boolean UserButtonMenuActive = false;
         public static ChannelProperty.PropertyType SelectionPropertyType = ChannelProperty.PropertyType.Mute;
 
-        public String UserLabel { get; set; }
-        public String Label { get; set; }
-        public static String FocusDeviceName;
+        public String UserLabel { get; set; } = "";
+        public String Label { get; set; } = "";
+        public static String? FocusDeviceName;
 
         private static readonly BitmapColor CommandPropertyColor = new BitmapColor(40, 40, 40);
         public static readonly BitmapColor TextDescColor = new BitmapColor(175, 175, 175);
@@ -204,20 +233,20 @@
 
         public readonly Int32 ChannelIndex = -1;
         private const Int32 TitleHeight = 24;
-        private static BitmapImage IconSelMon, IconSelRec;
+        private static BitmapImage? IconSelMon, IconSelRec;
 
         public class CustomParams
         {
             public Int32 MidiChannel = 0;
             public Int32 MidiCode = 0;
-            public String Label;
-            public BitmapImage Icon, IconOn;
+            public String? Label;
+            public BitmapImage? Icon, IconOn;
             public BitmapColor BgColor = BitmapColor.Black;
         }
         public CustomParams CurrentCustomParams { get; private set; } = new CustomParams();
         public Boolean CustomIsActivated = false;
 
-        public static String PluginName { get; set; }
+        public static String PluginName { get; set; } = "";
 
         public static readonly PlugSettingsFinder UserPlugSettingsFinder = new PlugSettingsFinder(new PlugSettingsFinder.PlugParamSetting
         {
@@ -282,7 +311,7 @@
                                             Boolean userButtonMenuActive = false,
                                             ChannelProperty.PropertyType commandProperty = ChannelProperty.PropertyType.Select,
                                             String pluginName = "",
-                                            CustomParams customParams = null,
+                                            CustomParams? customParams = null,
                                             Boolean buttonEnabled = true)
         {
             bb.FillRectangle(0, 0, bb.Width, bb.Height, BitmapColor.Black);
@@ -298,6 +327,9 @@
             if (SelectButtonData.IconSelMon == null)
             {
                 SelectButtonData.IconSelMon = EmbeddedResources.ReadImage(EmbeddedResources.FindFile("monitor_24px.png"));
+            }
+            if (SelectButtonData.IconSelRec == null)
+            {
                 SelectButtonData.IconSelRec = EmbeddedResources.ReadImage(EmbeddedResources.FindFile("record_24px.png"));
             }
 
@@ -358,13 +390,19 @@
                 var uby = bb.Height - ubh;
 
                 var deviceEntry = UserPlugSettingsFinder.GetPlugParamDeviceEntry(pluginName);
+                if (deviceEntry == null)
+                {
+                    // Should never happen, consider throwing an exception here
+                    Debug.WriteLine($"SelectButtonData: No device entry found for plugin '{pluginName}'");
+                    return bb.ToImage();
+                }
 
                 // Get the text for the user button label first so that we know if there is anything to show. Note that cd.UserLabel (which contains
                 // the label sent by the plugin) may be empty if the plugin is buggy and doesn't send anything, but labelText may still have
                 // text if an override is defined for the button position.
                 //
                 var userLabelText = userButtonActive ? UserPlugSettingsFinder.GetLabelOnShort(deviceEntry, cd.UserLabel, buttonIdx, isUser: true)
-                                                 : UserPlugSettingsFinder.GetLabelShort(deviceEntry, cd.UserLabel, buttonIdx, isUser: true);
+                                                     : UserPlugSettingsFinder.GetLabelShort(deviceEntry, cd.UserLabel, buttonIdx, isUser: true);
 
                 // User Pot
                 //
@@ -372,24 +410,32 @@
                 {
                     if (UserPlugSettingsFinder.GetPaintLabelBg(deviceEntry, cd.Label, buttonIdx))
                     {
-                        bb.FillRectangle(0, 0, bb.Width, bb.Height, buttonEnabled ? UserPlugSettingsFinder.GetOnColor(deviceEntry, cd.Label, buttonIdx) 
-                                                                                  : UserPlugSettingsFinder.GetOffColor(deviceEntry, cd.Label, buttonIdx));
+                        bb.FillRectangle(0, 0, bb.Width, bb.Height, buttonEnabled ? ColorConv.Convert(UserPlugSettingsFinder.GetOnColor(deviceEntry, cd.Label, buttonIdx)) 
+                                                                                  : ColorConv.Convert(UserPlugSettingsFinder.GetOffColor(deviceEntry, cd.Label, buttonIdx)));
                     }
                 }
                 bb.DrawText(cd.Description, 0, 0, bb.Width, TitleHeight, TextDescColor, DescFontSize);
                 bb.DrawText(userLabelText.Length > 0 ? UserPlugSettingsFinder.GetLabelShort(deviceEntry, cd.Label, buttonIdx) :
                                                        UserPlugSettingsFinder.GetLabel(deviceEntry, cd.Label, buttonIdx), 0, bb.Height / 2 - TitleHeight / 2, bb.Width, TitleHeight, 
-                            buttonEnabled ? UserPlugSettingsFinder.GetTextOnColor(deviceEntry, cd.Label, buttonIdx)
-                                          : UserPlugSettingsFinder.GetTextOffColor(deviceEntry, cd.Label, buttonIdx), LabelFontSize);
+                            buttonEnabled ? ColorConv.Convert(UserPlugSettingsFinder.GetTextOnColor(deviceEntry, cd.Label, buttonIdx))
+                                          : ColorConv.Convert(UserPlugSettingsFinder.GetTextOffColor(deviceEntry, cd.Label, buttonIdx)), LabelFontSize);
 
                 // User Button
                 //
                 var menuItems = UserPlugSettingsFinder.GetUserMenuItems(deviceEntry, cd.UserLabel, buttonIdx, isUser: true);
                 if (menuItems != null)
                 {
-                    if (userLabelText.Length > 0)
-                        userLabelText += ": ";
-                    userLabelText += menuItems[cd.UserValue / (127 / (menuItems.Length - 1))];
+                    var menuItem = menuItems[cd.UserValue / (127 / (menuItems.Length - 1))];
+                    if (menuItem[0] == '!')
+                    {
+                        // Icon specified, it will be loaded by LabelImageLoader.GetImage() below
+                        userLabelText = menuItem;
+                    }
+                    else
+                    {
+                        if (userLabelText.Length > 0) userLabelText += ": ";
+                        userLabelText += menuItem;
+                    }
                 }
 
                 var drawCircle = userLabelText.Length > 0 && UserPlugSettingsFinder.ShowUserButtonCircle(deviceEntry, cd.UserLabel, buttonIdx);
@@ -399,14 +445,14 @@
                 {
                     userButtonActive = true;    // Use 'on' colour variants for all menu items
                 }
-                var tc = userButtonEnabled ? userButtonActive ? drawCircle ? UserPlugSettingsFinder.GetOnColor(deviceEntry, cd.UserLabel, buttonIdx, isUser: true)
-                                                                           : UserPlugSettingsFinder.GetTextOnColor(deviceEntry, cd.UserLabel, buttonIdx, isUser: true)
-                                                              : UserPlugSettingsFinder.GetTextOffColor(deviceEntry, cd.UserLabel, buttonIdx, isUser: true)
+                var tc = userButtonEnabled ? userButtonActive ? drawCircle ? ColorConv.Convert(UserPlugSettingsFinder.GetOnColor(deviceEntry, cd.UserLabel, buttonIdx, isUser: true))
+                                                                           : ColorConv.Convert(UserPlugSettingsFinder.GetTextOnColor(deviceEntry, cd.UserLabel, buttonIdx, isUser: true))
+                                                              : ColorConv.Convert(UserPlugSettingsFinder.GetTextOffColor(deviceEntry, cd.UserLabel, buttonIdx, isUser: true))
                                            : BitmapColor.Black;
                 if (userButtonMenuActive) tc = BitmapColor.White;
-                var bc = userLabelText.Length > 0 && userButtonEnabled ? userButtonActive ? UserPlugSettingsFinder.GetOnColor(deviceEntry, cd.UserLabel, buttonIdx, isUser: true)
-                                                                                          : UserPlugSettingsFinder.GetOffColor(deviceEntry, cd.UserLabel, buttonIdx, isUser: true)
-                                                                       : BgColorUnassigned;
+                var bc = userLabelText.Length > 0 && userButtonEnabled ? userButtonActive ? ColorConv.Convert(UserPlugSettingsFinder.GetOnColor(deviceEntry, cd.UserLabel, buttonIdx, isUser: true))
+                                                                                          : ColorConv.Convert(UserPlugSettingsFinder.GetOffColor(deviceEntry, cd.UserLabel, buttonIdx, isUser: true))
+                                                                       : ColorConv.Convert(BgColorUnassigned);
                 if (userButtonMenuActive)
                 {
                     var stroke = 2;
@@ -429,6 +475,7 @@
                     tw = bb.Width - tx * 2;
                 }
                 bb.DrawImage(LabelImageLoader.GetImage(userLabelText, tw, TitleHeight, tc), tx, uby);
+                Debug.WriteLine($"SelectButtonData: User button {cd.UserLabel} ({cd.UserValue}) at {cd.ChannelID + 1} with text '{userLabelText}'");
             }
             else
             {
@@ -507,22 +554,30 @@
                     cd.EmitChannelPropertyPress(SelectButtonData.SelectionPropertyType);    // Sends MIDI data
                     break;
                 case SelectButtonMode.User:
-                    var menuItems = UserPlugSettingsFinder.GetUserMenuItems(UserPlugSettingsFinder.GetPlugParamDeviceEntry(PluginName), cd.UserLabel, cd.ChannelID+1, isUser: true);
-                    if (menuItems != null)
+                    var deviceEntry = UserPlugSettingsFinder.GetPlugParamDeviceEntry(PluginName);
+                    if (deviceEntry != null)
                     {
-                        // Display value selection menu.
-                        var ubmp = new UserButtonMenuParams();
-                        ubmp.ChannelIndex = this.ChannelIndex;
-                        ubmp.MenuItems = menuItems;
-                        this.Plugin.EmitUserButtonMenuActivated(ubmp);
+                        var menuItems = UserPlugSettingsFinder.GetUserMenuItems(deviceEntry, cd.UserLabel, cd.ChannelID + 1, isUser: true);
+                        if (menuItems != null)
+                        {
+                            // Display value selection menu.
+                            var ubmp = new UserButtonMenuParams();
+                            ubmp.ChannelIndex = this.ChannelIndex;
+                            ubmp.MenuItems = menuItems;
+                            this.Plugin.EmitUserButtonMenuActivated(ubmp);
+                        }
+                        else
+                        {
+                            // Toggle the user button value.
+                            if (this.UserButtonEnabled)
+                            {
+                                this.Plugin.SendMidiNote(0, UserButtonMidiBase + this.ChannelIndex, this.UserButtonActive ? 0 : 127);
+                            }
+                        }
                     }
                     else
                     {
-                        // Toggle the user button value.
-                        if (this.UserButtonEnabled)
-                        {
-                            this.Plugin.SendMidiNote(0, UserButtonMidiBase + this.ChannelIndex, this.UserButtonActive ? 0 : 127);
-                        }
+                        Debug.WriteLine($"SelectButtonData: No device entry found for plugin '{PluginName}'");
                     }
                     break;
                 case SelectButtonMode.FX:
@@ -545,13 +600,13 @@
         //        Int32 MidiChannel = -1;
         Int32 ChannelIndex = 0;
         protected Int32 Value = 0;
-        protected String Label;
+        protected String? Label;
 
         public UserMenuSelectButtonData()
         {
         }
 
-        public void init(Int32 channelIndex = 0, Int32 value = 0, String label = null)
+        public void init(Int32 channelIndex = 0, Int32 value = 0, String? label = null)
         {
             this.ChannelIndex = channelIndex;
             this.Value = value;
@@ -590,7 +645,7 @@
     {
         public Int32 Code;
         public Int32 CodeOn = 0;              // alternative code to send when activated
-        public String Name;
+        public String Name = "";
 
         public virtual Boolean Activated { get; set; } = false;
 
@@ -598,7 +653,7 @@
         public BitmapColor OnColor = BitmapColor.Black;
         public BitmapColor TextColor = BitmapColor.White;
         public BitmapColor TextOnColor = BitmapColor.White;
-        public BitmapImage Icon, IconOn;
+        public BitmapImage? Icon, IconOn;
 
         public static readonly BitmapColor cRectOn = new BitmapColor(200, 200, 200);
         public static readonly BitmapColor cTextOn = BitmapColor.Black;
@@ -612,7 +667,7 @@
         }
 
 
-        public CommandButtonData(Int32 code, String name, String iconName = null)
+        public CommandButtonData(Int32 code, String name, String? iconName = null)
         {
             this.init(code, name, iconName);
         }
@@ -624,7 +679,7 @@
             this.OffColor = bgColor;
         }
 
-        public CommandButtonData(Int32 code, Int32 codeOn, String name, String iconName = null)
+        public CommandButtonData(Int32 code, Int32 codeOn, String name, String? iconName = null)
         {
             this.init(code, name, iconName);
             this.CodeOn = codeOn;
@@ -637,7 +692,7 @@
             this.Activated = isActivatedByDefault;
         }
 
-        private void init(Int32 code, String name, String iconName)
+        private void init(Int32 code, String name, String? iconName)
         {
             this.Name = name;
             this.Code = code;
@@ -645,7 +700,7 @@
             LoadIcons(iconName, ref this.Icon, ref this.IconOn);
         }
 
-        public static void LoadIcons(String iconName, ref BitmapImage icon, ref BitmapImage iconOn)
+        public static void LoadIcons(String? iconName, ref BitmapImage? icon, ref BitmapImage? iconOn)
         {
             if (iconName != null)
             {
@@ -797,9 +852,17 @@
     //
     public class OneWayCommandButtonData : CommandButtonData
     {
-        public OneWayCommandButtonData(Int32 channel, Int32 code, String name, String iconName = null) : base(code, name, iconName)
+        Int32 CodeShift = 0;    // code to send when shift is pressed
+
+        public OneWayCommandButtonData(Int32 channel, Int32 code, String name, String? iconName = null) : base(code, name, iconName)
         {
             this.MidiChannel = channel;
+        }
+
+        public OneWayCommandButtonData(Int32 channel, Int32 code, Int32 codeShift, String name, String? iconName = null) : base(code, name, iconName)
+        {
+            this.MidiChannel = channel;
+            this.CodeShift = codeShift;
         }
 
         public OneWayCommandButtonData(Int32 channel, Int32 code, String name, String iconName, BitmapColor bgColor) : base(code, name, iconName, bgColor)
@@ -817,6 +880,18 @@
             : base(code, name, onColor, textOnColor, isActivatedByDefault)
         {
             this.MidiChannel = channel;
+        }
+
+        public override void runCommand()
+        {
+            if (this.CodeShift > 0 && (this.Plugin as StudioOneMidiPlugin).ShiftPressed)
+            {
+                this.Plugin.SendMidiNote(this.MidiChannel, this.CodeShift);
+            }
+            else
+            {
+                base.runCommand();
+            }
         }
 
         // The code below is an alternative method for invoking commands by setting
@@ -935,14 +1010,14 @@
 
     public class ModeButtonData : ButtonData
     {
-        public String Name;
-        public BitmapImage Icon = null;
+        public String Name = "";
+        public BitmapImage? Icon = null;
         public Boolean Activated = false;
         private readonly Boolean IsMenu = false;
         private Int32 MidiCode = 0;
         private BitmapColor BgColor = ButtonData.DefaultSelectionBgColor;
 
-        public ModeButtonData(String name, String iconName = null, Boolean isMenu = false, Int32 midiCode = 0)
+        public ModeButtonData(String name, String? iconName = null, Boolean isMenu = false, Int32 midiCode = 0)
         {
             this.init(name, iconName, BitmapColor.Black, midiCode);
             this.IsMenu = isMenu;
@@ -953,7 +1028,7 @@
             this.IsMenu = isMenu;
         }
 
-        private void init(String name, String iconName, BitmapColor bgColor, Int32 midiCode)
+        private void init(String name, String? iconName, BitmapColor bgColor, Int32 midiCode)
         {
             this.Name = name;
             this.BgColor = bgColor;
@@ -1018,16 +1093,16 @@
             Right
         }
         readonly Location ButtonLocation = Location.Left;
-        String TopDisplayText;
+        String TopDisplayText = "";
         protected Boolean IsUserButton = false;
-        protected String PluginName;
+        protected String PluginName = "";
         protected PlugSettingsFinder UserPlugSettingsFinder = new PlugSettingsFinder(new PlugSettingsFinder.PlugParamSetting { OnColor = FinderColor.Black,
-                                                                                                                                OffColor = FinderColor.Black,
-                                                                                                                                TextOnColor = FinderColor.White,
-                                                                                                                                TextOffColor = FinderColor.Black});
+                                                                                                                               OffColor = FinderColor.Black,
+                                                                                                                               TextOnColor = FinderColor.White,
+                                                                                                                               TextOffColor = FinderColor.Black});
         enum PluginType { Any, Mono, Stereo, MonoStereo }    // variants of Waves plugins
 
-        public ModeTopCommandButtonData(Int32 channel, Int32 code, String name, Location bl, String iconName = null) : base(channel, code, name, iconName)
+        public ModeTopCommandButtonData(Int32 channel, Int32 code, String name, Location bl, String? iconName = null) : base(channel, code, name, iconName)
         {
             this.ButtonLocation = bl;
         }
@@ -1050,9 +1125,10 @@
 
             if (this.IsUserButton && this.Name.Length > 0)
             {
-                var deviceEntry = this.UserPlugSettingsFinder.GetPlugParamDeviceEntry(this.PluginName);
-                this.Icon = this.UserPlugSettingsFinder.GetIcon(deviceEntry, this.Name);
-                this.IconOn = this.UserPlugSettingsFinder.GetIconOn(deviceEntry, this.Name);
+                var deviceEntry = UserPlugSettingsFinder.GetPlugParamDeviceEntry(this.PluginName);
+                var paramSettings = UserPlugSettingsFinder.GetPlugParamSettings(deviceEntry, this.Name, false);
+                this.Icon = GetIcon(paramSettings, Name);
+                this.IconOn = GetIconOn(paramSettings, Name);
             }
         }
 
@@ -1068,16 +1144,18 @@
             var deviceEntry = this.UserPlugSettingsFinder.GetPlugParamDeviceEntry(this.PluginName);
             var buttonIdx = (Int32)this.ButtonLocation;
 
+            if (deviceEntry == null) return bb.ToImage(); // No device entry found (should never happen, could throw an exception here)
+
             if (this.IsUserButton)
             {
                 if (this.Name.Length == 0)
                 {
-                    bb.FillRectangle(0, bgX, bb.Width, bgH, SelectButtonData.BgColorUnassigned);
+                    bb.FillRectangle(0, bgX, bb.Width, bgH, ColorConv.Convert(SelectButtonData.BgColorUnassigned));
                 }
                 else
                 {
-                    bb.FillRectangle(0, bgX, bb.Width, bgH, this.Activated ? this.UserPlugSettingsFinder.GetOnColor(deviceEntry, this.Name, buttonIdx, isUser: true)
-                                                                           : this.UserPlugSettingsFinder.GetOffColor(deviceEntry, this.Name, buttonIdx, isUser: true));
+                    bb.FillRectangle(0, bgX, bb.Width, bgH, Activated ? ColorConv.Convert(UserPlugSettingsFinder.GetOnColor(deviceEntry, Name, buttonIdx, isUser: true))
+                                                                      : ColorConv.Convert(UserPlugSettingsFinder.GetOffColor(deviceEntry, this.Name, buttonIdx, isUser: true)));
                 }
             }
             else
@@ -1098,15 +1176,15 @@
                 bb.DrawText(this.Activated ? this.UserPlugSettingsFinder.GetLabelOn(deviceEntry, this.Name, buttonIdx, isUser: true) :
                                              this.UserPlugSettingsFinder.GetLabel(deviceEntry, this.Name, buttonIdx, isUser: true), 
                                              0, dispTxtH, bb.Width, bb.Height - dispTxtH, 
-                            this.Activated ? this.UserPlugSettingsFinder.GetTextOnColor(deviceEntry, this.Name, buttonIdx, isUser: true)
-                                           : this.UserPlugSettingsFinder.GetTextOffColor(deviceEntry, this.Name, buttonIdx, isUser: true), LabelFontSize);
+                            this.Activated ? ColorConv.Convert(UserPlugSettingsFinder.GetTextOnColor(deviceEntry, this.Name, buttonIdx, isUser: true))
+                                           : ColorConv.Convert(UserPlugSettingsFinder.GetTextOffColor(deviceEntry, this.Name, buttonIdx, isUser: true)), LabelFontSize);
             }
 
             if (this.TopDisplayText != null)
             {
                 // Waves plugins come in Mono, Stereo, and Mono/Stereo variants. We replace the text
                 // denoting the variant with an icon in the top right corner.
-                String iconName = null;
+                String? iconName = null;
                 var len = this.TopDisplayText.Length;
                 var typePos = -1;
                 if (len > 16 && (typePos = this.TopDisplayText.LastIndexOf("Mono/Stereo", len, 16)) > 0)
@@ -1387,7 +1465,7 @@
         public Int32 ActiveUserPages { get; set; } = 3;
         Int32 UserPage { get; set; } = 0;
         Int32 LastUserPage { get; set; } = 0;
-        String[] PageNames;
+        String[]? PageNames;
         Boolean IsActive { get; set; } = false;
 
         public UserModeButtonData()

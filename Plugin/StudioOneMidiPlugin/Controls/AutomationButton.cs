@@ -1,10 +1,6 @@
 ﻿namespace Loupedeck.StudioOneMidiPlugin.Controls
 {
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
 
     using static Loupedeck.StudioOneMidiPlugin.StudioOneMidiPlugin;
 
@@ -25,7 +21,7 @@
         {
             base.OnLoad();
 
-            this.plugin.AutomationModeChanged += (Object sender, AutomationMode e) =>
+            ((StudioOneMidiPlugin)Plugin).AutomationModeChanged += (Object? sender, AutomationMode e) =>
             {
                 this.UpdateAllActionImages();
             };

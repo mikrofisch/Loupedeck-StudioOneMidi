@@ -82,10 +82,12 @@
 
 		public void EmitVolumeUpdate()
 		{
-			var e = new PitchBendEvent();
+            if (this.plugin.LoupedeckMidiOut == null) throw new NullReferenceException();
+
+            var e = new PitchBendEvent();
 			e.PitchValue = (UInt16)(this.Value * 16383);
 			e.Channel = (FourBitNumber)this.ChannelID;
-			this.plugin.loupedeckMidiOut.SendEvent(e);
+			this.plugin.LoupedeckMidiOut.SendEvent(e);
 
 //			this.plugin.EmitChannelDataChanged();
 		}
@@ -97,15 +99,17 @@
 
         public void EmitChannelPropertyPress(ChannelProperty.PropertyType type)
 		{
-			var e = new NoteOnEvent();
+            if (this.plugin.LoupedeckMidiOut == null) throw new NullReferenceException();
+
+            var e = new NoteOnEvent();
 			e.NoteNumber = (SevenBitNumber)(ChannelProperty.MidiBaseNote[(Int32)type] + this.ChannelID);
 			e.Velocity = (SevenBitNumber)127;
-			this.plugin.loupedeckMidiOut.SendEvent(e);
+			this.plugin.LoupedeckMidiOut.SendEvent(e);
 
 			var e2 = new NoteOffEvent();
 			e2.NoteNumber = e.NoteNumber;
 			e2.Velocity = e.Velocity;
-			this.plugin.loupedeckMidiOut.SendEvent(e2);
+			this.plugin.LoupedeckMidiOut.SendEvent(e2);
 		}
 
 	}

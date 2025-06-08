@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net8.0-windows</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>disable</Nullable>
+    <Nullable>enable</Nullable>
     <RootNamespace>Loupedeck.StudioOneMidiPlugin</RootNamespace>
 
     <ErrorReport>prompt</ErrorReport>
@@ -93,6 +93,7 @@
     <None Remove="Resources\icons_24px_s1.psd" />
     <None Remove="Resources\icons_s1_52px.psd" />
     <None Remove="Resources\icons_s1_full.psd" />
+    <None Remove="Resources\icon_404.png" />
     <None Remove="Resources\inspector_52px.png" />
     <None Remove="Resources\labels.psd" />
     <None Remove="Resources\layers_52px.png" />
@@ -345,6 +346,7 @@
     <EmbeddedResource Include="Resources\group_dissolve_52px.png" />
     <EmbeddedResource Include="Resources\group_new_52px.png" />
     <EmbeddedResource Include="Resources\group_suspend_no_52px.png" />
+    <EmbeddedResource Include="Resources\icon_404.png" />
     <EmbeddedResource Include="Resources\inspector_52px.png" />
     <EmbeddedResource Include="Resources\layers_52px.png" />
     <EmbeddedResource Include="Resources\layers_expand_52px.png" />
@@ -359,10 +361,6 @@
     <EmbeddedResource Include="Resources\layer_rename_52px.png" />
     <EmbeddedResource Include="Resources\layer_up_52px.png" />
     <EmbeddedResource Include="Resources\layer_up_inv_52px.png" />
-    <EmbeddedResource Include="Resources\lbl_ad_Sawtooth.png" />
-    <EmbeddedResource Include="Resources\lbl_ad_Sine.png" />
-    <EmbeddedResource Include="Resources\lbl_ad_Square.png" />
-    <EmbeddedResource Include="Resources\lbl_ad_Triangle.png" />
     <EmbeddedResource Include="Resources\lbl_Bell.png" />
     <EmbeddedResource Include="Resources\lbl_bm_Saw.png" />
     <EmbeddedResource Include="Resources\lbl_bm_Sine.png" />

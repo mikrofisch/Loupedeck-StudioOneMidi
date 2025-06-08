@@ -1,11 +1,11 @@
 ﻿namespace Loupedeck.StudioOneMidiPlugin.Controls
 {
-    using System.Collections.Generic;
+    using System.Collections.Concurrent;
 
     internal class StudioOneButton<B> : PluginDynamicCommand where B : ButtonData
     {
-        protected StudioOneMidiPlugin plugin;
-        protected Dictionary<String, B> buttonData = new Dictionary<String, B>();
+        protected StudioOneMidiPlugin? plugin;
+        protected ConcurrentDictionary<String, B?> buttonData = new ConcurrentDictionary<String, B?>();
 
         private readonly System.Timers.Timer ActionImageChangedTimer;
 
@@ -13,7 +13,7 @@
         {
             this.ActionImageChangedTimer = new System.Timers.Timer(100);
             this.ActionImageChangedTimer.AutoReset = false;
-            this.ActionImageChangedTimer.Elapsed += (Object sender, System.Timers.ElapsedEventArgs e) =>
+            this.ActionImageChangedTimer.Elapsed += (Object? sender, System.Timers.ElapsedEventArgs e) =>
             {
                 // Debug.WriteLine("ActionImageChangeTimer.Elapsed " + this.Name);
 
@@ -31,7 +31,7 @@
 
         protected override bool OnLoad()
         {
-            this.plugin = base.Plugin as StudioOneMidiPlugin;
+            this.plugin = (StudioOneMidiPlugin)base.Plugin;
 
             foreach (var bd in this.buttonData.Values)
             {
@@ -44,17 +44,22 @@
 
         protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
         {
-            if (actionParameter == null) return null;
-            if (!this.buttonData.ContainsKey(actionParameter)) return null;
+            if (!this.buttonData.ContainsKey(actionParameter)) throw new InvalidOperationException("Uninitialised ButtonData");
 
-            return this.buttonData[actionParameter].getImage(imageSize);
+            var bd = this.buttonData[actionParameter];
+            if (bd == null) throw new InvalidOperationException("Uninitialised ButtonData");
+
+            return bd.getImage(imageSize);
         }
 
         protected override void RunCommand(String actionParameter)
         {
             if (this.buttonData.ContainsKey(actionParameter))
             {
-                this.buttonData[actionParameter].runCommand();
+                var bd = this.buttonData[actionParameter];
+                if (bd == null) throw new InvalidOperationException("Uninitialised ButtonData");
+
+                bd.runCommand();
             }
         }
     }

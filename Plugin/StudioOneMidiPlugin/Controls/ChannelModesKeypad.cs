@@ -1,9 +1,12 @@
 ﻿namespace Loupedeck.StudioOneMidiPlugin.Controls
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
 
     using Melanchall.DryWetMidi.Core;
+
+    using PluginSettings;
 
     using static Loupedeck.StudioOneMidiPlugin.StudioOneMidiPlugin;
 
@@ -71,13 +74,13 @@
 
         private class LayerData
         {
-            public Dictionary<Int32, ModeData> ModeDataDict = new Dictionary<Int32, ModeData>();
+            public ConcurrentDictionary<Int32, ModeData> ModeDataDict = new ConcurrentDictionary<Int32, ModeData>();
 
-            public void AddMode(Int32 modeID) => this.ModeDataDict.Add(modeID, new ModeData());
+            public void AddMode(Int32 modeID) => this.ModeDataDict.TryAdd(modeID, new ModeData());
             public void AddModeButtonData(Int32 modeID, Int32 buttonIndex, ButtonData bd) => this.ModeDataDict[modeID].ButtonDataList[buttonIndex] = bd;
         }
 
-        private readonly Dictionary<ButtonLayer, LayerData> ButtonLayerDict = new Dictionary<ButtonLayer, LayerData>();
+        private readonly ConcurrentDictionary<ButtonLayer, LayerData> ButtonLayerDict = new ConcurrentDictionary<ButtonLayer, LayerData>();
 
         private class ButtonDataIndex
         {
@@ -111,7 +114,7 @@
         private class NoteReceiverEntry
         {
             public Int32 Note;
-            public ButtonDataIndex Index;
+            public ButtonDataIndex? Index;
         }
         private readonly List<NoteReceiverEntry> NoteReceivers = new List<NoteReceiverEntry>();
 
@@ -130,10 +133,10 @@
 
             for (var i = 0; i < 6; i++)
             {
-                this.buttonData.Add($"{i}", null);
+                this.buttonData.TryAdd($"{i}", null);
             }
 
-            this.ButtonLayerDict.Add(ButtonLayer.ViewSelector, new LayerData());
+            this.ButtonLayerDict.TryAdd(ButtonLayer.ViewSelector, new LayerData());
 
             this.ButtonLayerDict[ButtonLayer.ViewSelector].AddMode(0);
             this.AddButton(ButtonLayer.ViewSelector, 0, 0, new ModeButtonData("PLAY"));
@@ -149,7 +152,7 @@
             var layersBgColor = new BitmapColor(180, 180, 180);
             var addBgColor = new BitmapColor(60, 60, 60);
 
-            this.ButtonLayerDict.Add(ButtonLayer.ChannelPropertiesPlay, new LayerData());
+            this.ButtonLayerDict.TryAdd(ButtonLayer.ChannelPropertiesPlay, new LayerData());
 
             // Mute/Solo
             modeID = (Int32)PlayLayerMode.PropertySelect;
@@ -221,7 +224,7 @@
             this.AddButton(ButtonLayer.ChannelPropertiesPlay, modeID, 4, new OneWayCommandButtonData(14, 0x3C, "Add Track", null, addBgColor));
             this.AddButton(ButtonLayer.ChannelPropertiesPlay, modeID, 5, this.GetButtonData(ButtonLayer.ChannelPropertiesPlay, (Int32)PlayLayerMode.ChannelSelect, 5));
 
-            this.ButtonLayerDict.Add(ButtonLayer.ChannelPropertiesRec, new LayerData());
+            this.ButtonLayerDict.TryAdd(ButtonLayer.ChannelPropertiesRec, new LayerData());
 
             var panelsBgColor = new BitmapColor(60, 60, 60);
 
@@ -259,7 +262,7 @@
             this.ButtonLayerDict[ButtonLayer.ChannelPropertiesRec].AddMode(modeID);
             this.AddButton(ButtonLayer.ChannelPropertiesRec, modeID, 3, new OneWayCommandButtonData(14, 0x4F, "Click Settings", "click_settings", ClickBgColor));
 
-            this.ButtonLayerDict.Add(ButtonLayer.FaderModesShow, new LayerData());
+            this.ButtonLayerDict.TryAdd(ButtonLayer.FaderModesShow, new LayerData());
 
             // Fader Visibility
             this.ButtonLayerDict[ButtonLayer.FaderModesShow].AddMode(0);
@@ -270,7 +273,7 @@
             this.AddButton(ButtonLayer.FaderModesShow, 0, 4, new ModeButtonData("VIEWS"));
             this.AddButton(ButtonLayer.FaderModesShow, 0, 5, new ViewAllRemoteCommandButtonData(), isNoteReceiver: false);
 
-            this.ButtonLayerDict.Add(ButtonLayer.FaderModesSend, new LayerData());
+            this.ButtonLayerDict.TryAdd(ButtonLayer.FaderModesSend, new LayerData());
 
             var pluginBgColor = new BitmapColor(60, 60, 60);
 
@@ -523,10 +526,9 @@
         }
 
 
-        protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
+        protected override BitmapImage? GetCommandImage(String actionParameter, PluginImageSize imageSize)
         {
-            if (actionParameter == null)
-                return null;
+            if (actionParameter == null) return null;
 
             var bd = this.GetButtonData(this.CurrentLayer, this.GetCurrentMode(), Int32.Parse(actionParameter));
             

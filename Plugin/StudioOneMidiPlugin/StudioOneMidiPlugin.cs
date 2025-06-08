@@ -1,19 +1,16 @@
 namespace Loupedeck.StudioOneMidiPlugin
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using System.Threading;
-    using System.Threading.Tasks;
-
     using Loupedeck.StudioOneMidiPlugin.Controls;
-
     using Melanchall.DryWetMidi.Common;
     using Melanchall.DryWetMidi.Core;
     using Melanchall.DryWetMidi.Multimedia;
-
+    using PluginSettings;
     using SharpHook;
+    using System;
+    using System.Collections.Concurrent;
+    using System.Linq;
+    using System.Text;
+    using System.Threading.Tasks;
 
     // This class contains the plugin-level logic of the Loupedeck plugin.
 
@@ -25,30 +22,26 @@ namespace Loupedeck.StudioOneMidiPlugin
         // Gets a value indicating whether this is a Universal plugin or an Application plugin.
         public override Boolean HasNoApplication => true;
 
-		public InputDevice midiIn = null, loupedeckMidiIn = null;
-		public OutputDevice midiOut = null, loupedeckMidiOut = null;
+		public InputDevice? MidiIn = null, LoupedeckMidiIn = null;
+		public OutputDevice? MidiOut = null, LoupedeckMidiOut = null;
 
 		public const Int32 ChannelCount = 6;
 
-		public IDictionary<String, ChannelData> channelData = new Dictionary<String, ChannelData>();
+        public ConcurrentDictionary<String, ChannelData> channelData = new ConcurrentDictionary<String, ChannelData>();
 
-        String midiInName, midiOutName, loupedeckMidiInName, loupedeckMidiOutName;
+        public ChannelFader? channelFader;
 
-        public ChannelFader channelFader;
-
-        public Boolean isConfigWindowOpen = false;
-
-        public event EventHandler ChannelDataChanged;
-        public event EventHandler ChannelValueChanged;
-        public event EventHandler<NoteOnEvent> CommandNoteReceived;
-        public event EventHandler<NoteOnEvent> OneWayCommandNoteReceived;
-        public event EventHandler<Int32> ActiveUserPagesReceived;
-        public event EventHandler SelectButtonPressed;
-        public event EventHandler<String> FocusDeviceChanged;
-        public event EventHandler<ChannelProperty.PropertyType> PropertySelectionChanged;
+        public event EventHandler? ChannelDataChanged;
+        public event EventHandler? ChannelValueChanged;
+        public event EventHandler<NoteOnEvent>? CommandNoteReceived;
+        public event EventHandler<NoteOnEvent>? OneWayCommandNoteReceived;
+        public event EventHandler<Int32>? ActiveUserPagesReceived;
+        public event EventHandler? SelectButtonPressed;
+        public event EventHandler<String>? FocusDeviceChanged;
+        public event EventHandler<ChannelProperty.PropertyType>? PropertySelectionChanged;
 
         // Keyboard modifier flags
-        Task KeyHookTask;
+        Task? KeyHookTask;
         public Boolean ShiftPressed { get; private set; } = false;
         public Boolean ControlPressed { get; private set; } = false;
 
@@ -61,56 +54,56 @@ namespace Loupedeck.StudioOneMidiPlugin
             FX,
             Custom
         }
-        public event EventHandler<SelectButtonMode> SelectModeChanged;
+        public event EventHandler<SelectButtonMode>? SelectModeChanged;
 
         public class SelectButtonCustomParams
         {
             public Int32 ButtonIndex = -1;
             public Int32 MidiChannel = 0;
             public Int32 MidiCode = 0;
-            public String Label;
-            public String IconName;
+            public String Label = "";
+            public String IconName = "";
             public BitmapColor BgColor = BitmapColor.Black;
             public BitmapColor BarColor = ChannelFader.DefaultBarColor;
         }
-        public event EventHandler<SelectButtonCustomParams> SelectButtonCustomModeChanged;
+        public event EventHandler<SelectButtonCustomParams>? SelectButtonCustomModeChanged;
 
         public enum FaderMode
         {
             Volume,
             Pan
         }
-        public event EventHandler<FaderMode> FaderModeChanged;
+        public event EventHandler<FaderMode>? FaderModeChanged;
 
         public class FunctionKeyParams
         {
             public int KeyID { get; set; }
-            public string FunctionName { get; set; }
+            public string? FunctionName { get; set; }
         }
-        public event EventHandler<FunctionKeyParams> FunctionKeyChanged;
+        public event EventHandler<FunctionKeyParams>? FunctionKeyChanged;
 
         public const int UserButtonMidiBase = 0x70;
         public class UserButtonParams
         {
             public Int32 channelIndex { get; set; }
             public Int32 userValue { get; set; } = 0;
-            public String userLabel;
+            public String? userLabel;
             public Boolean isActive() => this.userValue > 0 ;
         }
-        public event EventHandler<UserButtonParams> UserButtonChanged;
+        public event EventHandler<UserButtonParams>? UserButtonChanged;
 
         public class UserButtonMenuParams
         {
             public Int32 ChannelIndex { get; set; } = -1;
-            public String[] MenuItems { get; set; }
+            public String[]? MenuItems { get; set; }
             public Boolean IsActive { get; set; } = true;
         }
-        public event EventHandler<UserButtonMenuParams> UserButtonMenuActivated;
+        public event EventHandler<UserButtonMenuParams>? UserButtonMenuActivated;
 
         public const Int32 MaxUserPages = 6;
         private const Int32 UserPageMidiBase = 0x2B;
         private Boolean[] UserModeActivated { get; set; } = new Boolean[MaxUserPages];
-        public event EventHandler<Int32> UserPageChanged;
+        public event EventHandler<Int32>? UserPageChanged;
         private Int32 CurrentUserPage = 0;
 
         public class ChannelActiveParams
@@ -118,7 +111,7 @@ namespace Loupedeck.StudioOneMidiPlugin
             public Int32 ChannelIndex { get; set; }
             public Boolean IsActive { get; set; } = true;
         }
-        public event EventHandler<ChannelActiveParams> ChannelActiveCanged; 
+        public event EventHandler<ChannelActiveParams>? ChannelActiveCanged; 
 
         public enum AutomationMode
         {
@@ -128,7 +121,7 @@ namespace Loupedeck.StudioOneMidiPlugin
             Latch,
             Write
         }
-        public event EventHandler<AutomationMode> AutomationModeChanged;
+        public event EventHandler<AutomationMode>? AutomationModeChanged;
         public AutomationMode CurrentAutomationMode = AutomationMode.Off;
 
         public enum RecPreMode
@@ -139,7 +132,7 @@ namespace Loupedeck.StudioOneMidiPlugin
             Autopunch
         }
         public RecPreMode CurrentRecPreMode = RecPreMode.Off;
-        public event EventHandler<RecPreMode> RecPreModeChanged;
+        public event EventHandler<RecPreMode>? RecPreModeChanged;
 
         public enum ChannelFaderMode
         {
@@ -149,86 +142,90 @@ namespace Loupedeck.StudioOneMidiPlugin
         }
         public ChannelFaderMode CurrentChannelFaderMode = ChannelFaderMode.Pan;
 
+        string midiInName = "";
         public String MidiInName
         {
 			get => this.midiInName;
 			set {
-                if (this.midiIn != null) {
-                    this.midiIn.StopEventsListening();
-                    this.midiIn.Dispose();
+                if (this.MidiIn != null) {
+                    this.MidiIn.StopEventsListening();
+                    this.MidiIn.Dispose();
 				}
 
                 this.midiInName = value;
 				try {
-                    this.midiIn = InputDevice.GetByName(value);
-                    this.midiIn.StartEventsListening();
+                    this.MidiIn = InputDevice.GetByName(value);
+                    this.MidiIn.StartEventsListening();
                     this.SetPluginSetting("MidiIn", value, false);
 				}
 				catch (Exception) {
-                    this.midiIn = null;
+                    this.MidiIn = null;
 				}
 			}
 		}
 
-		public String MidiOutName
+        string midiOutName = "";
+        public String MidiOutName
         {
 			get => this.midiOutName;
 			set {
-				if (this.midiOut != null) {
-                    this.midiOut.Dispose();
+				if (this.MidiOut != null) {
+                    this.MidiOut.Dispose();
 				}
 
                 this.midiOutName = value;
 				try {
-                    this.midiOut = OutputDevice.GetByName(value);
+                    this.MidiOut = OutputDevice.GetByName(value);
                     this.SetPluginSetting("MidiOut", value, false);
 				}
 				catch (Exception) {
-                    this.midiOut = null;
+                    this.MidiOut = null;
 				}
 			}
 		}
 
-		public String LoupedeckMidiInName
+        string loupedeckMidiInName = "";
+        public String LoupedeckMidiInName
         {
 			get => this.loupedeckMidiInName;
 			set {
-				if (this.loupedeckMidiIn != null) {
-                    this.loupedeckMidiIn.StopEventsListening();
-                    this.loupedeckMidiIn.Dispose();
+				if (this.LoupedeckMidiIn != null) {
+                    this.LoupedeckMidiIn.StopEventsListening();
+                    this.LoupedeckMidiIn.Dispose();
 				}
 
                 this.loupedeckMidiInName = value;
 				try {
-                    this.loupedeckMidiIn = InputDevice.GetByName(value);
-                    this.loupedeckMidiIn.EventReceived += OnMidiEvent;
-                    this.loupedeckMidiIn.StartEventsListening();
+                    this.LoupedeckMidiIn = InputDevice.GetByName(value);
+                    this.LoupedeckMidiIn.EventReceived += OnMidiEvent;
+                    this.LoupedeckMidiIn.StartEventsListening();
                     // this.SetPluginSetting("LoupedeckMidiIn", value, false);
 				}
 				catch (Exception) {
-                    this.loupedeckMidiIn = null;
+                    this.LoupedeckMidiIn = null;
 				}
 			}
 		}
 
-		public String LoupedeckMidiOutName
+        string loupedeckMidiOutName = "";
+        public String LoupedeckMidiOutName
         {
 			get => this.loupedeckMidiOutName;
 			set {
-				if (this.loupedeckMidiOut != null)
+				if (this.LoupedeckMidiOut != null)
                 {
-                    this.loupedeckMidiOut.Dispose();
+                    this.LoupedeckMidiOut.Dispose();
 				}
 
                 this.loupedeckMidiOutName = value;
 				try
                 {
-                    this.loupedeckMidiOut = OutputDevice.GetByName(value);
+                    this.LoupedeckMidiOut = OutputDevice.GetByName(value);
                     // this.SetPluginSetting("LoupedeckMidiOut", value, false);
 				}
 				catch (Exception)
                 {
-                    this.loupedeckMidiOut = null;
+                    this.LoupedeckMidiOut = null;
 				}
 			}
 		}
@@ -265,15 +262,15 @@ namespace Loupedeck.StudioOneMidiPlugin
 
 			this.ChannelDataChangeTimer = new System.Timers.Timer(50);
 			this.ChannelDataChangeTimer.AutoReset = false;
-            this.ChannelDataChangeTimer.Elapsed += (Object sender, System.Timers.ElapsedEventArgs e) =>
+            this.ChannelDataChangeTimer.Elapsed += (Object? sender, System.Timers.ElapsedEventArgs e) =>
             {
-                ChannelDataChanged.Invoke(this, null);
+                ChannelDataChanged?.Invoke(this, EventArgs.Empty);
             };
             this.ChannelValueChangeTimer = new System.Timers.Timer(20);
             this.ChannelValueChangeTimer.AutoReset = false;
-            this.ChannelValueChangeTimer.Elapsed += (Object sender, System.Timers.ElapsedEventArgs e) =>
+            this.ChannelValueChangeTimer.Elapsed += (Object? sender, System.Timers.ElapsedEventArgs e) =>
             {
-                ChannelValueChanged?.Invoke(this, null);
+                ChannelValueChanged?.Invoke(this, EventArgs.Empty);
             };
         }
 
@@ -287,8 +284,8 @@ namespace Loupedeck.StudioOneMidiPlugin
 
             var keyHook = new TaskPoolGlobalHook(globalHookType: GlobalHookType.Keyboard);
 
-            keyHook.KeyPressed += (Object sender, KeyboardHookEventArgs k) => this.SetKeyboardFlags(k.Data.KeyCode, true);
-            keyHook.KeyReleased += (Object sender, KeyboardHookEventArgs k) => this.SetKeyboardFlags(k.Data.KeyCode, false);
+            keyHook.KeyPressed += (Object? sender, KeyboardHookEventArgs k) => this.SetKeyboardFlags(k.Data.KeyCode, true);
+            keyHook.KeyReleased += (Object? sender, KeyboardHookEventArgs k) => this.SetKeyboardFlags(k.Data.KeyCode, false);
 
             this.KeyHookTask = keyHook.RunAsync();
 
@@ -315,30 +312,12 @@ namespace Loupedeck.StudioOneMidiPlugin
             }
         }
 
-        public void OpenConfigWindow()
-        {
-			if (this.isConfigWindowOpen)
-				return;
-
-			Thread t = new Thread(() => {
-				ConfigWindow w = new ConfigWindow(this);
-				w.Closed += (_, _) => this.isConfigWindowOpen = false;
-				w.Show();
-				System.Windows.Threading.Dispatcher.Run();
-			});
-
-			t.SetApartmentState(ApartmentState.STA);
-			t.Start();
-
-			this.isConfigWindowOpen = true;
-		}
-
         public void EmitChannelDataChanged() =>
             this.ChannelDataChangeTimer.Start();
         public void EmitChannelValueChanged() =>
             this.ChannelValueChangeTimer.Start();
         public void EmitSelectedButtonPressed() =>
-            this.SelectButtonPressed?.Invoke(this, null);
+            this.SelectButtonPressed?.Invoke(this, EventArgs.Empty);
 
         public void EmitSelectModeChanged(SelectButtonMode sm) =>
             this.SelectModeChanged?.Invoke(this, sm);
@@ -384,22 +363,22 @@ namespace Loupedeck.StudioOneMidiPlugin
 //			if (TryGetPluginSetting("MackieMidiOut", out mackieMidiOutName))
 //				MackieMidiOutName = mackieMidiOutName;
             this.LoupedeckMidiOutName = "Loupedeck S1 In";
-            PlugSettingsFinder.Init(this);
+            PlugSettingsFinder.Init();
         }
 
-        private void OnMidiEvent(object sender, MidiEventReceivedEventArgs args)
+        private void OnMidiEvent(object? sender, MidiEventReceivedEventArgs args)
         {
             MidiEvent e = args.Event;
             // PitchBend -> faders & user button values
             if (e is PitchBendEvent)
             {
-                var pbe = e as PitchBendEvent;
+                var pbe = (PitchBendEvent)e;
 
                 if (pbe.Channel < ChannelCount + 2)
                 {
                     // Faders for 6 channels and vol + pan for selected channel
                     
-                    if (!this.channelData.TryGetValue(((Int32)pbe.Channel).ToString(), out ChannelData cd))
+                    if (!this.channelData.TryGetValue(((Int32)pbe.Channel).ToString(), out ChannelData? cd))
                     {
                         return;
                     }
@@ -412,7 +391,7 @@ namespace Loupedeck.StudioOneMidiPlugin
             // Note event -> toggle settings
             else if (e is NoteOnEvent)
             {
-                var ce = e as NoteOnEvent;
+                var ce = (NoteOnEvent)e;
                 ChannelProperty.PropertyType eventType = ChannelProperty.PropertyType.Select;
                 var eventTypeFound = false;
 
@@ -430,7 +409,7 @@ namespace Loupedeck.StudioOneMidiPlugin
                 {
                     var channelIndex = ce.NoteNumber - ChannelProperty.MidiBaseNote[(Int32)eventType];
 
-                    if (!this.channelData.TryGetValue(channelIndex.ToString(), out ChannelData cd))
+                    if (!this.channelData.TryGetValue(channelIndex.ToString(), out ChannelData? cd))
                         return;
 
                     cd.BoolProperty[(Int32)eventType] = ce.Velocity > 0;
@@ -445,7 +424,7 @@ namespace Loupedeck.StudioOneMidiPlugin
                         var ubp = new UserButtonParams();
                         ubp.channelIndex = ce.NoteNumber - UserButtonMidiBase;
                         ubp.userValue = ce.Velocity;
-                        if (this.channelData.TryGetValue(ubp.channelIndex.ToString(), out ChannelData cd))
+                        if (this.channelData.TryGetValue(ubp.channelIndex.ToString(), out ChannelData? cd))
                         {
                             if (cd.UserValue != ubp.userValue)
                             {
@@ -454,7 +433,7 @@ namespace Loupedeck.StudioOneMidiPlugin
                             }
                             ubp.userLabel = cd.UserLabel;
                         }
-                        UserButtonChanged.Invoke(this, ubp);
+                        UserButtonChanged?.Invoke(this, ubp);
                     }
                     else if (ce.NoteNumber >= 0x4A && ce.NoteNumber <= 0x4D)
                     {
@@ -470,7 +449,7 @@ namespace Loupedeck.StudioOneMidiPlugin
                         if (am != this.CurrentAutomationMode)
                         {
                             this.CurrentAutomationMode = am;
-                            AutomationModeChanged.Invoke(this, am);
+                            AutomationModeChanged?.Invoke(this, am);
                         }
                     }
                     else if (ce.NoteNumber >= 0x56 && ce.NoteNumber <= 0x58)
@@ -484,7 +463,7 @@ namespace Loupedeck.StudioOneMidiPlugin
                         {
                             this.CurrentRecPreMode = RecPreMode.Off;
                         }
-                        CommandNoteReceived.Invoke(this, ce);
+                        CommandNoteReceived?.Invoke(this, ce);
                         this.RecPreModeChanged?.Invoke(this, this.CurrentRecPreMode);
                     }
                     else if (ce.NoteNumber >= UserPageMidiBase && ce.NoteNumber < UserPageMidiBase + MaxUserPages)
@@ -506,31 +485,31 @@ namespace Loupedeck.StudioOneMidiPlugin
                         if (userPage != this.CurrentUserPage)
                         {
                             this.CurrentUserPage = userPage;
-                            UserPageChanged.Invoke(this, userPage);
+                            UserPageChanged?.Invoke(this, userPage);
                         }
                     }
                     else
                     {
-                        CommandNoteReceived.Invoke(this, ce);
+                        CommandNoteReceived?.Invoke(this, ce);
                     }
                 }
                 else if (ce.Channel >= 14)
                 {
-                    OneWayCommandNoteReceived.Invoke(this, ce);
+                    OneWayCommandNoteReceived?.Invoke(this, ce);
                 }
             }
             else if (e is ControlChangeEvent)  // controllers -> numeric arguments
             {
-                var ce = e as ControlChangeEvent;
+                var ce = (ControlChangeEvent)e;
 
                 if (ce.ControlNumber == 0x60)
                 {
-                    ActiveUserPagesReceived.Invoke(this, ce.ControlValue);
+                    ActiveUserPagesReceived?.Invoke(this, ce.ControlValue);
                 }
             }
             else if (e is NormalSysExEvent)  // SysEx -> text for labels etc.
             {
-                var ce = e as NormalSysExEvent;
+                var ce = (NormalSysExEvent)e;
                 if (ce.Data.Length < 5)
                     return;
 
@@ -547,7 +526,7 @@ namespace Loupedeck.StudioOneMidiPlugin
                     var receivedString = Encoding.UTF8.GetString(str, 0, str.Length);
                     var displayIndex = offset / 4;
 
-                    if (!this.channelData.TryGetValue(displayIndex.ToString(), out ChannelData cd))
+                    if (!this.channelData.TryGetValue(displayIndex.ToString(), out ChannelData? cd))
                         return;
 
                     switch (offset % 4)
@@ -570,7 +549,7 @@ namespace Loupedeck.StudioOneMidiPlugin
                             ubp.channelIndex = displayIndex;
                             ubp.userValue = cd.UserValue;
                             ubp.userLabel = cd.UserLabel;
-                            UserButtonChanged.Invoke(this, ubp);
+                            UserButtonChanged?.Invoke(this, ubp);
                             break;
                     }
                 }
@@ -592,18 +571,20 @@ namespace Loupedeck.StudioOneMidiPlugin
                     var fke = new FunctionKeyParams();
                     fke.KeyID = keyID;
                     fke.FunctionName = receivedString;
-                    FunctionKeyChanged.Invoke(this, fke);
+                    FunctionKeyChanged?.Invoke(this, fke);
                 }
             }
         }
 
         public void SendMidiNote(Int32 midiChannel, Int32 note, Int32 velocity = 127)
         {
+            if (this.LoupedeckMidiOut == null) throw new NullReferenceException("LoupedeckMidiOut is not initialized.");
+
             var e = new NoteOnEvent();
             e.Channel = (FourBitNumber)midiChannel;
             e.Velocity = (SevenBitNumber)velocity;
             e.NoteNumber = (SevenBitNumber)note;
-            this.loupedeckMidiOut.SendEvent(e);
+            this.LoupedeckMidiOut.SendEvent(e);
         }
 
         public void SetChannelFaderMode(ChannelFaderMode mode, Int32 userPage = 1)

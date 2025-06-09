@@ -402,24 +402,30 @@
                 }
             };
 
-            this.plugin.FocusDeviceChanged += (Object sender, string e) =>
+            this.plugin.FocusDeviceChanged += (Object? sender, string e) =>
             {
                 var pluginName = getPluginName(e);
 
                 for (var i = 0; i < 2; i++)
                 {
                     var bd = this.GetButtonData(ButtonLayer.FaderModesSend, 1, i) as ModeTopCommandButtonData;
+                    if (bd == null) continue;
                     bd.setTopDisplay(e);
                     bd.setPluginName(pluginName);
                     bd = this.GetButtonData(ButtonLayer.FaderModesSend, 2, i) as ModeTopCommandButtonData;
+                    if (bd == null) continue;
                     bd.setTopDisplay(e);
                     bd.setPluginName(pluginName);
                 }
                 var ubd = this.GetButtonData(idxUserSendsUserModeButton) as UserModeButtonData;
-                ubd.resetUserPage();
+                if (ubd != null)
+                {
+                    ubd.resetUserPage();
 
-                var pf = new PlugSettingsFinder();
-                ubd.setPageNames(pf.GetPlugParamSettings(pf.GetPlugParamDeviceEntry(pluginName), "Loupedeck User Pages", false).UserMenuItems);
+                    var pf = new PlugSettingsFinder();
+                    var deviceEntry = pf.GetPlugParamDeviceEntry(pluginName);
+                    if (deviceEntry != null) ubd.setPageNames(deviceEntry.UserPageNames);
+                }
 
                 if (this.CurrentLayer == ButtonLayer.FaderModesSend && this.CurrentUserSendsLayerMode == UserSendsLayerMode.PluginSelectionActivated)
                 {
@@ -432,7 +438,7 @@
                 }
             };
 
-            this.plugin.AutomationModeChanged += (Object sender, AutomationMode e) =>
+            this.plugin.AutomationModeChanged += (Object? sender, AutomationMode e) =>
             {
                 var ambd = this.GetButtonData(idxPlayAutomationModeButton) as AutomationModeButtonData;
                 ambd.CurrentMode = e;

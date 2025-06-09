@@ -250,7 +250,7 @@
 
         public static readonly PlugSettingsFinder UserPlugSettingsFinder = new PlugSettingsFinder(new PlugSettingsFinder.PlugParamSetting
         {
-            OnColor = BgColorAssigned,
+            OnColor = new FinderColorOnColor(BgColorAssigned),
             OffColor = BgColorAssigned,
             TextOnColor = FinderColor.White,
             TextOffColor = FinderColor.Black
@@ -426,16 +426,8 @@
                 if (menuItems != null)
                 {
                     var menuItem = menuItems[cd.UserValue / (127 / (menuItems.Length - 1))];
-                    if (menuItem[0] == '!')
-                    {
-                        // Icon specified, it will be loaded by LabelImageLoader.GetImage() below
-                        userLabelText = menuItem;
-                    }
-                    else
-                    {
-                        if (userLabelText.Length > 0) userLabelText += ": ";
-                        userLabelText += menuItem;
-                    }
+                    // Icon (if specified) will be loaded by LabelImageLoader.GetImage() below
+                    userLabelText = menuItem;
                 }
 
                 var drawCircle = userLabelText.Length > 0 && UserPlugSettingsFinder.ShowUserButtonCircle(deviceEntry, cd.UserLabel, buttonIdx);
@@ -474,6 +466,7 @@
 //                    tx = ubh;
                     tw = bb.Width - tx * 2;
                 }
+
                 bb.DrawImage(LabelImageLoader.GetImage(userLabelText, tw, TitleHeight, tc), tx, uby);
                 Debug.WriteLine($"SelectButtonData: User button {cd.UserLabel} ({cd.UserValue}) at {cd.ChannelID + 1} with text '{userLabelText}'");
             }
@@ -1096,7 +1089,7 @@
         String TopDisplayText = "";
         protected Boolean IsUserButton = false;
         protected String PluginName = "";
-        protected PlugSettingsFinder UserPlugSettingsFinder = new PlugSettingsFinder(new PlugSettingsFinder.PlugParamSetting { OnColor = FinderColor.Black,
+        protected PlugSettingsFinder UserPlugSettingsFinder = new PlugSettingsFinder(new PlugSettingsFinder.PlugParamSetting { OnColor = new FinderColorOnColor(FinderColor.Black),
                                                                                                                                OffColor = FinderColor.Black,
                                                                                                                                TextOnColor = FinderColor.White,
                                                                                                                                TextOffColor = FinderColor.Black});
@@ -1223,7 +1216,7 @@
         public ModeTopUserButtonData(Int32 channel, Int32 code, String name, Location bl) : base(channel, code, name, bl)
         {
             this.IsUserButton = true;
-            this.UserPlugSettingsFinder.DefaultPlugParamSettings.OnColor = SelectButtonData.BgColorAssigned;
+            this.UserPlugSettingsFinder.DefaultPlugParamSettings.OnColor = new FinderColorOnColor(SelectButtonData.BgColorAssigned);
             this.UserPlugSettingsFinder.DefaultPlugParamSettings.OffColor = SelectButtonData.BgColorAssigned;
         }
     }
@@ -1473,7 +1466,7 @@
         }
 
         public void clearActive() => this.IsActive = false;
-        public void setPageNames(String[] pageNames) => this.PageNames = pageNames;
+        public void setPageNames(String[]? pageNames) => this.PageNames = pageNames != null && pageNames.Length > 0 ? pageNames : null;
 
         public void setUserPage(Int32 userPage)
         {

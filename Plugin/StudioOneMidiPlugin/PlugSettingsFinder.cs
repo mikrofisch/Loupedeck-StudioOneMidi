@@ -4,6 +4,7 @@
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.ComponentModel;
+    using System.Data;
     using System.IO;
     using System.Linq;
     using System.Reflection;
@@ -17,23 +18,32 @@
     // Nullable colour definition class with XML serialisation
     //
     [XmlSchemaProvider("GetSchemaMethod")]
+
     public class FinderColor : IXmlSerializable
     {
-        public FinderColor() { }
-        public FinderColor(Byte r, Byte g, Byte b, Byte a = 255)
+        public FinderColor() { this.A = A_default; }
+        public FinderColor(Byte r, Byte g, Byte b)
         {
             this.R = r;
             this.G = g;
             this.B = b;
+            this.A = A_default;
+        }
+        public FinderColor(Byte r, Byte g, Byte b, Byte a) : this(r, g, b)
+        {
             this.A = a;
         }
 
-        public FinderColor(String colorName, Byte r, Byte g, Byte b, Byte a = 255)
+        public FinderColor(String colorName, Byte r, Byte g, Byte b)
         {
             this.Name = colorName;
             this.R = r;
             this.G = g;
             this.B = b;
+            this.A = A_default;
+        }
+        public FinderColor(String colorName, Byte r, Byte g, Byte b, Byte a) : this(colorName, r, g, b)
+        {
             this.A = a;
         }
 
@@ -46,22 +56,28 @@
             this.G = c.G;
             this.B = c.B;
             this.A = c.A;
+            this.XmlRenderAsNameRef = c.XmlRenderAsNameRef;
         }
-        public FinderColor(FinderColor c, byte a)
+        public FinderColor(FinderColor? c, byte a)
         {
+            this.A = a;
+            if (c == null) return;
+
             this.Name = c.Name;
             this.R = c.R;
             this.G = c.G;
             this.B = c.B;
-            this.A = a;
+            this.XmlRenderAsNameRef = c.XmlRenderAsNameRef;
         }
 
         // public static FinderColor Transparent => new FinderColor(BitmapColor.Transparent);
         public static FinderColor White => new FinderColor(255, 255, 255);
         public static FinderColor Black => new FinderColor(0, 0, 0);
 
+        protected virtual byte A_default => 255;
+
         public byte R, G, B;
-        public byte A = 255; // Alpha channel
+        public byte A; // Alpha channel
 
         public String Name { get; set; } = "";  // name of the referenced color in the device's color list
 
@@ -77,9 +93,9 @@
             // defined in the schema for arrays (which it doesn't do if [XmlRoot] is used
             // to set the name)
             var colorSchema = @"<xs:schema elementFormDefault=""qualified"" xmlns:xs=""http://www.w3.org/2001/XMLSchema""> " +
-                              @"<xs:element name=""Color"" nillable=""true"" />" +
+                              @"<xs:element name=""Color"" nillable=""true"" /> " +
                               @"<xs:complexType name=""Color""> " +
-                              @"<xs:attribute name=""name"" type=""xs:string"" /> " +
+                              @"<xs:attribute name=""transparency"" type=""xs:integer"" /> " +
                               @"</xs:complexType> " +
                               @"</xs:schema>";
             using (var textReader = new StringReader(colorSchema))
@@ -99,6 +115,7 @@
             if (reader.HasAttributes)
             {
                 this.Name = reader.GetAttribute("name") ?? "";
+                this.A = reader.GetAttribute("transparency") != null ? Convert.ToByte(reader.GetAttribute("transparency")) : A_default;
             }
 
             var content = reader.ReadElementContentAsString();
@@ -129,6 +146,12 @@
             {
                 if (this.XmlRenderAsNameRef)
                 {
+                    if (A != A_default)
+                    {
+                        writer.WriteStartAttribute("transparency");
+                        writer.WriteValue(this.A.ToString());
+                        writer.WriteEndAttribute();
+                    }
                     writer.WriteString(this.Name);
                 }
                 else
@@ -156,10 +179,23 @@
         #endregion
     }
 
+    // OnColor is the normal background and uses a lower transparency by default to make it a little darker.
+    // This makes it easier to use the same color for different purposes, and allows to use a
+    // color sampled from a plugin directly. The transparency can be modified in the settings if needed.
+    public class FinderColorOnColor : FinderColor
+    {
+        public FinderColorOnColor() : base() { }
+        // public FinderColorOnColor(Byte r, Byte g, Byte b, Byte a = 80) : base(r, g, b, a) { }
+        // public FinderColorOnColor(String colorName, Byte r, Byte g, Byte b, Byte a = 80) : base(colorName, r, g, b, a) { }
+
+        public FinderColorOnColor(FinderColor? c) : base(c) { }
+        public FinderColorOnColor(FinderColor? c, byte A) : base(c, A) { }
+
+        protected override byte A_default => 80;
+    }
+
     public class PlugSettingsFinder
     {
-        public const Int32 DefaultOnTransparency = 80;
-
         public class PlugParamSetting
         {
             [DefaultValueAttribute(Positive)]
@@ -172,9 +208,7 @@
             [DefaultValueAttribute(true)]
             public Boolean PaintLabelBg { get; set; } = true;
 
-            public FinderColor? OnColor { get; set; }
-            [DefaultValueAttribute(DefaultOnTransparency)]
-            public Int32 OnTransparency { get; set; } = DefaultOnTransparency;
+            public FinderColorOnColor? OnColor { get; set; }
             public FinderColor? OffColor { get; set; }
             //            [XmlElement, DefaultValue(null)]
             public FinderColor? TextOnColor { get; set; }
@@ -195,20 +229,12 @@
             [DefaultValueAttribute(-1)]
             public Int32 MaxValuePrecision { get; set; } = -1;      // Maximum number of decimal places for the value display (-1 = no limit)
 
+            [XmlArray("UserMenuItems")]
+            [XmlArrayItem("Item")]
             public String[]? UserMenuItems;                         // Items for user button menu
 
             [XmlAttribute(AttributeName = "name")]
             public String Name = "";                                // For XML config file
-
-            // For plugin settings
-            public const String strOnColor = "OnColor";
-            public const String strLabel = "Label";
-            public const String strLabelOn = "LabelOn";
-            public const String strLinkedParameter = "LinkedParameter";
-            public const String strMode = "Mode";
-            public const String strShowCircle = "ShowCircle";
-            public const String strPaintLabelBg = "PaintLabelBg";
-            //public const String[] strModeValue = { "Positive", "Symmetric" };
 
             public const String strHideValueBar = "HideValueBar";
 
@@ -225,6 +251,7 @@
         public class PlugParamDeviceEntry
         {
             public String ManufacturerName = "";    // Used for categorizing the plugin in the Loupedeck plugin configuration app
+            public String[]? UserPageNames;         // Names for user pages, if any
             public List<FinderColor> Colors = [];
             public ConcurrentDictionary<String, PlugParamSetting> ParamSettings = [];
         }
@@ -239,7 +266,7 @@
 
         public PlugParamSetting DefaultPlugParamSettings { get; private set; } = new PlugParamSetting
         {
-            OnColor = FinderColor.Black,
+            OnColor = new FinderColorOnColor(FinderColor.Black),
             OffColor = FinderColor.Black,
             TextOnColor = FinderColor.White,
             TextOffColor = FinderColor.White,
@@ -270,6 +297,10 @@
                 public String PluginName = "";          // Used to identify the plugin configuration
                 [XmlAttribute]
                 public String ManufacturerName = "";    // Used for categorizing the plugin in the Loupedeck plugin configuration app
+
+                [XmlArray("UserPageNames")]
+                [XmlArrayItem("Page")]
+                public String[]? UserPageNames;         // Names for user pages, if any
 
                 public List<FinderColor> Colors = [];
                 public List<PlugParamSetting> ParamSettings = [];
@@ -324,7 +355,7 @@
             public static void ProcessPluginColors(PlugParamSetting paramSettings, List<FinderColor> colors, Func<List<FinderColor>, FinderColor?, FinderColor?> processFunc)
             {
                 // Need to explicitly assign the FinderColor values because they are not passed by reference
-                paramSettings.OnColor = processFunc(colors, paramSettings.OnColor);
+                paramSettings.OnColor = processFunc(colors, paramSettings.OnColor) is FinderColor onColor && paramSettings.OnColor != null ? new FinderColorOnColor(onColor, paramSettings.OnColor.A) : null;
                 paramSettings.OffColor = processFunc(colors, paramSettings.OffColor);
                 paramSettings.TextOnColor = processFunc(colors, paramSettings.TextOnColor);
                 paramSettings.TextOffColor = processFunc(colors, paramSettings.TextOffColor);
@@ -350,7 +381,10 @@
                     PlugParamSetting? defaultSettings = null;
 
                     var deviceEntry = new PlugParamDeviceEntry { };
+                    deviceEntry.ManufacturerName = cfgDeviceEntry.ManufacturerName;
+                    deviceEntry.UserPageNames = cfgDeviceEntry.UserPageNames ?? [];
                     deviceEntry.Colors = cfgDeviceEntry.Colors;
+
                     foreach (var paramSettings in cfgDeviceEntry.ParamSettings)
                     {
                         // Get colour values for colours that are referenced by name.
@@ -387,7 +421,6 @@
                     }
 
                     // Add or update the device entry in the dictionary.
-                    deviceEntry.ManufacturerName = cfgDeviceEntry.ManufacturerName;
                     plugParamDict[cfgDeviceEntry.PluginName] = deviceEntry;
                 }
             }
@@ -403,7 +436,11 @@
 
                 foreach (var deviceEntry in plugParamDict)
                 {
-                    var cfgDeviceEntry = new PluginConfig { PluginName = deviceEntry.Key, ManufacturerName = deviceEntry.Value.ManufacturerName };
+                    var cfgDeviceEntry = new PluginConfig { 
+                        PluginName = deviceEntry.Key, 
+                        ManufacturerName = deviceEntry.Value.ManufacturerName,
+                        UserPageNames = deviceEntry.Value.UserPageNames
+                    };
                     foreach (var paramSettings in deviceEntry.Value.ParamSettings)
                     {
                         paramSettings.Value.Name = paramSettings.Key;
@@ -490,6 +527,17 @@
                 {
                     // Resource not found in assembly, move on
                 }
+
+                //foreach (var deviceEntry in PlugParamDict.Values)
+                //{
+                //    foreach (var paramSetting in deviceEntry.ParamSettings.Values)
+                //    {
+                //        if (paramSetting.OnColor is FinderColorOnColor onColor)
+                //        {
+                //            onColor.A = (byte)paramSetting.OnTransparency;
+                //        }
+                //    }
+                //}
 
                 // Read user settings from file.
                 var configFilePath = System.IO.Path.Combine(XmlConfig.ConfigFolderPath, XmlConfig.ConfigFileName);
@@ -578,8 +626,7 @@
                 return this.DefaultPlugParamSettings;
             }
 
-            //           if (this.LastParamSettings != null && deviceEntry == this.LastPlugParamDeviceEntry && parameterName == this.LastPluginParameter) return this.LastParamSettings;
-
+            if (this.LastParamSettings != null && deviceEntry == this.LastPlugParamDeviceEntry && parameterName == this.LastPluginParameter) return this.LastParamSettings;
             this.LastPluginParameter = parameterName;
 
             var userPagePos = $"{this.CurrentUserPage}:{buttonIdx}" + (isUser ? "U" : "");
@@ -609,12 +656,9 @@
         public Boolean GetShowCircle(PlugParamDeviceEntry deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false) => this.GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx).ShowUserButtonCircle;
         public Boolean GetPaintLabelBg(PlugParamDeviceEntry deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false) => this.GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx).PaintLabelBg;
 
-        public FinderColor GetOnColor(PlugParamDeviceEntry deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false)
-        {
-            var cs = this.GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx);
-            return cs != null && cs.OnColor != null ? new FinderColor(cs.OnColor, (byte)(isUser ? 255 : cs.OnTransparency))
-                                            : new FinderColor(this.DefaultPlugParamSettings.OnColor ?? FinderColor.Black, (byte)(isUser ? 255 : this.DefaultPlugParamSettings.OnTransparency));
-        }
+        public FinderColor? GetOnColor(PlugParamDeviceEntry deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false) => this.FindColor(this.GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx).OnColor,
+                                                                                                                                                          this.DefaultPlugParamSettings.OnColor ?? FinderColor.Black);
+
         public FinderColor GetBarOnColor(PlugParamDeviceEntry deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false)
         {
             var cs = this.GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx);

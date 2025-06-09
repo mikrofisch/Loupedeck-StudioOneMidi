@@ -22,7 +22,7 @@
         private String PluginName = "";
         private static readonly PlugSettingsFinder UserPlugSettingsFinder = new PlugSettingsFinder(new PlugSettingsFinder.PlugParamSetting
         {
-            OnColor = new FinderColor(ColorConv.Convert(DefaultBarColor)),     // Used for volume bar
+            OnColor = new FinderColorOnColor(ColorConv.Convert(DefaultBarColor)),     // Used for volume bar
             OffColor = new FinderColor(80, 80, 80),         // Used for volume bar
             TextOnColor = FinderColor.White,
             TextOffColor = new FinderColor(80, 80, 80)

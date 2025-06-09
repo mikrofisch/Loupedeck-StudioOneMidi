@@ -13,9 +13,13 @@
     {
         public static BitmapImage GetImage(String label, Int32 w, Int32 h) => GetImage(label, w, h, BitmapColor.White);
 
-        public static BitmapImage GetImage(String label, Int32 w, Int32 h, BitmapColor tc)
+        public static BitmapImage GetImage(String label, Int32 w, Int32 h, BitmapColor textColor)
         {
-            if (_imageCache.TryGetValue(label, out var cachedImage)) return cachedImage;
+            var cacheKey = (label, w, h, textColor);
+            if (_imageCache.TryGetValue(cacheKey, out var cachedImage))
+            {
+                return cachedImage;
+            }
 
             BitmapImage result;
             var bb = new BitmapBuilder(w, h);
@@ -45,17 +49,17 @@
                 }
                 else
                 {
-                    bb.DrawText(label, tc, ButtonData.LabelFontSize);
+                    bb.DrawText(label, textColor, ButtonData.LabelFontSize);
 
                 }
                 result = bb.ToImage();
-                _imageCache[label] = result;
+                _imageCache[cacheKey] = result;
             }
             catch (ArgumentException)
             {
                 DrawImage(bb, EmbeddedResources.ReadImage(EmbeddedResources.FindFile("icon_404.png")));
                 // bb.DrawText(label.Substring(1), tc, ButtonData.LabelFontSize);
-                result = bb.ToImage();      // not chached
+                result = bb.ToImage();      // not cached
             }
 
             return result;
@@ -66,8 +70,8 @@
             bb.DrawImage(img, (bb.Width - img.Width) / 2, (bb.Height - img.Height) / 2);
         }
 
-        // Thread-safe cache for images, keyed only by label
-        private static readonly ConcurrentDictionary<string, BitmapImage> _imageCache = new();
+        // Change the cache key to include label, width, height, and color
+        private static readonly ConcurrentDictionary<(string label, int w, int h, BitmapColor color), BitmapImage> _imageCache = new();
 
     }
 }

@@ -392,8 +392,8 @@
                 var deviceEntry = UserPlugSettingsFinder.GetPlugParamDeviceEntry(pluginName);
                 if (deviceEntry == null)
                 {
-                    // Should never happen, consider throwing an exception here
-                    Debug.WriteLine($"SelectButtonData: No device entry found for plugin '{pluginName}'");
+                    // Should never happen, but does?!
+                    Debug.WriteLine($"SelectButtonData.drawImage(): No device entry found for plugin '{pluginName}'");
                     return bb.ToImage();
                 }
 
@@ -468,7 +468,7 @@
                 }
 
                 bb.DrawImage(LabelImageLoader.GetImage(userLabelText, tw, TitleHeight, tc), tx, uby);
-                Debug.WriteLine($"SelectButtonData: User button {cd.UserLabel} ({cd.UserValue}) at {cd.ChannelID + 1} with text '{userLabelText}'");
+                // Debug.WriteLine($"SelectButtonData: User button {cd.UserLabel} ({cd.UserValue}) at {cd.ChannelID + 1} with text '{userLabelText}'");
             }
             else
             {
@@ -570,7 +570,7 @@
                     }
                     else
                     {
-                        Debug.WriteLine($"SelectButtonData: No device entry found for plugin '{PluginName}'");
+                        Debug.WriteLine($"SelectButtonData.runCommand(): No device entry found for plugin '{PluginName}'");
                     }
                     break;
                 case SelectButtonMode.FX:

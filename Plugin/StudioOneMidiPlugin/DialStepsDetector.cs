@@ -74,6 +74,7 @@ namespace Loupedeck.StudioOneMidiPlugin
             _timeoutTimer?.Dispose();
             _timeoutTimer = null;
 
+            // Indicate deactivation to the app 
             if (_plugin.ConfigMidiOut != null)
             {
                 var noteEvent = new NoteOnEvent

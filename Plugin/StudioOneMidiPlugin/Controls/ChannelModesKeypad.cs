@@ -342,7 +342,7 @@
                 }
             }
 
-            this.plugin.CommandNoteReceived += (object sender, NoteOnEvent e) =>
+            this.plugin.CommandNoteReceived += (Object? sender, NoteOnEvent e) =>
             {
                 foreach (NoteReceiverEntry n in this.NoteReceivers)
                 {
@@ -363,7 +363,7 @@
                 }
             };
 
-            this.plugin.ChannelDataChanged += (Object sender, EventArgs e) =>
+            this.plugin.ChannelDataChanged += (Object? sender, EventArgs e) =>
             { 
                 if (this.CurrentLayer == ButtonLayer.ChannelPropertiesPlay &&
                     (Int32)this.CurrentPlayLayerMode == idxPlayMuteSoloButton.ModeID)
@@ -372,21 +372,21 @@
                 }
             };
 
-            this.plugin.ActiveUserPagesReceived += (Object sender, Int32 e) =>
+            this.plugin.ActiveUserPagesReceived += (Object? sender, Int32 e) =>
             {
                 (this.GetButtonData(idxUserSendsUserModeButton) as UserModeButtonData).ActiveUserPages = e;
                 this.UpdateUserPageButton();
 //                this.UpdateAllActionImages();
             };
 
-            this.plugin.UserPageChanged += (Object sender, Int32 e) =>
+            this.plugin.UserPageChanged += (Object? sender, Int32 e) =>
             {
                 var umbd = this.GetButtonData(ButtonLayer.FaderModesSend, 0, 3) as UserModeButtonData;
                 umbd.setUserPage(e);
                 this.UpdateUserPageButton();
             };
 
-            this.plugin.SelectButtonPressed += (Object sender, EventArgs e) =>
+            this.plugin.SelectButtonPressed += (Object? sender, EventArgs e) =>
             {
                 if (this.CurrentLayer == ButtonLayer.FaderModesSend && this.CurrentUserSendsLayerMode == UserSendsLayerMode.PluginSelectionActivated)
                 {
@@ -404,7 +404,7 @@
 
             this.plugin.FocusDeviceChanged += (Object? sender, string e) =>
             {
-                var pluginName = getPluginName(e);
+                var pluginName = GetPluginName(e);
 
                 for (var i = 0; i < 2; i++)
                 {
@@ -450,7 +450,7 @@
                 }
             };
 
-            this.plugin.RecPreModeChanged += (Object sender, RecPreMode rpm) =>
+            this.plugin.RecPreModeChanged += (Object? sender, RecPreMode rpm) =>
             {
                 if (this.CurrentLayer == ButtonLayer.ChannelPropertiesRec &&
                     (this.CurrentRecLayerMode == RecLayerMode.All || this.CurrentRecLayerMode == RecLayerMode.PreModeActivated))
@@ -459,7 +459,7 @@
                 }
             };
 
-            this.plugin.FunctionKeyChanged += (Object sender, FunctionKeyParams fke) =>
+            this.plugin.FunctionKeyChanged += (Object? sender, FunctionKeyParams fke) =>
             {
                 if (fke.KeyID == 12 || fke.KeyID == 13)
                 {
@@ -471,12 +471,12 @@
                 }
             };
 
-            this.plugin.PropertySelectionChanged += (object sender, ChannelProperty.PropertyType e) =>
+            this.plugin.PropertySelectionChanged += (object? sender, ChannelProperty.PropertyType e) =>
             {
                 (this.GetButtonData(idxPlayMuteSoloButton) as PropertyButtonData).setPropertyType(e);
                 // this.EmitActionImageChanged();
             };
-            this.plugin.UserButtonMenuActivated += (object sender, UserButtonMenuParams e) =>
+            this.plugin.UserButtonMenuActivated += (object? sender, UserButtonMenuParams e) =>
             {
                 if (e.IsActive)
                 {
@@ -532,7 +532,7 @@
         }
 
 
-        protected override BitmapImage? GetCommandImage(String actionParameter, PluginImageSize imageSize)
+        protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
         {
             if (actionParameter == null) return null;
 

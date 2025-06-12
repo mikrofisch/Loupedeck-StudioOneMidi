@@ -51,6 +51,12 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
             {
                 this.UpdateAllActionImages();
             };
+            ((StudioOneMidiPlugin)Plugin).PluginSettingsReloaded += (Object? sender, EventArgs e) =>
+            {
+                SelectButtonData.UserPlugSettingsFinder.ClearCache();
+                this.UpdateAllActionImages();
+            };
+
 
             ((StudioOneMidiPlugin)Plugin).SelectModeChanged += (Object? sender, SelectButtonMode e) =>
             {
@@ -83,7 +89,7 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
 
             ((StudioOneMidiPlugin)Plugin).FocusDeviceChanged += (Object? sender, string e) =>
             {
-                SelectButtonData.PluginName = getPluginName(e);
+                SelectButtonData.PluginName = GetPluginName(e);
             };
 
             ((StudioOneMidiPlugin)Plugin).UserButtonMenuActivated += (Object? sender, UserButtonMenuParams e) =>

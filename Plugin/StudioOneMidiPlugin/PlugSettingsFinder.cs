@@ -34,12 +34,9 @@
             this.A = a;
         }
 
-        public FinderColor(String colorName, Byte r, Byte g, Byte b)
+        public FinderColor(String colorName, Byte r, Byte g, Byte b) : this(r, g, b)
         {
             this.Name = colorName;
-            this.R = r;
-            this.G = g;
-            this.B = b;
             this.A = A_default;
         }
         public FinderColor(String colorName, Byte r, Byte g, Byte b, Byte a) : this(colorName, r, g, b)
@@ -58,23 +55,21 @@
             this.A = c.A;
             this.XmlRenderAsNameRef = c.XmlRenderAsNameRef;
         }
-        public FinderColor(FinderColor? c, byte a)
+        public FinderColor(FinderColor? c, bool xmlRenderAsNameRef) : this(c)
+        {
+            this.XmlRenderAsNameRef = xmlRenderAsNameRef;
+        }
+
+        public FinderColor(FinderColor? c, byte a) : this(c)
         {
             this.A = a;
-            if (c == null) return;
-
-            this.Name = c.Name;
-            this.R = c.R;
-            this.G = c.G;
-            this.B = c.B;
-            this.XmlRenderAsNameRef = c.XmlRenderAsNameRef;
         }
 
         // public static FinderColor Transparent => new FinderColor(BitmapColor.Transparent);
         public static FinderColor White => new FinderColor(255, 255, 255);
         public static FinderColor Black => new FinderColor(0, 0, 0);
 
-        protected virtual byte A_default => 255;
+        public virtual byte A_default => 255;
 
         public byte R, G, B;
         public byte A; // Alpha channel
@@ -191,7 +186,7 @@
         public FinderColorOnColor(FinderColor? c) : base(c) { }
         public FinderColorOnColor(FinderColor? c, byte A) : base(c, A) { }
 
-        protected override byte A_default => 80;
+        public override byte A_default => 80;
     }
 
     public class PlugSettingsFinder
@@ -282,6 +277,13 @@
             this.DefaultPlugParamSettings = defaultPlugParamSettings;
         }
 
+        public void ClearCache()
+        {
+            this.LastPluginName = "";
+            this.LastPluginParameter = "";
+            this.LastPlugParamDeviceEntry = null;
+            this.LastParamSettings = new PlugParamSetting();
+        }
 
         public class XmlConfig
         {
@@ -324,7 +326,14 @@
                     }
                     if (!colorExists)
                     {
-                        colors.Add(new FinderColor(c));
+                        // Note we should never get here, it was needed when the color list was
+                        // not stored explicitly in the XML file.
+                        //
+                        // The first time the color list is written those colors that are referenced
+                        // by name in any parameter setting will be set to render as a name reference
+                        // (see below). Therefore we need to make sure that the color is added to the
+                        // color list with the XmlRenderAsNameRef flag set to false.
+                        colors.Add(new FinderColor(c, xmlRenderAsNameRef: false));
                     }
                     c.XmlRenderAsNameRef = true;   // Write only name to XML in parameter settings entry
                 }
@@ -436,9 +445,11 @@
 
                 foreach (var deviceEntry in plugParamDict)
                 {
-                    var cfgDeviceEntry = new PluginConfig { 
-                        PluginName = deviceEntry.Key, 
+                    var cfgDeviceEntry = new PluginConfig
+                    {
+                        PluginName = deviceEntry.Key,
                         ManufacturerName = deviceEntry.Value.ManufacturerName,
+                        Colors = deviceEntry.Value.Colors,
                         UserPageNames = deviceEntry.Value.UserPageNames
                     };
                     foreach (var paramSettings in deviceEntry.Value.ParamSettings)
@@ -450,6 +461,8 @@
                         cfgDeviceEntry.ParamSettings.Add(paramSettings.Value);
                     }
 
+                    foreach (var c in cfgDeviceEntry.Colors) c.XmlRenderAsNameRef = false;
+
                     this.PluginConfigs.Add(cfgDeviceEntry);
                 }
 
@@ -458,6 +471,24 @@
                 serializer.Serialize(writer, this);
                 writer.Close();
 
+            }
+        }
+
+        public static void SaveDictToXmlConfig()
+        {
+            var xmlCfg = new XmlConfig();
+            xmlCfg.WriteXmlCfgFile(XmlConfig.ConfigFileName, PlugParamDict);
+        }
+
+        public static void ReadDictFromXmlConfig()
+        {
+            var xmlCfg = new XmlConfig();
+            PlugParamDict.Clear();
+
+            var configFilePath = System.IO.Path.Combine(XmlConfig.ConfigFolderPath, XmlConfig.ConfigFileName);
+            using (Stream reader = new FileStream(configFilePath, FileMode.Open))
+            {
+                xmlCfg.ReadXmlStream(reader, PlugParamDict);
             }
         }
 
@@ -527,17 +558,6 @@
                 {
                     // Resource not found in assembly, move on
                 }
-
-                //foreach (var deviceEntry in PlugParamDict.Values)
-                //{
-                //    foreach (var paramSetting in deviceEntry.ParamSettings.Values)
-                //    {
-                //        if (paramSetting.OnColor is FinderColorOnColor onColor)
-                //        {
-                //            onColor.A = (byte)paramSetting.OnTransparency;
-                //        }
-                //    }
-                //}
 
                 // Read user settings from file.
                 var configFilePath = System.IO.Path.Combine(XmlConfig.ConfigFolderPath, XmlConfig.ConfigFileName);

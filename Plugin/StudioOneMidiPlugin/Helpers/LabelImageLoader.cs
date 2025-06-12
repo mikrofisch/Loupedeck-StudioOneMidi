@@ -65,6 +65,11 @@
             return result;
         }
 
+        public static void ClearCache()
+        {
+            _imageCache.Clear();
+        }
+
         static void DrawImage(BitmapBuilder bb, BitmapImage img)
         {
             bb.DrawImage(img, (bb.Width - img.Width) / 2, (bb.Height - img.Height) / 2);

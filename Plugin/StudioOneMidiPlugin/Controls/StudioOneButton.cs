@@ -1,6 +1,8 @@
 ﻿namespace Loupedeck.StudioOneMidiPlugin.Controls
 {
     using System.Collections.Concurrent;
+    using System.Diagnostics;
+    using System.Threading;
 
     internal class StudioOneButton<B> : PluginDynamicCommand where B : ButtonData
     {
@@ -8,10 +10,11 @@
         protected ConcurrentDictionary<String, B?> buttonData = new ConcurrentDictionary<String, B?>();
 
         private readonly System.Timers.Timer ActionImageChangedTimer;
+        private const int _actionImageChangedTimerTimeout = 50;
 
         public StudioOneButton() : base()
         {
-            this.ActionImageChangedTimer = new System.Timers.Timer(100);
+            this.ActionImageChangedTimer = new System.Timers.Timer(_actionImageChangedTimerTimeout);
             this.ActionImageChangedTimer.AutoReset = false;
             this.ActionImageChangedTimer.Elapsed += (Object? sender, System.Timers.ElapsedEventArgs e) =>
             {
@@ -40,7 +43,17 @@
             return base.OnLoad();
         }
 
-        protected void UpdateAllActionImages() => this.ActionImageChangedTimer.Start();
+        protected void UpdateAllActionImages()
+        {
+            if (this.ActionImageChangedTimer.Enabled)
+            {
+                // If the timer is already running, reset it to avoid multiple calls to ActionImageChanged.
+                this.ActionImageChangedTimer.Interval = _actionImageChangedTimerTimeout;
+                // Debug.WriteLine($"UpdateAllActionImages: Timer reset");
+                return;
+            }
+            this.ActionImageChangedTimer.Start();
+        }
 
         protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
         {

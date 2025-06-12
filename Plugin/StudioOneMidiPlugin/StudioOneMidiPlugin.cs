@@ -9,6 +9,7 @@ namespace Loupedeck.StudioOneMidiPlugin
     using SharpHook;
     using System;
     using System.Collections.Concurrent;
+    using System.Diagnostics;
     using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
@@ -255,6 +256,8 @@ namespace Loupedeck.StudioOneMidiPlugin
         // description and value changes are sent successively.
         private SemaphoreSlim ChannelDataChangeLock = new SemaphoreSlim(1, 1);
         private readonly System.Timers.Timer ChannelDataChangeTimer, ChannelValueChangeTimer;
+        private const int _channelDataChangeTimeout = 15; // milliseconds
+        private const int _channelValueChangeTimeout = 10; // milliseconds
 
         private DialStepsDetector _dialStepsDetector;
 
@@ -277,7 +280,7 @@ namespace Loupedeck.StudioOneMidiPlugin
                 this.channelData[i.ToString()] = new ChannelData(this, i);
             }
 
-			this.ChannelDataChangeTimer = new System.Timers.Timer(50);
+			this.ChannelDataChangeTimer = new System.Timers.Timer(_channelDataChangeTimeout);
 			this.ChannelDataChangeTimer.AutoReset = false;
             this.ChannelDataChangeTimer.Elapsed += (Object? sender, System.Timers.ElapsedEventArgs e) =>
             {
@@ -285,7 +288,7 @@ namespace Loupedeck.StudioOneMidiPlugin
                 ChannelDataChanged?.Invoke(this, EventArgs.Empty);
                 ChannelDataChangeLock.Release();
             };
-            this.ChannelValueChangeTimer = new System.Timers.Timer(20);
+            this.ChannelValueChangeTimer = new System.Timers.Timer(_channelValueChangeTimeout);
             this.ChannelValueChangeTimer.AutoReset = false;
             this.ChannelValueChangeTimer.Elapsed += (Object? sender, System.Timers.ElapsedEventArgs e) =>
             {
@@ -335,8 +338,20 @@ namespace Loupedeck.StudioOneMidiPlugin
             }
         }
 
-        public void EmitChannelDataChanged() => this.ChannelDataChangeTimer.Start();
-        public void EmitChannelValueChanged() => this.ChannelValueChangeTimer.Start();
+        public void EmitChannelDataChanged() => ResetTimerTimeout(this.ChannelDataChangeTimer, _channelDataChangeTimeout);
+        public void EmitChannelValueChanged() => ResetTimerTimeout(this.ChannelValueChangeTimer, _channelValueChangeTimeout);
+        private void ResetTimerTimeout(System.Timers.Timer timer, int timeout)
+        {
+            if (timer.Enabled)
+            {
+                // If the timer is already running, extend the timeout to avoid multiple events
+                timer.Interval = timeout;
+                // Debug.WriteLine($"Timer reset to {timeout} ms");
+                return;
+            }
+            timer.Start();
+        }
+
         public void EmitSelectedButtonPressed() => this.SelectButtonPressed?.Invoke(this, EventArgs.Empty);
 
         public void EmitSelectModeChanged(SelectButtonMode sm) => this.SelectModeChanged?.Invoke(this, sm);

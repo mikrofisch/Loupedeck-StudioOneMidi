@@ -75,7 +75,8 @@
                 this.ActionImageChanged();
             };
 
-            plugin.ChannelValueChanged += (Object? sender, EventArgs e) => {
+            plugin.ChannelValueChanged += (Object? sender, EventArgs e) =>
+            {
                 this.ActionImageChanged();
             };
 
@@ -169,6 +170,8 @@
             }
             cd.Value = Math.Min(1, Math.Max(0, (Single)Math.Round(cd.Value * stepDivisions + diff) / stepDivisions));
 			cd.EmitVolumeUpdate();
+
+
             return true;
 		}
 

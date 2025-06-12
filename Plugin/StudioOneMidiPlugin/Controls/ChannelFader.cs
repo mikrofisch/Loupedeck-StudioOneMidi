@@ -107,7 +107,7 @@
 
             plugin.FocusDeviceChanged += (Object? sender, String e) =>
             {
-                this.PluginName = getPluginName(e);
+                this.PluginName = GetPluginName(e);
                 this.ActionImageChanged();
             };
 
@@ -256,7 +256,7 @@
             }
 
 
-            if (cd.ChannelID < IsActive.Length && !IsActive[cd.ChannelID])
+            if (SelectMode == SelectButtonMode.User && cd.ChannelID < IsActive.Length && !IsActive[cd.ChannelID])
             {
                 valueColor = ColorConv.Convert(UserPlugSettingsFinder.GetTextOffColor(deviceEntry, cd.Label, currentChannel));
                 valBarColor = ColorConv.Convert(UserPlugSettingsFinder.GetOffColor(deviceEntry, cd.Label, currentChannel));

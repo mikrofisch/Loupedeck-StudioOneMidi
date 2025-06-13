@@ -18,7 +18,8 @@
 		<Control name="viewShowGroups"              type="trigger" options="receive"> <MidiMessage status="#90" address="#09" channel="14"/> </Control>
 		<Control name="viewToggleFloatingWindows"   type="trigger" options="receive"> <MidiMessage status="#90" address="#0A" channel="14"/> </Control>
 		<Control name="viewTimeDisplay"             type="trigger" options="receive"> <MidiMessage status="#90" address="#0B" channel="14"/> </Control>
-		<Control name="viewFitTimeline"             type="trigger" options="receive"> <MidiMessage status="#90" address="#0C" channel="14"/> </Control>
+		<Control name="viewFitTimeline"             type="trigger" options="receive"> <MidiMessage status="#90" address="#0C" channel="14"/> </ontrol>
+		<Control name="viewResetWindowPositions"    type="trigger" options="receive"> <MidiMessage status="#90" address="#0D" channel="14"/> </Control>
 		<Control name="consoleShowInputs"           type="trigger" options="receive"> <MidiMessage status="#90" address="#10" channel="14"/> </Control>
 		<Control name="consoleShowTrack"            type="trigger" options="receive"> <MidiMessage status="#90" address="#11" channel="14"/> </Control>
 		<Control name="consoleShowChannelEditor"    type="trigger" options="receive"> <MidiMessage status="#90" address="#12" channel="14"/> </Control>
@@ -201,6 +202,7 @@
 			<Command control="viewToggleFloatingWindows"     command.category="View"       command.name="Toggle Floating Windows"/>
 			<Command control="viewTimeDisplay"               command.category="View"       command.name="Time Display"/>
 			<Command control="viewFitTimeline"               command.category="View"       command.name="Fit Timeline to Contents"/>
+			<Command control="viewResetWindowPositions"      command.category="View"       command.name="Reset Window Positions"/>
 			<Command control="consoleShowInputs"             command.category="Console"    command.name="Show Inputs"/>
 			<Command control="consoleShowTrack"              command.category="Console"    command.name="Show Track"/>
 			<Command control="consoleShowChannelEditor"      command.category="Console"    command.name="Show Channel Editor"/>

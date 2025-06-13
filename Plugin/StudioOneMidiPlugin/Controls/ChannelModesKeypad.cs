@@ -337,7 +337,7 @@
                 {
                     foreach (var bd in md.ButtonDataList)
                     {
-                        bd?.OnLoad(this.plugin);
+                        bd?.OnLoad(((StudioOneMidiPlugin)this.Plugin));
                     }
                 }
             }
@@ -349,7 +349,7 @@
                     if (n.Note == e.NoteNumber)
                     {
                         var cbd = this.GetButtonData(n.Index) as CommandButtonData;
-                        cbd.Activated = e.Velocity > 0;
+                        if (cbd != null) cbd.Activated = e.Velocity > 0;
 
                         // Note: Could also check for ModeID, but that would require to track the current mode
                         //       as a generic Int32 in addition to the Enums for each layer. Probably not worth it
@@ -374,7 +374,8 @@
 
             this.plugin.ActiveUserPagesReceived += (Object? sender, Int32 e) =>
             {
-                (this.GetButtonData(idxUserSendsUserModeButton) as UserModeButtonData).ActiveUserPages = e;
+                var bd = this.GetButtonData(idxUserSendsUserModeButton) as UserModeButtonData;
+                if (bd != null) bd.ActiveUserPages = e;
                 this.UpdateUserPageButton();
 //                this.UpdateAllActionImages();
             };
@@ -482,7 +483,7 @@
                 {
                     for (var i = 0; i < 6; i++)
                     {
-                        Int32 value;
+                        Int32 value = 0;
 
                         if (e.ChannelIndex < 0)
                         {
@@ -490,23 +491,26 @@
                             value = i + 1;
                             this.CurrentUserSendsLayerMode = UserSendsLayerMode.UserPageMenuActivated;
                         }
-                        else
+                        else if (e.MenuItems != null)
                         {
                             value = (UInt16)(127 / (e.MenuItems.Length - 1) * i);
                             this.CurrentUserSendsLayerMode = UserSendsLayerMode.UserMenuActivated;
                         }
 
                         var ubd = this.GetButtonData(ButtonLayer.FaderModesSend, (Int32)this.CurrentUserSendsLayerMode, i) as UserMenuSelectButtonData;
-                        if (i < e.MenuItems.Length)
+                        if (ubd != null && e.MenuItems != null)
                         {
-                            ubd.init(e.ChannelIndex, value, e.MenuItems[i]);
-                        }
-                        else
-                        {
-                            // Initializing with channel index only will result in empty
-                            // buttons to be drawn which will still trigger the UserButtonMenuActivated
-                            // event with IsActive set to false so that the menu torn down properly.
-                            ubd.init(e.ChannelIndex);
+                            if (i < e.MenuItems.Length)
+                            {
+                                ubd.init(e.ChannelIndex, value, e.MenuItems[i]);
+                            }
+                            else
+                            {
+                                // Initializing with channel index only will result in empty
+                                // buttons to be drawn which will still trigger the UserButtonMenuActivated
+                                // event with IsActive set to false so that the menu torn down properly.
+                                ubd.init(e.ChannelIndex);
+                            }
                         }
                     }
                     this.DeactivateUserMenu = false;
@@ -772,7 +776,7 @@
                                 if (i != 4) (this.GetButtonData(ButtonLayer.FaderModesShow, 0, i) as CommandButtonData).Activated = false;
                             }
                             var cbd = this.GetButtonData(this.CurrentLayer, 0, actionParameterNum) as CommandButtonData;
-                            cbd.Activated = !cbd.Activated;
+                            if (cbd != null) cbd.Activated = !cbd.Activated;
                             break;
                     }
                     this.UpdateAllActionImages();

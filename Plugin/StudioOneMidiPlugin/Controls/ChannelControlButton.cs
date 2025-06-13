@@ -31,16 +31,18 @@
         {
             base.OnLoad();
 
-            this.plugin.CommandNoteReceived += (object? sender, NoteOnEvent e) =>
+            ((StudioOneMidiPlugin)this.Plugin).CommandNoteReceived += (object? sender, NoteOnEvent e) =>
             {
                 var idx = $"{e.NoteNumber}";
 
-                if (!this.buttonData.ContainsKey(idx))
-                    return;
+                if (!this.buttonData.ContainsKey(idx)) return;
 
                 var bd = this.buttonData[idx];
-                bd.Activated = e.Velocity > 0;
-                this.ActionImageChanged(idx);
+                if (bd != null) 
+                {
+                    bd.Activated = e.Velocity > 0;
+                    this.ActionImageChanged(idx);
+                }
             };
 
             return true;

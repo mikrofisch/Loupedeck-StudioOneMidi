@@ -665,7 +665,7 @@
             this.init(code, name, iconName);
         }
 
-        public CommandButtonData(Int32 code, String name, String iconName, BitmapColor bgColor)
+        public CommandButtonData(Int32 code, String name, String? iconName, BitmapColor bgColor)
         {
             this.init(code, name, iconName);
             this.OnColor = bgColor;
@@ -858,7 +858,7 @@
             this.CodeShift = codeShift;
         }
 
-        public OneWayCommandButtonData(Int32 channel, Int32 code, String name, String iconName, BitmapColor bgColor) : base(code, name, iconName, bgColor)
+        public OneWayCommandButtonData(Int32 channel, Int32 code, String name, String? iconName, BitmapColor bgColor) : base(code, name, iconName, bgColor)
         {
             this.MidiChannel = channel;
         }

@@ -102,6 +102,7 @@
 
         protected override BitmapImage? GetCommandImage(ActionEditorActionParameters actionParameters, Int32 imageWidth, Int32 imageHeight)
         {
+            if (actionParameters == null) return null;
             if (!actionParameters.TryGetInt32(PropertySelector, out var controlProperty)) return null;
             if (!actionParameters.TryGetInt32(ButtonTitleSelector, out var trackNameMode)) return null;
             if (!actionParameters.TryGetInt32(ChannelSelector, out var channelIndex)) return null;

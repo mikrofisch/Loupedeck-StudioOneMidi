@@ -18,7 +18,7 @@
 		<Control name="viewShowGroups"              type="trigger" options="receive"> <MidiMessage status="#90" address="#09" channel="14"/> </Control>
 		<Control name="viewToggleFloatingWindows"   type="trigger" options="receive"> <MidiMessage status="#90" address="#0A" channel="14"/> </Control>
 		<Control name="viewTimeDisplay"             type="trigger" options="receive"> <MidiMessage status="#90" address="#0B" channel="14"/> </Control>
-		<Control name="viewFitTimeline"             type="trigger" options="receive"> <MidiMessage status="#90" address="#0C" channel="14"/> </ontrol>
+		<Control name="viewFitTimeline"             type="trigger" options="receive"> <MidiMessage status="#90" address="#0C" channel="14"/> </Control>
 		<Control name="viewResetWindowPositions"    type="trigger" options="receive"> <MidiMessage status="#90" address="#0D" channel="14"/> </Control>
 		<Control name="consoleShowInputs"           type="trigger" options="receive"> <MidiMessage status="#90" address="#10" channel="14"/> </Control>
 		<Control name="consoleShowTrack"            type="trigger" options="receive"> <MidiMessage status="#90" address="#11" channel="14"/> </Control>

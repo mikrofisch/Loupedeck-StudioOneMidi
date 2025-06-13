@@ -6,17 +6,17 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
 
     using System;
     using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
+
     
     class MidiPadFolder : PluginDynamicFolder
 	{
 		static string[] defaultNoteNames = { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
 
+        FourBitNumber MidiChannel = (FourBitNumber)0;
+
 		class PadLayout
 		{
-			public string Name;
+			public string? Name;
 
 			public delegate string NoteNameT(CommandParams p);
 			public delegate int NoteNumberT(CommandParams p);
@@ -24,11 +24,13 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
 			public NoteNameT NoteName;
 			public NoteNumberT NoteNumber;
 
-			public PadLayout() {
-				NoteName = ((CommandParams p) => {
+			public PadLayout()
+            {
+				NoteName = (CommandParams p) =>
+                {
 					int id = NoteNumber(p);
 					return defaultNoteNames[id % defaultNoteNames.Length] + ((id / defaultNoteNames.Length) - 2).ToString();
-				});
+				};
 			}
 		}
 		IList<PadLayout> layouts;
@@ -53,16 +55,14 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
 		Adjustment currentHorizontalAdjustment, currentVerticalAdjustment;
 		int currentHorizontalAdjustmentIx = 0, currentVerticalAdjustmentIx = 1;
 
-		StudioOneMidiPlugin plugin;
-
 		public MidiPadFolder()
 		{
 			this.DisplayName = "MIDI Pad";
 			this.GroupName = "MIDI Pad";
-			this.Navigation = PluginDynamicFolderNavigation.None;
 
 			layouts = new List<PadLayout>();
 			adjustments = new List<Adjustment>();
+
 
 			const int C1MidiCode = 36;
 
@@ -94,13 +94,12 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
 			{
 				Adjustment adj = new Adjustment();
 				adj.Name = "Mod";
-				adj.Adjust = (int delta) => {
+				adj.Adjust = (int delta) =>
+                {
 					adj.value += delta;
 
-					var e = new ControlChangeEvent();
-					e.ControlNumber = (SevenBitNumber)1; // Moduleation wheel
-					e.ControlValue = (SevenBitNumber)Math.Max(0, Math.Min(adj.value * 10, 127));
-					plugin.ConfigMidiOut.SendEvent(e);
+					SendMidiEvent(new ControlChangeEvent { ControlNumber = (SevenBitNumber)1,
+                                                           ControlValue = (SevenBitNumber)Math.Max(0, Math.Min(adj.value * 10, 127)) });
 				};
 				adjustments.Add(adj);
 			}
@@ -108,19 +107,20 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
 			{
 				Adjustment adj = new Adjustment();
 				adj.Name = "Pitch Bend";
-				adj.Adjust = (int delta) => {
-					var e = new PitchBendEvent();
-					adj.value += delta;
-					e.PitchValue = (ushort)(Math.Max(0, Math.Min(8192 + adj.value * 500, 16383)));
-					plugin.ConfigMidiOut.SendEvent(e);
+				adj.Adjust = (int delta) =>
+                {
+                    adj.value += delta;
+					SendMidiEvent(new PitchBendEvent { PitchValue = (ushort)Math.Max(0, Math.Min(8192 + adj.value * 500, 16383)) });
 				};
+
 				// Reset the pitch bend after release
-				adj.Release = () => {
+				adj.Release = () =>
+                {
 					adj.value = 0;
 
 					var e = new PitchBendEvent();
 					e.PitchValue = 8192;
-					plugin.ConfigMidiOut.SendEvent(e);
+					SendMidiEvent(e);
 				};
 				adjustments.Add(adj);
 			}
@@ -140,11 +140,15 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
 		{
 			var result = base.Load();
 
-			plugin = base.Plugin as StudioOneMidiPlugin;
 			return result;
 		}
 
-		public override IEnumerable<string> GetButtonPressActionNames(DeviceType deviceType)
+        public override PluginDynamicFolderNavigation GetNavigationArea(DeviceType _)
+        {
+            return PluginDynamicFolderNavigation.None;
+        }
+
+        public override IEnumerable<string> GetButtonPressActionNames(DeviceType deviceType)
 		{
 			var lst = new List<string>();
 
@@ -168,34 +172,25 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
 			return lst;
 		}
 
-		public override string GetAdjustmentDisplayName(string actionParameter, PluginImageSize imageSize)
+		public override string? GetAdjustmentDisplayName(string actionParameter, PluginImageSize imageSize)
         {
-			if (actionParameter == "layout")
-				return "Grid\n" + currentLayout.Name;
-
-			else if (actionParameter == "hAdj")
-				return "<>\n" + currentHorizontalAdjustment.Name;
-
-			else if (actionParameter == "vAdj")
-				return "/\\/\n" + currentVerticalAdjustment.Name;
-
-			else if (actionParameter == "trans")
-				return "Trans\n" + (transpose > 0 ? "+" : "") + transpose.ToString();
+			if (actionParameter == "layout")     return "Grid\n" + currentLayout.Name;
+			else if (actionParameter == "hAdj")  return "<>\n" + currentHorizontalAdjustment.Name;
+			else if (actionParameter == "vAdj")  return "/\\/\n" + currentVerticalAdjustment.Name;
+			else if (actionParameter == "trans") return "Trans\n" + (transpose > 0 ? "+" : "") + transpose.ToString();
 
 			return null;
 		}
-		public override string GetCommandDisplayName(string actionParameter, PluginImageSize imageSize)
+		public override string? GetCommandDisplayName(string actionParameter, PluginImageSize imageSize)
         {
-			if (actionParameter == null)
-				return null;
+			if (actionParameter == null) return null;
 
 			return currentLayout.NoteName(CommandParams.parse(actionParameter));
 		}
 
-		public override BitmapImage GetCommandImage(string actionParameter, PluginImageSize imageSize)
+		public override BitmapImage? GetCommandImage(string actionParameter, PluginImageSize imageSize)
         {
-			if (actionParameter == null)
-				return null;
+			if (actionParameter == null) return null;
 
 			var bb = new BitmapBuilder(imageSize);
 			bb.FillRectangle(0, 0, bb.Width, bb.Height, BitmapColor.Black);
@@ -227,21 +222,15 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
 				};
 				touchData.Add(ix, td);
 
-				NoteOnEvent e = new NoteOnEvent();
-				e.Velocity = (SevenBitNumber)(127);
-				e.NoteNumber = (SevenBitNumber)(noteNumber);
-				plugin.ConfigMidiOut.SendEvent(e);
+                SendMidiEvent(new NoteOnEvent { Velocity = (SevenBitNumber)127, NoteNumber = (SevenBitNumber)noteNumber });
 
-				return true;
+                return true;
 			}
 			else if (touchEvent.EventType == DeviceTouchEventType.TouchUp && touchData.ContainsKey(ix))
             {
 				touchData.Remove(ix);
 
-				NoteOffEvent e = new NoteOffEvent();
-				e.Velocity = (SevenBitNumber)(127);
-				e.NoteNumber = (SevenBitNumber)(noteNumber);
-				plugin.ConfigMidiOut.SendEvent(e);
+				SendMidiEvent(new NoteOffEvent { Velocity = (SevenBitNumber)127, NoteNumber = (SevenBitNumber)noteNumber });
 
 				if (currentHorizontalAdjustment.Release != null)
 					currentHorizontalAdjustment.Release();
@@ -320,5 +309,15 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
 				return new CommandParams { x = ix % 4, y = ix / 4, ix = ix };
 			}
 		}
+
+        private void SendMidiEvent(ChannelEvent e)
+        {   
+            var midiOut = ((StudioOneMidiPlugin)Plugin).S1MidiOut;
+            if (midiOut != null)
+            {
+                e.Channel = MidiChannel;
+                midiOut.SendEvent(e);
+            }
+        }
 	}
 }

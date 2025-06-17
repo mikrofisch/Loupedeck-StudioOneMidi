@@ -6,60 +6,38 @@
 
     internal class StudioOneButton<B> : PluginDynamicCommand where B : ButtonData
     {
-        protected StudioOneMidiPlugin? plugin;
-        protected ConcurrentDictionary<String, B?> buttonData = new ConcurrentDictionary<String, B?>();
-
-        private readonly System.Timers.Timer ActionImageChangedTimer;
-        private const int _actionImageChangedTimerTimeout = 50;
+        protected StudioOneMidiPlugin? _plugin;
+        protected ConcurrentDictionary<String, B?> _buttonData = new();
 
         public StudioOneButton() : base()
         {
-            this.ActionImageChangedTimer = new System.Timers.Timer(_actionImageChangedTimerTimeout);
-            this.ActionImageChangedTimer.AutoReset = false;
-            this.ActionImageChangedTimer.Elapsed += (Object? sender, System.Timers.ElapsedEventArgs e) =>
-            {
-                // Debug.WriteLine("ActionImageChangeTimer.Elapsed " + this.Name);
-
-                // As of version 6.0.2 of the Loupedeck software ActionImageChanged() requires the
-                // actionParameter argument in order to have an effect when used in PluginDynamicCommand.
-                //
-                foreach (var k in this.buttonData.Keys)
-                {
-                    this.ActionImageChanged($"{k}");
-                }
-            };
-
             this.IsWidget = true;
         }
 
         protected override bool OnLoad()
         {
-            this.plugin = (StudioOneMidiPlugin)base.Plugin;
+            this._plugin = (StudioOneMidiPlugin)base.Plugin;
 
-            foreach (var bd in this.buttonData.Values)
+            foreach (var bd in this._buttonData.Values)
             {
-                bd?.OnLoad(this.plugin);
+                bd?.OnLoad(this._plugin);
             }
             return base.OnLoad();
         }
 
         protected void UpdateAllActionImages()
         {
-            if (this.ActionImageChangedTimer.Enabled)
+            foreach (var k in this._buttonData.Keys)
             {
-                // If the timer is already running, reset it to avoid multiple calls to ActionImageChanged.
-                this.ActionImageChangedTimer.Interval = _actionImageChangedTimerTimeout;
-                // Debug.WriteLine($"UpdateAllActionImages: Timer reset");
-                return;
+                this.ActionImageChanged(k);
             }
-            this.ActionImageChangedTimer.Start();
         }
 
         protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
         {
-            if (!this.buttonData.ContainsKey(actionParameter)) throw new InvalidOperationException("Uninitialised ButtonData");
+            if (!this._buttonData.ContainsKey(actionParameter)) throw new InvalidOperationException("Uninitialised ButtonData");
 
-            var bd = this.buttonData[actionParameter];
+            var bd = this._buttonData[actionParameter];
             if (bd == null) throw new InvalidOperationException("Uninitialised ButtonData");
 
             return bd.getImage(imageSize);
@@ -67,9 +45,9 @@
 
         protected override void RunCommand(String actionParameter)
         {
-            if (this.buttonData.ContainsKey(actionParameter))
+            if (this._buttonData.ContainsKey(actionParameter))
             {
-                var bd = this.buttonData[actionParameter];
+                var bd = this._buttonData[actionParameter];
                 if (bd == null) throw new InvalidOperationException("Uninitialised ButtonData");
 
                 bd.runCommand();

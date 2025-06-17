@@ -3,36 +3,83 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
 {
     using Melanchall.DryWetMidi.Common;
     using Melanchall.DryWetMidi.Core;
+    using Melanchall.DryWetMidi.Multimedia;
 
     using System;
     using System.Collections.Generic;
+    using System.Windows.Navigation;
 
-    
-    class MidiPadFolder : PluginDynamicFolder
+    class KeyPadFolder : PluginDynamicFolder
 	{
-		static string[] defaultNoteNames = { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
+		static string[] NoteNames = { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
+        static BitmapColor[] NoteColors = 
+        {
+            new BitmapColor(0x10, 0x10, 0xFF), // C
+            new BitmapColor(0x00, 0x00, 0x00), // C#
+            new BitmapColor(0xFF, 0xFF, 0xFF), // D
+            new BitmapColor(0x00, 0x00, 0x00), // D#
+            new BitmapColor(0xFF, 0xFF, 0xFF), // E
+            new BitmapColor(0xFF, 0xFF, 0xFF), // F
+            new BitmapColor(0x00, 0x00, 0x00), // F#
+            new BitmapColor(0xFF, 0xFF, 0xFF), // G
+            new BitmapColor(0x00, 0x00, 0x00), // G#
+            new BitmapColor(0xFF, 0xFF, 0xFF), // A
+            new BitmapColor(0x00, 0x00, 0x00), // A#
+            new BitmapColor(0xFF, 0xFF, 0xFF)  // B
+        };
 
+        private OutputDevice? MidiOut = null;
         FourBitNumber MidiChannel = (FourBitNumber)0;
+        string midiOutName = "";
+        public String MidiOutName
+        {
+            get => this.midiOutName;
+            set
+            {
+                if (this.MidiOut != null)
+                {
+                    this.MidiOut.Dispose();
+                }
 
-		class PadLayout
+                this.midiOutName = value;
+                try
+                {
+                    this.MidiOut = OutputDevice.GetByName(value);
+                    //this.SetPluginSetting("ConfigMidiOut", value, false);
+                }
+                catch (Exception)
+                {
+                    this.MidiOut = null;
+                }
+            }
+        }
+
+        class PadLayout
 		{
 			public string? Name;
 
 			public delegate string NoteNameT(CommandParams p);
 			public delegate int NoteNumberT(CommandParams p);
+            public delegate BitmapColor NoteColorT(CommandParams p);
 
-			public NoteNameT NoteName;
-			public NoteNumberT NoteNumber;
+            public NoteNameT NoteName;
+			public NoteNumberT NoteNumber = (CommandParams) => 0;
+            public NoteColorT NoteColor;
 
-			public PadLayout()
+            public PadLayout()
             {
-				NoteName = (CommandParams p) =>
+                NoteName = (CommandParams p) =>
                 {
-					int id = NoteNumber(p);
-					return defaultNoteNames[id % defaultNoteNames.Length] + ((id / defaultNoteNames.Length) - 2).ToString();
-				};
-			}
+                    int id = NoteNumber(p);
+                    return NoteNames[id % NoteNames.Length] + ((id / NoteNames.Length) - 2).ToString();
+                };
+                NoteColor = (CommandParams p) =>
+                {
+                    return NoteColors[NoteNumber(p) % NoteColors.Length];
+                };
+            }
 		}
+
 		IList<PadLayout> layouts;
 		PadLayout currentLayout;
 		int currentLayoutIx = 0;
@@ -41,24 +88,24 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
 
 		class Adjustment
 		{
-			public string Name;
+			public string Name = "";
 
 			public int value = 0;
 
 			public delegate void AdjustT(int delta);
 			public delegate void ReleaseT();
 
-			public AdjustT Adjust;
-			public ReleaseT Release;
+			public AdjustT? Adjust;
+			public ReleaseT? Release;
 		}
 		IList<Adjustment> adjustments;
 		Adjustment currentHorizontalAdjustment, currentVerticalAdjustment;
 		int currentHorizontalAdjustmentIx = 0, currentVerticalAdjustmentIx = 1;
 
-		public MidiPadFolder()
+		public KeyPadFolder()
 		{
-			this.DisplayName = "MIDI Pad";
-			this.GroupName = "MIDI Pad";
+			this.DisplayName = "KeyPad";
+			this.GroupName = "KeyPad";
 
 			layouts = new List<PadLayout>();
 			adjustments = new List<Adjustment>();
@@ -140,6 +187,8 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
 		{
 			var result = base.Load();
 
+            MidiOutName = "Loupedeck KeyPad";
+
 			return result;
 		}
 
@@ -193,8 +242,9 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
 			if (actionParameter == null) return null;
 
 			var bb = new BitmapBuilder(imageSize);
-			bb.FillRectangle(0, 0, bb.Width, bb.Height, BitmapColor.Black);
-			bb.DrawText(GetCommandDisplayName(actionParameter, imageSize));
+            var bgColor = currentLayout.NoteColor(CommandParams.parse(actionParameter));
+            bb.FillRectangle(0, 0, bb.Width, bb.Height, bgColor);
+            bb.DrawText(GetCommandDisplayName(actionParameter, imageSize), bgColor.A + bgColor.G + bgColor.B < 600 ? BitmapColor.White : BitmapColor.Black);
 			return bb.ToImage();
 		}
 
@@ -213,7 +263,7 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
 			int noteNumber = currentLayout.NoteNumber(p);
 			int ix = p.ix;
 
-			if (touchEvent.EventType == DeviceTouchEventType.TouchDown && !touchData.ContainsKey(ix))
+			if (touchEvent.EventType == DeviceTouchEventType.Press && !touchData.ContainsKey(ix))
             {
 				var td = new TouchData
 				{
@@ -245,7 +295,7 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
 				if (touchEvent.DeltaX != 0 && currentHorizontalAdjustment.Adjust != null)
 					currentHorizontalAdjustment.Adjust(touchEvent.DeltaX);
 
-				if (touchEvent.DeltaY != 0 && currentVerticalAdjustment != null)
+				if (touchEvent.DeltaY != 0 && currentVerticalAdjustment.Adjust != null)
 					currentVerticalAdjustment.Adjust(-touchEvent.DeltaY);
 
 				return true;
@@ -312,12 +362,12 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
 
         private void SendMidiEvent(ChannelEvent e)
         {   
-            var midiOut = ((StudioOneMidiPlugin)Plugin).S1MidiOut;
-            if (midiOut != null)
+            if (MidiOut != null)
             {
                 e.Channel = MidiChannel;
-                midiOut.SendEvent(e);
+                MidiOut.SendEvent(e);
             }
         }
 	}
 }
+    

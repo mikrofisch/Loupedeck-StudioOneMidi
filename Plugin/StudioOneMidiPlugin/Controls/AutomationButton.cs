@@ -30,7 +30,7 @@
         }
     private void AddButton(ButtonData bd, String idx, String name)
         {
-            this.buttonData[idx] = bd;
+            this._buttonData[idx] = bd;
             this.AddParameter(idx, name, "Automation");
         }
     }

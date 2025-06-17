@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Runtime.CompilerServices;
 
     using Melanchall.DryWetMidi.Core;
 
@@ -35,9 +34,9 @@
             {
                 var idx = $"{e.NoteNumber}";
 
-                if (!this.buttonData.ContainsKey(idx)) return;
+                if (!this._buttonData.ContainsKey(idx)) return;
 
-                var bd = this.buttonData[idx];
+                var bd = this._buttonData[idx];
                 if (bd != null) 
                 {
                     bd.Activated = e.Velocity > 0;
@@ -64,7 +63,7 @@
         {
             var idx = $"{bd.Code}";
 
-            this.buttonData[idx] = bd;
+            this._buttonData[idx] = bd;
             this.AddParameter(idx, bd.Name, "Channel Controls");
 
             if (addToShowList)

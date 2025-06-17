@@ -69,16 +69,10 @@
         protected override bool OnLoad()
         {
             var plugin = (StudioOneMidiPlugin)base.Plugin;
-            plugin.channelFader = this;
 
-            plugin.ChannelDataChanged += (Object? sender, EventArgs e) => {
-                this.ActionImageChanged();
-            };
+            plugin.ChannelDataChanged += (s, e) => this.ActionImageChanged();
 
-            plugin.ChannelValueChanged += (Object? sender, EventArgs e) =>
-            {
-                this.ActionImageChanged();
-            };
+            plugin.ChannelValueChanged += (s, e) => this.ActionImageChanged();
 
             plugin.SelectModeChanged += (Object? sender, SelectButtonMode e) =>
             {
@@ -90,14 +84,13 @@
 
             plugin.SelectButtonCustomModeChanged += (Object? sender, SelectButtonCustomParams cp) =>
             {
-
                 this.CustomSettings[cp.ButtonIndex] = new CustomParams
                 {
                     BgColor = cp.BgColor,
                     BarColor = cp.BarColor,
                 };
 
-                this.ActionImageChanged(); 
+                this.ActionImageChanged();
             };
 
             plugin.FaderModeChanged += (Object? sender, FaderMode e) =>
@@ -161,7 +154,6 @@
             ChannelData cd = this.GetChannel(channelIndex);
 
             var deviceEntry = UserPlugSettingsFinder.GetPlugParamDeviceEntry(this.PluginName);
-            if (deviceEntry == null) return false;
 
             var stepDivisions = UserPlugSettingsFinder.GetDialSteps(deviceEntry, cd.Label, cd.ChannelID + 1);
             if (stepDivisions > 50 && ((StudioOneMidiPlugin)this.Plugin).ShiftPressed)
@@ -170,7 +162,6 @@
             }
             cd.Value = Math.Min(1, Math.Max(0, (Single)Math.Round(cd.Value * stepDivisions + diff) / stepDivisions));
 			cd.EmitVolumeUpdate();
-
 
             return true;
 		}
@@ -193,7 +184,6 @@
                                                             : BitmapColor.Black);
 
             var deviceEntry = UserPlugSettingsFinder.GetPlugParamDeviceEntry(this.PluginName);
-            if (deviceEntry == null) return bb.ToImage();
 
             if (this.SelectMode == SelectButtonMode.FX)
             {

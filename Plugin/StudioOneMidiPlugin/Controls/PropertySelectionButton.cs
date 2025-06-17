@@ -58,7 +58,7 @@
             // String name = ChannelProperty.PropertyName[(int)bd.Type];
             var idx = bd.TypeA.ToString();
 
-            this.buttonData[idx] = bd;
+            this._buttonData[idx] = bd;
             this.AddParameter(idx, $"{ChannelProperty.PropertyName[(Int32)bd.TypeA]}/{ChannelProperty.PropertyName[(int)bd.TypeB]}", "Modes");
         }
     }

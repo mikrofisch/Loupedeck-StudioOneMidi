@@ -31,8 +31,6 @@ namespace Loupedeck.StudioOneMidiPlugin
 
         public ConcurrentDictionary<String, ChannelData> channelData = new ConcurrentDictionary<String, ChannelData>();
 
-        public ChannelFader? channelFader;
-
         public event EventHandler? ChannelDataChanged;
         public event EventHandler? ChannelValueChanged;
         public event EventHandler<NoteOnEvent>? CommandNoteReceived;
@@ -256,7 +254,7 @@ namespace Loupedeck.StudioOneMidiPlugin
         // description and value changes are sent successively.
         private SemaphoreSlim ChannelDataChangeLock = new SemaphoreSlim(1, 1);
         private readonly System.Timers.Timer ChannelDataChangeTimer, ChannelValueChangeTimer;
-        private const int _channelDataChangeTimeout = 15; // milliseconds
+        private const int _channelDataChangeTimeout = 30; // milliseconds
         private const int _channelValueChangeTimeout = 10; // milliseconds
 
         private DialStepsDetector _dialStepsDetector;
@@ -340,6 +338,8 @@ namespace Loupedeck.StudioOneMidiPlugin
 
         public void EmitChannelDataChanged() => ResetTimerTimeout(this.ChannelDataChangeTimer, _channelDataChangeTimeout);
         public void EmitChannelValueChanged() => ResetTimerTimeout(this.ChannelValueChangeTimer, _channelValueChangeTimeout);
+        // public void EmitChannelDataChanged(int channelIndex) => this.ChannelDataChanged?.Invoke(this, channelIndex);
+        // public void EmitChannelValueChanged(int channelIndex) => this.ChannelValueChanged?.Invoke(this, channelIndex);
         private void ResetTimerTimeout(System.Timers.Timer timer, int timeout)
         {
             if (timer.Enabled)
@@ -592,9 +592,9 @@ namespace Loupedeck.StudioOneMidiPlugin
                     byte[] str = ce.Data.SubArray(6, ce.Data.Length - 7);
 
                     var receivedString = Encoding.UTF8.GetString(str, 0, str.Length);
-                    var displayIndex = offset / 4;
+                    var channelIndex = offset / 4;
 
-                    if (!this.channelData.TryGetValue(displayIndex.ToString(), out ChannelData? cd))
+                    if (!this.channelData.TryGetValue(channelIndex.ToString(), out ChannelData? cd))
                         return;
 
                     switch (offset % 4)
@@ -614,7 +614,7 @@ namespace Loupedeck.StudioOneMidiPlugin
                         case 3: // User Button Label
                             cd.UserLabel = receivedString;
                             var ubp = new UserButtonParams();
-                            ubp.channelIndex = displayIndex;
+                            ubp.channelIndex = channelIndex;
                             ubp.userValue = cd.UserValue;
                             ubp.userLabel = cd.UserLabel;
                             UserButtonChanged?.Invoke(this, ubp);

@@ -190,15 +190,15 @@
 		{
             base.OnLoad();
 
-            if (this.plugin == null) throw new InvalidOperationException("Uninitialised Plugin");
+            if (this._plugin == null) throw new InvalidOperationException("Uninitialised Plugin");
 
-            this.plugin.CommandNoteReceived += (object? sender, NoteOnEvent e) =>
+            this._plugin.CommandNoteReceived += (object? sender, NoteOnEvent e) =>
             {
                 var idx = $"{e.Channel}:{e.NoteNumber}";
 
-                if (!this.buttonData.ContainsKey(idx)) return;
+                if (!this._buttonData.ContainsKey(idx)) return;
 
-                var bd = this.buttonData[idx];
+                var bd = this._buttonData[idx];
                 if (bd == null) throw new InvalidOperationException("Uninitialised ButtonData");
 
                 bd.Activated = e.Velocity > 0;
@@ -212,7 +212,7 @@
         {
             var idx = $"{bd.midiChannel}:{bd.Code}"; 
 
-			this.buttonData[idx] = bd;
+			this._buttonData[idx] = bd;
 			this.AddParameter(idx, bd.Name, parameterGroup);
 		}
 	}

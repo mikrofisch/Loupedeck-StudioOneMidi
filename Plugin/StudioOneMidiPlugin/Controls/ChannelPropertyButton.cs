@@ -44,7 +44,7 @@
 
         protected override Boolean OnLoad()
         {
-            ((StudioOneMidiPlugin)Plugin).ChannelDataChanged += (object? sender, EventArgs e) =>
+            ((StudioOneMidiPlugin)Plugin).ChannelDataChanged += (s, e) =>
             {
                 this.ActionImageChanged();
             };

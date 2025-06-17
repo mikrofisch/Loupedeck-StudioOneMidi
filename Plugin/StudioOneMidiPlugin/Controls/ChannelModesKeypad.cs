@@ -133,7 +133,7 @@
 
             for (var i = 0; i < 6; i++)
             {
-                this.buttonData.TryAdd($"{i}", null);
+                this._buttonData.TryAdd($"{i}", null);
             }
 
             this.ButtonLayerDict.TryAdd(ButtonLayer.ViewSelector, new LayerData());
@@ -342,7 +342,7 @@
                 }
             }
 
-            this.plugin.CommandNoteReceived += (Object? sender, NoteOnEvent e) =>
+            this._plugin.CommandNoteReceived += (Object? sender, NoteOnEvent e) =>
             {
                 foreach (NoteReceiverEntry n in this.NoteReceivers)
                 {
@@ -363,8 +363,8 @@
                 }
             };
 
-            this.plugin.ChannelDataChanged += (Object? sender, EventArgs e) =>
-            { 
+            this._plugin.ChannelDataChanged += (s, e) =>
+            {
                 if (this.CurrentLayer == ButtonLayer.ChannelPropertiesPlay &&
                     (Int32)this.CurrentPlayLayerMode == idxPlayMuteSoloButton.ModeID)
                 {
@@ -372,7 +372,7 @@
                 }
             };
 
-            this.plugin.ActiveUserPagesReceived += (Object? sender, Int32 e) =>
+            this._plugin.ActiveUserPagesReceived += (Object? sender, Int32 e) =>
             {
                 var bd = this.GetButtonData(idxUserSendsUserModeButton) as UserModeButtonData;
                 if (bd != null) bd.ActiveUserPages = e;
@@ -380,14 +380,14 @@
 //                this.UpdateAllActionImages();
             };
 
-            this.plugin.UserPageChanged += (Object? sender, Int32 e) =>
+            this._plugin.UserPageChanged += (Object? sender, Int32 e) =>
             {
                 var umbd = this.GetButtonData(ButtonLayer.FaderModesSend, 0, 3) as UserModeButtonData;
                 umbd.setUserPage(e);
                 this.UpdateUserPageButton();
             };
 
-            this.plugin.SelectButtonPressed += (Object? sender, EventArgs e) =>
+            this._plugin.SelectButtonPressed += (Object? sender, EventArgs e) =>
             {
                 if (this.CurrentLayer == ButtonLayer.FaderModesSend && this.CurrentUserSendsLayerMode == UserSendsLayerMode.PluginSelectionActivated)
                 {
@@ -403,7 +403,7 @@
                 }
             };
 
-            this.plugin.FocusDeviceChanged += (Object? sender, string e) =>
+            this._plugin.FocusDeviceChanged += (Object? sender, string e) =>
             {
                 var pluginName = GetPluginName(e);
 
@@ -430,7 +430,7 @@
 
                 if (this.CurrentLayer == ButtonLayer.FaderModesSend && this.CurrentUserSendsLayerMode == UserSendsLayerMode.PluginSelectionActivated)
                 {
-                    this.plugin.EmitSelectModeChanged(SelectButtonMode.User);
+                    this._plugin.EmitSelectModeChanged(SelectButtonMode.User);
                 }
                 if (this.CurrentLayer == ButtonLayer.FaderModesSend && this.CurrentUserSendsLayerMode == UserSendsLayerMode.User)
                 {
@@ -439,7 +439,7 @@
                 }
             };
 
-            this.plugin.AutomationModeChanged += (Object? sender, AutomationMode e) =>
+            this._plugin.AutomationModeChanged += (Object? sender, AutomationMode e) =>
             {
                 var ambd = this.GetButtonData(idxPlayAutomationModeButton) as AutomationModeButtonData;
                 ambd.CurrentMode = e;
@@ -451,7 +451,7 @@
                 }
             };
 
-            this.plugin.RecPreModeChanged += (Object? sender, RecPreMode rpm) =>
+            this._plugin.RecPreModeChanged += (Object? sender, RecPreMode rpm) =>
             {
                 if (this.CurrentLayer == ButtonLayer.ChannelPropertiesRec &&
                     (this.CurrentRecLayerMode == RecLayerMode.All || this.CurrentRecLayerMode == RecLayerMode.PreModeActivated))
@@ -460,7 +460,7 @@
                 }
             };
 
-            this.plugin.FunctionKeyChanged += (Object? sender, FunctionKeyParams fke) =>
+            this._plugin.FunctionKeyChanged += (Object? sender, FunctionKeyParams fke) =>
             {
                 if (fke.KeyID == 12 || fke.KeyID == 13)
                 {
@@ -472,12 +472,12 @@
                 }
             };
 
-            this.plugin.PropertySelectionChanged += (object? sender, ChannelProperty.PropertyType e) =>
+            this._plugin.PropertySelectionChanged += (object? sender, ChannelProperty.PropertyType e) =>
             {
                 (this.GetButtonData(idxPlayMuteSoloButton) as PropertyButtonData).setPropertyType(e);
                 // this.EmitActionImageChanged();
             };
-            this.plugin.UserButtonMenuActivated += (object? sender, UserButtonMenuParams e) =>
+            this._plugin.UserButtonMenuActivated += (object? sender, UserButtonMenuParams e) =>
             {
                 if (e.IsActive)
                 {
@@ -536,7 +536,7 @@
         }
 
 
-        protected override BitmapImage GetCommandImage(String actionParameter, PluginImageSize imageSize)
+        protected override BitmapImage? GetCommandImage(String actionParameter, PluginImageSize imageSize)
         {
             if (actionParameter == null) return null;
 
@@ -593,20 +593,20 @@
                     switch (this.CurrentLayer)
                     {
                         case ButtonLayer.ChannelPropertiesPlay:
-                            this.plugin.SetChannelFaderMode(ChannelFaderMode.Pan);
+                            this._plugin.SetChannelFaderMode(ChannelFaderMode.Pan);
                             selectMode = (this.GetButtonData(idxPlaySelButton) as ModeChannelSelectButtonData).Activated ? SelectButtonMode.Select
                                                                                                                       : SelectButtonMode.Property;
-                            this.plugin.EmitSelectModeChanged(selectMode);
-                            this.plugin.EmitPropertySelectionChanged((this.GetButtonData(idxPlayMuteSoloSelectButton) as PropertySelectionButtonData).CurrentType);
+                            this._plugin.EmitSelectModeChanged(selectMode);
+                            this._plugin.EmitPropertySelectionChanged((this.GetButtonData(idxPlayMuteSoloSelectButton) as PropertySelectionButtonData).CurrentType);
                             break;
                         case ButtonLayer.ChannelPropertiesRec:
-                            this.plugin.SetChannelFaderMode(ChannelFaderMode.Pan);
-                            this.plugin.EmitSelectModeChanged(SelectButtonMode.Property);
-                            this.plugin.EmitPropertySelectionChanged((this.GetButtonData(idxRecArmMonitorButton) as PropertySelectionButtonData).CurrentType);
+                            this._plugin.SetChannelFaderMode(ChannelFaderMode.Pan);
+                            this._plugin.EmitSelectModeChanged(SelectButtonMode.Property);
+                            this._plugin.EmitPropertySelectionChanged((this.GetButtonData(idxRecArmMonitorButton) as PropertySelectionButtonData).CurrentType);
                             break;
                         case ButtonLayer.FaderModesShow:
-                            this.plugin.SetChannelFaderMode(ChannelFaderMode.Pan);
-                            this.plugin.EmitPropertySelectionChanged(ChannelProperty.PropertyType.Select);
+                            this._plugin.SetChannelFaderMode(ChannelFaderMode.Pan);
+                            this._plugin.EmitPropertySelectionChanged(ChannelProperty.PropertyType.Select);
                             break;
                         case ButtonLayer.FaderModesSend:
                             if (LastUserSendsMode == UserSendsMode.Sends)
@@ -619,7 +619,7 @@
                                 selectMode = SelectButtonMode.User;
                                 this.GetButtonData(idxUserButton).runCommand();
                             }
-                            this.plugin.EmitSelectModeChanged(selectMode);
+                            this._plugin.EmitSelectModeChanged(selectMode);
                             break;
                     }
                     this.UpdateAllActionImages();
@@ -650,7 +650,7 @@
                                     (this.GetButtonData(idxPlayMuteSoloSelectButton) as PropertySelectionButtonData).Activated = true;
                                     (this.GetButtonData(idxPlaySelButton) as ModeChannelSelectButtonData).Activated = false;
                                     this.CurrentPlayLayerMode = PlayLayerMode.PropertySelect;
-                                    this.plugin.EmitSelectModeChanged(SelectButtonMode.Property);
+                                    this._plugin.EmitSelectModeChanged(SelectButtonMode.Property);
                                 }
                                 break;
                             case 2: // ARRANGER / AUTO
@@ -746,9 +746,9 @@
                                 {
                                     this.CurrentRecLayerMode = RecLayerMode.ClickActivated;
                                     (this.GetButtonData(idxRecClickButton) as MenuCommandButtonData).MenuActivated = true;
-                                    this.plugin.EmitSelectButtonCustomModeChanged(new SelectButtonCustomParams { ButtonIndex = 4, 
+                                    this._plugin.EmitSelectButtonCustomModeChanged(new SelectButtonCustomParams { ButtonIndex = 4, 
                                         MidiChannel = 14, MidiCode = 0x58, IconName = "tempo_tap", BgColor = ClickBgColor, BarColor = BitmapColor.Transparent });
-                                    this.plugin.EmitSelectButtonCustomModeChanged(new SelectButtonCustomParams { ButtonIndex = 5, 
+                                    this._plugin.EmitSelectButtonCustomModeChanged(new SelectButtonCustomParams { ButtonIndex = 5, 
                                         MidiChannel = 0, MidiCode = 0x59, IconName = "click_vol", BgColor = ClickBgColor, BarColor = BitmapColor.White
                                     });
                                 }
@@ -756,8 +756,8 @@
                                 {
                                     this.CurrentRecLayerMode = RecLayerMode.All;
                                     (this.GetButtonData(idxRecClickButton) as MenuCommandButtonData).MenuActivated = false;
-                                    this.plugin.EmitSelectModeChanged(SelectButtonMode.Property);
-                                    this.plugin.SetChannelFaderMode(ChannelFaderMode.Pan);
+                                    this._plugin.EmitSelectModeChanged(SelectButtonMode.Property);
+                                    this._plugin.SetChannelFaderMode(ChannelFaderMode.Pan);
                                 }
                                 break;
                         }
@@ -800,12 +800,12 @@
                             if (this.CurrentUserSendsLayerMode == UserSendsLayerMode.User)
                             {
                                 this.CurrentUserSendsLayerMode = UserSendsLayerMode.PluginSelectionActivated;
-                                this.plugin.EmitSelectModeChanged(SelectButtonMode.FX);
+                                this._plugin.EmitSelectModeChanged(SelectButtonMode.FX);
                             }
                             else if (this.CurrentUserSendsLayerMode == UserSendsLayerMode.PluginSelectionActivated)
                             {
                                 this.CurrentUserSendsLayerMode = UserSendsLayerMode.User;
-                                this.plugin.EmitSelectModeChanged(SelectButtonMode.User);
+                                this._plugin.EmitSelectModeChanged(SelectButtonMode.User);
                                 (this.GetButtonData(idxUserSendsUserModeButton) as UserModeButtonData).sendUserPage();
                             }
                             (this.GetButtonData(idxUserSendsPluginsButton) as ModeButtonData).Activated = this.CurrentUserSendsLayerMode == UserSendsLayerMode.PluginSelectionActivated;
@@ -820,14 +820,14 @@
                                     LastUserSendsMode = UserSendsMode.User;
                                     this.UpdateAllActionImages();
                                 }
-                                this.plugin.EmitSelectModeChanged(SelectButtonMode.User);
+                                this._plugin.EmitSelectModeChanged(SelectButtonMode.User);
                             }
                             break;
                         case 4: // VIEWS (BACK)
                             if (this.CurrentUserSendsLayerMode != UserSendsLayerMode.PluginSelectionActivated)
                             {
                                 this.CurrentLayer = ButtonLayer.ViewSelector;
-                                this.plugin.EmitSelectModeChanged(SelectButtonMode.Select);
+                                this._plugin.EmitSelectModeChanged(SelectButtonMode.Select);
                                 // (this.GetButtonData(idxUserSendsUserModeButton) as UserModeButtonData).clearActive();
                                 this.UpdateAllActionImages();
                             }
@@ -842,7 +842,7 @@
                                     (this.GetButtonData(idxUserSendsUserModeButton) as UserModeButtonData).clearActive();
                                     this.UpdateAllActionImages();
                                 }
-                                this.plugin.EmitSelectModeChanged(SelectButtonMode.Send);
+                                this._plugin.EmitSelectModeChanged(SelectButtonMode.Send);
                             }
                             break;
                     }
@@ -858,7 +858,7 @@
                     this.CurrentPlayLayerMode == PlayLayerMode.LayersActivated
                     && actionParameter == "1")
                 {
-                    this.plugin.SendMidiNote(14, 0x3B);
+                    this._plugin.SendMidiNote(14, 0x3B);
                     return true;
                 }
             }

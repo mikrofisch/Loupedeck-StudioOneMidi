@@ -32,7 +32,7 @@ namespace Loupedeck.StudioOneMidiPlugin
             _timeoutTimer.Start();
         }
 
-        private void OnChannelValueChanged(object? sender, EventArgs e)
+        private void OnChannelValueChanged(object? sender, int e)
         {
             if (!_isActive) return;
 

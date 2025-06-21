@@ -189,7 +189,7 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
             }
             if (sendChannelActiveChange)
             {
-                ((StudioOneMidiPlugin)Plugin).EmitChannelActiveChanged(new ChannelActiveParams { ChannelIndex = bd.ChannelIndex, IsActive = bd.Enabled });
+//                ((StudioOneMidiPlugin)Plugin).EmitChannelActiveChanged(new ChannelActiveParams { ChannelIndex = bd.ChannelIndex, IsActive = bd.Enabled });
             }
 
             return bd.getImage(imageSize);

@@ -31,8 +31,8 @@ namespace Loupedeck.StudioOneMidiPlugin
 
         public ConcurrentDictionary<String, ChannelData> channelData = new ConcurrentDictionary<String, ChannelData>();
 
-        public event EventHandler? ChannelDataChanged;
-        public event EventHandler? ChannelValueChanged;
+        public event EventHandler<int>? ChannelDataChanged;
+        public event EventHandler<int>? ChannelValueChanged;
         public event EventHandler<NoteOnEvent>? CommandNoteReceived;
         public event EventHandler<NoteOnEvent>? OneWayCommandNoteReceived;
         public event EventHandler<Int32>? ActiveUserPagesReceived;
@@ -248,14 +248,9 @@ namespace Loupedeck.StudioOneMidiPlugin
             return pluginName;
         }
 
-        // Timers used to delay the sending of channel data change events to
-        // to consolidate multipe successive changes into a single event.
-        // Just in case, a semaphore is used as a lock to ensure channel
-        // description and value changes are sent successively.
-        private SemaphoreSlim ChannelDataChangeLock = new SemaphoreSlim(1, 1);
-        private readonly System.Timers.Timer ChannelDataChangeTimer, ChannelValueChangeTimer;
-        private const int _channelDataChangeTimeout = 30; // milliseconds
-        private const int _channelValueChangeTimeout = 10; // milliseconds
+        //private readonly System.Timers.Timer ChannelDataChangeTimer, ChannelValueChangeTimer;
+        //private const int _channelDataChangeTimeout = 30; // milliseconds
+        //private const int _channelValueChangeTimeout = 10; // milliseconds
 
         private DialStepsDetector _dialStepsDetector;
 
@@ -278,22 +273,22 @@ namespace Loupedeck.StudioOneMidiPlugin
                 this.channelData[i.ToString()] = new ChannelData(this, i);
             }
 
-			this.ChannelDataChangeTimer = new System.Timers.Timer(_channelDataChangeTimeout);
-			this.ChannelDataChangeTimer.AutoReset = false;
-            this.ChannelDataChangeTimer.Elapsed += (Object? sender, System.Timers.ElapsedEventArgs e) =>
-            {
-                ChannelDataChangeLock.Wait();
-                ChannelDataChanged?.Invoke(this, EventArgs.Empty);
-                ChannelDataChangeLock.Release();
-            };
-            this.ChannelValueChangeTimer = new System.Timers.Timer(_channelValueChangeTimeout);
-            this.ChannelValueChangeTimer.AutoReset = false;
-            this.ChannelValueChangeTimer.Elapsed += (Object? sender, System.Timers.ElapsedEventArgs e) =>
-            {
-                ChannelDataChangeLock.Wait();
-                ChannelValueChanged?.Invoke(this, EventArgs.Empty);
-                ChannelDataChangeLock.Release();
-            };
+   //		  this.ChannelDataChangeTimer = new System.Timers.Timer(_channelDataChangeTimeout);
+   //		  this.ChannelDataChangeTimer.AutoReset = false;
+   //         this.ChannelDataChangeTimer.Elapsed += (Object? sender, System.Timers.ElapsedEventArgs e) =>
+   //         {
+   //             ChannelDataChangeLock.Wait();
+   //             ChannelDataChanged?.Invoke(this, EventArgs.Empty);
+   //             ChannelDataChangeLock.Release();
+   //         };
+   //         this.ChannelValueChangeTimer = new System.Timers.Timer(_channelValueChangeTimeout);
+   //         this.ChannelValueChangeTimer.AutoReset = false;
+   //         this.ChannelValueChangeTimer.Elapsed += (Object? sender, System.Timers.ElapsedEventArgs e) =>
+   //         {
+   //             ChannelDataChangeLock.Wait();
+   //             ChannelValueChanged?.Invoke(this, EventArgs.Empty);
+   //             ChannelDataChangeLock.Release();
+   //         };
 
             this._dialStepsDetector = new DialStepsDetector(this);
         }
@@ -336,21 +331,21 @@ namespace Loupedeck.StudioOneMidiPlugin
             }
         }
 
-        public void EmitChannelDataChanged() => ResetTimerTimeout(this.ChannelDataChangeTimer, _channelDataChangeTimeout);
-        public void EmitChannelValueChanged() => ResetTimerTimeout(this.ChannelValueChangeTimer, _channelValueChangeTimeout);
-        // public void EmitChannelDataChanged(int channelIndex) => this.ChannelDataChanged?.Invoke(this, channelIndex);
-        // public void EmitChannelValueChanged(int channelIndex) => this.ChannelValueChanged?.Invoke(this, channelIndex);
-        private void ResetTimerTimeout(System.Timers.Timer timer, int timeout)
-        {
-            if (timer.Enabled)
-            {
-                // If the timer is already running, extend the timeout to avoid multiple events
-                timer.Interval = timeout;
-                // Debug.WriteLine($"Timer reset to {timeout} ms");
-                return;
-            }
-            timer.Start();
-        }
+        //        public void EmitChannelDataChanged() => ResetTimerTimeout(this.ChannelDataChangeTimer, _channelDataChangeTimeout);
+        //        public void EmitChannelValueChanged() => ResetTimerTimeout(this.ChannelValueChangeTimer, _channelValueChangeTimeout);
+        //private void ResetTimerTimeout(System.Timers.Timer timer, int timeout)
+        //{
+        //    if (timer.Enabled)
+        //    {
+        //        // If the timer is already running, extend the timeout to avoid multiple events
+        //        timer.Interval = timeout;
+        //        // Debug.WriteLine($"Timer reset to {timeout} ms");
+        //        return;
+        //    }
+        //    timer.Start();
+        //}
+        public void EmitChannelDataChanged(int channelIndex) => this.ChannelDataChanged?.Invoke(this, channelIndex);
+        public void EmitChannelValueChanged(int channelIndex) => this.ChannelValueChanged?.Invoke(this, channelIndex);
 
         public void EmitSelectedButtonPressed() => this.SelectButtonPressed?.Invoke(this, EventArgs.Empty);
 
@@ -364,7 +359,7 @@ namespace Loupedeck.StudioOneMidiPlugin
 
         public void EmitUserButtonMenuActivated(UserButtonMenuParams ubmp) => this.UserButtonMenuActivated?.Invoke(this, ubmp);
 
-        public void EmitChannelActiveChanged(ChannelActiveParams cap) => this.ChannelActiveCanged?.Invoke(this, cap);
+//        public void EmitChannelActiveChanged(ChannelActiveParams cap) => this.ChannelActiveCanged?.Invoke(this, cap);
 
         public override void RunCommand(String commandName, String parameter)
         {
@@ -453,7 +448,7 @@ namespace Loupedeck.StudioOneMidiPlugin
 
                     cd.Value = pbe.PitchValue / 16383.0f;
 
-                    this.EmitChannelValueChanged();
+                    this.EmitChannelValueChanged(pbe.Channel);
                 }
             }
             // Note event -> toggle settings
@@ -482,7 +477,7 @@ namespace Loupedeck.StudioOneMidiPlugin
 
                     cd.BoolProperty[(Int32)eventType] = ce.Velocity > 0;
 
-                    this.EmitChannelDataChanged();
+                    this.EmitChannelDataChanged(channelIndex);
                 }
                 else if (ce.Channel == 0)
                 {
@@ -497,7 +492,7 @@ namespace Loupedeck.StudioOneMidiPlugin
                             if (cd.UserValue != ubp.userValue)
                             {
                                 cd.UserValue = ubp.userValue;
-                                this.EmitChannelDataChanged();
+                                this.EmitChannelDataChanged(ubp.channelIndex);
                             }
                             ubp.userLabel = cd.UserLabel;
                         }
@@ -601,15 +596,15 @@ namespace Loupedeck.StudioOneMidiPlugin
                     {
                         case 0: // Label
                             cd.Label = receivedString;
-                            this.EmitChannelDataChanged();
+                            this.EmitChannelDataChanged(channelIndex);
                             break;
                         case 1: // Value
                             cd.ValueStr = receivedString;
-                            this.EmitChannelValueChanged();
+                            this.EmitChannelValueChanged(channelIndex);
                             break;
                         case 2: // Description
                             cd.Description = receivedString;
-                            this.EmitChannelDataChanged();
+                            this.EmitChannelDataChanged(channelIndex);
                             break;
                         case 3: // User Button Label
                             cd.UserLabel = receivedString;

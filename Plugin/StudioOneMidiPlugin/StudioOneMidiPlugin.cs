@@ -111,6 +111,7 @@ namespace Loupedeck.StudioOneMidiPlugin
         {
             public Int32 ChannelIndex { get; set; }
             public Boolean IsActive { get; set; } = true;
+            public Boolean Update { get; set; } = false;
         }
         public event EventHandler<ChannelActiveParams>? ChannelActiveCanged; 
 
@@ -359,7 +360,7 @@ namespace Loupedeck.StudioOneMidiPlugin
 
         public void EmitUserButtonMenuActivated(UserButtonMenuParams ubmp) => this.UserButtonMenuActivated?.Invoke(this, ubmp);
 
-//        public void EmitChannelActiveChanged(ChannelActiveParams cap) => this.ChannelActiveCanged?.Invoke(this, cap);
+        public void EmitChannelActiveChanged(ChannelActiveParams cap) => this.ChannelActiveCanged?.Invoke(this, cap);
 
         public override void RunCommand(String commandName, String parameter)
         {

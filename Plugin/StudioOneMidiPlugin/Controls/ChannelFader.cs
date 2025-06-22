@@ -1,12 +1,12 @@
 ﻿namespace Loupedeck.StudioOneMidiPlugin.Controls
 {
-    using System;
-    using System.Text.RegularExpressions;
-
-    using static Loupedeck.StudioOneMidiPlugin.StudioOneMidiPlugin;
-
-    using PluginSettings;
     using Helpers;
+    using PluginSettings;
+    using System;
+    using System.Collections.Concurrent;
+    using System.Diagnostics;
+    using System.Text.RegularExpressions;
+    using static Loupedeck.StudioOneMidiPlugin.StudioOneMidiPlugin;
 
     public class ChannelFader : ActionEditorAdjustment
 	{
@@ -39,6 +39,9 @@
         }
         private readonly CustomParams[] CustomSettings = new CustomParams[StudioOneMidiPlugin.ChannelCount];
 
+        private readonly System.Timers.Timer ActionImageUpdateTimer;
+        private const int _actionImageUpdateTimeout = 20; // milliseconds
+
         public ChannelFader() : base(hasReset: true)
 		{
             this.DisplayName = "Channel Fader";
@@ -64,22 +67,31 @@
             {
                 IsActive[i] = true;
             }
+
+            // Action image update timer
+            this.ActionImageUpdateTimer = new System.Timers.Timer(_actionImageUpdateTimeout);
+            this.ActionImageUpdateTimer.AutoReset = false;
+            this.ActionImageUpdateTimer.Elapsed += (Object? sender, System.Timers.ElapsedEventArgs e) =>
+            {
+                // Debug.WriteLine("ChannelFader.ActionImageUpdateTimer.Elapsed");
+                ActionImageChanged();
+            };
         }
 
         protected override bool OnLoad()
         {
             var plugin = (StudioOneMidiPlugin)base.Plugin;
 
-            plugin.ChannelDataChanged += (s, e) => this.ActionImageChanged();
+            plugin.ChannelDataChanged += (s, e) => this.TriggerActionImageUpdateTimer();
 
-            plugin.ChannelValueChanged += (s, e) => this.ActionImageChanged();
+            plugin.ChannelValueChanged += (s, e) => this.TriggerActionImageUpdateTimer();
 
             plugin.SelectModeChanged += (Object? sender, SelectButtonMode e) =>
             {
                 this.SelectMode = e;
                 Array.Clear(this.CustomSettings);
 
-                this.ActionImageChanged();
+                this.TriggerActionImageUpdateTimer();
             };
 
             plugin.SelectButtonCustomModeChanged += (Object? sender, SelectButtonCustomParams cp) =>
@@ -90,25 +102,25 @@
                     BarColor = cp.BarColor,
                 };
 
-                this.ActionImageChanged();
+                this.TriggerActionImageUpdateTimer();
             };
 
             plugin.FaderModeChanged += (Object? sender, FaderMode e) =>
             {
                 this.FaderMode = e;
-                this.ActionImageChanged();
+                this.TriggerActionImageUpdateTimer();
             };
 
             plugin.FocusDeviceChanged += (Object? sender, String e) =>
             {
                 this.PluginName = GetPluginName(e);
-                this.ActionImageChanged();
+                this.TriggerActionImageUpdateTimer();
             };
 
             plugin.ChannelActiveCanged += (Object? sender, ChannelActiveParams e) =>
             {
                 IsActive[e.ChannelIndex] = e.IsActive;
-                this.ActionImageChanged();
+                if (e.Update) this.TriggerActionImageUpdateTimer();
             };
 
             plugin.UserPageChanged += (Object? sender, Int32 e) =>
@@ -165,8 +177,20 @@
 
             return true;
 		}
+        
+        private void TriggerActionImageUpdateTimer()
+        {
+            if (ActionImageUpdateTimer.Enabled)
+            {
+                // If the timer is already running, extend the timeout to avoid multiple events
+                ActionImageUpdateTimer.Interval = _actionImageUpdateTimeout;
+                // Debug.WriteLine($"ChannelFader.ActionImageUpdateTimer reset to {_actionImageUpdateTimeout} ms");
+                return;
+            }
+            ActionImageUpdateTimer.Start();
+        }
 
-		protected override BitmapImage? GetCommandImage(ActionEditorActionParameters actionParameters, Int32 imageWidth, Int32 imageHeight)
+        protected override BitmapImage? GetCommandImage(ActionEditorActionParameters actionParameters, Int32 imageWidth, Int32 imageHeight)
         {
 
             if (actionParameters == null) return null;
@@ -306,7 +330,10 @@
 
                 bb.DrawText(valStr.Replace(' ', '\n'), 0, bb.Height / 4, bb.Width, bb.Height / 2, valueColor);
             }
-            return bb.ToImage();
+
+            var image = bb.ToImage();
+
+            return image;
 		}
 
 		private ChannelData GetChannel(String actionParameter)

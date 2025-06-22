@@ -2,16 +2,15 @@
 using Melanchall.DryWetMidi.Core;
 using PluginSettings;
 using SharpHook;
-using System;
 using System.Collections.Concurrent;
+using System.Net.Sockets;
 using System.Text.RegularExpressions;
-using System.Threading;
+using static Loupedeck.StudioOneMidiPlugin.Controls.SelectButtonData;
 using static Loupedeck.StudioOneMidiPlugin.StudioOneMidiPlugin;
-
 
 namespace Loupedeck.StudioOneMidiPlugin.Controls
 {
-    internal class MixFolder : PluginDynamicFolder
+    internal class MixKeypad : StudioOneButton<ButtonData>
     {
         private static readonly BitmapColor ClickBgColor = new BitmapColor(50, 114, 134);
         public static readonly BitmapColor DefaultBarColor = new BitmapColor(60, 192, 232);
@@ -121,12 +120,11 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
 
         private List<string> MenuButtons = new();
         private List<string> SelectButtons = new();
-        private List<string> Faders = new();
 
         private class FavoritePluginPatch
-        { 
-            public string Name = ""; 
-            public FinderColor Color = FinderColor.Black; 
+        {
+            public string Name = "";
+            public FinderColor Color = FinderColor.Black;
         }
         private Dictionary<string, FavoritePluginPatch> FavoritePlugins = new();
 
@@ -134,42 +132,34 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
         protected ConcurrentDictionary<int, SelectButtonData?> SelectButtonDataDict = new();
         private bool SelectButtonListenToMidi = false;
 
-        // Faders
-        private SelectButtonMode SelectMode = SelectButtonMode.Select;
-        private FaderMode FaderMode = FaderMode.Volume;
-        private static BitmapImage? IconVolume, IconPan;
-        private String PluginName = "";
-        private static readonly PlugSettingsFinder UserPlugSettingsFinder = new PlugSettingsFinder(new PlugSettingsFinder.PlugParamSetting
-        {
-            OnColor = new FinderColorOnColor(ColorConv.Convert(DefaultBarColor)),     // Used for volume bar
-            OffColor = new FinderColor(80, 80, 80),         // Used for volume bar
-            TextOnColor = FinderColor.White,
-            TextOffColor = new FinderColor(80, 80, 80)
-        });
-
         private static readonly bool[] FaderIsActive = new bool[StudioOneMidiPlugin.ChannelCount];
 
-        // Wheel tools
-        private ConcurrentDictionary<int, ButtonData?> WheelButtonData = new();
-
+        // Channel data update timer
         private static bool[] ChannelDataUpdated = new bool[StudioOneMidiPlugin.ChannelCount];
 
         private readonly System.Timers.Timer ChannelDataUpdateTimer;
         private const int _channelDataUpdateTimeout = 30; // milliseconds
 
-        // Custom settings for value display that is invoked when individual faders
-        // get reconfigured on the fly to show specific parameters such as tempo.
-        private class CustomParams
+        public MixKeypad() : base()
         {
-            public BitmapColor FaderBgColor = BitmapColor.Black;
-            public BitmapColor FaderBarColor = DefaultBarColor;
-        }
-        private readonly CustomParams[] CustomSettings = new CustomParams[StudioOneMidiPlugin.ChannelCount];
+            this.DisplayName = "Mixer Keypad Button";
+            this.Description = "Special button for setting up the mixer keys";
 
-        public MixFolder()
-        {
-            this.DisplayName = "Channel Mixer";
-            this.Description = "Mixer control surface";
+            this.MenuButtons.Clear();
+            this.SelectButtons.Clear();
+            this.FavoritePlugins.Clear();
+
+            // SelectButtons: 0, 3, 4, 7, 8, 11
+            // Menu Buttons : 1, 2, 5, 6, 9, 10
+
+            // Commands for buttons
+            for (int i = 0; i < 3; i++)
+            {
+                AddControl("select:" + i, $"{i+1}-1", SelectButtons);
+                AddControl("menu:" + (i * 2), $"{i + 1}-2", MenuButtons);
+                AddControl("menu:" + (i * 2 + 1), $"{i + 1}-3", MenuButtons);
+                AddControl("select:" + (i + 3), $"{i + 1}-4", SelectButtons);
+            }
 
             this.MenuButtonLayerDict.TryAdd(ButtonLayer.ViewSelector, new LayerData());
 
@@ -366,18 +356,7 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
                 this.SelectButtonDataDict[i] = new SelectButtonData(i);
             }
 
-            // Faders
-            IconVolume ??= EmbeddedResources.ReadImage(EmbeddedResources.FindFile("dial_volume_52px.png"));
-            IconPan ??= EmbeddedResources.ReadImage(EmbeddedResources.FindFile("dial_pan_52px.png"));
-
-            for (var i = 0; i < FaderIsActive.Length; i++)
-            {
-                FaderIsActive[i] = true;
-            }
-
-            // Wheel Tools
-            WheelButtonData[0] = new CommandButtonData(0x5E, 0x5D, "Play", "play");
-
+            // Channel data update timer
             this.ChannelDataUpdateTimer = new System.Timers.Timer(_channelDataUpdateTimeout);
             this.ChannelDataUpdateTimer.AutoReset = false;
             this.ChannelDataUpdateTimer.Elapsed += (Object? sender, System.Timers.ElapsedEventArgs e) =>
@@ -386,7 +365,7 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
                 {
                     if (ChannelDataUpdated[i])
                     {
-                        CommandImageChanged("select:" + i);
+                        ActionImageChanged("select:" + i);
                         ChannelDataUpdated[i] = false;
                     }
                 }
@@ -394,9 +373,9 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
 
         }
 
-        public override bool Load()
+        protected override bool OnLoad()
         {
-            var result = base.Load();
+            var result = base.OnLoad();
 
             var plugin = (StudioOneMidiPlugin)this.Plugin;
 
@@ -431,7 +410,7 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
                         //
                         if (this.CurrentLayer == n.Index.ButtonLayerID)
                         {
-                            this.CommandImageChanged($"menu:{n.Index.ButtonIndex}");
+                            this.ActionImageChanged($"menu:{n.Index.ButtonIndex}");
                         }
                     }
                 }
@@ -444,10 +423,10 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
                         if (bd != null && bd.CurrentMode == SelectButtonMode.Custom && bd.CurrentCustomParams.MidiCode == e.NoteNumber)
                         {
                             bd.CustomIsActivated = e.Velocity > 0;
-                            this.CommandImageChanged("select:" + bd.ChannelIndex);
+                            this.ActionImageChanged("select:" + bd.ChannelIndex);
                         }
                     }
-//                    this.UpdateAllCommandImages(SelectButtons);
+                    //                    this.UpdateAllCommandImages(SelectButtons);
                 }
             };
 
@@ -458,7 +437,7 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
                     (Int32)this.CurrentPlayLayerMode == idxPlayMuteSoloButton.ModeID &&
                     e == ChannelCount)
                 {
-                    this.CommandImageChanged($"menu:{idxPlayMuteSoloButton.ButtonIndex}");
+                    this.ActionImageChanged($"menu:{idxPlayMuteSoloButton.ButtonIndex}");
                 }
 
                 // Select buttons
@@ -474,13 +453,8 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
                         return;
                     }
                     ChannelDataUpdateTimer.Start();
-
-                    // Faders
-                    AdjustmentImageChanged("fader:" + e);
                 }
             };
-
-            plugin.ChannelValueChanged += (s, e) => AdjustmentImageChanged("fader:" + e);
 
             plugin.ActiveUserPagesReceived += (Object? sender, Int32 e) =>
             {
@@ -552,17 +526,13 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
                 }
                 if (this.CurrentLayer == ButtonLayer.FaderModesSend && this.CurrentUserSendsLayerMode == UserSendsLayerMode.User)
                 {
-                    this.CommandImageChanged("menu:0");
-                    this.CommandImageChanged("menu:1");
+                    this.ActionImageChanged("menu:0");
+                    this.ActionImageChanged("menu:1");
                 }
 
                 // Select buttons
                 SelectButtonData.FocusDeviceName = e;
                 SelectButtonData.PluginName = GetPluginName(e);
-
-                // Faders
-                this.PluginName = GetPluginName(e);
-//                this.UpdateAllAdjustmentImages();
             };
 
             plugin.AutomationModeChanged += (Object? sender, AutomationMode e) =>
@@ -573,7 +543,7 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
                 if (this.CurrentLayer == ButtonLayer.ChannelPropertiesPlay &&
                    (Int32)this.CurrentPlayLayerMode == idxPlayAutomationModeButton.ModeID)
                 {
-                    this.CommandImageChanged($"menu:{idxPlayAutomationModeButton.ButtonIndex}");
+                    this.ActionImageChanged($"menu:{idxPlayAutomationModeButton.ButtonIndex}");
                 }
             };
 
@@ -582,7 +552,7 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
                 if (this.CurrentLayer == ButtonLayer.ChannelPropertiesRec &&
                     (this.CurrentRecLayerMode == RecLayerMode.All || this.CurrentRecLayerMode == RecLayerMode.PreModeActivated))
                 {
-                    this.CommandImageChanged($"menu:{idxRecPreModeButton.ButtonIndex}");
+                    this.ActionImageChanged($"menu:{idxRecPreModeButton.ButtonIndex}");
                 }
             };
 
@@ -593,7 +563,7 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
                     ((CommandButtonData)GetMenuButtonData(ButtonLayer.FaderModesSend, 1, fke.KeyID - 12)).Name = fke.FunctionName ?? "";
                     if (this.CurrentLayer == ButtonLayer.FaderModesSend && this.CurrentUserSendsLayerMode == UserSendsLayerMode.User)
                     {
-                        this.CommandImageChanged($"menu:{fke.KeyID + 2}");
+                        this.ActionImageChanged($"menu:{fke.KeyID + 2}");
                     }
                 }
             };
@@ -691,11 +661,6 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
                 this.SelectButtonListenToMidi = false;
                 this.UpdateAllCommandImages(SelectButtons);
 
-                // Faders
-                this.SelectMode = e;
-                Array.Clear(this.CustomSettings);
-
-                this.UpdateAllAdjustmentImages();
             };
 
             plugin.SelectButtonCustomModeChanged += (Object? sender, SelectButtonCustomParams cp) =>
@@ -710,21 +675,6 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
                 }
                 this.UpdateAllCommandImages(SelectButtons);
 
-                // Faders
-                this.CustomSettings[cp.ButtonIndex] = new CustomParams
-                {
-                    FaderBgColor = cp.BgColor,
-                    FaderBarColor = cp.BarColor,
-                };
-
-                this.UpdateAllAdjustmentImages();
-            };
-
-            // Faders
-            plugin.FaderModeChanged += (Object? sender, FaderMode e) =>
-            {
-                this.FaderMode = e;
-                this.UpdateAllAdjustmentImages();
             };
 
             //plugin.ChannelActiveCanged += (Object? sender, ChannelActiveParams e) =>
@@ -740,80 +690,11 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
             };
 
             return result;
-        }
+        } // OnLoad()
 
-        public override PluginDynamicFolderNavigation GetNavigationArea(DeviceType _)
+        protected override BitmapImage GetCommandImage(string actionParameter, PluginImageSize imageSize)
         {
-            return PluginDynamicFolderNavigation.None;
-        }
-
-        public override IEnumerable<string> GetButtonPressActionNames(DeviceType deviceType)
-        {
-            var lst = new List<string>();
-            this.MenuButtons.Clear();
-            this.SelectButtons.Clear();
-            this.FavoritePlugins.Clear();
-
-            // SelectButtons: 0, 3, 4, 7, 8, 11
-            // Menu Buttons : 1, 2, 5, 6, 9, 10
-
-            // Commands for buttons
-            for (int i = 0; i < 3; i++)
-            {
-                AddControl("select:" + i, lst, SelectButtons, CreateCommandName);
-                AddControl("menu:" + (i * 2), lst, MenuButtons, CreateCommandName);
-                AddControl("menu:" + (i * 2 + 1), lst, MenuButtons, CreateCommandName);
-                AddControl("select:" + (i + 3), lst, SelectButtons, CreateCommandName);
-            }
-
-            foreach (var idx in lst)
-            {
-                FavoritePlugins.Add(idx.Substring(idx.LastIndexOf('_') + 1), new FavoritePluginPatch());
-            }
-            return lst;
-        }
-
-        public override IEnumerable<string> GetEncoderRotateActionNames(DeviceType deviceType)
-        {
-            var lst = new List<string>();
-            this.Faders.Clear();
-
-            for (int i = 0; i < 6; i++) AddControl("fader:" + i, lst, Faders, CreateAdjustmentName);
-
-            return lst;
-        }
-        public override IEnumerable<string> GetEncoderPressActionNames(DeviceType deviceType)
-        {
-            var lst = new List<string>();
-
-            for (int i = 0; i < 6; i++) AddControl("fader:" + i, lst, Faders, CreateCommandName);
-            
-            return lst;
-        }
-
-        public override IEnumerable<string> GetWheelToolNames(DeviceType deviceType)
-        {
-            var lst = new List<string>();
-
-            for (int i = 0; i < 1; i++) lst.Add(CreateCommandName("wheel:" + i));
-
-            return lst;
-        }
-
-
-        private void AddControl(string name, List<string> globalList, List<string> buttonList, Func<string, string> createFunc)
-        {
-            globalList.Add(createFunc(name));
-            buttonList.Add(name);
-        }
-        public override BitmapImage GetButtonImage(PluginImageSize imageSize)
-        {
-            return EmbeddedResources.ReadImage(EmbeddedResources.FindFile("menu_faders_80px.png"));
-        }
-
-        public override BitmapImage? GetCommandImage(string actionParameter, PluginImageSize imageSize)
-        {
-            if (actionParameter == null) return null;
+//            if (actionParameter == null) return null;
 
             if (this.CurrentUserSendsLayerMode == UserSendsLayerMode.PluginAddActivated)
             {
@@ -839,10 +720,6 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
             else if (actionParameter.StartsWith("select"))
             {
                 bd = this.GetSelectButtonData(actionParameterNum);
-            }
-            else if (actionParameter.StartsWith("wheel"))
-            {
-                bd = this.GetWheelButtonData(actionParameterNum);
             }
 
             if (bd != null)
@@ -918,7 +795,13 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
                     if (updateFader && FaderIsActive[bd.ChannelIndex] != bd.Enabled)
                     {
                         FaderIsActive[bd.ChannelIndex] = bd.Enabled;
-                        this.AdjustmentImageChanged("fader:" + bd.ChannelIndex);
+                        ((StudioOneMidiPlugin)Plugin).EmitChannelActiveChanged(new ChannelActiveParams
+                        { 
+                            ChannelIndex = bd.ChannelIndex, 
+                            IsActive = bd.Enabled, 
+                            Update = true
+                        });
+                        //this.AdjustmentImageChanged("fader:" + bd.ChannelIndex);
                     }
                 }
                 else
@@ -926,165 +809,18 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
                     bd.Enabled = true;
                     bd.UserButtonEnabled = true;
                     FaderIsActive[bd.ChannelIndex] = true;
+                    ((StudioOneMidiPlugin)Plugin).EmitChannelActiveChanged(new ChannelActiveParams
+                    {
+                        ChannelIndex = bd.ChannelIndex,
+                        IsActive = true,
+                        Update = false
+                    });
                 }
             }
             return bd;
         }
 
-        private ButtonData? GetWheelButtonData(int actionParameterNum)
-        {
-            return WheelButtonData[actionParameterNum];
-        }
-
-        public override BitmapImage? GetAdjustmentImage(string actionParameter, PluginImageSize imageSize)
-        {
-
-            // if (actionParameters == null) return null;
-            //if (!actionParameters.TryGetString(ChannelSelector, out var channelIndex)) return null;
-            // if (!actionParameters.TryGetString(ControlOrientationSelector, out var controlOrientation)) return null;
-
-            var channelIndex = actionParameter.Substring(actionParameter.IndexOf(':') + 1);
-
-            var bb = new BitmapBuilder(imageSize.GetWidth(), imageSize.GetHeight());
-
-            var cd = ((StudioOneMidiPlugin)this.Plugin).channelData[channelIndex];
-
-            var currentChannel = cd.ChannelID + 1;
-
-            var customParams = cd.ChannelID < this.CustomSettings.Length ? this.CustomSettings[cd.ChannelID] : null;
-            bb.FillRectangle(0, 0, bb.Width, bb.Height, customParams != null
-                                                            ? customParams.FaderBgColor
-                                                            : BitmapColor.Black);
-
-            var deviceEntry = UserPlugSettingsFinder.GetPlugParamDeviceEntry(this.PluginName);
-
-            if (this.SelectMode == SelectButtonMode.FX)
-            {
-                return bb.ToImage();
-            }
-
-            if (UserPlugSettingsFinder.GetLabel(deviceEntry, cd.Label, currentChannel).Length == 0) return bb.ToImage();
-
-            const Int32 sideBarW = 8;
-            var sideBarX = bb.Width - sideBarW;
-            var volBarX = 0;
-            var piW = (bb.Width - 2 * sideBarW) / 2;
-            const Int32 piH = 8;
-
-            if (int.Parse(channelIndex) > 2)
-            {
-                // Right side control orientation
-                volBarX = sideBarX;
-                sideBarX = 0;
-            }
-
-            // Check for selected channel volume & pan
-            var isSelectedChannel = cd.ChannelID >= StudioOneMidiPlugin.ChannelCount;
-            var isSelectedPan = cd.ChannelID == StudioOneMidiPlugin.ChannelCount + 1;
-            var isClick = isSelectedPan ? cd.ValueStr.IsNullOrEmpty()
-                                        : this.SelectMode == SelectButtonMode.Send
-                                          || this.SelectMode == SelectButtonMode.User ? false
-                                                                                      : this.FaderMode == FaderMode.Pan && cd.ValueStr.Contains("dB");
-            var isVolume = cd.ChannelID == StudioOneMidiPlugin.ChannelCount
-                           || (isSelectedPan
-                               ? isClick
-                               : this.SelectMode == SelectButtonMode.Send
-                                 || this.SelectMode == SelectButtonMode.User
-                                 || isClick
-                                 ? true
-                                 : this.FaderMode == FaderMode.Volume);
-
-            var valueColor = BitmapColor.White;
-            var valBarColor = customParams != null
-                              ? customParams.FaderBarColor
-                              : ColorConv.Convert(UserPlugSettingsFinder.GetBarOnColor(deviceEntry, cd.Label, currentChannel));
-
-            if (this.SelectMode == SelectButtonMode.Select)
-            {
-                if (cd.Muted || cd.Solo)
-                {
-                    bb.FillRectangle(
-                        sideBarW, piH, bb.Width - 2 * sideBarW, bb.Height - 2 * piH,
-                        ChannelProperty.PropertyColor[cd.Muted ? (Int32)ChannelProperty.PropertyType.Mute : (Int32)ChannelProperty.PropertyType.Solo]
-                        );
-                }
-                if (cd.Selected && cd.ChannelID < StudioOneMidiPlugin.ChannelCount)
-                {
-                    bb.FillRectangle(sideBarX, 0, sideBarW, bb.Height, ChannelProperty.PropertyColor[(Int32)ChannelProperty.PropertyType.Select]);
-                }
-                if (!isSelectedChannel && cd.Armed)
-                {
-                    bb.FillRectangle(sideBarW, bb.Height - piH, piW, piH, ChannelProperty.PropertyColor[(Int32)ChannelProperty.PropertyType.Arm]);
-                }
-                if (!isSelectedChannel && cd.Monitor)
-                {
-                    bb.FillRectangle(sideBarW + piW, bb.Height - piH, piW, piH, ChannelProperty.PropertyColor[(Int32)ChannelProperty.PropertyType.Monitor]);
-                }
-            }
-
-
-            if (SelectMode == SelectButtonMode.User && cd.ChannelID < FaderIsActive.Length && !FaderIsActive[cd.ChannelID])
-            {
-                valueColor = ColorConv.Convert(UserPlugSettingsFinder.GetTextOffColor(deviceEntry, cd.Label, currentChannel));
-                valBarColor = ColorConv.Convert(UserPlugSettingsFinder.GetOffColor(deviceEntry, cd.Label, currentChannel));
-            }
-
-            if (UserPlugSettingsFinder.HideValueBar(deviceEntry, cd.Label, currentChannel)) valBarColor = BitmapColor.Transparent;
-
-            if (isVolume)
-            {
-                var volBarH = (Int32)Math.Ceiling(cd.Value * bb.Height);
-                var volBarY = bb.Height - volBarH;
-                if (UserPlugSettingsFinder.GetMode(deviceEntry, cd.Label, currentChannel) == PlugSettingsFinder.PlugParamSetting.PotMode.Symmetric)
-                {
-                    volBarH = (Int32)(Math.Abs(cd.Value - 0.5) * bb.Height);
-                    volBarY = cd.Value < 0.5 ? bb.Height / 2 : bb.Height / 2 - volBarH;
-                }
-                if (isSelectedChannel && !isSelectedPan)
-                {
-                    bb.DrawImage(IconVolume, 0, 0);
-                }
-                bb.FillRectangle(volBarX, volBarY, sideBarW, volBarH, valBarColor);
-            }
-            else
-            {
-                var panBarW = (Int32)(Math.Abs(cd.Value - 0.5) * bb.Width);
-                var panBarX = cd.Value > 0.5 ? bb.Width / 2 : bb.Width / 2 - panBarW;
-
-                if (isSelectedChannel)
-                {
-                    bb.DrawImage(IconPan, 0, 0);
-                }
-                if (!cd.ValueStr.IsNullOrEmpty())
-                {
-                    bb.FillRectangle(panBarX, 0, panBarW, piH, valBarColor);
-                }
-            }
-
-            // bb.DrawText(cd.TrackName, 0, 0, bb.Width, bb.Height / 2, null, imageSize == PluginImageSize.Width60 ? 12 : 1);
-            // bb.DrawText($"{Math.Round(cd.Value * 100.0f)} %", 0, bb.Height / 2, bb.Width, bb.Height / 2);
-
-
-            if (isClick)
-            {
-                bb.DrawImage(EmbeddedResources.ReadImage(EmbeddedResources.FindFile("click_32px.png")), 12, 9);
-            }
-            else
-            {
-                // In custom mode limit the number of decimal places to 2. Hard wired for now.
-                var maxValuePrecision = customParams != null ? 2
-                                                             : UserPlugSettingsFinder.GetMaxValuePrecision(deviceEntry, cd.Label, currentChannel);
-
-                var valStr = maxValuePrecision >= 0 ? Regex.Replace(cd.ValueStr, @"(\d+)([.,]?)(\d{0," + maxValuePrecision + @"})\d*\s?(\D*)", "$1$2$3 $4")
-                                                    : cd.ValueStr;
-
-                bb.DrawText(valStr.Replace(' ', '\n'), 0, bb.Height / 4, bb.Width, bb.Height / 2, valueColor);
-            }
-            return bb.ToImage();
-        }
-
-
-        public override void RunCommand(String actionParameter)
+        protected override void RunCommand(String actionParameter)
         {
             int actionParameterNum = 0;
             int.TryParse(actionParameter.Substring(actionParameter.IndexOf(':') + 1), out actionParameterNum);
@@ -1106,7 +842,6 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
             }
             else if (actionParameter.StartsWith("menu")) RunMenuCommand(actionParameterNum);
             else if (actionParameter.StartsWith("select")) SelectButtonDataDict[actionParameterNum]?.runCommand();
-            else if (actionParameter.StartsWith("fader")) RunFaderCommand(actionParameterNum);
             else throw new InvalidOperationException("Unknown action parameter: " + actionParameter);
         }
 
@@ -1413,14 +1148,14 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
                                 {
                                     favoritePluginsList.ReadFromXmlFile();
                                     int i = 0;
-                                    foreach(var patch in FavoritePlugins)
+                                    foreach (var patch in FavoritePlugins)
                                     {
                                         var xmlEntry = favoritePluginsList[i++];
                                         patch.Value.Name = xmlEntry.Name;
                                         patch.Value.Color = xmlEntry.Color ?? FinderColor.Black;
                                     }
                                 }
-                                catch (Exception )
+                                catch (Exception)
                                 {
                                     // TODO
                                 }
@@ -1446,69 +1181,13 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
             }
         }
 
-        public override void ApplyAdjustment(string actionParameter, int diff)
-        {
-            // int.TryParse(actionParameter.Substring(actionParameter.IndexOf(':') + 1), out actionParameterNum);
 
-            var cd = ((StudioOneMidiPlugin)this.Plugin).channelData[actionParameter.Substring(actionParameter.IndexOf(':') + 1)];
-
-            // ChannelData cd = this.GetChannel(channelIndex);
-
-            var deviceEntry = UserPlugSettingsFinder.GetPlugParamDeviceEntry(this.PluginName);
-
-            var stepDivisions = UserPlugSettingsFinder.GetDialSteps(deviceEntry, cd.Label, cd.ChannelID + 1);
-            if (stepDivisions > 50 && ((StudioOneMidiPlugin)this.Plugin).ShiftPressed)
-            {
-                stepDivisions *= 6;
-            }
-            cd.Value = Math.Min(1, Math.Max(0, (Single)Math.Round(cd.Value * stepDivisions + diff) / stepDivisions));
-            cd.EmitVolumeUpdate();
-        }
-
-        private void RunFaderCommand(int actionParameterNum)
-        {
-            var plugin = (StudioOneMidiPlugin)this.Plugin;
-            if (plugin.channelData.TryGetValue(actionParameterNum.ToString(), out var channel))
-            {
-                channel.EmitValueReset();
-            }
-        }
-
-        //public override bool ProcessButtonEvent2(string actionParameter, DeviceButtonEvent2 buttonEvent)
-        //{
-        //    var cd = ((StudioOneMidiPlugin)this.Plugin).channelData[actionParameter.Substring(actionParameter.IndexOf(':') + 1)];
-
-        //    if (buttonEvent.EventType.IsPress())
-        //    {
-        //        cd.EmitValueReset();
-        //    }
-
-        //    return base.ProcessButtonEvent2(actionParameter, buttonEvent);
-        //}
-
-        //public override bool ProcessEncoderEvent(string actionParameter, DeviceEncoderEvent encoderEvent)
-        //{
-        //    return base.ProcessEncoderEvent(actionParameter, encoderEvent);
-        //}
-
-        public override bool ProcessTouchEvent(string actionParameter, DeviceTouchEvent touchEvent)
-        {
-            return base.ProcessTouchEvent(actionParameter, touchEvent);
-        }
 
         private void UpdateAllCommandImages(List<string> buttonList)
         {
             foreach (var actionName in buttonList)
             {
-                this.CommandImageChanged(actionName);
-            }
-        }
-
-        private void UpdateAllAdjustmentImages()
-        {
-            foreach (var actionName in Faders)
-            {
-                this.AdjustmentImageChanged(actionName);
+                this.ActionImageChanged(actionName);
             }
         }
 
@@ -1518,7 +1197,7 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
                 (this.CurrentUserSendsLayerMode == UserSendsLayerMode.User ||
                  this.CurrentUserSendsLayerMode == UserSendsLayerMode.Sends))
             {
-                this.CommandImageChanged($"menu:{idxUserSendsUserModeButton.ButtonIndex}");
+                this.ActionImageChanged($"menu:{idxUserSendsUserModeButton.ButtonIndex}");
             }
         }
 
@@ -1565,6 +1244,13 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
                 return bb.ToImage();
             }
             public override void runCommand() { }
+        }
+
+        private void AddControl(string action, string name, List<string> list)
+        {
+            this.AddParameter(action, "Mixer Key " + name, "Mixer Keypad");
+            list.Add(action);
+            FavoritePlugins.Add(action, new FavoritePluginPatch());
         }
     }
 }

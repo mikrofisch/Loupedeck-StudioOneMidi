@@ -5,8 +5,10 @@ using SharpHook;
 using System.Collections.Concurrent;
 using System.Net.Sockets;
 using System.Text.RegularExpressions;
+using System.Windows.Controls;
 using static Loupedeck.StudioOneMidiPlugin.Controls.SelectButtonData;
 using static Loupedeck.StudioOneMidiPlugin.StudioOneMidiPlugin;
+using static PluginSettings.FavoritePluginsList;
 
 namespace Loupedeck.StudioOneMidiPlugin.Controls
 {
@@ -71,6 +73,9 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
         }
         private UserSendsLayerMode CurrentUserSendsLayerMode = UserSendsLayerMode.User;
         private Boolean DeactivateUserMenu = false;
+        private Boolean PluginAddVariants = false;
+        private String FavoritePluginBaseName = "";
+        FavoritePluginsList FavoritePluginsList = new();
 
         private class LayerData
         {
@@ -125,6 +130,8 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
         {
             public string Name = "";
             public FinderColor Color = FinderColor.Black;
+            public bool IsActive = true;            // Displays as an active field
+            public bool IsEnabled = true;           // Reacts to button presses
         }
         private Dictionary<string, FavoritePluginPatch> FavoritePlugins = new();
 
@@ -703,8 +710,14 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
 
                 var patch = FavoritePlugins[actionParameter];
                 var pc = ColorConv.Convert(patch.Color);
-                bbp.FillRectangle(0, 0, imageSize.GetWidth(), imageSize.GetHeight(), pc);
                 var tc = (pc.R + pc.G + pc.B) > 400 ? BitmapColor.Black : BitmapColor.White;
+
+                if (!patch.IsActive)
+                {
+                    pc = new BitmapColor(pc.R, pc.G, pc.B, 40);
+                    tc = new BitmapColor(tc.R, tc.G, tc.B, 40);
+                }
+                bbp.FillRectangle(0, 0, imageSize.GetWidth(), imageSize.GetHeight(), pc);
                 bbp.DrawText(patch.Name, tc);
                 return bbp.ToImage();
             }
@@ -827,16 +840,64 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
 
             if (this.CurrentUserSendsLayerMode == UserSendsLayerMode.PluginAddActivated)
             {
-                this.CurrentUserSendsLayerMode = UserSendsLayerMode.User;
-
-                // Insert name of selected plugin into the plugin selection box & return
-                // (keyboard input simulation courtesy of SharpHook)
                 var patch = FavoritePlugins[actionParameter];
 
-                var simulator = new EventSimulator();
-                simulator.SimulateTextEntry(patch.Name);
-                simulator.SimulateKeyPress(SharpHook.Native.KeyCode.VcEnter);
+                if (PluginAddVariants)
+                {
+                    PluginAddVariants = false;
+                }
+                else
+                {
+                    var matchingEntry = FavoritePluginsList.FirstOrDefault(p => p.Name == patch.Name);
+                    if (matchingEntry != null && matchingEntry.Variants != null && matchingEntry.Variants.Count > 0)
+                    {
+                        FavoritePluginBaseName = patch.Name + " ";
+                        int i = 0;
+                        int col = 0;
+                        foreach (var plugin in FavoritePlugins)
+                        {
+                            if (plugin.Value.Name == patch.Name)
+                            {
+                                col = i % 4;
+                            }
+                            else plugin.Value.IsActive = false;
+                            plugin.Value.IsEnabled = false;
+                            i++;
+                        }
+                        col = col < 3 ? col + 1 : 2;
 
+                        i = 0;
+                        int k = 0;
+                        foreach (var plugin in FavoritePlugins)
+                        {
+                            if (i % 4 == col)
+                            {
+                                plugin.Value.Color = FinderColor.Black;
+                                if (k < matchingEntry.Variants.Count)
+                                {
+                                    plugin.Value.Name = matchingEntry.Variants[k++];
+                                    plugin.Value.IsActive = plugin.Value.IsEnabled = true;
+                                }
+                            }
+                            i++;
+                        }
+                        PluginAddVariants = true;
+                    }
+                }
+                if (!PluginAddVariants && patch.IsEnabled)
+                {
+                    // Insert name of selected plugin into the plugin selection box & return
+                    // (keyboard input simulation courtesy of SharpHook)
+
+                    var simulator = new EventSimulator();
+                    simulator.SimulateTextEntry(FavoritePluginBaseName + patch.Name);
+                    simulator.SimulateKeyPress(SharpHook.Native.KeyCode.VcEnter);
+
+                    this.CurrentUserSendsLayerMode = UserSendsLayerMode.User;
+                    ((ModeButtonData)GetButtonData(idxUserSendsPluginsButton)).Activated = false;
+                    ((StudioOneMidiPlugin)Plugin).EmitSelectModeChanged(SelectButtonMode.User);
+                    ((UserModeButtonData)GetButtonData(idxUserSendsUserModeButton)).sendUserPage();
+                }
                 this.UpdateAllCommandImages(SelectButtons);
                 this.UpdateAllCommandImages(MenuButtons);
             }
@@ -1112,6 +1173,7 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
                             }
                             else if (this.CurrentUserSendsLayerMode == UserSendsLayerMode.PluginSelectionActivated)
                             {
+                                // Turn off plugin selection
                                 this.CurrentUserSendsLayerMode = UserSendsLayerMode.User;
                                 plugin.EmitSelectModeChanged(SelectButtonMode.User);
                                 ((UserModeButtonData)GetButtonData(idxUserSendsUserModeButton)).sendUserPage();
@@ -1131,7 +1193,7 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
                                 plugin.EmitSelectModeChanged(SelectButtonMode.User);
                             }
                             break;
-                        case 4: // VIEWS (BACK)
+                        case 4: // VIEWS (BACK), ADD PLUGIN
                             if (this.CurrentUserSendsLayerMode != UserSendsLayerMode.PluginSelectionActivated)
                             {
                                 this.CurrentLayer = ButtonLayer.ViewSelector;
@@ -1143,17 +1205,27 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
                             {
                                 // Adding insert, show list of favorite plugins
                                 this.CurrentUserSendsLayerMode = UserSendsLayerMode.PluginAddActivated;
-                                var favoritePluginsList = new FavoritePluginsList();
                                 try
                                 {
-                                    favoritePluginsList.ReadFromXmlFile();
+                                    FavoritePluginsList.ReadFromXmlFile();
                                     int i = 0;
                                     foreach (var patch in FavoritePlugins)
                                     {
-                                        var xmlEntry = favoritePluginsList[i++];
-                                        patch.Value.Name = xmlEntry.Name;
-                                        patch.Value.Color = xmlEntry.Color ?? FinderColor.Black;
+                                        if (i < FavoritePluginsList.Count)
+                                        {
+                                            var xmlEntry = FavoritePluginsList[i++];
+                                            patch.Value.Name = xmlEntry.Name;
+                                            patch.Value.Color = xmlEntry.Color ?? FinderColor.Black;
+                                            patch.Value.IsActive = patch.Value.IsEnabled = true;
+                                        }
+                                        else
+                                        {
+                                            patch.Value.Name = "";
+                                            patch.Value.Color = FinderColor.Black;
+                                            patch.Value.IsActive = patch.Value.IsEnabled = false;
+                                        }
                                     }
+                                    FavoritePluginBaseName = "";
                                 }
                                 catch (Exception)
                                 {

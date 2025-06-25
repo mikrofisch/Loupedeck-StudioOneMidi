@@ -1,8 +1,5 @@
-﻿    using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
-using System.Reflection.PortableExecutable;
-using System.Runtime.Serialization;
 using System.Xml.Serialization;
 
 
@@ -18,6 +15,7 @@ namespace PluginSettings
             [XmlAttribute]
             public string Name { get; set; } = "";
             public FinderColor? Color { get; set; }
+            public List<string>? Variants { get; set; }
         }
 
         public void SaveToXmlFile()

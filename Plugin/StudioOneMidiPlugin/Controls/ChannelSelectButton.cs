@@ -41,8 +41,8 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
 
             ((StudioOneMidiPlugin)Plugin).UserButtonChanged += (Object? sender, UserButtonParams e) =>
             {
-                var bd = this._buttonData[e.channelIndex.ToString()];
-                if (bd != null) bd.UserButtonActive = e.isActive();
+                var bd = this._buttonData[e.ChannelIndex.ToString()];
+                if (bd != null) bd.UserButtonActive = e.IsActive();
             };
 
             ((StudioOneMidiPlugin)Plugin).UserPageChanged += (s, e) => SelectButtonData.UserPlugSettingsFinder.CurrentUserPage = e;

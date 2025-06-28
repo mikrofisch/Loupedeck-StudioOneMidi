@@ -145,7 +145,7 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
         private static bool[] ChannelDataUpdated = new bool[StudioOneMidiPlugin.ChannelCount];
 
         private readonly System.Timers.Timer ChannelDataUpdateTimer;
-        private const int _channelDataUpdateTimeout = 30; // milliseconds
+        private const int _channelDataUpdateTimeout = 20; // milliseconds
 
         public MixKeypad() : base()
         {
@@ -448,19 +448,7 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
                 }
 
                 // Select buttons
-                if (e < ChannelCount)
-                {
-                    ChannelDataUpdated[e] = true;
-                    //UpdateAllCommandImages(this.SelectButtons);
-                    if (ChannelDataUpdateTimer.Enabled)
-                    {
-                        // If the timer is already running, extend the timeout to avoid multiple events
-                        ChannelDataUpdateTimer.Interval = _channelDataUpdateTimeout;
-                        // Debug.WriteLine($"Timer reset to {timeout} ms");
-                        return;
-                    }
-                    ChannelDataUpdateTimer.Start();
-                }
+                this.StartChannelDataChangedTimer(e);
             };
 
             plugin.ActiveUserPagesReceived += (Object? sender, Int32 e) =>
@@ -634,10 +622,10 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
                 if (e.ChannelIndex >= 0)
                 {
                     var bd = this.SelectButtonDataDict[e.ChannelIndex];
-                    if (bd != null)
+                    if (bd != null && bd.UserButtonMenuActive != e.IsActive)
                     {
                         bd.UserButtonMenuActive = e.IsActive;
-                        this.UpdateAllCommandImages(SelectButtons);
+                        ActionImageChanged("select:" + e.ChannelIndex);
                     }
                 }
             };
@@ -647,8 +635,27 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
 
             plugin.UserButtonChanged += (object? sender, UserButtonParams e) =>
             {
-                var bd = SelectButtonDataDict[e.channelIndex];
-                if (bd != null) bd.UserButtonActive = e.isActive();
+                var bd = SelectButtonDataDict[e.ChannelIndex];
+                if (bd != null && bd.UserButtonActive != e.IsActive())
+                {
+                    bd.UserButtonActive = e.IsActive();
+                    this.StartChannelDataChangedTimer(e.ChannelIndex);
+
+                    var deviceEntry = SelectButtonData.UserPlugSettingsFinder.GetPlugParamDeviceEntry(SelectButtonData.PluginName);
+                    if (deviceEntry != null)
+                    {
+                        foreach (var sbd in SelectButtonDataDict)
+                        {
+                            if (sbd.Value == null) continue;
+                            var linkedParameter = SelectButtonData.UserPlugSettingsFinder.GetLinkedParameter(deviceEntry, sbd.Value.Label, 0);
+
+                            if (linkedParameter == bd.UserLabel)
+                            {
+                                ActionImageChanged("select:" + sbd.Value.ChannelIndex);
+                            }
+                        }
+                    }
+                }
             };
 
             plugin.PluginSettingsReloaded += (Object? sender, EventArgs e) =>
@@ -684,24 +691,12 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
 
             };
 
-            //plugin.ChannelActiveCanged += (Object? sender, ChannelActiveParams e) =>
-            //{
-            //    FaderIsActive[e.ChannelIndex] = e.IsActive;
-            //    this.UpdateAllAdjustmentImages();
-            //};
-
-            plugin.UserButtonChanged += (Object? s, UserButtonParams e) =>
-            {
-                UpdateAllCommandImages(SelectButtons);
-                return;
-            };
-
             return result;
         } // OnLoad()
 
         protected override BitmapImage GetCommandImage(string actionParameter, PluginImageSize imageSize)
         {
-//            if (actionParameter == null) return null;
+            //            if (actionParameter == null) return null;
 
             if (this.CurrentUserSendsLayerMode == UserSendsLayerMode.PluginAddActivated)
             {
@@ -814,7 +809,6 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
                             IsActive = bd.Enabled, 
                             Update = true
                         });
-                        //this.AdjustmentImageChanged("fader:" + bd.ChannelIndex);
                     }
                 }
                 else
@@ -1253,7 +1247,26 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
             }
         }
 
+        private void StartChannelDataChangedTimer(int channelIndex)
+        {
+            if (channelIndex < ChannelCount)
+            {
+                //ActionImageChanged($"select:{channelIndex}");
+                //return;
 
+                ChannelDataUpdated[channelIndex] = true;
+                //UpdateAllCommandImages(this.SelectButtons);
+                if (ChannelDataUpdateTimer.Enabled)
+                {
+                    // If the timer is already running, extend the timeout to avoid multiple events
+                    ChannelDataUpdateTimer.Interval = _channelDataUpdateTimeout;
+                    // Debug.WriteLine($"Timer reset to {timeout} ms");
+                    return;
+                }
+                ChannelDataUpdateTimer.Start();
+            }
+
+        }
 
         private void UpdateAllCommandImages(List<string> buttonList)
         {

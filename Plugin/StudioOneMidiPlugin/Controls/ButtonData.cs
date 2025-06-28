@@ -283,8 +283,6 @@
         public override BitmapImage getImage(PluginImageSize imageSize)
         {
             ChannelData cd = this.Plugin.channelData[this.ChannelIndex.ToString()];
-            //if (!this.Plugin.mackieChannelData.TryGetValue(this.ChannelIndex.ToString(), out MackieChannelData cd))
-            //    return;
 
             this.Label = cd.Label;
             this.UserLabel = cd.UserLabel;

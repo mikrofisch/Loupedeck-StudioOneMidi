@@ -670,8 +670,8 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
 
             plugin.UserButtonChanged += (object? sender, UserButtonParams e) =>
             {
-                var bd = SelectButtonDataDict[e.channelIndex];
-                if (bd != null) bd.UserButtonActive = e.isActive();
+                var bd = SelectButtonDataDict[e.ChannelIndex];
+                if (bd != null) bd.UserButtonActive = e.IsActive();
             };
 
             plugin.PluginSettingsReloaded += (Object? sender, EventArgs e) =>

@@ -55,6 +55,7 @@ namespace Loupedeck.StudioOneMidiPlugin
             FX,
             Custom
         }
+        private SelectButtonMode? _currentSelectButtonMode = null;
         public event EventHandler<SelectButtonMode>? SelectModeChanged;
 
         public class SelectButtonCustomParams
@@ -86,10 +87,10 @@ namespace Loupedeck.StudioOneMidiPlugin
         public const int UserButtonMidiBase = 0x70;
         public class UserButtonParams
         {
-            public Int32 channelIndex { get; set; }
+            public Int32 ChannelIndex { get; set; }
             public Int32 userValue { get; set; } = 0;
             public String? userLabel;
-            public Boolean isActive() => this.userValue > 0 ;
+            public Boolean IsActive() => this.userValue > 0 ;
         }
         public event EventHandler<UserButtonParams>? UserButtonChanged;
 
@@ -350,7 +351,14 @@ namespace Loupedeck.StudioOneMidiPlugin
 
         public void EmitSelectedButtonPressed() => this.SelectButtonPressed?.Invoke(this, EventArgs.Empty);
 
-        public void EmitSelectModeChanged(SelectButtonMode sm) => this.SelectModeChanged?.Invoke(this, sm);
+        public void EmitSelectModeChanged(SelectButtonMode sm)
+        {
+            if (_currentSelectButtonMode != sm)
+            {
+                this.SelectModeChanged?.Invoke(this, sm);
+                _currentSelectButtonMode = sm;
+            }
+        }
 
         public void EmitSelectButtonCustomModeChanged(SelectButtonCustomParams cp) => this.SelectButtonCustomModeChanged?.Invoke(this, cp);
         
@@ -486,14 +494,14 @@ namespace Loupedeck.StudioOneMidiPlugin
                     {
                         // 6 user buttons
                         var ubp = new UserButtonParams();
-                        ubp.channelIndex = ce.NoteNumber - UserButtonMidiBase;
+                        ubp.ChannelIndex = ce.NoteNumber - UserButtonMidiBase;
                         ubp.userValue = ce.Velocity;
-                        if (this.channelData.TryGetValue(ubp.channelIndex.ToString(), out ChannelData? cd))
+                        if (this.channelData.TryGetValue(ubp.ChannelIndex.ToString(), out ChannelData? cd))
                         {
                             if (cd.UserValue != ubp.userValue)
                             {
                                 cd.UserValue = ubp.userValue;
-                                this.EmitChannelDataChanged(ubp.channelIndex);
+                                this.EmitChannelDataChanged(ubp.ChannelIndex);
                             }
                             ubp.userLabel = cd.UserLabel;
                         }
@@ -610,7 +618,7 @@ namespace Loupedeck.StudioOneMidiPlugin
                         case 3: // User Button Label
                             cd.UserLabel = receivedString;
                             var ubp = new UserButtonParams();
-                            ubp.channelIndex = channelIndex;
+                            ubp.ChannelIndex = channelIndex;
                             ubp.userValue = cd.UserValue;
                             ubp.userLabel = cd.UserLabel;
                             UserButtonChanged?.Invoke(this, ubp);

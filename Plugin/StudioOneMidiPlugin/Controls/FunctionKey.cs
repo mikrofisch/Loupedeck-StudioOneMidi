@@ -15,7 +15,7 @@
         {
             for (int i = 0; i < 12; i++)
             {
-                this.AddButton(new CommandButtonData(0x60 + i, "F" + (i + 1), new BitmapColor(200, 200, 200), BitmapColor.Black));
+                this.AddButton(new CommandButtonData(0x60 + i, "F" + (i + 1), new BitmapColor(100, 100, 100), BitmapColor.Black));
             }
         }
 
@@ -23,18 +23,22 @@
         {
             base.OnLoad();
 
-            this._plugin.CommandNoteReceived += (object sender, NoteOnEvent e) =>
+            var plugin = (StudioOneMidiPlugin)this.Plugin;
+
+            plugin.CommandNoteReceived += (object? sender, NoteOnEvent e) =>
             {
                 string param = e.NoteNumber.ToString();
                 if (!this._buttonData.ContainsKey(param)) return;
 
                 var bd = this._buttonData[param];
-                bd.Activated = e.Velocity > 0;
-                this.ActionImageChanged(param);
-                // this.EmitActionImageChanged();
+                if (bd != null)
+                {
+                    bd.Activated = e.Velocity > 0;
+                    this.ActionImageChanged(param);
+                }
             };
 
-            this._plugin.FunctionKeyChanged += (object sender, FunctionKeyParams fke) =>
+            plugin.FunctionKeyChanged += (object? sender, FunctionKeyParams fke) =>
             {
                 // Need to check if there is a key in the dictionary for the received
                 // parameters since the global user buttons are handled as additional
@@ -43,8 +47,20 @@
                 var code = (fke.KeyID + 0x60).ToString();
                 if (this._buttonData.TryGetValue(code, out var bd))
                 {
-                    bd.Name = fke.FunctionName;
-                    this.ActionImageChanged(code);
+                    if (bd != null)
+                    {
+                        if (!String.IsNullOrEmpty(fke.FunctionName))
+                        {
+                            bd.Name = fke.FunctionName;
+                            bd.TextColor = new BitmapColor(200, 200, 200);
+                        }
+                        else
+                        {
+                            bd.Name = "F" + fke.KeyID;
+                            bd.TextColor = new BitmapColor(80, 80, 80);
+                        }
+                        this.ActionImageChanged(code);
+                    }
                 }
             };
 
@@ -53,6 +69,7 @@
 
         private void AddButton(CommandButtonData bd)
         {
+            bd.TextColor = new BitmapColor(80, 80, 80);
             this._buttonData[bd.Code.ToString()] = bd;
             this.AddParameter(bd.Code.ToString(), bd.Name, "Function Keys");
         }

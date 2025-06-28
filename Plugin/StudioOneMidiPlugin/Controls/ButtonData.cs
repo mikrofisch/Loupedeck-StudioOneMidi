@@ -227,7 +227,7 @@
 
         private static readonly BitmapColor CommandPropertyColor = new BitmapColor(40, 40, 40);
         public static readonly BitmapColor TextDescColor = new BitmapColor(175, 175, 175);
-        public static readonly FinderColor BgColorAssigned =   new FinderColor(80, 80, 80);
+        public static readonly FinderColor BgColorAssigned = new FinderColor(80, 80, 80);
         public static readonly FinderColor BgColorUnassigned = new FinderColor(40, 40, 40);
         public static readonly BitmapColor BgColorUserCircle = new BitmapColor(60, 60, 60);
 
@@ -261,7 +261,7 @@
             this.ChannelIndex = channelIndex;
         }
 
-//        public void setPluginName(String text) => this.PluginName = text;
+        //        public void setPluginName(String text) => this.PluginName = text;
 
         public override void OnLoad(StudioOneMidiPlugin plugin)
         {
@@ -289,7 +289,7 @@
 
             var bb = new BitmapBuilder(imageSize);
 
-            return SelectButtonData.drawImage(bb, 
+            return SelectButtonData.drawImage(bb,
                                               cd,
                                               this.CurrentMode,
                                               this.CurrentMode == SelectButtonMode.Custom ? this.CustomIsActivated : this.UserButtonActive,
@@ -408,13 +408,13 @@
                 {
                     if (UserPlugSettingsFinder.GetPaintLabelBg(deviceEntry, cd.Label, buttonIdx))
                     {
-                        bb.FillRectangle(0, 0, bb.Width, bb.Height, buttonEnabled ? ColorConv.Convert(UserPlugSettingsFinder.GetOnColor(deviceEntry, cd.Label, buttonIdx)) 
+                        bb.FillRectangle(0, 0, bb.Width, bb.Height, buttonEnabled ? ColorConv.Convert(UserPlugSettingsFinder.GetOnColor(deviceEntry, cd.Label, buttonIdx))
                                                                                   : ColorConv.Convert(UserPlugSettingsFinder.GetOffColor(deviceEntry, cd.Label, buttonIdx)));
                     }
                 }
                 bb.DrawText(cd.Description, 0, 0, bb.Width, TitleHeight, TextDescColor, DescFontSize);
                 bb.DrawText(userLabelText.Length > 0 ? UserPlugSettingsFinder.GetLabelShort(deviceEntry, cd.Label, buttonIdx) :
-                                                       UserPlugSettingsFinder.GetLabel(deviceEntry, cd.Label, buttonIdx), 0, bb.Height / 2 - TitleHeight / 2, bb.Width, TitleHeight, 
+                                                       UserPlugSettingsFinder.GetLabel(deviceEntry, cd.Label, buttonIdx), 0, bb.Height / 2 - TitleHeight / 2, bb.Width, TitleHeight,
                             buttonEnabled ? ColorConv.Convert(UserPlugSettingsFinder.GetTextOnColor(deviceEntry, cd.Label, buttonIdx))
                                           : ColorConv.Convert(UserPlugSettingsFinder.GetTextOffColor(deviceEntry, cd.Label, buttonIdx)), LabelFontSize);
 
@@ -455,13 +455,13 @@
                 }
                 if (drawCircle)
                 {
-                    var cx = ubh/2;
+                    var cx = ubh / 2;
                     if (cd.ChannelID >= 3) cx = bb.Width - ubh / 2;
-                    var cy = uby + ubh/2;
-                    var cr = ubh/2 - 5;
+                    var cy = uby + ubh / 2;
+                    var cr = ubh / 2 - 5;
                     if (userButtonActive) bb.FillCircle(cx, cy, cr, tc);
-                    else                  bb.DrawArc(cx, cy, cr, 0, 360, tc, 2);
-//                    tx = ubh;
+                    else bb.DrawArc(cx, cy, cr, 0, 360, tc, 2);
+                    //                    tx = ubh;
                     tw = bb.Width - tx * 2;
                 }
 
@@ -745,7 +745,7 @@
     {
         public enum StepDir { StepFwd, StepRev };
         private StepDir DirMode;
-        public SnapStepCommandButtonData(StepDir stepDir) : base(stepDir == StepDir.StepFwd ? 0x37 : 0x38, 
+        public SnapStepCommandButtonData(StepDir stepDir) : base(stepDir == StepDir.StepFwd ? 0x37 : 0x38,
                                                                  "Snap Step " + (stepDir == StepDir.StepFwd ? "Fwd" : "Rev"))
         {
             this.DirMode = stepDir;
@@ -789,9 +789,9 @@
             return bb.ToImage();
         }
 
-        public override Boolean Activated 
-        { 
-            get => base.Activated; 
+        public override Boolean Activated
+        {
+            get => base.Activated;
             set {
                 base.Activated = value;
                 this.Plugin.EmitFaderModeChanged(value == true ? StudioOneMidiPlugin.FaderMode.Pan : StudioOneMidiPlugin.FaderMode.Volume);
@@ -905,15 +905,15 @@
         // }
     }
 
-    
+
     public abstract class NumberedSelectionButtonData : OneWayCommandButtonData
     {
         private readonly Int32 SelectionNo;
         private readonly Int32 OffsetX, OffsetY;
 
-        public NumberedSelectionButtonData(Int32 midiChannel, Int32 midiBaseNote, 
-                                           Int32 selectionNo, String label, String iconName, 
-                                           Int32 offsetX, Int32 offsetY, Int32 bgR, Int32 bgG, Int32 bgB) 
+        public NumberedSelectionButtonData(Int32 midiChannel, Int32 midiBaseNote,
+                                           Int32 selectionNo, String label, String iconName,
+                                           Int32 offsetX, Int32 offsetY, Int32 bgR, Int32 bgG, Int32 bgB)
                : base(midiChannel, midiBaseNote + selectionNo, $"{label} {selectionNo}", iconName)
         {
             this.SelectionNo = selectionNo;

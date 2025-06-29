@@ -250,11 +250,10 @@ namespace Loupedeck.StudioOneMidiPlugin
             return pluginName;
         }
 
-        //private readonly System.Timers.Timer ChannelDataChangeTimer, ChannelValueChangeTimer;
-        //private const int _channelDataChangeTimeout = 30; // milliseconds
-        //private const int _channelValueChangeTimeout = 10; // milliseconds
-
         private DialStepsDetector _dialStepsDetector;
+        private Boolean _autoSendParameterNames = false;
+        private String? _currentPluginName;
+        private String? _currentAutoAddPluginName;
 
         // Initializes a new instance of the plugin class.
         public StudioOneMidiPlugin()
@@ -274,23 +273,6 @@ namespace Loupedeck.StudioOneMidiPlugin
             {
                 this.channelData[i.ToString()] = new ChannelData(this, i);
             }
-
-   //		  this.ChannelDataChangeTimer = new System.Timers.Timer(_channelDataChangeTimeout);
-   //		  this.ChannelDataChangeTimer.AutoReset = false;
-   //         this.ChannelDataChangeTimer.Elapsed += (Object? sender, System.Timers.ElapsedEventArgs e) =>
-   //         {
-   //             ChannelDataChangeLock.Wait();
-   //             ChannelDataChanged?.Invoke(this, EventArgs.Empty);
-   //             ChannelDataChangeLock.Release();
-   //         };
-   //         this.ChannelValueChangeTimer = new System.Timers.Timer(_channelValueChangeTimeout);
-   //         this.ChannelValueChangeTimer.AutoReset = false;
-   //         this.ChannelValueChangeTimer.Elapsed += (Object? sender, System.Timers.ElapsedEventArgs e) =>
-   //         {
-   //             ChannelDataChangeLock.Wait();
-   //             ChannelValueChanged?.Invoke(this, EventArgs.Empty);
-   //             ChannelDataChangeLock.Release();
-   //         };
 
             this._dialStepsDetector = new DialStepsDetector(this);
         }
@@ -333,20 +315,34 @@ namespace Loupedeck.StudioOneMidiPlugin
             }
         }
 
-        //        public void EmitChannelDataChanged() => ResetTimerTimeout(this.ChannelDataChangeTimer, _channelDataChangeTimeout);
-        //        public void EmitChannelValueChanged() => ResetTimerTimeout(this.ChannelValueChangeTimer, _channelValueChangeTimeout);
-        //private void ResetTimerTimeout(System.Timers.Timer timer, int timeout)
-        //{
-        //    if (timer.Enabled)
-        //    {
-        //        // If the timer is already running, extend the timeout to avoid multiple events
-        //        timer.Interval = timeout;
-        //        // Debug.WriteLine($"Timer reset to {timeout} ms");
-        //        return;
-        //    }
-        //    timer.Start();
-        //}
-        public void EmitChannelDataChanged(int channelIndex) => this.ChannelDataChanged?.Invoke(this, channelIndex);
+        public void EmitChannelDataChanged(int channelIndex)
+        {
+            if (_autoSendParameterNames && _currentPluginName != null)
+            {
+                if (_currentAutoAddPluginName != _currentPluginName)
+                {
+                    _currentAutoAddPluginName = null;
+                    _autoSendParameterNames = false;
+                    return;
+                }
+                // Send channel data to the config app
+                if (this.channelData.TryGetValue(channelIndex.ToString(), out ChannelData? cd))
+                {
+                    if (cd.ChannelID < ChannelCount && !String.IsNullOrEmpty(cd.Label))
+                    {
+                        var deviceEntry = SelectButtonData.UserPlugSettingsFinder.GetPlugParamDeviceEntry(_currentPluginName);
+                        if (deviceEntry != null)
+                        {
+                            if (!deviceEntry.ParamSettings.TryGetValue(cd.Label, out var paramSettings))
+                            {
+                                this.SendParameterToConfigApp(_currentPluginName, cd.Label);
+                            }
+                        }
+                    }
+                }
+            }
+            this.ChannelDataChanged?.Invoke(this, channelIndex); 
+        }
         public void EmitChannelValueChanged(int channelIndex) => this.ChannelValueChanged?.Invoke(this, channelIndex);
 
         public void EmitSelectedButtonPressed() => this.SelectButtonPressed?.Invoke(this, EventArgs.Empty);
@@ -409,7 +405,7 @@ namespace Loupedeck.StudioOneMidiPlugin
             if (e is NoteOnEvent)
             {
                 var ce = (NoteOnEvent)e;
-                if (ce.Channel == 15 && ce.Velocity > 0)
+                if (ce.Channel == 15)
                 {
                     switch (ce.NoteNumber)
                     {
@@ -422,15 +418,19 @@ namespace Loupedeck.StudioOneMidiPlugin
                             if (this.ConfigMidiOut != null)
                             {
                                 this.ConfigMidiOut.SendEvent(new NoteOnEvent
-                                { 
-                                    Channel = (FourBitNumber)15, 
-                                    NoteNumber = (SevenBitNumber)0x11, 
-                                    Velocity = (SevenBitNumber)127 
+                                {
+                                    Channel = (FourBitNumber)15,
+                                    NoteNumber = (SevenBitNumber)0x11,
+                                    Velocity = (SevenBitNumber)(_autoSendParameterNames ? 127 : 0)
                                 });
                             }
                             break;
                         case 0x12:      // Activate dial steps detector
                             _dialStepsDetector.Activate();
+                            break;
+                        case 0x13:      // Activate or deactivate sending of new parameters
+                            _autoSendParameterNames = ce.Velocity > 0;
+                            _currentAutoAddPluginName = _autoSendParameterNames ? _currentPluginName : null;
                             break;
                     }
                 }
@@ -631,6 +631,7 @@ namespace Loupedeck.StudioOneMidiPlugin
                     byte[] str = ce.Data.SubArray(5, ce.Data.Length - 6);
                     var receivedString = Encoding.UTF8.GetString(str, 0, str.Length); //.Replace("\0", "");
 
+                    this._currentPluginName = GetPluginName(receivedString);
                     this.FocusDeviceChanged?.Invoke(this, receivedString);
                 }
                 // Function key name
@@ -674,6 +675,28 @@ namespace Loupedeck.StudioOneMidiPlugin
                     break;
             }
             this.CurrentChannelFaderMode = mode;
+        }
+
+        public void SendParameterToConfigApp(String pluginName, String parameterName)
+        {
+            if (_autoSendParameterNames)
+            {
+                if (this.ConfigMidiOut == null) throw new NullReferenceException("ConfigMidiOut is not initialized.");
+
+                var transferString = pluginName + parameterName;
+
+                var sysexData = new byte[transferString.Length + 6];
+                sysexData[0] = 0x00;
+                sysexData[1] = 0x00;
+                sysexData[2] = 0x66;
+                sysexData[3] = 0x13;
+                sysexData[4] = (byte)pluginName.Length;
+                Array.Copy(Encoding.UTF8.GetBytes(transferString), 0, sysexData, 5, transferString.Length);
+                sysexData[sysexData.Length - 1] = 0xF7;     // End of SysEx
+
+                var sysex = new NormalSysExEvent(sysexData);
+                this.ConfigMidiOut.SendEvent(sysex);
+            }
         }
 
         // public override bool TryProcessTouchEvent(string actionName, string actionParameter, DeviceTouchEvent deviceTouchEvent)

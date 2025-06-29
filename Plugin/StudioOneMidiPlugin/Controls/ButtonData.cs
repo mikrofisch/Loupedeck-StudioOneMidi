@@ -388,12 +388,9 @@
                 var uby = bb.Height - ubh;
 
                 var deviceEntry = UserPlugSettingsFinder.GetPlugParamDeviceEntry(pluginName);
-                if (deviceEntry == null)
-                {
-                    // Should never happen, but does?!
-                    Debug.WriteLine($"SelectButtonData.drawImage(): No device entry found for plugin '{pluginName}'");
-                    return bb.ToImage();
-                }
+
+                // If deviceEntry is null, the plugin is not set up in the configuration file
+                // (for now we don't do anything about it here)
 
                 // Get the text for the user button label first so that we know if there is anything to show. Note that cd.UserLabel (which contains
                 // the label sent by the plugin) may be empty if the plugin is buggy and doesn't send anything, but labelText may still have

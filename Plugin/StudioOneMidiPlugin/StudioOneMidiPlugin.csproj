@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net8.0-windows</TargetFramework>
@@ -526,7 +526,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Melanchall.DryWetMidi" Version="7.2.0" />
+    <PackageReference Include="Melanchall.DryWetMidi" Version="8.0.1" />
     <PackageReference Include="SharpHook" Version="5.3.8" />
   </ItemGroup>
 

@@ -245,6 +245,23 @@
 
         public class PlugParamDeviceEntry
         {
+            public string? PluginName
+            {
+                get
+                {
+                    // Find the key in PlugParamDict whose value is this instance
+                    foreach (var kvp in PlugParamDict)
+                    {
+                        if (object.ReferenceEquals(kvp.Value, this))
+                        {
+                            return kvp.Key;
+                        }
+                    }
+                    return null;
+                }
+                set { }
+            }
+
             public String ManufacturerName = "";    // Used for categorizing the plugin in the Loupedeck plugin configuration app
             public String[]? UserPageNames;         // Names for user pages, if any
             public List<FinderColor> Colors = [];
@@ -689,7 +706,7 @@
                                                                                                                                                              this.DefaultPlugParamSettings.TextOnColor ?? FinderColor.White);
         public FinderColor GetTextOffColor(PlugParamDeviceEntry deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false) => this.FindColor(this.GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx).TextOffColor,
                                                                                                                                                               this.DefaultPlugParamSettings.TextOffColor ?? FinderColor.White);
-        public String GetLabel(PlugParamDeviceEntry? deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false) => this.GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx).Label ?? parameterName;
+        public String GetLabel(PlugParamDeviceEntry deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false) => this.GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx).Label ?? parameterName;
         public String GetLabelOn(PlugParamDeviceEntry deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false)
         {
             var cs = this.GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx);

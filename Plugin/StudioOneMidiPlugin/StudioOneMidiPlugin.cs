@@ -632,6 +632,8 @@ namespace Loupedeck.StudioOneMidiPlugin
                     var receivedString = Encoding.UTF8.GetString(str, 0, str.Length); //.Replace("\0", "");
 
                     this._currentPluginName = GetPluginName(receivedString);
+
+                    SendFocusDeviceToConfigApp(this._currentPluginName!);
                     this.FocusDeviceChanged?.Invoke(this, receivedString);
                 }
                 // Function key name
@@ -686,10 +688,7 @@ namespace Loupedeck.StudioOneMidiPlugin
                 var transferString = pluginName + parameterName;
 
                 var sysexData = new byte[transferString.Length + 6];
-                sysexData[0] = 0x00;
-                sysexData[1] = 0x00;
-                sysexData[2] = 0x66;
-                sysexData[3] = 0x13;
+                Array.Copy(new byte[] { 0x00, 0x00, 0x66, 0x13}, 0, sysexData, 0, 4);
                 sysexData[4] = (byte)pluginName.Length;
                 Array.Copy(Encoding.UTF8.GetBytes(transferString), 0, sysexData, 5, transferString.Length);
                 sysexData[sysexData.Length - 1] = 0xF7;     // End of SysEx
@@ -697,6 +696,18 @@ namespace Loupedeck.StudioOneMidiPlugin
                 var sysex = new NormalSysExEvent(sysexData);
                 this.ConfigMidiOut.SendEvent(sysex);
             }
+        }
+
+        public void SendFocusDeviceToConfigApp(String focusDeviceName)
+        {
+            if (this.ConfigMidiOut == null) throw new NullReferenceException("ConfigMidiOut is not initialized.");
+            var sysexData = new byte[focusDeviceName.Length + 6];
+            Array.Copy(new byte[] { 0x00, 0x00, 0x66, 0x14 }, 0, sysexData, 0, 4);
+            sysexData[4] = (byte)focusDeviceName.Length;
+            Array.Copy(Encoding.UTF8.GetBytes(focusDeviceName), 0, sysexData, 5, focusDeviceName.Length);
+            sysexData[sysexData.Length - 1] = 0xF7;     // End of SysEx
+            var sysex = new NormalSysExEvent(sysexData);
+            this.ConfigMidiOut.SendEvent(sysex);
         }
 
         // public override bool TryProcessTouchEvent(string actionName, string actionParameter, DeviceTouchEvent deviceTouchEvent)

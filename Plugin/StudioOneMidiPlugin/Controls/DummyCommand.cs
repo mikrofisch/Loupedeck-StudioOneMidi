@@ -19,7 +19,7 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
         }
 
 
-        protected override BitmapImage GetCommandImage(ActionEditorActionParameters actionParameters, Int32 imageWidth, Int32 imageHeight)
+        protected override BitmapImage? GetCommandImage(ActionEditorActionParameters actionParameters, Int32 imageWidth, Int32 imageHeight)
         {
             if (!actionParameters.TryGetString("LabelText", out var labelText))
                 return null;

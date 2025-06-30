@@ -32,7 +32,7 @@
             var e = new ControlChangeEvent();
             e.ControlValue = (SevenBitNumber)diff;
             e.ControlNumber = (SevenBitNumber)0x3C;
-            (this.Plugin as StudioOneMidiPlugin).S1MidiOut.SendEvent(e);
+            ((StudioOneMidiPlugin)this.Plugin).S1MidiOut?.SendEvent(e);
 
             this.AdjustmentValueChanged();
         }

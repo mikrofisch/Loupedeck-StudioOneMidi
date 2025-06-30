@@ -142,10 +142,11 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
         private static readonly bool[] FaderIsActive = new bool[StudioOneMidiPlugin.ChannelCount];
 
         // Channel data update timer
-        private static bool[] ChannelDataUpdated = new bool[StudioOneMidiPlugin.ChannelCount];
+        // private static bool[] ChannelDataUpdated = new bool[StudioOneMidiPlugin.ChannelCount];
+        private static HashSet<string> _actionParameterUpdateSet = new();
 
-        private readonly System.Timers.Timer ChannelDataUpdateTimer;
-        private const int _channelDataUpdateTimeout = 20; // milliseconds
+        private readonly System.Timers.Timer ActionImageUpdateTimer;
+        private const int _actionImageUpdateTimeout = 20; // milliseconds
 
         public MixKeypad() : base()
         {
@@ -364,20 +365,16 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
             }
 
             // Channel data update timer
-            this.ChannelDataUpdateTimer = new System.Timers.Timer(_channelDataUpdateTimeout);
-            this.ChannelDataUpdateTimer.AutoReset = false;
-            this.ChannelDataUpdateTimer.Elapsed += (Object? sender, System.Timers.ElapsedEventArgs e) =>
+            this.ActionImageUpdateTimer = new System.Timers.Timer(_actionImageUpdateTimeout);
+            this.ActionImageUpdateTimer.AutoReset = false;
+            this.ActionImageUpdateTimer.Elapsed += (Object? sender, System.Timers.ElapsedEventArgs e) =>
             {
-                for (int i = 0; i < 6; i++)
+                foreach (var actionParameter in _actionParameterUpdateSet)
                 {
-                    if (ChannelDataUpdated[i])
-                    {
-                        ActionImageChanged("select:" + i);
-                        ChannelDataUpdated[i] = false;
-                    }
+                    this.ActionImageChanged(actionParameter);
+                    _actionParameterUpdateSet.Remove(actionParameter);
                 }
             };
-
         }
 
         protected override bool OnLoad()
@@ -1254,26 +1251,30 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
                 //ActionImageChanged($"select:{channelIndex}");
                 //return;
 
-                ChannelDataUpdated[channelIndex] = true;
-                //UpdateAllCommandImages(this.SelectButtons);
-                if (ChannelDataUpdateTimer.Enabled)
-                {
-                    // If the timer is already running, extend the timeout to avoid multiple events
-                    ChannelDataUpdateTimer.Interval = _channelDataUpdateTimeout;
-                    // Debug.WriteLine($"Timer reset to {timeout} ms");
-                    return;
-                }
-                ChannelDataUpdateTimer.Start();
+                _actionParameterUpdateSet.Add($"select:{channelIndex}");
+                StartActionImageUpdateTimer();
             }
-
         }
+        private void StartActionImageUpdateTimer()
+        {
+            if (ActionImageUpdateTimer.Enabled)
+            {
+                // If the timer is already running, extend the timeout to avoid multiple events
+                ActionImageUpdateTimer.Interval = _actionImageUpdateTimeout;
+                // Debug.WriteLine($"Timer reset to {timeout} ms");
+                return;
+            }
+            ActionImageUpdateTimer.Start();
+        }
+
 
         private void UpdateAllCommandImages(List<string> buttonList)
         {
             foreach (var actionName in buttonList)
             {
-                this.ActionImageChanged(actionName);
+                _actionParameterUpdateSet.Add(actionName);
             }
+            StartActionImageUpdateTimer();
         }
 
         private void UpdateUserPageButton()

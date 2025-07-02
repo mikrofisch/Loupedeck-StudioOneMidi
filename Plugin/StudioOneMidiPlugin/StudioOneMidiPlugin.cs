@@ -331,12 +331,9 @@ namespace Loupedeck.StudioOneMidiPlugin
                     if (cd.ChannelID < ChannelCount && !String.IsNullOrEmpty(cd.Label))
                     {
                         var deviceEntry = SelectButtonData.UserPlugSettingsFinder.GetPlugParamDeviceEntry(_currentPluginName);
-                        if (deviceEntry != null)
+                        if (deviceEntry != null && !deviceEntry.ParamSettings.TryGetValue(cd.Label, out var ps))
                         {
-                            if (!deviceEntry.ParamSettings.TryGetValue(cd.Label, out var paramSettings))
-                            {
-                                this.SendParameterToConfigApp(_currentPluginName, cd.Label);
-                            }
+                            this.SendParameterToConfigApp(_currentPluginName, cd.Label);
                         }
                     }
                 }
@@ -344,6 +341,19 @@ namespace Loupedeck.StudioOneMidiPlugin
             this.ChannelDataChanged?.Invoke(this, channelIndex); 
         }
         public void EmitChannelValueChanged(int channelIndex) => this.ChannelValueChanged?.Invoke(this, channelIndex);
+
+        public void EmitUserButtonChanged(UserButtonParams ubp)
+        {
+            if (_autoSendParameterNames && _currentPluginName != null && !String.IsNullOrEmpty(ubp.userLabel))
+            {
+                var deviceEntry = SelectButtonData.UserPlugSettingsFinder.GetPlugParamDeviceEntry(_currentPluginName);
+                if (deviceEntry != null && !deviceEntry.ParamSettings.TryGetValue(ubp.userLabel, out var _))
+                {
+                    this.SendParameterToConfigApp(_currentPluginName, ubp.userLabel);
+                }
+            }
+            UserButtonChanged?.Invoke(this, ubp);
+        }
 
         public void EmitSelectedButtonPressed() => this.SelectButtonPressed?.Invoke(this, EventArgs.Empty);
 
@@ -356,7 +366,11 @@ namespace Loupedeck.StudioOneMidiPlugin
             }
         }
 
-        public void EmitSelectButtonCustomModeChanged(SelectButtonCustomParams cp) => this.SelectButtonCustomModeChanged?.Invoke(this, cp);
+        public void EmitSelectButtonCustomModeChanged(SelectButtonCustomParams cp)
+        {
+            this.SelectButtonCustomModeChanged?.Invoke(this, cp);
+            _currentSelectButtonMode = SelectButtonMode.Custom;
+        }
         
         public void EmitFaderModeChanged(FaderMode fm) => this.FaderModeChanged?.Invoke(this, fm);
 
@@ -621,7 +635,7 @@ namespace Loupedeck.StudioOneMidiPlugin
                             ubp.ChannelIndex = channelIndex;
                             ubp.userValue = cd.UserValue;
                             ubp.userLabel = cd.UserLabel;
-                            UserButtonChanged?.Invoke(this, ubp);
+                            this.EmitUserButtonChanged(ubp);
                             break;
                     }
                 }
@@ -633,6 +647,11 @@ namespace Loupedeck.StudioOneMidiPlugin
 
                     this._currentPluginName = GetPluginName(receivedString);
 
+                    if (_currentAutoAddPluginName != _currentPluginName)
+                    {
+                        _currentAutoAddPluginName = null;
+                        _autoSendParameterNames = false;
+                    }
                     SendFocusDeviceToConfigApp(this._currentPluginName!);
                     this.FocusDeviceChanged?.Invoke(this, receivedString);
                 }

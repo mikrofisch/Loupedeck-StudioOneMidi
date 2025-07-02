@@ -107,6 +107,8 @@
             // var str = reader.ReadString();
             reader.MoveToContent();
 
+            A = A_default;
+
             if (reader.HasAttributes)
             {
                 this.Name = reader.GetAttribute("name") ?? "";
@@ -128,6 +130,7 @@
                 R = Convert.ToByte(rgb[0]);
                 G = Convert.ToByte(rgb[1]);
                 B = Convert.ToByte(rgb[2]);
+                A = rgb.Length > 3 ? Convert.ToByte(rgb[3]) : A;
             }
             else
             {
@@ -166,6 +169,10 @@
                 }
                 else
                 {
+                    if (A != A_default)
+                    {
+                        writer.WriteAttributeString("transparency", this.A.ToString());
+                    }
                     writer.WriteString($"rgb({this.R},{this.G},{this.B})");
                 }
             }
@@ -185,6 +192,7 @@
 
         public FinderColorOnColor(FinderColor? c) : base(c) { }
         public FinderColorOnColor(FinderColor? c, byte A) : base(c, A) { }
+        public FinderColorOnColor(FinderColor? c, bool xmlRenderAsNameRef) : base(c, xmlRenderAsNameRef) { }
 
         public override byte A_default => 80;
     }
@@ -370,7 +378,8 @@
                     {
                         if (cc.Name == c.Name)
                         {
-                            c = cc;
+                            // Make a copy of the referenced colour set to render to XML as a name reference
+                            c = new FinderColor(cc, xmlRenderAsNameRef: true);
                             break;
                         }
                     }

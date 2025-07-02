@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DeviceDefinition
+	vendor="Loupedeck"
+	name="CT KeyPad"
+	
+	classID="{EF427900-E2B0-478a-B17D-4652F0F273A7}"
+	category="Keyboard"
+	
+	nativeCode="KeyboardDevice"
+	
+	imageFile="LoupedeckCT.png"
+	textFile="LoupedeckCT.txt"
+/>

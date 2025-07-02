@@ -633,24 +633,32 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
             plugin.UserButtonChanged += (object? sender, UserButtonParams e) =>
             {
                 var bd = SelectButtonDataDict[e.ChannelIndex];
-                if (bd != null && bd.UserButtonActive != e.IsActive())
+                if (bd != null)
                 {
-                    bd.UserButtonActive = e.IsActive();
-                    this.StartChannelDataChangedTimer(e.ChannelIndex);
-
-                    var deviceEntry = SelectButtonData.UserPlugSettingsFinder.GetPlugParamDeviceEntry(SelectButtonData.PluginName);
-                    if (deviceEntry != null)
+                    if (bd.UserButtonActive != e.IsActive())
                     {
-                        foreach (var sbd in SelectButtonDataDict)
-                        {
-                            if (sbd.Value == null) continue;
-                            var linkedParameter = SelectButtonData.UserPlugSettingsFinder.GetLinkedParameter(deviceEntry, sbd.Value.Label, 0);
+                        bd.UserButtonActive = e.IsActive();
+                        this.StartChannelDataChangedTimer(e.ChannelIndex);
 
-                            if (linkedParameter == bd.UserLabel)
+                        var deviceEntry = SelectButtonData.UserPlugSettingsFinder.GetPlugParamDeviceEntry(SelectButtonData.PluginName);
+                        if (deviceEntry != null)
+                        {
+                            foreach (var sbd in SelectButtonDataDict)
                             {
-                                ActionImageChanged("select:" + sbd.Value.ChannelIndex);
+                                if (sbd.Value == null) continue;
+                                var linkedParameter = SelectButtonData.UserPlugSettingsFinder.GetLinkedParameter(deviceEntry, sbd.Value.Label, 0);
+
+                                if (linkedParameter == bd.UserLabel)
+                                {
+                                    ActionImageChanged("select:" + sbd.Value.ChannelIndex);
+                                }
                             }
                         }
+                    }
+                    else if (bd.UserLabel != e.userLabel && e.userLabel != null)
+                    {
+                        bd.UserLabel = e.userLabel;
+                        ActionImageChanged("select:" + e.ChannelIndex);
                     }
                 }
             };
@@ -671,21 +679,22 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
                 }
                 this.SelectButtonListenToMidi = false;
                 this.UpdateAllCommandImages(SelectButtons);
-
             };
 
             plugin.SelectButtonCustomModeChanged += (Object? sender, SelectButtonCustomParams cp) =>
             {
                 // Select buttons
                 var bd = this.SelectButtonDataDict[cp.ButtonIndex];
-                if (bd != null) bd.SetCustomMode(cp);
-
-                if (cp.MidiCode > 0)
+                if (bd != null)
                 {
-                    this.SelectButtonListenToMidi = true;
-                }
-                this.UpdateAllCommandImages(SelectButtons);
+                    bd.SetCustomMode(cp);
 
+                    if (cp.MidiCode > 0)
+                    {
+                        this.SelectButtonListenToMidi = true;
+                    }
+                    this.ActionImageChanged("select:" + cp.ButtonIndex);
+                }
             };
 
             return result;

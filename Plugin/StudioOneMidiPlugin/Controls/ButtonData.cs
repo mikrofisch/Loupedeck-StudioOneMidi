@@ -279,7 +279,6 @@
             this.CurrentMode = SelectButtonMode.Custom;
         }
 
-
         public override BitmapImage getImage(PluginImageSize imageSize)
         {
             ChannelData cd = this.Plugin.channelData[this.ChannelIndex.ToString()];

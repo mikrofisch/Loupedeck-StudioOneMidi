@@ -323,11 +323,10 @@ namespace Loupedeck.StudioOneMidiPlugin
                 {
                     _currentAutoAddPluginName = null;
                     _autoSendParameterNames = false;
-                    return;
                 }
-                // Send channel data to the config app
-                if (this.channelData.TryGetValue(channelIndex.ToString(), out ChannelData? cd))
+                else if (this.channelData.TryGetValue(channelIndex.ToString(), out ChannelData? cd))
                 {
+                    // Send channel data to the config app
                     if (cd.ChannelID < ChannelCount && !String.IsNullOrEmpty(cd.Label))
                     {
                         var deviceEntry = SelectButtonData.UserPlugSettingsFinder.GetPlugParamDeviceEntry(_currentPluginName);
@@ -338,6 +337,7 @@ namespace Loupedeck.StudioOneMidiPlugin
                     }
                 }
             }
+
             this.ChannelDataChanged?.Invoke(this, channelIndex); 
         }
         public void EmitChannelValueChanged(int channelIndex) => this.ChannelValueChanged?.Invoke(this, channelIndex);

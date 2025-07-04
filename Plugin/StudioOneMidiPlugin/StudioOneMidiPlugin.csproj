@@ -90,7 +90,9 @@
     <None Remove="Resources\group_dissolve_52px.png" />
     <None Remove="Resources\group_new_52px.png" />
     <None Remove="Resources\group_suspend_no_52px.png" />
-    <None Remove="Resources\icons_24px_s1.psd" />
+    <None Remove="Resources\icons_12px_s1.psd" />
+    <None Remove="Resources\icons_s1_20px.psd" />
+    <None Remove="Resources\icons_s1_32px.psd" />
     <None Remove="Resources\icons_s1_52px.psd" />
     <None Remove="Resources\icons_s1_full.psd" />
     <None Remove="Resources\icon_404.png" />
@@ -160,7 +162,6 @@
     <None Remove="Resources\menu_groups_80px.png" />
     <None Remove="Resources\menu_loop_80px.png" />
     <None Remove="Resources\menu_markers_80px.png" />
-    <None Remove="Resources\monitor_24px.png" />
     <None Remove="Resources\monitor_52px.png" />
     <None Remove="Resources\panels_52px.png" />
     <None Remove="Resources\panels_80px.png" />
@@ -171,14 +172,17 @@
     <None Remove="Resources\play_loop_52px.png" />
     <None Remove="Resources\play_on_52px.png" />
     <None Remove="Resources\plugins_52px.png" />
+    <None Remove="Resources\plugin_hi_12px.png" />
     <None Remove="Resources\plugin_icon_s1.psd" />
     <None Remove="Resources\plugin_icon_s1_16px.png" />
     <None Remove="Resources\plugin_icon_s1_32px.png" />
     <None Remove="Resources\plugin_icon_s1_48px.png" />
     <None Remove="Resources\plugin_icon_s1_96px.png" />
+    <None Remove="Resources\plugin_lo_12px.png" />
     <None Remove="Resources\plugin_next_52px.png" />
     <None Remove="Resources\plugin_prev_52px.png" />
     <None Remove="Resources\plugin_scroll_52px.png" />
+    <None Remove="Resources\plugin_transparent_12px.png" />
     <None Remove="Resources\plugtype_mono-stereo_20px.png" />
     <None Remove="Resources\plugtype_mono_20px.png" />
     <None Remove="Resources\plugtype_stereo_20px.png" />
@@ -198,7 +202,6 @@
     <None Remove="Resources\range_split_52px.png" />
     <None Remove="Resources\range_start_to_cursor_52px.png" />
     <None Remove="Resources\range_tools_80px.png" />
-    <None Remove="Resources\record_24px.png" />
     <None Remove="Resources\record_52px.png" />
     <None Remove="Resources\record_on_52px.png" />
     <None Remove="Resources\rec_panel_52px.png" />
@@ -407,8 +410,11 @@
     <EmbeddedResource Include="Resources\menu_groups_80px.png" />
     <EmbeddedResource Include="Resources\menu_loop_80px.png" />
     <EmbeddedResource Include="Resources\menu_markers_80px.png" />
-    <EmbeddedResource Include="Resources\monitor_24px.png" />
+    <EmbeddedResource Include="Resources\monitor_12px.png" />
     <EmbeddedResource Include="Resources\monitor_52px.png" />
+    <EmbeddedResource Include="Resources\plugin_hi_12px.png" />
+    <EmbeddedResource Include="Resources\plugin_lo_12px.png" />
+    <EmbeddedResource Include="Resources\plugin_transparent_12px.png" />
     <EmbeddedResource Include="Resources\plugtype_mono-stereo_20px.png" />
     <EmbeddedResource Include="Resources\plugtype_mono_20px.png" />
     <EmbeddedResource Include="Resources\panels_52px.png" />
@@ -443,7 +449,7 @@
     <EmbeddedResource Include="Resources\range_split_52px.png" />
     <EmbeddedResource Include="Resources\range_start_to_cursor_52px.png" />
     <EmbeddedResource Include="Resources\range_tools_80px.png" />
-    <EmbeddedResource Include="Resources\record_24px.png" />
+    <EmbeddedResource Include="Resources\record_12px.png" />
     <EmbeddedResource Include="Resources\record_52px.png" />
     <EmbeddedResource Include="Resources\record_on_52px.png" />
     <EmbeddedResource Include="Resources\rec_panel_52px.png" />

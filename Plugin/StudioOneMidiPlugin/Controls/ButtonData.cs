@@ -323,11 +323,11 @@
 
             if (SelectButtonData.IconSelMon == null)
             {
-                SelectButtonData.IconSelMon = EmbeddedResources.ReadImage(EmbeddedResources.FindFile("monitor_24px.png"));
+                SelectButtonData.IconSelMon = EmbeddedResources.ReadImage(EmbeddedResources.FindFile("monitor_12px.png"));
             }
             if (SelectButtonData.IconSelRec == null)
             {
-                SelectButtonData.IconSelRec = EmbeddedResources.ReadImage(EmbeddedResources.FindFile("record_24px.png"));
+                SelectButtonData.IconSelRec = EmbeddedResources.ReadImage(EmbeddedResources.FindFile("record_12px.png"));
             }
 
             if (buttonMode == SelectButtonMode.Custom && customParams != null)
@@ -481,25 +481,25 @@
                 }
 
                 var rX = 8;
-                var rY = 4;
+                var rY = 10;
                 var rS = 8;
                 var rW = (bb.Width - rS) / 2 - rX;
-                var rH = (bb.Height - rY - TitleHeight) / 2 - rS;
+                var rH = (bb.Height - 4 - TitleHeight) / 2 - rS;
                 var rX2 = rX + rW + rS;
-                var rY2 = rY + rH + rS + TitleHeight;
+                var rY2 = rY + rH + rS + TitleHeight - 4;
 
-                bb.FillRectangle(rX2 - 5, rY, 2, rH, new BitmapColor(40, 40, 40));
+                bb.FillRectangle(rX2 - 5, rY - 4, 2, rH, new BitmapColor(40, 40, 40));
                 bb.FillRectangle(rX2 - 5, rY2, 2, rH, new BitmapColor(40, 40, 40));
 
                 if (cd.Muted || commandProperty == ChannelProperty.PropertyType.Mute)
                 {
-                    bb.FillRectangle(rX - 2, rY - 2, rW + 4, rH + 4,
+                    bb.FillRectangle(rX - 2, rY - 6, rW + 4, rH + 4,
                         cd.Muted ? ChannelProperty.PropertyColor[(Int32)ChannelProperty.PropertyType.Mute]
                                  : SelectButtonData.CommandPropertyColor);
                 }
                 if (cd.Solo || commandProperty == ChannelProperty.PropertyType.Solo)
                 {
-                    bb.FillRectangle(rX2 - 2, rY - 2, rW + 4, rH + 4,
+                    bb.FillRectangle(rX2 - 2, rY - 6, rW + 4, rH + 4,
                         cd.Solo ? ChannelProperty.PropertyColor[(Int32)ChannelProperty.PropertyType.Solo]
                                 : SelectButtonData.CommandPropertyColor);
                 }
@@ -515,8 +515,8 @@
                         cd.Monitor ? ChannelProperty.PropertyColor[(Int32)ChannelProperty.PropertyType.Monitor]
                                 : SelectButtonData.CommandPropertyColor);
                 }
-                bb.DrawText(ChannelProperty.PropertyLetter[(Int32)ChannelProperty.PropertyType.Mute], rX, rY, rW, rH, new BitmapColor(175, 175, 175), rH - 4);
-                bb.DrawText(ChannelProperty.PropertyLetter[(Int32)ChannelProperty.PropertyType.Solo], rX2, rY, rW, rH, new BitmapColor(175, 175, 175), rH - 4);
+                bb.DrawText(ChannelProperty.PropertyLetter[(Int32)ChannelProperty.PropertyType.Mute], rX, rY, rW, rH, new BitmapColor(255, 255, 255), rH - 4);
+                bb.DrawText(ChannelProperty.PropertyLetter[(Int32)ChannelProperty.PropertyType.Solo], rX2, rY, rW, rH, new BitmapColor(255, 255, 255), rH - 4);
                 bb.DrawImage(SelectButtonData.IconSelRec, rX + rW / 2 - SelectButtonData.IconSelRec.Width / 2, rY2 + rH / 2 - SelectButtonData.IconSelRec.Height / 2);
                 bb.DrawImage(SelectButtonData.IconSelMon, rX2 + rW / 2 - SelectButtonData.IconSelMon.Width / 2, rY2 + rH / 2 - SelectButtonData.IconSelRec.Height / 2);
 

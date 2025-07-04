@@ -4,6 +4,8 @@ using PluginSettings;
 using SharpHook;
 using System.Collections.Concurrent;
 using System.Net.Sockets;
+using System.Runtime.CompilerServices;
+using System.Security.RightsManagement;
 using System.Text.RegularExpressions;
 using System.Windows.Controls;
 using static Loupedeck.StudioOneMidiPlugin.Controls.SelectButtonData;
@@ -132,6 +134,7 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
             public FinderColor Color = FinderColor.Black;
             public bool IsActive = true;            // Displays as an active field
             public bool IsEnabled = true;           // Reacts to button presses
+            public bool IsVariant = false;          // Indicates that this is a variant of a plugin, not the main plugin
         }
         private Dictionary<string, FavoritePluginPatch> FavoritePlugins = new();
 
@@ -147,6 +150,10 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
 
         private readonly System.Timers.Timer ActionImageUpdateTimer;
         private const int _actionImageUpdateTimeout = 20; // milliseconds
+
+        private static readonly BitmapImage _iconPluginHi = EmbeddedResources.ReadImage(EmbeddedResources.FindFile("plugin_hi_12px.png"));
+        private static readonly BitmapImage _iconPluginLo = EmbeddedResources.ReadImage(EmbeddedResources.FindFile("plugin_lo_12px.png"));
+        private static readonly BitmapImage _iconPluginTransparent = EmbeddedResources.ReadImage(EmbeddedResources.FindFile("plugin_transparent_12px.png"));
 
         public MixKeypad() : base()
         {
@@ -711,7 +718,8 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
 
                 var patch = FavoritePlugins[actionParameter];
                 var pc = ColorConv.Convert(patch.Color);
-                var tc = (pc.R + pc.G + pc.B) > 400 ? BitmapColor.Black : BitmapColor.White;
+                var lh = (0.2126 * pc.R + 0.7152 * pc.G + 0.0722 * pc.B) > 128;
+                var tc =  lh ? BitmapColor.Black : BitmapColor.White;
 
                 if (!patch.IsActive)
                 {
@@ -720,6 +728,9 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
                 }
                 bbp.FillRectangle(0, 0, imageSize.GetWidth(), imageSize.GetHeight(), pc);
                 bbp.DrawText(patch.Name, tc);
+
+
+                if (!String.IsNullOrEmpty(patch.Name) && !patch.IsVariant) bbp.DrawImage(patch.IsActive ? (lh ? _iconPluginLo : _iconPluginHi) : _iconPluginTransparent, 6, 4);
                 return bbp.ToImage();
             }
 
@@ -876,7 +887,7 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
                                 if (k < matchingEntry.Variants.Count)
                                 {
                                     plugin.Value.Name = matchingEntry.Variants[k++];
-                                    plugin.Value.IsActive = plugin.Value.IsEnabled = true;
+                                    plugin.Value.IsActive = plugin.Value.IsEnabled = plugin.Value.IsVariant = true;
                                 }
                             }
                             i++;
@@ -1224,6 +1235,7 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
                                             patch.Value.Color = FinderColor.Black;
                                             patch.Value.IsActive = patch.Value.IsEnabled = false;
                                         }
+                                        patch.Value.IsVariant = false;
                                     }
                                     FavoritePluginBaseName = "";
                                 }

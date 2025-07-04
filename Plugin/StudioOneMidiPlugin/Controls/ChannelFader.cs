@@ -128,6 +128,11 @@
                 UserPlugSettingsFinder.CurrentUserPage = e;
             };
 
+            plugin.PluginSettingsReloaded += (s, e) =>
+            {
+                UserPlugSettingsFinder.ClearCache();
+            };
+
             return true;
         }
 

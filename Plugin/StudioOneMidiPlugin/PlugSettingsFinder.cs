@@ -5,9 +5,9 @@
     using System.Collections.Generic;
     using System.ComponentModel;
     using System.Data;
+    using System.Diagnostics;
     using System.IO;
     using System.Linq;
-    using System.Reflection;
     using System.Runtime.Serialization;
     using System.Text.RegularExpressions;
     using System.Xml;
@@ -340,16 +340,7 @@
             {
                 if (c != null && !string.IsNullOrEmpty(c.Name))
                 {
-                    var colorExists = false;
-                    foreach (var cc in colors)
-                    {
-                        if (cc.Name == c.Name)
-                        {
-                            colorExists = true;
-                            break;
-                        }
-                    }
-                    if (!colorExists)
+                    if (!colors.Any(cc => cc.Name == c.Name))
                     {
                         // Note we should never get here, it was needed when the color list was
                         // not stored explicitly in the XML file.
@@ -413,7 +404,7 @@
                 //
                 foreach (var cfgDeviceEntry in p.PluginConfigs)
                 {
-                    PlugParamSetting? defaultSettings = null;
+                    // PlugParamSetting? defaultSettings = null;
 
                     var deviceEntry = new PlugParamDeviceEntry { };
                     deviceEntry.ManufacturerName = cfgDeviceEntry.ManufacturerName;
@@ -424,33 +415,6 @@
                     {
                         // Get colour values for colours that are referenced by name.
                         ProcessPluginColors(paramSettings, cfgDeviceEntry.Colors, GetColorValuesFromList);
-
-                        if (paramSettings.Name == "")
-                        {
-                            defaultSettings = paramSettings;
-                        }
-                        else if (defaultSettings != null)
-                        {
-                            var globalDefaultSettings = new PlugParamSetting();
-
-                            // If there is a parameter setting with an empty name, use it to set local default
-                            // values for parameters that have the same value as the global default.
-                            // This is using reflection to iterate over all properties of the PlugParamSetting class.
-                            //
-                            PropertyInfo[] properties = typeof(PlugParamSetting).GetProperties();
-                            foreach (PropertyInfo property in properties)
-                            {
-                                var paramValue = property.GetValue(paramSettings);
-                                var defaultValue = property.GetValue(defaultSettings);
-                                var globalDefaultValue = property.GetValue(globalDefaultSettings);
-
-                                if ((paramValue?.Equals(globalDefaultValue) == true) ||
-                                    (paramValue == null && globalDefaultValue == null))
-                                {
-                                    property.SetValue(paramSettings, defaultValue);
-                                }
-                            }
-                        }
 
                         deviceEntry.ParamSettings.TryAdd(paramSettings.Name, paramSettings);
                     }
@@ -509,6 +473,7 @@
         {
             var xmlCfg = new XmlConfig();
             PlugParamDict.Clear();
+            
 
             var configFilePath = System.IO.Path.Combine(XmlConfig.ConfigFolderPath, XmlConfig.ConfigFileName);
             using (Stream reader = new FileStream(configFilePath, FileMode.Open))
@@ -597,6 +562,33 @@
                 {
                     // Create user settings config file.
                     xmlCfg.WriteXmlCfgFile(XmlConfig.ConfigFileName, PlugParamDict);
+                }
+
+                // Remove duplicate colors from the color lists in each device entry if they
+                // somehow ended up there.
+                //
+                foreach (var deviceEntry in PlugParamDict.Values)
+                {
+                    if (deviceEntry.Colors == null || deviceEntry.Colors.Count <= 1)
+                        continue;
+
+                    var seenNames = new HashSet<string>();
+                    // Use ToList() to avoid modifying the collection while iterating
+                    foreach (var color in deviceEntry.Colors.ToList())
+                    {
+                        if (!string.IsNullOrEmpty(color.Name))
+                        {
+                            if (seenNames.Contains(color.Name))
+                            {
+                                Debug.WriteLine($"Warning: Removing duplicate color {color.Name} from plugin {deviceEntry.PluginName}");
+                                deviceEntry.Colors.Remove(color);
+                            }
+                            else
+                            {
+                                seenNames.Add(color.Name);
+                            }
+                        }
+                    }
                 }
 
                 PlugParamDict.TryGetValue("", out DefaultDeviceEntry);
@@ -695,26 +687,38 @@
             return this.SaveLastSettings(this.DefaultPlugParamSettings);
         }
 
-        private FinderColor FindColor(FinderColor? settingsColor, FinderColor defaultColor) => settingsColor ?? defaultColor;
+        public PlugParamSetting? GetDefaultPlugParamSettings(PlugParamDeviceEntry? deviceEntry)
+        {
+            if (deviceEntry == null) return null;
+            if (deviceEntry.ParamSettings.TryGetValue("", out var paramSettings))
+            {
+                return paramSettings;
+            }
+            return null;
+        }
 
         public PlugParamSetting.PotMode GetMode(PlugParamDeviceEntry? deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false) => this.GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx).Mode;
         public Boolean GetShowCircle(PlugParamDeviceEntry deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false) => this.GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx).ShowUserButtonCircle;
         public Boolean GetPaintLabelBg(PlugParamDeviceEntry? deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false) => this.GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx).PaintLabelBg;
 
-        public FinderColor? GetOnColor(PlugParamDeviceEntry? deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false) => this.FindColor(this.GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx).OnColor,
-                                                                                                                                                          this.DefaultPlugParamSettings.OnColor ?? FinderColor.Black);
+        public FinderColor? GetOnColor(PlugParamDeviceEntry? deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false) => this.GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx).OnColor ??
+                                                                                                                                            this.GetDefaultPlugParamSettings(deviceEntry)?.OnColor ??
+                                                                                                                                            this.DefaultPlugParamSettings.OnColor ?? FinderColor.Black;
 
         public FinderColor GetBarOnColor(PlugParamDeviceEntry? deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false)
         {
             var cs = this.GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx);
-            return cs.BarOnColor ?? this.FindColor(cs.OnColor, this.DefaultPlugParamSettings.OnColor ?? FinderColor.Black);
+            return cs.BarOnColor ?? cs.OnColor ?? this.GetDefaultPlugParamSettings(deviceEntry)?.BarOnColor ?? this.GetDefaultPlugParamSettings(deviceEntry)?.OnColor ?? this.DefaultPlugParamSettings.OnColor ?? FinderColor.Black;
         }
-        public FinderColor? GetOffColor(PlugParamDeviceEntry? deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false) => this.FindColor(this.GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx).OffColor,
-                                                                                                                                                           this.DefaultPlugParamSettings.OffColor ?? FinderColor.Black);
-        public FinderColor GetTextOnColor(PlugParamDeviceEntry? deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false) => this.FindColor(this.GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx).TextOnColor,
-                                                                                                                                                             this.DefaultPlugParamSettings.TextOnColor ?? FinderColor.White);
-        public FinderColor GetTextOffColor(PlugParamDeviceEntry? deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false) => this.FindColor(this.GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx).TextOffColor,
-                                                                                                                                                              this.DefaultPlugParamSettings.TextOffColor ?? FinderColor.White);
+        public FinderColor? GetOffColor(PlugParamDeviceEntry? deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false) => this.GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx).OffColor ??
+                                                                                                                                             this.GetDefaultPlugParamSettings(deviceEntry)?.OffColor ??
+                                                                                                                                             this.DefaultPlugParamSettings.OffColor ?? FinderColor.Black;
+        public FinderColor GetTextOnColor(PlugParamDeviceEntry? deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false) => this.GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx).TextOnColor ??
+                                                                                                                                               this.GetDefaultPlugParamSettings(deviceEntry)?.TextOnColor ??
+                                                                                                                                               this.DefaultPlugParamSettings.TextOnColor ?? FinderColor.White;
+        public FinderColor GetTextOffColor(PlugParamDeviceEntry? deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false) => this.GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx).TextOffColor ??
+                                                                                                                                                this.GetDefaultPlugParamSettings(deviceEntry)?.TextOffColor ??
+                                                                                                                                                this.DefaultPlugParamSettings.TextOffColor ?? FinderColor.White;
         public String GetLabel(PlugParamDeviceEntry? deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false) => this.GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx).Label ?? parameterName;
         public String GetLabelOn(PlugParamDeviceEntry? deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false)
         {

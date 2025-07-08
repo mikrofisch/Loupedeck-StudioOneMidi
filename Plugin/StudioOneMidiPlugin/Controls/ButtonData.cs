@@ -515,8 +515,8 @@
                         cd.Monitor ? ChannelProperty.PropertyColor[(Int32)ChannelProperty.PropertyType.Monitor]
                                 : SelectButtonData.CommandPropertyColor);
                 }
-                bb.DrawText(ChannelProperty.PropertyLetter[(Int32)ChannelProperty.PropertyType.Mute], rX, rY, rW, rH, new BitmapColor(255, 255, 255), rH - 4);
-                bb.DrawText(ChannelProperty.PropertyLetter[(Int32)ChannelProperty.PropertyType.Solo], rX2, rY, rW, rH, new BitmapColor(255, 255, 255), rH - 4);
+                bb.DrawText(ChannelProperty.PropertyLetter[(Int32)ChannelProperty.PropertyType.Mute], rX, rY, rW, rH, new BitmapColor(166, 166, 166), rH - 4);
+                bb.DrawText(ChannelProperty.PropertyLetter[(Int32)ChannelProperty.PropertyType.Solo], rX2, rY, rW, rH, new BitmapColor(166, 166, 166), rH - 4);
                 bb.DrawImage(SelectButtonData.IconSelRec, rX + rW / 2 - SelectButtonData.IconSelRec.Width / 2, rY2 + rH / 2 - SelectButtonData.IconSelRec.Height / 2);
                 bb.DrawImage(SelectButtonData.IconSelMon, rX2 + rW / 2 - SelectButtonData.IconSelMon.Width / 2, rY2 + rH / 2 - SelectButtonData.IconSelRec.Height / 2);
 

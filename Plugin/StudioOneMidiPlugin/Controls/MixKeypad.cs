@@ -147,6 +147,7 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
         // Channel data update timer
         // private static bool[] ChannelDataUpdated = new bool[StudioOneMidiPlugin.ChannelCount];
         private static HashSet<string> _actionParameterUpdateSet = new();
+        private static SemaphoreSlim _actionParameterUpdateSetLock = new SemaphoreSlim(0, 1)
 
         private readonly System.Timers.Timer ActionImageUpdateTimer;
         private const int _actionImageUpdateTimeout = 20; // milliseconds

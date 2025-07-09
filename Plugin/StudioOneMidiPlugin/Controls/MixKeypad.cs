@@ -3,11 +3,7 @@ using Melanchall.DryWetMidi.Core;
 using PluginSettings;
 using SharpHook;
 using System.Collections.Concurrent;
-using System.Net.Sockets;
-using System.Runtime.CompilerServices;
-using System.Security.RightsManagement;
-using System.Text.RegularExpressions;
-using System.Windows.Controls;
+using System.Threading;
 using static Loupedeck.StudioOneMidiPlugin.Controls.SelectButtonData;
 using static Loupedeck.StudioOneMidiPlugin.StudioOneMidiPlugin;
 using static PluginSettings.FavoritePluginsList;
@@ -147,7 +143,7 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
         // Channel data update timer
         // private static bool[] ChannelDataUpdated = new bool[StudioOneMidiPlugin.ChannelCount];
         private static HashSet<string> _actionParameterUpdateSet = new();
-        private static SemaphoreSlim _actionParameterUpdateSetLock = new SemaphoreSlim(0, 1)
+        private static SemaphoreSlim _actionParameterUpdateSetLock = new SemaphoreSlim(1, 1);
 
         private readonly System.Timers.Timer ActionImageUpdateTimer;
         private const int _actionImageUpdateTimeout = 20; // milliseconds
@@ -375,14 +371,7 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
             // Channel data update timer
             this.ActionImageUpdateTimer = new System.Timers.Timer(_actionImageUpdateTimeout);
             this.ActionImageUpdateTimer.AutoReset = false;
-            this.ActionImageUpdateTimer.Elapsed += (Object? sender, System.Timers.ElapsedEventArgs e) =>
-            {
-                foreach (var actionParameter in _actionParameterUpdateSet)
-                {
-                    this.ActionImageChanged(actionParameter);
-                    _actionParameterUpdateSet.Remove(actionParameter);
-                }
-            };
+            this.ActionImageUpdateTimer.Elapsed += ActionImageUpdateTimer_Elapsed;
         }
 
         protected override bool OnLoad()
@@ -1273,7 +1262,15 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
                 //ActionImageChanged($"select:{channelIndex}");
                 //return;
 
-                _actionParameterUpdateSet.Add($"select:{channelIndex}");
+                _actionParameterUpdateSetLock.Wait();
+                try
+                {
+                    _actionParameterUpdateSet.Add($"select:{channelIndex}");
+                }
+                finally
+                {
+                    _actionParameterUpdateSetLock.Release();
+                }
                 StartActionImageUpdateTimer();
             }
         }
@@ -1288,13 +1285,38 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
             }
             ActionImageUpdateTimer.Start();
         }
-
+        private void ActionImageUpdateTimer_Elapsed(Object? sender, System.Timers.ElapsedEventArgs e)
+        {
+            _actionParameterUpdateSetLock.Wait();
+            try
+            {
+                // To avoid modifying the collection while iterating, make a copy
+                var toUpdate = _actionParameterUpdateSet.ToList();
+                foreach (var actionParameter in toUpdate)
+                {
+                    this.ActionImageChanged(actionParameter);
+                    _actionParameterUpdateSet.Remove(actionParameter);
+                }
+            }
+            finally
+            {
+                _actionParameterUpdateSetLock.Release();
+            }
+        }
 
         private void UpdateAllCommandImages(List<string> buttonList)
         {
-            foreach (var actionName in buttonList)
+            _actionParameterUpdateSetLock.Wait();
+            try
             {
-                _actionParameterUpdateSet.Add(actionName);
+                foreach (var actionName in buttonList)
+                {
+                    _actionParameterUpdateSet.Add(actionName);
+                }
+            }
+            finally
+            {
+                _actionParameterUpdateSetLock.Release();
             }
             StartActionImageUpdateTimer();
         }

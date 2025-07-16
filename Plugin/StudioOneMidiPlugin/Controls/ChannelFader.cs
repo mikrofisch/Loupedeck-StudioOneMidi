@@ -3,8 +3,6 @@
     using Helpers;
     using PluginSettings;
     using System;
-    using System.Collections.Concurrent;
-    using System.Diagnostics;
     using System.Text.RegularExpressions;
     using static Loupedeck.StudioOneMidiPlugin.StudioOneMidiPlugin;
 
@@ -19,7 +17,9 @@
         private SelectButtonMode SelectMode = SelectButtonMode.Select;
         private FaderMode FaderMode = FaderMode.Volume;
         private static BitmapImage? IconVolume, IconPan;
-        private String PluginName = "";
+
+        private float[] Value = new float[StudioOneMidiPlugin.ChannelCount + 2];
+
         private static readonly PlugSettingsFinder UserPlugSettingsFinder = new PlugSettingsFinder(new PlugSettingsFinder.PlugParamSetting
         {
             OnColor = new FinderColorOnColor(ColorConv.Convert(DefaultBarColor)),     // Used for volume bar
@@ -39,8 +39,15 @@
         }
         private readonly CustomParams[] CustomSettings = new CustomParams[StudioOneMidiPlugin.ChannelCount];
 
-        private readonly System.Timers.Timer ActionImageUpdateTimer;
+        private readonly System.Timers.Timer _actionImageUpdateTimer;
         private const int _actionImageUpdateTimeout = 20; // milliseconds
+
+        // Timer and flag for suppressing Value updates
+        private readonly System.Timers.Timer _suppressValueUpdateTimer;
+        private const int _suppressValueUpdateTimeout = 100; // milliseconds
+        private volatile bool _suppressValueUpdate = false;
+
+        private PlugSettingsFinder.PlugParamDeviceEntry? _deviceEntry = null;
 
         public ChannelFader() : base(hasReset: true)
 		{
@@ -69,22 +76,35 @@
             }
 
             // Action image update timer
-            this.ActionImageUpdateTimer = new System.Timers.Timer(_actionImageUpdateTimeout);
-            this.ActionImageUpdateTimer.AutoReset = false;
-            this.ActionImageUpdateTimer.Elapsed += (Object? sender, System.Timers.ElapsedEventArgs e) =>
+            this._actionImageUpdateTimer = new System.Timers.Timer(_actionImageUpdateTimeout);
+            this._actionImageUpdateTimer.AutoReset = false;
+            this._actionImageUpdateTimer.Elapsed += (Object? sender, System.Timers.ElapsedEventArgs e) =>
             {
                 // Debug.WriteLine("ChannelFader.ActionImageUpdateTimer.Elapsed");
                 ActionImageChanged();
             };
+
+            // Setup the suppression timer
+            _suppressValueUpdateTimer = new System.Timers.Timer(_suppressValueUpdateTimeout);
+            _suppressValueUpdateTimer.AutoReset = false;
+            _suppressValueUpdateTimer.Elapsed += (s, e) => _suppressValueUpdate = false;
         }
 
         protected override bool OnLoad()
         {
             var plugin = (StudioOneMidiPlugin)base.Plugin;
 
+            plugin.ChannelValueChanged += (s, e) =>
+            {
+                if (!_suppressValueUpdate)
+                {
+                    Value[e.ChannelIndex] = e.Value;
+                }
+            };
+
             plugin.ChannelDataChanged += (s, e) => this.TriggerActionImageUpdateTimer();
 
-            plugin.ChannelValueChanged += (s, e) => this.TriggerActionImageUpdateTimer();
+            plugin.ChannelValueTextChanged += (s, e) => this.TriggerActionImageUpdateTimer();
 
             plugin.SelectModeChanged += (Object? sender, SelectButtonMode e) =>
             {
@@ -113,11 +133,11 @@
 
             plugin.FocusDeviceChanged += (Object? sender, String e) =>
             {
-                this.PluginName = GetPluginName(e);
+                _deviceEntry = UserPlugSettingsFinder.GetPlugParamDeviceEntry(GetPluginName(e));
                 this.TriggerActionImageUpdateTimer();
             };
 
-            plugin.ChannelActiveCanged += (Object? sender, ChannelActiveParams e) =>
+            plugin.ChannelActiveChanged += (Object? sender, ChannelActiveParams e) =>
             {
                 IsActive[e.ChannelIndex] = e.IsActive;
                 if (e.Update) this.TriggerActionImageUpdateTimer();
@@ -134,6 +154,11 @@
             };
 
             return true;
+        }
+
+        private void Plugin_ChannelValueChanged(object? sender, ChannelValueChangedEventArgs e)
+        {
+            throw new NotImplementedException();
         }
 
         private void OnActionEditorControlValueChanged(Object? sender, ActionEditorControlValueChangedEventArgs e)
@@ -170,14 +195,29 @@
             
             ChannelData cd = this.GetChannel(channelIndex);
 
-            var deviceEntry = UserPlugSettingsFinder.GetPlugParamDeviceEntry(this.PluginName);
-
-            var stepDivisions = UserPlugSettingsFinder.GetDialSteps(deviceEntry, cd.Label, cd.ChannelID + 1);
+            var stepDivisions = UserPlugSettingsFinder.GetDialSteps(_deviceEntry, cd.Label, cd.ChannelID + 1);
             if (stepDivisions > 50 && ((StudioOneMidiPlugin)this.Plugin).ShiftPressed)
             {
                 stepDivisions *= 6;
             }
-            cd.Value = Math.Min(1, Math.Max(0, (Single)Math.Round(cd.Value * stepDivisions + diff) / stepDivisions));
+            if (int.TryParse(channelIndex, out int parsedChannelIndex))
+            {
+                // Suppress Value update from ChannelValueChanged for 10ms
+                _suppressValueUpdate = true;
+                _suppressValueUpdateTimer.Interval = _suppressValueUpdateTimeout;
+                if (!_suppressValueUpdateTimer.Enabled)
+                {
+                    _suppressValueUpdateTimer.Start();
+                }
+
+                cd.Value = Math.Min(1, Math.Max(0, (Single)Math.Round(Value[parsedChannelIndex] * stepDivisions + diff) / stepDivisions));
+                Value[parsedChannelIndex] = cd.Value;
+            }
+            else
+            {
+                this.Plugin.Log.Error($"Invalid channel index: {channelIndex}");
+                return false;
+            }
 			cd.EmitVolumeUpdate();
 
             return true;
@@ -185,19 +225,18 @@
         
         private void TriggerActionImageUpdateTimer()
         {
-            if (ActionImageUpdateTimer.Enabled)
+            if (_actionImageUpdateTimer.Enabled)
             {
                 // If the timer is already running, extend the timeout to avoid multiple events
-                ActionImageUpdateTimer.Interval = _actionImageUpdateTimeout;
+                _actionImageUpdateTimer.Interval = _actionImageUpdateTimeout;
                 // Debug.WriteLine($"ChannelFader.ActionImageUpdateTimer reset to {_actionImageUpdateTimeout} ms");
                 return;
             }
-            ActionImageUpdateTimer.Start();
+            _actionImageUpdateTimer.Start();
         }
 
         protected override BitmapImage? GetCommandImage(ActionEditorActionParameters actionParameters, Int32 imageWidth, Int32 imageHeight)
         {
-
             if (actionParameters == null) return null;
             if (!actionParameters.TryGetString(ChannelSelector, out var channelIndex)) return null;
             if (!actionParameters.TryGetString(ControlOrientationSelector, out var controlOrientation)) return null;
@@ -212,8 +251,7 @@
                                                             ? customParams.BgColor
                                                             : BitmapColor.Black);
 
-            var deviceEntry = UserPlugSettingsFinder.GetPlugParamDeviceEntry(this.PluginName);
-            var paramSettings = UserPlugSettingsFinder.GetPlugParamSettings(deviceEntry, cd.Label, isUser:false, currentChannel);
+            var paramSettings = UserPlugSettingsFinder.GetPlugParamSettings(_deviceEntry, cd.Label, isUser:false, currentChannel);
 
             if (this.SelectMode == SelectButtonMode.FX)
             {
@@ -332,7 +370,8 @@
                                                              : paramSettings.MaxValuePrecision;
 
                 var valStr = maxValuePrecision >= 0 ? Regex.Replace(cd.ValueStr, @"(\d+)([.,]?)(\d{0," + maxValuePrecision + @"})\d*\s?(\D*)", "$1$2$3 $4")
-                                                    : cd.ValueStr;
+                                                    : Regex.Replace(cd.ValueStr, @"(\d+)([.,]?)(\d*)\s?(\D*)", "$1$2$3 $4");
+
 
                 bb.DrawText(valStr.Replace(' ', '\n'), 0, bb.Height / 4, bb.Width, bb.Height / 2, valueColor);
             }

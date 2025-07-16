@@ -228,8 +228,8 @@
 
         private static readonly BitmapColor CommandPropertyColor = new BitmapColor(40, 40, 40);
         public static readonly BitmapColor TextDescColor = new BitmapColor(175, 175, 175);
-        public static readonly FinderColor BgColorAssigned = new FinderColor(80, 80, 80);
-        public static readonly FinderColor BgColorUnassigned = new FinderColor(40, 40, 40);
+        public static readonly FinderColor BgColorAssigned = new FinderColor(50, 50, 50);
+        public static readonly FinderColor BgColorUnassigned = new FinderColor(20, 20, 20);
         public static readonly BitmapColor BgColorUserCircle = new BitmapColor(60, 60, 60);
 
         public readonly Int32 ChannelIndex = -1;

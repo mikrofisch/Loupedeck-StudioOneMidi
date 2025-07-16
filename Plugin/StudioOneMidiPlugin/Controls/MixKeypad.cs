@@ -508,6 +508,10 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
                 // Menu buttons
                 var pluginName = GetPluginName(e);
 
+                // Select buttons
+                SelectButtonData.FocusDeviceName = e;
+                SelectButtonData.PluginName = pluginName;
+
                 for (var i = 0; i < 2; i++)
                 {
                     for (var mode = 1; mode < 3; mode++)
@@ -532,10 +536,6 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
                 {
                     plugin.EmitSelectModeChanged(SelectButtonMode.User);
                 }
-
-                // Select buttons
-                SelectButtonData.FocusDeviceName = e;
-                SelectButtonData.PluginName = GetPluginName(e);
             };
 
             plugin.AutomationModeChanged += (Object? sender, AutomationMode e) =>

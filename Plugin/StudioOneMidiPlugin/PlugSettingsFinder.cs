@@ -741,40 +741,47 @@
             return this.DefaultPlugParamSettings;
         }
 
-        public PlugParamSetting? GetDefaultPlugParamSettings(PlugParamDeviceEntry? deviceEntry)
+        public PlugParamSetting? GetDefaultPlugParamSettings(PlugParamDeviceEntry? deviceEntry = null)
         {
-            if (deviceEntry == null) return null;
-            if (deviceEntry.ParamSettings.TryGetValue("", out var paramSettings))
+            if (deviceEntry == null)
+            {
+                deviceEntry = LastPlugParamDeviceEntry;
+            }
+            if (deviceEntry != null && deviceEntry.ParamSettings.TryGetValue("", out var paramSettings))
             {
                 return paramSettings;
             }
-            return null;
+            return this.DefaultPlugParamSettings;
         }
 
         // public PlugParamSetting.PotMode GetMode(PlugParamDeviceEntry? deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false) => this.GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx).Mode;
         public Boolean GetShowCircle(PlugParamDeviceEntry deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false) => this.GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx).ShowUserButtonCircle;
         public Boolean GetPaintLabelBg(PlugParamDeviceEntry? deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false) => this.GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx).PaintLabelBg;
 
-        public FinderColor GetOnColor(PlugParamDeviceEntry? deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false) => GetOnColor(this.GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx));
-        public FinderColor GetOnColor(PlugParamSetting paramSettings) => paramSettings.OnColor ?? FinderColor.Black;
+        public FinderColor GetOnColor(PlugParamDeviceEntry? deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false) => GetOnColor(this.GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx), deviceEntry);
+        public FinderColor GetOnColor(PlugParamSetting paramSettings, PlugParamDeviceEntry? deviceEntry = null) => paramSettings.OnColor ?? GetDefaultPlugParamSettings(deviceEntry)?.OnColor ?? FinderColor.Black;
 
         //public FinderColor GetBarOnColor(PlugParamDeviceEntry? deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false)
         //{
         //    var cs = this.GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx);
         //    return cs.BarOnColor ?? cs.OnColor ?? this.GetDefaultPlugParamSettings(deviceEntry)?.BarOnColor ?? this.GetDefaultPlugParamSettings(deviceEntry)?.OnColor ?? this.DefaultPlugParamSettings.OnColor ?? FinderColor.Black;
         //}
-        public FinderColor GetBarOnColor(PlugParamSetting paramSettings)
+        public FinderColor GetBarOnColor(PlugParamSetting paramSettings, PlugParamDeviceEntry? deviceEntry = null)
         {
-            return paramSettings.BarOnColor ?? paramSettings.OnColor ?? FinderColor.Black;
+            return paramSettings.BarOnColor ?? 
+                   paramSettings.OnColor ??
+                   GetDefaultPlugParamSettings(deviceEntry)?.BarOnColor ??
+                   GetDefaultPlugParamSettings(deviceEntry)?.OnColor ??
+                   FinderColor.Black;
         }
-        public FinderColor GetOffColor(PlugParamDeviceEntry? deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false) => this.GetOffColor(this.GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx));
-        public FinderColor GetOffColor(PlugParamSetting paramSettings) => paramSettings.OffColor ?? FinderColor.Black;
+        public FinderColor GetOffColor(PlugParamDeviceEntry? deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false) => this.GetOffColor(this.GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx), deviceEntry);
+        public FinderColor GetOffColor(PlugParamSetting paramSettings, PlugParamDeviceEntry? deviceEntry = null) => paramSettings.OffColor ?? GetDefaultPlugParamSettings(deviceEntry)?.OffColor ?? FinderColor.Black;
 
-        public FinderColor GetTextOnColor(PlugParamDeviceEntry? deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false) => this.GetTextOnColor(this.GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx));
-        public FinderColor GetTextOnColor(PlugParamSetting paramSettings) => paramSettings.TextOnColor ?? FinderColor.White;
+        public FinderColor GetTextOnColor(PlugParamDeviceEntry? deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false) => this.GetTextOnColor(this.GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx), deviceEntry);
+        public FinderColor GetTextOnColor(PlugParamSetting paramSettings, PlugParamDeviceEntry? deviceEntry = null) => paramSettings.TextOnColor ?? GetDefaultPlugParamSettings(deviceEntry)?.TextOnColor ?? FinderColor.White;
 
-        public FinderColor GetTextOffColor(PlugParamDeviceEntry? deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false) => this.GetTextOffColor(this.GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx));
-        public FinderColor GetTextOffColor(PlugParamSetting paramSettings) => paramSettings.TextOffColor ?? FinderColor.White;
+        public FinderColor GetTextOffColor(PlugParamDeviceEntry? deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false) => this.GetTextOffColor(this.GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx), deviceEntry);
+        public FinderColor GetTextOffColor(PlugParamSetting paramSettings, PlugParamDeviceEntry? deviceEntry = null) => paramSettings.TextOffColor ?? GetDefaultPlugParamSettings(deviceEntry)?.TextOffColor ?? FinderColor.White;
 
         public String GetLabel(PlugParamDeviceEntry? deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false) => this.GetLabel(this.GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx), parameterName);
         public String GetLabel(PlugParamSetting paramSettings, String parameterName)

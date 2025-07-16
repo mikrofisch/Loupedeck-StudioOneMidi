@@ -15,7 +15,7 @@ namespace Loupedeck.StudioOneMidiPlugin
         public DialStepsDetector(StudioOneMidiPlugin plugin)
         {
             _plugin = plugin ?? throw new ArgumentNullException(nameof(plugin));
-            _plugin.ChannelValueChanged += OnChannelValueChanged;
+            _plugin.ChannelValueTextChanged += OnChannelValueChanged;
         }
 
         public void Activate()
@@ -90,7 +90,7 @@ namespace Loupedeck.StudioOneMidiPlugin
         public void Dispose()
         {
             Deactivate();
-            _plugin.ChannelValueChanged -= OnChannelValueChanged;
+            _plugin.ChannelValueTextChanged -= OnChannelValueChanged;
         }
     }
 }

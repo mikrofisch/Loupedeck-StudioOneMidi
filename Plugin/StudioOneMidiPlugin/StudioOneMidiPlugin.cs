@@ -31,8 +31,14 @@ namespace Loupedeck.StudioOneMidiPlugin
 
         public ConcurrentDictionary<String, ChannelData> channelData = new ConcurrentDictionary<String, ChannelData>();
 
+        public class ChannelValueChangedEventArgs : EventArgs
+        {
+            public int ChannelIndex { get; set; }
+            public float Value { get; set; }
+        }
+        public event EventHandler<ChannelValueChangedEventArgs>? ChannelValueChanged; // Triggered when the channel value is changed
         public event EventHandler<int>? ChannelDataChanged;
-        public event EventHandler<int>? ChannelValueChanged;
+        public event EventHandler<int>? ChannelValueTextChanged;
         public event EventHandler<NoteOnEvent>? CommandNoteReceived;
         public event EventHandler<NoteOnEvent>? OneWayCommandNoteReceived;
         public event EventHandler<Int32>? ActiveUserPagesReceived;
@@ -114,7 +120,7 @@ namespace Loupedeck.StudioOneMidiPlugin
             public Boolean IsActive { get; set; } = true;
             public Boolean Update { get; set; } = false;
         }
-        public event EventHandler<ChannelActiveParams>? ChannelActiveCanged; 
+        public event EventHandler<ChannelActiveParams>? ChannelActiveChanged; 
 
         public enum AutomationMode
         {
@@ -340,7 +346,7 @@ namespace Loupedeck.StudioOneMidiPlugin
 
             this.ChannelDataChanged?.Invoke(this, channelIndex); 
         }
-        public void EmitChannelValueChanged(int channelIndex) => this.ChannelValueChanged?.Invoke(this, channelIndex);
+        public void EmitChannelValueTextChanged(int channelIndex) => this.ChannelValueTextChanged?.Invoke(this, channelIndex);
 
         public void EmitUserButtonChanged(UserButtonParams ubp)
         {
@@ -378,7 +384,7 @@ namespace Loupedeck.StudioOneMidiPlugin
 
         public void EmitUserButtonMenuActivated(UserButtonMenuParams ubmp) => this.UserButtonMenuActivated?.Invoke(this, ubmp);
 
-        public void EmitChannelActiveChanged(ChannelActiveParams cap) => this.ChannelActiveCanged?.Invoke(this, cap);
+        public void EmitChannelActiveChanged(ChannelActiveParams cap) => this.ChannelActiveChanged?.Invoke(this, cap);
 
         public override void RunCommand(String commandName, String parameter)
         {
@@ -453,6 +459,9 @@ namespace Loupedeck.StudioOneMidiPlugin
                                 EmitSelectModeChanged(SelectButtonMode.User);
                             }
                             break;
+                        case 0x14:      // Re-send focus device name
+                            SendFocusDeviceToConfigApp(this._currentPluginName!);
+                            break;
                     }
                 }
             }
@@ -478,7 +487,7 @@ namespace Loupedeck.StudioOneMidiPlugin
 
                     cd.Value = pbe.PitchValue / 16383.0f;
 
-                    this.EmitChannelValueChanged(pbe.Channel);
+                    this.ChannelValueChanged?.Invoke(this, new ChannelValueChangedEventArgs { ChannelIndex = pbe.Channel, Value = cd.Value });
                 }
             }
             // Note event -> toggle settings
@@ -631,7 +640,7 @@ namespace Loupedeck.StudioOneMidiPlugin
                             break;
                         case 1: // Value
                             cd.ValueStr = receivedString;
-                            this.EmitChannelValueChanged(channelIndex);
+                            this.EmitChannelValueTextChanged(channelIndex);
                             break;
                         case 2: // Description
                             cd.Description = receivedString;

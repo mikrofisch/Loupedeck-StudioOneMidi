@@ -213,13 +213,14 @@
                                                             : BitmapColor.Black);
 
             var deviceEntry = UserPlugSettingsFinder.GetPlugParamDeviceEntry(this.PluginName);
+            var paramSettings = UserPlugSettingsFinder.GetPlugParamSettings(deviceEntry, cd.Label, isUser:false, currentChannel);
 
             if (this.SelectMode == SelectButtonMode.FX)
             {
                 return bb.ToImage();
             }
 
-            if (UserPlugSettingsFinder.GetLabel(deviceEntry, cd.Label, currentChannel).Length == 0) return bb.ToImage();
+            if (UserPlugSettingsFinder.GetLabel(paramSettings, cd.Label).Length == 0) return bb.ToImage();
 
             const Int32 sideBarW = 8;
             var sideBarX = bb.Width - sideBarW;
@@ -252,7 +253,7 @@
             var valueColor = BitmapColor.White;
             var valBarColor = customParams != null 
                               ? customParams.BarColor
-                              : ColorConv.Convert(UserPlugSettingsFinder.GetBarOnColor(deviceEntry, cd.Label, currentChannel));
+                              : ColorConv.Convert(UserPlugSettingsFinder.GetBarOnColor(paramSettings));
 
             if (this.SelectMode == SelectButtonMode.Select)
             {
@@ -280,17 +281,17 @@
 
             if (SelectMode == SelectButtonMode.User && cd.ChannelID < IsActive.Length && !IsActive[cd.ChannelID])
             {
-                valueColor = ColorConv.Convert(UserPlugSettingsFinder.GetTextOffColor(deviceEntry, cd.Label, currentChannel));
-                valBarColor = ColorConv.Convert(UserPlugSettingsFinder.GetOffColor(deviceEntry, cd.Label, currentChannel));
+                valueColor = ColorConv.Convert(UserPlugSettingsFinder.GetTextOffColor(paramSettings));
+                valBarColor = ColorConv.Convert(UserPlugSettingsFinder.GetOffColor(paramSettings));
             }
 
-            if (UserPlugSettingsFinder.HideValueBar(deviceEntry, cd.Label, currentChannel)) valBarColor = BitmapColor.Transparent;
+            if (paramSettings.HideValueBar) valBarColor = BitmapColor.Transparent;
 
             if (isVolume)
             {
                 var volBarH = (Int32)Math.Ceiling(cd.Value * bb.Height);
                 var volBarY = bb.Height - volBarH;
-                if (UserPlugSettingsFinder.GetMode(deviceEntry, cd.Label, currentChannel) == PlugSettingsFinder.PlugParamSetting.PotMode.Symmetric)
+                if (paramSettings.Mode == PlugSettingsFinder.PlugParamSetting.PotMode.Symmetric)
                 {
                     volBarH = (Int32)(Math.Abs(cd.Value - 0.5) * bb.Height);
                     volBarY = cd.Value < 0.5 ? bb.Height / 2 : bb.Height / 2 - volBarH;
@@ -328,7 +329,7 @@
             {
                 // In custom mode limit the number of decimal places to 2. Hard wired for now.
                 var maxValuePrecision = customParams != null ? 2
-                                                             : UserPlugSettingsFinder.GetMaxValuePrecision(deviceEntry, cd.Label, currentChannel);
+                                                             : paramSettings.MaxValuePrecision;
 
                 var valStr = maxValuePrecision >= 0 ? Regex.Replace(cd.ValueStr, @"(\d+)([.,]?)(\d{0," + maxValuePrecision + @"})\d*\s?(\D*)", "$1$2$3 $4")
                                                     : cd.ValueStr;

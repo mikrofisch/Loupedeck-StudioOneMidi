@@ -4,7 +4,6 @@
     using PluginSettings;
     using System;
     using System.Diagnostics;
-    using System.Windows.Controls;
     using static Loupedeck.StudioOneMidiPlugin.StudioOneMidiPlugin;
     using static PluginSettings.PlugSettingsFinder;
 
@@ -15,6 +14,8 @@
         protected const Int32 TrackNameH = 24;
         protected const Int32 DescFontSize = 14;
         protected const Int32 TrackNameFontSize = 14;
+
+        protected static SemaphoreSlim _userButtonRedrawAccess = new SemaphoreSlim(1, 1);
 
         protected StudioOneMidiPlugin? _plugin;
 
@@ -329,6 +330,7 @@
             {
                 SelectButtonData.IconSelRec = EmbeddedResources.ReadImage(EmbeddedResources.FindFile("record_12px.png"));
             }
+            _userButtonRedrawAccess.Wait();
 
             if (buttonMode == SelectButtonMode.Custom && customParams != null)
             {
@@ -388,6 +390,9 @@
 
                 var deviceEntry = UserPlugSettingsFinder.GetPlugParamDeviceEntry(pluginName);
 
+                var labelParamSettings = UserPlugSettingsFinder.GetPlugParamSettings(deviceEntry, cd.Label, isUser: true, buttonIdx);
+                var userLabelParamSettings = UserPlugSettingsFinder.GetPlugParamSettings(deviceEntry, cd.UserLabel, isUser: true, buttonIdx);
+
                 // If deviceEntry is null, the plugin is not set up in the configuration file
                 // (for now we don't do anything about it here)
 
@@ -395,8 +400,8 @@
                 // the label sent by the plugin) may be empty if the plugin is buggy and doesn't send anything, but labelText may still have
                 // text if an override is defined for the button position.
                 //
-                var userLabelText = userButtonActive ? UserPlugSettingsFinder.GetLabelOnShort(deviceEntry, cd.UserLabel, buttonIdx, isUser: true)
-                                                     : UserPlugSettingsFinder.GetLabelShort(deviceEntry, cd.UserLabel, buttonIdx, isUser: true);
+                var userLabelText = userButtonActive ? UserPlugSettingsFinder.GetLabelOnShort(userLabelParamSettings, cd.UserLabel)
+                                                     : UserPlugSettingsFinder.GetLabelShort(userLabelParamSettings, cd.UserLabel);
 
                 // User Pot
                 //
@@ -404,19 +409,19 @@
                 {
                     if (UserPlugSettingsFinder.GetPaintLabelBg(deviceEntry, cd.Label, buttonIdx))
                     {
-                        bb.FillRectangle(0, 0, bb.Width, bb.Height, buttonEnabled ? ColorConv.Convert(UserPlugSettingsFinder.GetOnColor(deviceEntry, cd.Label, buttonIdx))
-                                                                                  : ColorConv.Convert(UserPlugSettingsFinder.GetOffColor(deviceEntry, cd.Label, buttonIdx)));
+                        bb.FillRectangle(0, 0, bb.Width, bb.Height, buttonEnabled ? ColorConv.Convert(UserPlugSettingsFinder.GetOnColor(labelParamSettings))
+                                                                                  : ColorConv.Convert(UserPlugSettingsFinder.GetOffColor(labelParamSettings)));
                     }
                 }
                 bb.DrawText(cd.Description, 0, 0, bb.Width, TitleHeight, TextDescColor, DescFontSize);
-                bb.DrawText(userLabelText.Length > 0 ? UserPlugSettingsFinder.GetLabelShort(deviceEntry, cd.Label, buttonIdx) :
-                                                       UserPlugSettingsFinder.GetLabel(deviceEntry, cd.Label, buttonIdx), 0, bb.Height / 2 - TitleHeight / 2, bb.Width, TitleHeight,
-                            buttonEnabled ? ColorConv.Convert(UserPlugSettingsFinder.GetTextOnColor(deviceEntry, cd.Label, buttonIdx))
-                                          : ColorConv.Convert(UserPlugSettingsFinder.GetTextOffColor(deviceEntry, cd.Label, buttonIdx)), LabelFontSize);
+                bb.DrawText(userLabelText.Length > 0 ? UserPlugSettingsFinder.GetLabelShort(labelParamSettings, cd.Label) :
+                                                       UserPlugSettingsFinder.GetLabel(labelParamSettings, cd.Label), 0, bb.Height / 2 - TitleHeight / 2, bb.Width, TitleHeight,
+                            buttonEnabled ? ColorConv.Convert(UserPlugSettingsFinder.GetTextOnColor(labelParamSettings))
+                                          : ColorConv.Convert(UserPlugSettingsFinder.GetTextOffColor(labelParamSettings)), LabelFontSize);
 
                 // User Button
                 //
-                var menuItems = UserPlugSettingsFinder.GetUserMenuItems(deviceEntry, cd.UserLabel, buttonIdx, isUser: true);
+                var menuItems = userLabelParamSettings.UserMenuItems;
                 if (menuItems != null)
                 {
                     var menuItem = menuItems[cd.UserValue / (127 / (menuItems.Length - 1))];
@@ -424,20 +429,20 @@
                     userLabelText = menuItem;
                 }
 
-                var drawCircle = userLabelText.Length > 0 && UserPlugSettingsFinder.ShowUserButtonCircle(deviceEntry, cd.UserLabel, buttonIdx);
+                var drawCircle = userLabelText.Length > 0 && userLabelParamSettings.ShowUserButtonCircle;
                 var tx = 0;
                 var tw = bb.Width;
                 if (UserPlugSettingsFinder.HasMenu(deviceEntry, cd.UserLabel, buttonIdx))
                 {
                     userButtonActive = true;    // Use 'on' colour variants for all menu items
                 }
-                var tc = userButtonEnabled ? userButtonActive ? drawCircle ? ColorConv.Convert(UserPlugSettingsFinder.GetOnColor(deviceEntry, cd.UserLabel, buttonIdx, isUser: true))
-                                                                           : ColorConv.Convert(UserPlugSettingsFinder.GetTextOnColor(deviceEntry, cd.UserLabel, buttonIdx, isUser: true))
-                                                              : ColorConv.Convert(UserPlugSettingsFinder.GetTextOffColor(deviceEntry, cd.UserLabel, buttonIdx, isUser: true))
+                var tc = userButtonEnabled ? userButtonActive ? drawCircle ? ColorConv.Convert(UserPlugSettingsFinder.GetOnColor(userLabelParamSettings))
+                                                                           : ColorConv.Convert(UserPlugSettingsFinder.GetTextOnColor(userLabelParamSettings))
+                                                              : ColorConv.Convert(UserPlugSettingsFinder.GetTextOffColor(userLabelParamSettings))
                                            : BitmapColor.Black;
                 if (userButtonMenuActive) tc = BitmapColor.White;
-                var bc = userLabelText.Length > 0 && userButtonEnabled ? userButtonActive ? ColorConv.Convert(UserPlugSettingsFinder.GetOnColor(deviceEntry, cd.UserLabel, buttonIdx, isUser: true))
-                                                                                          : ColorConv.Convert(UserPlugSettingsFinder.GetOffColor(deviceEntry, cd.UserLabel, buttonIdx, isUser: true))
+                var bc = userLabelText.Length > 0 && userButtonEnabled ? userButtonActive ? ColorConv.Convert(UserPlugSettingsFinder.GetOnColor(userLabelParamSettings))
+                                                                                          : ColorConv.Convert(UserPlugSettingsFinder.GetOffColor(userLabelParamSettings))
                                                                        : ColorConv.Convert(BgColorUnassigned);
                 if (userButtonMenuActive)
                 {
@@ -522,6 +527,9 @@
 
                 bb.DrawText(PlugSettingsFinder.stripLabel(cd.Label), 0, bb.Height / 2 - TitleHeight / 2, bb.Width, TitleHeight, null, LabelFontSize);
             }
+            
+            _userButtonRedrawAccess.Release();
+
             return bb.ToImage();
         }
 
@@ -544,7 +552,7 @@
                     var deviceEntry = UserPlugSettingsFinder.GetPlugParamDeviceEntry(PluginName);
                     if (deviceEntry != null)
                     {
-                        var menuItems = UserPlugSettingsFinder.GetUserMenuItems(deviceEntry, cd.UserLabel, cd.ChannelID + 1, isUser: true);
+                        var menuItems = UserPlugSettingsFinder.GetPlugParamSettings(deviceEntry, cd.UserLabel, isUser: true, cd.ChannelID + 1).UserMenuItems;
                         if (menuItems != null)
                         {
                             // Display value selection menu.
@@ -1105,7 +1113,12 @@
             base.OnLoad(plugin);
         }
 
-        public void setTopDisplay(String text) => this.TopDisplayText = text;
+        public void setTopDisplay(String text)
+        {
+            _userButtonRedrawAccess.Wait();
+            this.TopDisplayText = text;
+            _userButtonRedrawAccess.Release();
+        }
         public void setPluginName(String text)
         {
             this.PluginName = text;
@@ -1133,6 +1146,10 @@
 
             if (deviceEntry == null) return bb.ToImage(); // No device entry found (should never happen, could throw an exception here)
 
+            _userButtonRedrawAccess.Wait();
+
+            var paramSettings = this.UserPlugSettingsFinder.GetPlugParamSettings(deviceEntry, this.Name, isUser: true, buttonIdx);
+
             if (this.IsUserButton)
             {
                 if (this.Name.Length == 0)
@@ -1141,8 +1158,8 @@
                 }
                 else
                 {
-                    bb.FillRectangle(0, bgX, bb.Width, bgH, Activated ? ColorConv.Convert(UserPlugSettingsFinder.GetOnColor(deviceEntry, Name, buttonIdx, isUser: true))
-                                                                      : ColorConv.Convert(UserPlugSettingsFinder.GetOffColor(deviceEntry, this.Name, buttonIdx, isUser: true)));
+                    bb.FillRectangle(0, bgX, bb.Width, bgH, Activated ? ColorConv.Convert(this.UserPlugSettingsFinder.GetOnColor(paramSettings))
+                                                                      : ColorConv.Convert(this.UserPlugSettingsFinder.GetOffColor(paramSettings)));
                 }
             }
             else
@@ -1160,11 +1177,11 @@
             }
             else
             {
-                bb.DrawText(this.Activated ? this.UserPlugSettingsFinder.GetLabelOn(deviceEntry, this.Name, buttonIdx, isUser: true) :
-                                             this.UserPlugSettingsFinder.GetLabel(deviceEntry, this.Name, buttonIdx, isUser: true), 
+                bb.DrawText(this.Activated ? this.UserPlugSettingsFinder.GetLabelOn(paramSettings, this.Name) :
+                                             paramSettings.Label ?? this.Name, 
                                              0, dispTxtH, bb.Width, bb.Height - dispTxtH, 
-                            this.Activated ? ColorConv.Convert(UserPlugSettingsFinder.GetTextOnColor(deviceEntry, this.Name, buttonIdx, isUser: true))
-                                           : ColorConv.Convert(UserPlugSettingsFinder.GetTextOffColor(deviceEntry, this.Name, buttonIdx, isUser: true)), LabelFontSize);
+                            this.Activated ? ColorConv.Convert(this.UserPlugSettingsFinder.GetTextOnColor(paramSettings))
+                                           : ColorConv.Convert(this.UserPlugSettingsFinder.GetTextOffColor(paramSettings)), LabelFontSize);
             }
 
             if (this.TopDisplayText != null)
@@ -1201,6 +1218,9 @@
                     bb.DrawImage(EmbeddedResources.ReadImage(EmbeddedResources.FindFile(iconName + "_20px.png")), bb.Width - 20, 0);
                 }
             }
+
+            _userButtonRedrawAccess.Release();
+
             return bb.ToImage();
         }
     }
@@ -1468,6 +1488,10 @@
             if (userPage > 0)
             {
                 this.LastUserPage = userPage;
+                if (userPage > this.ActiveUserPages)
+                {
+                    this.ActiveUserPages = userPage;
+                }
             }
         }
 

@@ -445,6 +445,13 @@ namespace Loupedeck.StudioOneMidiPlugin
                         case 0x13:      // Activate or deactivate sending of new parameters
                             _autoSendParameterNames = ce.Velocity > 0;
                             _currentAutoAddPluginName = _autoSendParameterNames ? _currentPluginName : null;
+                            if (_autoSendParameterNames)
+                            {
+                                // Set the mixer mode to user page 1
+                                SetChannelFaderMode(ChannelFaderMode.User, 1);
+                                this.UserPageChanged?.Invoke(this, 1);
+                                EmitSelectModeChanged(SelectButtonMode.User);
+                            }
                             break;
                     }
                 }
@@ -568,6 +575,7 @@ namespace Loupedeck.StudioOneMidiPlugin
                             }
                         }
 
+                        //if (userPage == 0) _autoSendParameterNames = false;
                         if (userPage != this.CurrentUserPage)
                         {
                             this.CurrentUserPage = userPage;
@@ -687,9 +695,11 @@ namespace Loupedeck.StudioOneMidiPlugin
             {
                 case ChannelFaderMode.Pan:
                     this.SendMidiNote(0, PanCommandButtonData.Note);
+                    _autoSendParameterNames = false;
                     break;
                 case ChannelFaderMode.Send:
                     this.SendMidiNote(0, SendsCommandButtonData.Note);
+                    _autoSendParameterNames = false;
                     break;
                 case ChannelFaderMode.User:
                     this.SendMidiNote(0, UserPageMidiBase - 1 + userPage);

@@ -163,7 +163,7 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
                             var linkedStates = SelectButtonData.UserPlugSettingsFinder.GetLinkedStates(deviceEntry, bd.Label, 0);
                             if (!linkedStates.IsNullOrEmpty())
                             {
-                                var userMenuItems = SelectButtonData.UserPlugSettingsFinder.GetUserMenuItems(deviceEntry, linkedParameter, 0);
+                                var userMenuItems = SelectButtonData.UserPlugSettingsFinder.GetPlugParamSettings(deviceEntry, linkedParameter, false).UserMenuItems;
                                 if (userMenuItems != null && userMenuItems.Length > 1)
                                 {
                                     var menuIndex = (Int32)Math.Round((Double)cd.UserValue / 127 * (userMenuItems.Length - 1));

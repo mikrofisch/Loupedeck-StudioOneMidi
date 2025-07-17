@@ -675,6 +675,7 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
                     {
                         bd.UserButtonActive = e.IsActive();
                         this.UpdateChannelData(e.ChannelIndex);
+                    }
                 }
 
                 this.UpdateParameterLinks(deviceEntry, cd);

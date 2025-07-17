@@ -151,6 +151,9 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
         private readonly System.Timers.Timer ActionImageUpdateTimer;
         private const int _actionImageUpdateTimeout = 20; // milliseconds
 
+        private static SemaphoreSlim _actionImageUpdateLock = new SemaphoreSlim(1, 1);
+        private static string? _currentActionParameter = null;
+
         private static readonly BitmapImage _iconPluginHi = EmbeddedResources.ReadImage(EmbeddedResources.FindFile("plugin_hi_12px.png"));
         private static readonly BitmapImage _iconPluginLo = EmbeddedResources.ReadImage(EmbeddedResources.FindFile("plugin_lo_12px.png"));
         private static readonly BitmapImage _iconPluginTransparent = EmbeddedResources.ReadImage(EmbeddedResources.FindFile("plugin_transparent_12px.png"));
@@ -718,6 +721,8 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
         {
             //            if (actionParameter == null) return null;
 
+            BitmapImage bi;
+
             if (this.CurrentUserSendsLayerMode == UserSendsLayerMode.PluginAddActivated)
             {
                 // Show list of favorite plugins across all buttons
@@ -726,7 +731,7 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
                 var patch = FavoritePlugins[actionParameter];
                 var pc = ColorConv.Convert(patch.Color);
                 var lh = (0.2126 * pc.R + 0.7152 * pc.G + 0.0722 * pc.B) > 128;
-                var tc =  lh ? BitmapColor.Black : BitmapColor.White;
+                var tc = lh ? BitmapColor.Black : BitmapColor.White;
 
                 if (!patch.IsActive)
                 {
@@ -738,30 +743,44 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
 
 
                 if (!String.IsNullOrEmpty(patch.Name) && !patch.IsVariant) bbp.DrawImage(patch.IsActive ? (lh ? _iconPluginLo : _iconPluginHi) : _iconPluginTransparent, 6, 4);
-                return bbp.ToImage();
+
+                if (actionParameter == _currentActionParameter) _actionImageUpdateLock.Release();
+                bi = bbp.ToImage();
             }
-
-            int actionParameterNum = 0;
-            int.TryParse(actionParameter.Substring(actionParameter.IndexOf(':') + 1), out actionParameterNum);
-
-            ButtonData? bd = null;
-            if (actionParameter.StartsWith("menu"))
+            else
             {
-                bd = this.GetMenuButtonData(this.CurrentLayer, this.GetCurrentMode(), actionParameterNum);
-            }
-            else if (actionParameter.StartsWith("select"))
-            {
-                bd = this.GetSelectButtonData(actionParameterNum);
-            }
 
-            if (bd != null)
-            {
-                return bd.getImage(imageSize);
-            }
+                int actionParameterNum = 0;
+                int.TryParse(actionParameter.Substring(actionParameter.IndexOf(':') + 1), out actionParameterNum);
 
-            var bb = new BitmapBuilder(imageSize);
-            bb.FillRectangle(0, 0, bb.Width, bb.Height, BitmapColor.Black);
-            return bb.ToImage();
+                ButtonData? bd = null;
+                if (actionParameter.StartsWith("menu"))
+                {
+                    bd = this.GetMenuButtonData(this.CurrentLayer, this.GetCurrentMode(), actionParameterNum);
+                }
+                else if (actionParameter.StartsWith("select"))
+                {
+                    bd = this.GetSelectButtonData(actionParameterNum);
+                }
+
+                if (bd != null)
+                {
+                    bi = bd.getImage(imageSize);
+                }
+                else
+                {
+                    var bb = new BitmapBuilder(imageSize);
+                    bb.FillRectangle(0, 0, bb.Width, bb.Height, BitmapColor.Black);
+
+                    bi = bb.ToImage();
+                }
+            }
+            if (actionParameter == _currentActionParameter)
+            {
+                _currentActionParameter = null;
+                _actionImageUpdateLock.Release();
+            }
+            return bi;
         }
 
         private ButtonData GetSelectButtonData(int actionParameterNum)
@@ -1311,6 +1330,9 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
                 var toUpdate = _actionParameterUpdateSet.ToList();
                 foreach (var actionParameter in toUpdate)
                 {
+                    _actionImageUpdateLock.Wait();
+                    _currentActionParameter = actionParameter;
+
                     this.ActionImageChanged(actionParameter);
                     _actionParameterUpdateSet.Remove(actionParameter);
                 }

@@ -383,7 +383,7 @@
 
 		private ChannelData GetChannel(String actionParameter)
 		{
-			return ((StudioOneMidiPlugin)this.Plugin).channelData[actionParameter];
+			return ((StudioOneMidiPlugin)this.Plugin).CurrentChannelData[actionParameter];
 		}
 
         protected override Boolean RunCommand(ActionEditorActionParameters actionParameters)

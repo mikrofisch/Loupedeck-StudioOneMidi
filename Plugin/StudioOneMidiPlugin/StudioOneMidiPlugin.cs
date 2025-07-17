@@ -29,7 +29,7 @@ namespace Loupedeck.StudioOneMidiPlugin
 
 		public const Int32 ChannelCount = 6;
 
-        public ConcurrentDictionary<String, ChannelData> channelData = new ConcurrentDictionary<String, ChannelData>();
+        public ConcurrentDictionary<String, ChannelData> CurrentChannelData = new ConcurrentDictionary<String, ChannelData>();
 
         public class ChannelValueChangedEventArgs : EventArgs
         {
@@ -277,7 +277,7 @@ namespace Loupedeck.StudioOneMidiPlugin
             //
             for (int i = 0; i < ChannelCount + 2; i++)
             {
-                this.channelData[i.ToString()] = new ChannelData(this, i);
+                this.CurrentChannelData[i.ToString()] = new ChannelData(this, i);
             }
 
             this._dialStepsDetector = new DialStepsDetector(this);
@@ -330,7 +330,7 @@ namespace Loupedeck.StudioOneMidiPlugin
                     _currentAutoAddPluginName = null;
                     _autoSendParameterNames = false;
                 }
-                else if (this.channelData.TryGetValue(channelIndex.ToString(), out ChannelData? cd))
+                else if (this.CurrentChannelData.TryGetValue(channelIndex.ToString(), out ChannelData? cd))
                 {
                     // Send channel data to the config app
                     if (cd.ChannelID < ChannelCount && !String.IsNullOrEmpty(cd.Label))
@@ -480,7 +480,7 @@ namespace Loupedeck.StudioOneMidiPlugin
                 {
                     // Faders for 6 channels and vol + pan for selected channel
                     
-                    if (!this.channelData.TryGetValue(((Int32)pbe.Channel).ToString(), out ChannelData? cd))
+                    if (!this.CurrentChannelData.TryGetValue(((Int32)pbe.Channel).ToString(), out ChannelData? cd))
                     {
                         return;
                     }
@@ -511,7 +511,7 @@ namespace Loupedeck.StudioOneMidiPlugin
                 {
                     var channelIndex = ce.NoteNumber - ChannelProperty.MidiBaseNote[(Int32)eventType];
 
-                    if (!this.channelData.TryGetValue(channelIndex.ToString(), out ChannelData? cd))
+                    if (!this.CurrentChannelData.TryGetValue(channelIndex.ToString(), out ChannelData? cd))
                         return;
 
                     cd.BoolProperty[(Int32)eventType] = ce.Velocity > 0;
@@ -526,7 +526,7 @@ namespace Loupedeck.StudioOneMidiPlugin
                         var ubp = new UserButtonParams();
                         ubp.ChannelIndex = ce.NoteNumber - UserButtonMidiBase;
                         ubp.userValue = ce.Velocity;
-                        if (this.channelData.TryGetValue(ubp.ChannelIndex.ToString(), out ChannelData? cd))
+                        if (this.CurrentChannelData.TryGetValue(ubp.ChannelIndex.ToString(), out ChannelData? cd))
                         {
                             if (cd.UserValue != ubp.userValue)
                             {
@@ -629,7 +629,7 @@ namespace Loupedeck.StudioOneMidiPlugin
                     var receivedString = Encoding.UTF8.GetString(str, 0, str.Length);
                     var channelIndex = offset / 4;
 
-                    if (!this.channelData.TryGetValue(channelIndex.ToString(), out ChannelData? cd))
+                    if (!this.CurrentChannelData.TryGetValue(channelIndex.ToString(), out ChannelData? cd))
                         return;
 
                     switch (offset % 4)

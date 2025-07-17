@@ -37,7 +37,7 @@ namespace Loupedeck.StudioOneMidiPlugin
             if (!_isActive) return;
 
             // Count unique integer values across all channels
-            foreach (var channel in _plugin.channelData.Values)
+            foreach (var channel in _plugin.CurrentChannelData.Values)
             {
                 int hash = HashCode.Combine(channel.ChannelID, channel.ValueStr ?? string.Empty);
                 if (_uniqueValues.Add(hash))

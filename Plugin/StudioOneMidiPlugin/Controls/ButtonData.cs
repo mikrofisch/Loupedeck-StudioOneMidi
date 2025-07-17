@@ -88,7 +88,7 @@
 
         public override BitmapImage getImage(PluginImageSize imageSize)
         {
-            ChannelData cd = this.Plugin.channelData[this.ChannelIndex.ToString()];
+            ChannelData cd = this.Plugin.CurrentChannelData[this.ChannelIndex.ToString()];
             //if (!this.Plugin.mackieChannelData.TryGetValue(this.ChannelIndex.ToString(), out MackieChannelData cd))
             //    return;
 
@@ -149,7 +149,7 @@
 
         public override void runCommand()
         {
-            ChannelData cd = this.Plugin.channelData[this.ChannelIndex.ToString()];
+            ChannelData cd = this.Plugin.CurrentChannelData[this.ChannelIndex.ToString()];
 
             cd.EmitChannelPropertyPress(this.Type);
         }
@@ -282,7 +282,7 @@
 
         public override BitmapImage getImage(PluginImageSize imageSize)
         {
-            ChannelData cd = this.Plugin.channelData[this.ChannelIndex.ToString()];
+            ChannelData cd = this.Plugin.CurrentChannelData[this.ChannelIndex.ToString()];
 
             this.Label = cd.Label;
             this.UserLabel = cd.UserLabel;
@@ -535,7 +535,7 @@
 
         public override void runCommand()
         {
-            ChannelData cd = this.Plugin.channelData[this.ChannelIndex.ToString()];
+            ChannelData cd = this.Plugin.CurrentChannelData[this.ChannelIndex.ToString()];
             switch (this.CurrentMode)
             {
                 case SelectButtonMode.Select:

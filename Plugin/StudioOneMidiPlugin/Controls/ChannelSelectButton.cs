@@ -152,7 +152,7 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
                     {
                         if (sbd == null) continue;
 
-                        var cd = ((StudioOneMidiPlugin)Plugin).channelData[sbd.ChannelIndex.ToString()];
+                        var cd = ((StudioOneMidiPlugin)Plugin).CurrentChannelData[sbd.ChannelIndex.ToString()];
 
                         if (cd.UserLabel == linkedParameterUser)   // user button
                         {

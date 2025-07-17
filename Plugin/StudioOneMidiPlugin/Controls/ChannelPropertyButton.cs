@@ -113,7 +113,7 @@
                 if ((ChannelProperty.PropertyType)controlProperty == ChannelProperty.PropertyType.Arm) icon = this.IconArm;
                 if ((ChannelProperty.PropertyType)controlProperty == ChannelProperty.PropertyType.Monitor) icon = this.IconMonitor;
 
-                ChannelData cd = ((StudioOneMidiPlugin)Plugin).channelData[channelIndex.ToString()];
+                ChannelData cd = ((StudioOneMidiPlugin)Plugin).CurrentChannelData[channelIndex.ToString()];
                 return PropertyButtonData.drawImage(new BitmapBuilder(imageWidth, imageHeight),
                                                     (ChannelProperty.PropertyType)controlProperty,
                                                     cd.BoolProperty[controlProperty],
@@ -137,7 +137,7 @@
                 }
 
                 return SelectButtonData.drawImage(new BitmapBuilder(imageWidth, imageHeight),
-                                                  ((StudioOneMidiPlugin)Plugin).channelData[channelIndex.ToString()],
+                                                  ((StudioOneMidiPlugin)Plugin).CurrentChannelData[channelIndex.ToString()],
                                                   StudioOneMidiPlugin.SelectButtonMode.Select,
                                                   userButtonActive: false,
                                                   commandProperty: (ChannelProperty.PropertyType) controlProperty);
@@ -149,7 +149,7 @@
             if (!actionParameters.TryGetInt32(PropertySelector, out var controlProperty)) return false;
             if (!actionParameters.TryGetString(ChannelSelector, out var channelIndex)) return false;
 
-            ChannelData cd = ((StudioOneMidiPlugin)Plugin).channelData[channelIndex];
+            ChannelData cd = ((StudioOneMidiPlugin)Plugin).CurrentChannelData[channelIndex];
 
             if (controlProperty >= 8)
             {

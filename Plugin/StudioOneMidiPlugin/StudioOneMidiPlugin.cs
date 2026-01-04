@@ -344,7 +344,7 @@ namespace Loupedeck.StudioOneMidiPlugin
                 }
             }
 
-            this.ChannelDataChanged?.Invoke(this, channelIndex); 
+                this.ChannelDataChanged?.Invoke(this, channelIndex); 
         }
         public void EmitChannelValueTextChanged(int channelIndex) => this.ChannelValueTextChanged?.Invoke(this, channelIndex);
 

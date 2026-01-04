@@ -251,12 +251,13 @@
                                                             ? customParams.BgColor
                                                             : BitmapColor.Black);
 
-            var paramSettings = UserPlugSettingsFinder.GetPlugParamSettings(_deviceEntry, cd.Label, isUser:false, currentChannel);
-
-            if (this.SelectMode == SelectButtonMode.FX)
+            if ((this.SelectMode == SelectButtonMode.FX) ||
+                (this.SelectMode == SelectButtonMode.User && cd.Label == cd.UserLabel))
             {
                 return bb.ToImage();
             }
+
+            var paramSettings = UserPlugSettingsFinder.GetPlugParamSettings(_deviceEntry, cd.Label, isUser:false, currentChannel);
 
             if (UserPlugSettingsFinder.GetLabel(paramSettings, cd.Label).Length == 0) return bb.ToImage();
 

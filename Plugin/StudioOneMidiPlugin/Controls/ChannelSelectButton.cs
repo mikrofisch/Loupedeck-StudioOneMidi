@@ -10,7 +10,7 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
     using PluginSettings;
 
     // Button for channel selection functions. These are used in the left and
-    // right columns of the channel modes keypad. Different selection modes allow
+    // right columns of the mix keypad. Different selection modes allow
     // the setting of channel states such as selection, mute, solo, as well
     // as user defined functions for plugin control.
     //
@@ -53,7 +53,7 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
             };
             ((StudioOneMidiPlugin)Plugin).ChannelDataChanged += (s, e) => 
             {
-                this.UpdateAllActionImages();
+                  this.UpdateAllActionImages();
 //                this.ActionImageChanged($"{channelIndex}");
 
             };

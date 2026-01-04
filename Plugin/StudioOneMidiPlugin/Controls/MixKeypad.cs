@@ -4,10 +4,8 @@ using PluginSettings;
 using SharpHook;
 using System.Collections.Concurrent;
 using System.Diagnostics;
-using System.Threading;
 using static Loupedeck.StudioOneMidiPlugin.Controls.SelectButtonData;
 using static Loupedeck.StudioOneMidiPlugin.StudioOneMidiPlugin;
-using static PluginSettings.FavoritePluginsList;
 
 namespace Loupedeck.StudioOneMidiPlugin.Controls
 {
@@ -141,7 +139,7 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
         private ConcurrentDictionary<int, SelectButtonData?> SelectButtonDataDict = new();
         private bool SelectButtonListenToMidi = false;
 
-        private ConcurrentDictionary<string, BitmapImage> _actionImageCache = new();
+        private static ConcurrentDictionary<string, BitmapImage> _actionImageCache = new();
 
         private static readonly bool[] FaderIsActive = new bool[StudioOneMidiPlugin.ChannelCount];
 
@@ -153,8 +151,7 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
         private readonly System.Timers.Timer ActionImageUpdateTimer;
         private const int _actionImageUpdateTimeout = 20; // milliseconds
 
-        private static SemaphoreSlim _actionImageUpdateLock = new SemaphoreSlim(1, 1);
-        private static string? _currentActionParameter = null;
+        private static PluginImageSize? _imageSize = null;
 
         private static readonly BitmapImage _iconPluginHi = EmbeddedResources.ReadImage(EmbeddedResources.FindFile("plugin_hi_12px.png"));
         private static readonly BitmapImage _iconPluginLo = EmbeddedResources.ReadImage(EmbeddedResources.FindFile("plugin_lo_12px.png"));
@@ -723,17 +720,25 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
         {
             //            if (actionParameter == null) return null;
 
-            if (actionParameter != _currentActionParameter)
+            // RenderCommandImage(actionParameter);
+            if (_actionImageCache.TryGetValue(actionParameter, out var ci))
             {
-                if (_actionImageCache.TryGetValue(actionParameter, out var ci))
-                {
-                    // Debug.WriteLine("MixKeypad.GetCommandImage(" + actionParameter + ") returning cached image");
-                    return ci;
-                }
+//                // Debug.WriteLine("MixKeypad.GetCommandImage(" + actionParameter + ") returning cached image");
+                return ci.Copy();
             }
 
+            // Remember image size on first pass
+            if (_imageSize == null) _imageSize = imageSize;
+            return RenderCommandImage(actionParameter);
+        }
 
+        // Separate method to allow offline rendering of action images into cache
+        protected BitmapImage RenderCommandImage(string actionParameter)
+        {
             BitmapImage bi;
+            if (_imageSize == null) throw new InvalidOperationException("Image size not initialised");
+
+            PluginImageSize imageSize = (PluginImageSize)_imageSize;
 
             if (this.CurrentUserSendsLayerMode == UserSendsLayerMode.PluginAddActivated)
             {
@@ -783,17 +788,14 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
                     var bb = new BitmapBuilder(imageSize);
                     bb.FillRectangle(0, 0, bb.Width, bb.Height, BitmapColor.Black);
 
-                    bi = bb.ToImage();
+                    return bb.ToImage();    // Don't cache this!
                 }
             }
-            if (actionParameter == _currentActionParameter)
-            {
-                _currentActionParameter = null;
-                _actionImageCache[actionParameter] = bi.Copy();
 
-                // Debug.WriteLine($"GetCommandImage: {actionParameter} - {_actionImageCache.Count} images cached");
-                _actionImageUpdateLock.Release();
-            }
+            _actionImageCache[actionParameter] = bi.Copy();
+
+            // Debug.WriteLine($"GetCommandImage: {actionParameter} - {_actionImageCache.Count} images cached");
+
             return bi;
         }
 
@@ -1289,7 +1291,6 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
             if (channelIndex < ChannelCount)
             {
                 //ActionImageChanged($"select:{channelIndex}");
-                //return;
                 UpdateCommandImage($"select:{channelIndex}");
             }
         }
@@ -1322,14 +1323,14 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
         private void ActionImageUpdateTimer_Elapsed(Object? sender, System.Timers.ElapsedEventArgs e)
         {
             _actionParameterUpdateSetLock.Wait();
+            // Debug.WriteLine($"ActionImageUpdateTimer_Elapsed");
             try
             {
                 // To avoid modifying the collection while iterating, make a copy
                 var toUpdate = _actionParameterUpdateSet.ToList();
                 foreach (var actionParameter in toUpdate)
                 {
-                    _actionImageUpdateLock.Wait();
-                    _currentActionParameter = actionParameter;
+                    if (_imageSize != null) this.RenderCommandImage(actionParameter);
 
                     // Debug.WriteLine($"ActionImageUpdateTimer_Elapsed: Updating image for {actionParameter}");
                     this.ActionImageChanged(actionParameter);

@@ -10,6 +10,7 @@
     using System.Linq;
     using System.Runtime.Serialization;
     using System.Text.RegularExpressions;
+    using System.Threading;
     using System.Xml;
     using System.Xml.Schema;
     using System.Xml.Serialization;
@@ -22,24 +23,25 @@
     public class FinderColor : IXmlSerializable
     {
         public FinderColor() { this.A = A_default; }
-        public FinderColor(Byte r, Byte g, Byte b)
+        public FinderColor(Byte r, Byte g, Byte b, bool xmlRenderAsNameRef = false)
         {
             this.R = r;
             this.G = g;
             this.B = b;
             this.A = A_default;
+            this.XmlRenderAsNameRef = xmlRenderAsNameRef;
         }
-        public FinderColor(Byte r, Byte g, Byte b, Byte a) : this(r, g, b)
+        public FinderColor(Byte r, Byte g, Byte b, Byte a, bool xmlRenderAsNameRef = false) : this(r, g, b, xmlRenderAsNameRef)
         {
             this.A = a;
         }
 
-        public FinderColor(String colorName, Byte r, Byte g, Byte b) : this(r, g, b)
+        public FinderColor(String colorName, Byte r, Byte g, Byte b, bool xmlRenderAsNameRef = false) : this(r, g, b, xmlRenderAsNameRef)
         {
             this.Name = colorName;
             this.A = A_default;
         }
-        public FinderColor(String colorName, Byte r, Byte g, Byte b, Byte a) : this(colorName, r, g, b)
+        public FinderColor(String colorName, Byte r, Byte g, Byte b, Byte a, bool xmlRenderAsNameRef = false) : this(colorName, r, g, b, xmlRenderAsNameRef)
         {
             this.A = a;
         }
@@ -66,8 +68,8 @@
         }
 
         // public static FinderColor Transparent => new FinderColor(BitmapColor.Transparent);
-        public static FinderColor White => new FinderColor(255, 255, 255);
-        public static FinderColor Black => new FinderColor(0, 0, 0);
+        public static FinderColor White => new FinderColor("white", 255, 255, 255, true);
+        public static FinderColor Black => new FinderColor("black", 0, 0, 0, true);
 
         public virtual byte A_default => 255;
 
@@ -115,7 +117,7 @@
                 this.A = reader.GetAttribute("transparency") != null ? Convert.ToByte(reader.GetAttribute("transparency")) : A_default;
             }
 
-            var content = reader.ReadElementContentAsString();
+            var content = reader.ReadElementContentAsString().ToLowerInvariant();
             if (content == "white")
             {
                 R = G = B = 255;

@@ -39,6 +39,7 @@
     <None Remove="Resources\add_layers_add_80px.png" />
     <None Remove="Resources\add_layers_layers_80px.png" />
     <None Remove="Resources\add_send_52px.png" />
+    <None Remove="Resources\add_track_52px.png" />
     <None Remove="Resources\add_vca_52px.png" />
     <None Remove="Resources\arm_52px.png" />
     <None Remove="Resources\arranger_52px.png" />
@@ -64,6 +65,7 @@
     <None Remove="Resources\button_add_52px.png" />
     <None Remove="Resources\bypass_52px.png" />
     <None Remove="Resources\channel_editor_52px.png" />
+    <None Remove="Resources\channel_overview_52px.png" />
     <None Remove="Resources\click2_52px.png" />
     <None Remove="Resources\click2_on_52px.png" />
     <None Remove="Resources\click_32px.png" />
@@ -77,6 +79,7 @@
     <None Remove="Resources\dial_52px.png" />
     <None Remove="Resources\dial_pan_52px.png" />
     <None Remove="Resources\dial_volume_52px.png" />
+    <None Remove="Resources\edit_52px.png" />
     <None Remove="Resources\fader_bank_left_52px.png" />
     <None Remove="Resources\fader_bank_right_52px.png" />
     <None Remove="Resources\fader_channel_next_52px.png" />
@@ -162,6 +165,7 @@
     <None Remove="Resources\menu_groups_80px.png" />
     <None Remove="Resources\menu_loop_80px.png" />
     <None Remove="Resources\menu_markers_80px.png" />
+    <None Remove="Resources\mix_52px.png" />
     <None Remove="Resources\monitor_52px.png" />
     <None Remove="Resources\panels_52px.png" />
     <None Remove="Resources\panels_80px.png" />
@@ -298,6 +302,7 @@
     <EmbeddedResource Include="Resources\add_layers_add_80px.png" />
     <EmbeddedResource Include="Resources\add_layers_layers_80px.png" />
     <EmbeddedResource Include="Resources\add_send_52px.png" />
+    <EmbeddedResource Include="Resources\add_track_52px.png" />
     <EmbeddedResource Include="Resources\add_vca_52px.png" />
     <EmbeddedResource Include="Resources\arm_52px.png" />
     <EmbeddedResource Include="Resources\arranger_52px.png" />
@@ -323,6 +328,7 @@
     <EmbeddedResource Include="Resources\button_add_52px.png" />
     <EmbeddedResource Include="Resources\bypass_52px.png" />
     <EmbeddedResource Include="Resources\channel_editor_52px.png" />
+    <EmbeddedResource Include="Resources\channel_overview_52px.png" />
     <EmbeddedResource Include="Resources\click2_52px.png" />
     <EmbeddedResource Include="Resources\click2_on_52px.png" />
     <EmbeddedResource Include="Resources\click_32px.png" />
@@ -336,6 +342,7 @@
     <EmbeddedResource Include="Resources\dial_52px.png" />
     <EmbeddedResource Include="Resources\dial_pan_52px.png" />
     <EmbeddedResource Include="Resources\dial_volume_52px.png" />
+    <EmbeddedResource Include="Resources\edit_52px.png" />
     <EmbeddedResource Include="Resources\fader_bank_left_52px.png" />
     <EmbeddedResource Include="Resources\fader_bank_right_52px.png" />
     <EmbeddedResource Include="Resources\fader_channel_next_52px.png" />
@@ -410,6 +417,7 @@
     <EmbeddedResource Include="Resources\menu_groups_80px.png" />
     <EmbeddedResource Include="Resources\menu_loop_80px.png" />
     <EmbeddedResource Include="Resources\menu_markers_80px.png" />
+    <EmbeddedResource Include="Resources\mix_52px.png" />
     <EmbeddedResource Include="Resources\monitor_12px.png" />
     <EmbeddedResource Include="Resources\monitor_52px.png" />
     <EmbeddedResource Include="Resources\plugin_hi_12px.png" />

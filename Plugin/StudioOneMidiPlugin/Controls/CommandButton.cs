@@ -19,9 +19,9 @@
             this.AddButton(new SnapStepCommandButtonData(SnapStepCommandButtonData.StepDir.StepFwd), "Transport");
             this.AddButton(new SnapStepCommandButtonData(SnapStepCommandButtonData.StepDir.StepRev), "Transport");
             this.AddButton(new OneWayCommandButtonData(0, 0x3B, "Split All And Select To End", "split_all_and_select_to_end"), "Edit");
-            this.AddButton(new OneWayCommandButtonData(14, 0x00, "Mix"), "View");
+            this.AddButton(new OneWayCommandButtonData(14, 0x00, "Mix", "mix"), "View");
             this.AddButton(new OneWayCommandButtonData(14, 0x01, "Browse", "browser"), "View");
-            this.AddButton(new OneWayCommandButtonData(14, 0x02, "Edit"), "View");
+            this.AddButton(new OneWayCommandButtonData(14, 0x02, "Edit", "edit"), "View");
             this.AddButton(new OneWayCommandButtonData(14, 0x03, "Fullscreen", "fullscreen"), "View");
             this.AddButton(new OneWayCommandButtonData(14, 0x04, "Inspector", "inspector"), "View");
             this.AddButton(new OneWayCommandButtonData(14, 0x05, "Record Panel", "rec_panel"), "View");

@@ -193,7 +193,7 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
 
             var arrangerBgColor = new BitmapColor(60, 60, 60);
             var consoleBgColor = new BitmapColor(60, 60, 60);
-            var layersBgColor = new BitmapColor(180, 180, 180);
+            var layersBgColor = new BitmapColor(40, 40, 40);
             var addBgColor = new BitmapColor(60, 60, 60);
 
             this.MenuButtonLayerDict.TryAdd(ButtonLayer.ChannelPropertiesPlay, new LayerData());
@@ -234,12 +234,12 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
             // Layers
             modeID = (Int32)PlayLayerMode.LayersActivated;
             this.MenuButtonLayerDict[ButtonLayer.ChannelPropertiesPlay].AddMode(modeID);
-            this.AddButton(ButtonLayer.ChannelPropertiesPlay, modeID, 0, new OneWayCommandButtonData(14, 0x30, "LAY UP", "layer_up_inv", layersBgColor));
-            this.AddButton(ButtonLayer.ChannelPropertiesPlay, modeID, 1, new OneWayCommandButtonData(14, 0x34, "LAY EXP", "layers_expand_inv", layersBgColor));
-            this.AddButton(ButtonLayer.ChannelPropertiesPlay, modeID, 2, new OneWayCommandButtonData(14, 0x31, "LAY DN", "layer_dn_inv", layersBgColor));
+            this.AddButton(ButtonLayer.ChannelPropertiesPlay, modeID, 0, new OneWayCommandButtonData(14, 0x30, "LAY UP", "layer_up", layersBgColor));
+            this.AddButton(ButtonLayer.ChannelPropertiesPlay, modeID, 1, new OneWayCommandButtonData(14, 0x34, "LAY EXP", "layers_expand", layersBgColor));
+            this.AddButton(ButtonLayer.ChannelPropertiesPlay, modeID, 2, new OneWayCommandButtonData(14, 0x31, "LAY DN", "layer_dn", layersBgColor));
             this.AddButton(ButtonLayer.ChannelPropertiesPlay, modeID, 3, this.GetMenuButtonData(ButtonLayer.ChannelPropertiesPlay, (Int32)PlayLayerMode.ChannelSelect, 3));
-            this.AddButton(ButtonLayer.ChannelPropertiesPlay, modeID, 4, new OneWayCommandButtonData(14, 0x32, "LAY +", "layer_add_inv", layersBgColor));
-            this.AddButton(ButtonLayer.ChannelPropertiesPlay, modeID, 5, new OneWayCommandButtonData(14, 0x33, "LAY -", "layer_remove_inv", layersBgColor));
+            this.AddButton(ButtonLayer.ChannelPropertiesPlay, modeID, 4, new OneWayCommandButtonData(14, 0x32, "LAY +", "layer_add", layersBgColor));
+            this.AddButton(ButtonLayer.ChannelPropertiesPlay, modeID, 5, new OneWayCommandButtonData(14, 0x33, "LAY -", "layer_remove", layersBgColor));
 
             // Arranger
             modeID = (Int32)PlayLayerMode.ArrangerActivated;
@@ -253,7 +253,7 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
             modeID = (Int32)PlayLayerMode.ConsoleActivated;
             this.MenuButtonLayerDict[ButtonLayer.ChannelPropertiesPlay].AddMode(modeID);
             this.AddButton(ButtonLayer.ChannelPropertiesPlay, modeID, 0, new OneWayCommandButtonData(14, 0x1D, "Toggle Height", "console_height", consoleBgColor));
-            this.AddButton(ButtonLayer.ChannelPropertiesPlay, modeID, 1, new OneWayCommandButtonData(14, 0x00, "Mix", null, consoleBgColor));
+            this.AddButton(ButtonLayer.ChannelPropertiesPlay, modeID, 1, new OneWayCommandButtonData(14, 0x00, "Mix", "mix", consoleBgColor));
             this.AddButton(ButtonLayer.ChannelPropertiesPlay, modeID, 2, new OneWayCommandButtonData(14, 0x1E, "Toggle Width", "console_width", consoleBgColor));
             this.AddButton(ButtonLayer.ChannelPropertiesPlay, modeID, 4, new OneWayCommandButtonData(14, 0x10, "Show Inputs", "show_inputs", consoleBgColor));
             this.AddButton(ButtonLayer.ChannelPropertiesPlay, modeID, 5, new OneWayCommandButtonData(14, 0x1F, "Show Outputs", "show_outputs", consoleBgColor));
@@ -265,7 +265,7 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
             this.AddButton(ButtonLayer.ChannelPropertiesPlay, modeID, 1, new OneWayCommandButtonData(14, 0x16, "Add Send", "add_send", addBgColor));
             this.AddButton(ButtonLayer.ChannelPropertiesPlay, modeID, 2, new OneWayCommandButtonData(14, 0x18, "Add FX Channel", "add_fx", addBgColor));
             this.AddButton(ButtonLayer.ChannelPropertiesPlay, modeID, 3, new OneWayCommandButtonData(14, 0x17, "Add Bus Channel", "add_bus", addBgColor));
-            this.AddButton(ButtonLayer.ChannelPropertiesPlay, modeID, 4, new OneWayCommandButtonData(14, 0x3C, "Add Track", null, addBgColor));
+            this.AddButton(ButtonLayer.ChannelPropertiesPlay, modeID, 4, new OneWayCommandButtonData(14, 0x3C, "Add Track", "add_track", addBgColor));
             this.AddButton(ButtonLayer.ChannelPropertiesPlay, modeID, 5, this.GetMenuButtonData(ButtonLayer.ChannelPropertiesPlay, (Int32)PlayLayerMode.ChannelSelect, 5));
 
             this.MenuButtonLayerDict.TryAdd(ButtonLayer.ChannelPropertiesRec, new LayerData());

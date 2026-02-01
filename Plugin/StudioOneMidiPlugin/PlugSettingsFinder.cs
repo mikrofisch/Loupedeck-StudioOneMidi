@@ -121,10 +121,12 @@
             if (content == "white")
             {
                 R = G = B = 255;
+                Name = "white";
             }
             else if (content == "black")
             {
                 R = G = B = 0;
+                Name = "black";
             }
             else if (content.StartsWith("rgb("))
             {
@@ -343,7 +345,7 @@
             {
                 if (c != null && !string.IsNullOrEmpty(c.Name))
                 {
-                    if (!colors.Any(cc => cc.Name == c.Name))
+                    if (!colors.Any(cc => cc.Name == c.Name) && !"blackwhite".Contains(c.Name))
                     {
                         // Note we should never get here, it was needed when the color list was
                         // not stored explicitly in the XML file.
@@ -353,8 +355,9 @@
                         // (see below). Therefore we need to make sure that the color is added to the
                         // color list with the XmlRenderAsNameRef flag set to false.
                         colors.Add(new FinderColor(c, xmlRenderAsNameRef: false));
+                        Debug.WriteLine($"AddReferencedColorToList: Added {c.Name}");
                     }
-                    c.XmlRenderAsNameRef = true;   // Write only name to XML in parameter settings entry
+                    c.XmlRenderAsNameRef = true;
                 }
                 return c;
             }
@@ -364,19 +367,37 @@
                 // If the colour is referenced by name, we get the RGB values from
                 // the colour list (in an automatically created config XML file there
                 // won't be any RGB values in a colour that is referenced by name)
+                // Note that the default colour names 'black' and 'white' are not
+                // in the 'colors' list, so they are processed separately.
                 //
                 if (c != null && !string.IsNullOrEmpty(c.Name))
                 {
-                    // Find RGB values in colour list
-                    foreach (var cc in colors)
+                    if (c.Name == "black")
                     {
-                        if (cc.Name == c.Name)
+                        c = new FinderColor(FinderColor.Black);
+                    }
+                    else if (c.Name == "white")
+                    {
+                        c = new FinderColor(FinderColor.White);
+                    }
+                    else
+                    {
+                        // Find RGB values in colour list
+                        foreach (var cc in colors)
                         {
-                            // Make a copy of the referenced colour set to render to XML as a name reference
-                            c = new FinderColor(cc, xmlRenderAsNameRef: true);
-                            break;
+                            if (string.Equals(cc.Name, c.Name, StringComparison.OrdinalIgnoreCase))
+                            {
+                                // Make a copy of the referenced colour
+                                c = new FinderColor(cc);
+                                break;
+                            }
                         }
                     }
+
+                    // Ensure that the colour is rendered as a name reference.
+                    c.XmlRenderAsNameRef = true;
+
+                    // Debug.WriteLine($"GetColorValuesFromList: {c.Name}");
                 }
                 return c;
             }
@@ -607,10 +628,12 @@
                     //
                     foreach (var deviceEntry in PlugParamDict.Values)
                     {
-                        if (deviceEntry.Colors == null || deviceEntry.Colors.Count <= 1)
-                            continue;
+                        if (deviceEntry.Colors == null) continue;
 
                         var seenNames = new HashSet<string>();
+                        seenNames.Add("black");
+                        seenNames.Add("white");
+
                         // Use ToList() to avoid modifying the collection while iterating
                         foreach (var color in deviceEntry.Colors.ToList())
                         {
@@ -618,7 +641,7 @@
                             {
                                 if (seenNames.Contains(color.Name))
                                 {
-                                    Debug.WriteLine($"Warning: Removing duplicate color {color.Name} from plugin {deviceEntry.PluginName}");
+                                    Debug.WriteLine($"Warning: Removing " + ("blackwhite".Contains(color.Name) ? "system" : "duplicate") + $" color {color.Name} from plugin {deviceEntry.PluginName}");
                                     deviceEntry.Colors.Remove(color);
                                 }
                                 else
@@ -661,7 +684,7 @@
             }
 
             _plugParamDictAccess.Release();
-            
+
             return pluginList;
         }
 
@@ -690,7 +713,7 @@
                     if (!PlugParamDict.TryGetValue(partialMatchKeys.First(), out deviceEntry))
                     {
                         this.LastPlugParamDeviceEntry = new PlugParamDeviceEntry();
-                        
+
                         _plugParamDictAccess.Release();
 
                         return this.LastPlugParamDeviceEntry;
@@ -712,7 +735,7 @@
                 return this.DefaultPlugParamSettings;
             }
 
-//            if (this.LastParamSettings != null && deviceEntry == this.LastPlugParamDeviceEntry && parameterName == this.LastPluginParameter) return this.LastParamSettings;
+            //            if (this.LastParamSettings != null && deviceEntry == this.LastPlugParamDeviceEntry && parameterName == this.LastPluginParameter) return this.LastParamSettings;
 
             _plugParamDictAccess.Wait();
 
@@ -770,7 +793,7 @@
         //}
         public FinderColor GetBarOnColor(PlugParamSetting paramSettings, PlugParamDeviceEntry? deviceEntry = null)
         {
-            return paramSettings.BarOnColor ?? 
+            return paramSettings.BarOnColor ??
                    paramSettings.OnColor ??
                    GetDefaultPlugParamSettings(deviceEntry)?.BarOnColor ??
                    GetDefaultPlugParamSettings(deviceEntry)?.OnColor ??
@@ -794,7 +817,7 @@
         public String GetLabelOn(PlugParamDeviceEntry? deviceEntry, String parameterName, Int32 buttonIdx, Boolean isUser = false)
         {
             return GetLabelOn(GetPlugParamSettings(deviceEntry, parameterName, isUser, buttonIdx), parameterName);
-       }
+        }
         public String GetLabelOn(PlugParamSetting paramSettings, string parameterName)
         {
             //if (paramSettings == null) return parameterName;

@@ -257,29 +257,42 @@ class LoupedeckSharedComponent extends FocusChannelPanComponent {
         }
     }
     onConnectPlugControl(bank, index) {
+        
         // Determine maximum number of used user banks. This function gets called when the active plugin
         // is changed for each element of vpot and vbut for which the assignemnt changes. Parameters are
-        // handled in increasing order of user bank and channel index, respectively. Disconnections
-        // are handled first.  
-        let element = this.root.getGenericMapping().getElement(0).find("vpot[" + bank + "][" + index + "]");
+        // handled roughly in the order in which they appear in the surface configuration file (but multiple
+        // calls for the same parameter are possible). Disconnections are handled first.
+        // It doesn't seem to be possible to distinguish between connections and disconnections or
+        // to find out which plugin an element belongs to. It seems that generally elements are connected
+        // in the order in which they appear in the surface configuration file, which means that they are
+        // not ordered by page number. So currently it's not possible to determine the total number of
+        // active user pages automatically.
+
+        let activeUserPagesCounter = this.activeUserPagesParam.value;
+        let elementString = "vpot[" + bank + "][" + index + "]";
+
+        let element = this.root.getGenericMapping().getElement(0).find(elementString);
         if (element.isConnected()) {
-            this.activeUserPagesCounter = bank + 1;
+            activeUserPagesCounter = bank + 1;
+            // Host.Console.writeLine("onConnectPlugControl " + elementString + " connected, activeUserPagesCounter: " + activeUserPagesCounter);
         }
         else {
-            let element = this.root.getGenericMapping().getElement(0).find("vbut[" + bank + "][" + index + "]");
+            elementString = "vbut[" + bank + "][" + index + "]";
+            let element = this.root.getGenericMapping().getElement(0).find(elementString);
             if (element.isConnected()) {
-                this.activeUserPagesCounter = bank + 1;
+                activeUserPagesCounter = bank + 1;
+                // Host.Console.writeLine("onConnectPlugControl " + elementString + " connected, activeUserPagesCounter: " + activeUserPagesCounter);
             }
-            else if (bank < this.activeUserPagesCounter) {
-                this.activeUserPagesCounter = bank;
-            }
+//            else if (bank < activeUserPagesCounter) {
+//                activeUserPagesCounter = bank;
+//                // Host.Console.writeLine("onConnectPlugControl(" + bank + ", " + index + ") activeUserPagesCounter: " + activeUserPagesCounter);
+//            }
         }
-        // Host.Console.writeLine("onConnectPlugControl(" + bank + ", " + index + ") isConnected: " + element.isConnected());
-        // Host.Console.writeLine("activeUserPagesCounter: " + this.activeUserPagesCounter);
 
         // This triggers a MIDI controller message to the Loupedeck. There seems to be a timed buffer for midi messages
         // to limit the update frequency for individual controllers, so this message only gets sent once per plugin change.
-        this.activeUserPagesParam.value = this.activeUserPagesCounter;
+        // Host.Console.writeLine("onConnectPlugControl [" + bank + "][" + index + "] sending activeUserPagesCounter: " + activeUserPagesCounter);
+        this.activeUserPagesParam.value = activeUserPagesCounter;
 
         if (this.assignment.isUserMode()) {
             this.updateChannel(index);

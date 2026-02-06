@@ -51,21 +51,21 @@
 
         public ChannelFader() : base(hasReset: true)
 		{
-            this.DisplayName = "Channel Fader";
-            this.Description = "Channel fader.\nButton press -> reset to default";
-            this.GroupName = "";
+            DisplayName = "Channel Fader";
+            Description = "Channel fader.\nButton press -> reset to default";
+            GroupName = "";
 
-            this.ActionEditor.AddControlEx(parameterControl:
+            ActionEditor.AddControlEx(parameterControl:
                 new ActionEditorListbox(name: ChannelSelector, labelText: "Channel:"/*,"Select the fader bank channel"*/)
                     .SetRequired()
                 );
-            this.ActionEditor.AddControlEx(parameterControl:
+            ActionEditor.AddControlEx(parameterControl:
                 new ActionEditorListbox(name: ControlOrientationSelector, labelText: "Orientation:"/*,"Select the orientation of the channel fader control"*/)
                     .SetRequired()
                 );
 
-            this.ActionEditor.ListboxItemsRequested += this.OnActionEditorListboxItemsRequested;
-            this.ActionEditor.ControlValueChanged += this.OnActionEditorControlValueChanged;
+            ActionEditor.ListboxItemsRequested += OnActionEditorListboxItemsRequested;
+            ActionEditor.ControlValueChanged += OnActionEditorControlValueChanged;
 
             IconVolume ??= EmbeddedResources.ReadImage(EmbeddedResources.FindFile("dial_volume_52px.png"));
             IconPan ??= EmbeddedResources.ReadImage(EmbeddedResources.FindFile("dial_pan_52px.png"));
@@ -76,9 +76,9 @@
             }
 
             // Action image update timer
-            this._actionImageUpdateTimer = new System.Timers.Timer(_actionImageUpdateTimeout);
-            this._actionImageUpdateTimer.AutoReset = false;
-            this._actionImageUpdateTimer.Elapsed += (Object? sender, System.Timers.ElapsedEventArgs e) =>
+            _actionImageUpdateTimer = new System.Timers.Timer(_actionImageUpdateTimeout);
+            _actionImageUpdateTimer.AutoReset = false;
+            _actionImageUpdateTimer.Elapsed += (Object? sender, System.Timers.ElapsedEventArgs e) =>
             {
                 // Debug.WriteLine("ChannelFader.ActionImageUpdateTimer.Elapsed");
                 ActionImageChanged();
@@ -102,45 +102,45 @@
                 }
             };
 
-            plugin.ChannelDataChanged += (s, e) => this.TriggerActionImageUpdateTimer();
+            plugin.ChannelDataChanged += (s, e) => TriggerActionImageUpdateTimer();
 
-            plugin.ChannelValueTextChanged += (s, e) => this.TriggerActionImageUpdateTimer();
+            plugin.ChannelValueTextChanged += (s, e) => TriggerActionImageUpdateTimer();
 
             plugin.SelectModeChanged += (Object? sender, SelectButtonMode e) =>
             {
-                this.SelectMode = e;
-                Array.Clear(this.CustomSettings);
+                SelectMode = e;
+                Array.Clear(CustomSettings);
 
-                this.TriggerActionImageUpdateTimer();
+                TriggerActionImageUpdateTimer();
             };
 
             plugin.SelectButtonCustomModeChanged += (Object? sender, SelectButtonCustomParams cp) =>
             {
-                this.CustomSettings[cp.ButtonIndex] = new CustomParams
+                CustomSettings[cp.ButtonIndex] = new CustomParams
                 {
                     BgColor = cp.BgColor,
                     BarColor = cp.BarColor,
                 };
 
-                this.TriggerActionImageUpdateTimer();
+                TriggerActionImageUpdateTimer();
             };
 
             plugin.FaderModeChanged += (Object? sender, FaderMode e) =>
             {
-                this.FaderMode = e;
-                this.TriggerActionImageUpdateTimer();
+                FaderMode = e;
+                TriggerActionImageUpdateTimer();
             };
 
             plugin.FocusDeviceChanged += (Object? sender, String e) =>
             {
                 _deviceEntry = UserPlugSettingsFinder.GetPlugParamDeviceEntry(GetPluginName(e));
-                this.TriggerActionImageUpdateTimer();
+                TriggerActionImageUpdateTimer();
             };
 
             plugin.ChannelActiveChanged += (Object? sender, ChannelActiveParams e) =>
             {
                 IsActive[e.ChannelIndex] = e.IsActive;
-                if (e.Update) this.TriggerActionImageUpdateTimer();
+                if (e.Update) TriggerActionImageUpdateTimer();
             };
 
             plugin.UserPageChanged += (Object? sender, Int32 e) =>
@@ -151,6 +151,8 @@
             plugin.PluginSettingsReloaded += (s, e) =>
             {
                 UserPlugSettingsFinder.ClearCache();
+                _deviceEntry?.Reload();
+                TriggerActionImageUpdateTimer();
             };
 
             return true;
@@ -185,7 +187,7 @@
             }
             else
             {
-                this.Plugin.Log.Error($"Unexpected control name '{e.ControlName}'");
+                Plugin.Log.Error($"Unexpected control name '{e.ControlName}'");
             }
         }
 
@@ -193,10 +195,10 @@
 		{
             if (!actionParameters.TryGetString(ChannelSelector, out var channelIndex)) return false;
             
-            ChannelData cd = this.GetChannel(channelIndex);
+            ChannelData cd = GetChannel(channelIndex);
 
             var stepDivisions = UserPlugSettingsFinder.GetDialSteps(_deviceEntry, cd.Label, cd.ChannelID + 1);
-            if (stepDivisions > 50 && ((StudioOneMidiPlugin)this.Plugin).ShiftPressed)
+            if (stepDivisions > 50 && ((StudioOneMidiPlugin)Plugin).ShiftPressed)
             {
                 stepDivisions *= 6;
             }
@@ -215,7 +217,7 @@
             }
             else
             {
-                this.Plugin.Log.Error($"Invalid channel index: {channelIndex}");
+                Plugin.Log.Error($"Invalid channel index: {channelIndex}");
                 return false;
             }
 			cd.EmitVolumeUpdate();
@@ -243,16 +245,16 @@
 
             var bb = new BitmapBuilder(imageWidth, imageHeight);
 
-            ChannelData cd = this.GetChannel(channelIndex);
+            ChannelData cd = GetChannel(channelIndex);
             var currentChannel = cd.ChannelID + 1;
 
-            var customParams = cd.ChannelID < this.CustomSettings.Length ? this.CustomSettings[cd.ChannelID] : null;
+            var customParams = cd.ChannelID < CustomSettings.Length ? CustomSettings[cd.ChannelID] : null;
             bb.FillRectangle(0, 0, imageWidth, imageHeight, customParams != null
                                                             ? customParams.BgColor
                                                             : BitmapColor.Black);
 
-            if ((this.SelectMode == SelectButtonMode.FX) ||
-                (this.SelectMode == SelectButtonMode.User && cd.Label == cd.UserLabel))
+            if ((SelectMode == SelectButtonMode.FX) ||
+                (SelectMode == SelectButtonMode.User && cd.Label == cd.UserLabel))
             {
                 return bb.ToImage();
             }
@@ -277,24 +279,24 @@
             var isSelectedChannel = cd.ChannelID >= StudioOneMidiPlugin.ChannelCount;
             var isSelectedPan = cd.ChannelID == StudioOneMidiPlugin.ChannelCount + 1;
             var isClick = isSelectedPan ? cd.ValueStr.IsNullOrEmpty() 
-                                        : this.SelectMode == SelectButtonMode.Send
-                                          || this.SelectMode == SelectButtonMode.User ? false
-                                                                                      : this.FaderMode == FaderMode.Pan && cd.ValueStr.Contains("dB");
+                                        : SelectMode == SelectButtonMode.Send
+                                          || SelectMode == SelectButtonMode.User ? false
+                                                                                 : FaderMode == FaderMode.Pan && cd.ValueStr.Contains("dB");
             var isVolume = cd.ChannelID == StudioOneMidiPlugin.ChannelCount
                            || (isSelectedPan
                                ? isClick
-                               : this.SelectMode == SelectButtonMode.Send
-                                 || this.SelectMode == SelectButtonMode.User
+                               : SelectMode == SelectButtonMode.Send
+                                 || SelectMode == SelectButtonMode.User
                                  || isClick
                                  ? true
-                                 : this.FaderMode == FaderMode.Volume);
+                                 : FaderMode == FaderMode.Volume);
 
             var valueColor = BitmapColor.White;
             var valBarColor = customParams != null 
                               ? customParams.BarColor
                               : ColorConv.Convert(UserPlugSettingsFinder.GetBarOnColor(paramSettings));
 
-            if (this.SelectMode == SelectButtonMode.Select)
+            if (SelectMode == SelectButtonMode.Select)
             {
                 if (cd.Muted || cd.Solo)
                 {
@@ -384,7 +386,7 @@
 
 		private ChannelData GetChannel(String actionParameter)
 		{
-			return ((StudioOneMidiPlugin)this.Plugin).CurrentChannelData[actionParameter];
+			return ((StudioOneMidiPlugin)Plugin).CurrentChannelData[actionParameter];
 		}
 
         protected override Boolean RunCommand(ActionEditorActionParameters actionParameters)
@@ -403,7 +405,7 @@
             if (!actionParameters.TryGetString(ChannelSelector, out var channelIndex))
                 return false;
 
-            ChannelData cd = this.GetChannel(channelIndex);
+            ChannelData cd = GetChannel(channelIndex);
 
             if (buttonEvent.EventType.IsPress())
             {
@@ -411,7 +413,7 @@
             }
             else if (buttonEvent.EventType.IsLongPress())
             {
-                if (this.SelectMode == SelectButtonMode.User)
+                if (SelectMode == SelectButtonMode.User)
                 {
                     // Open the user configuration editor
                 }

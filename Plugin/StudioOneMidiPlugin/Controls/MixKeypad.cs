@@ -143,8 +143,7 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
 
         private static readonly bool[] FaderIsActive = new bool[StudioOneMidiPlugin.ChannelCount];
 
-        // Channel data update timer
-        // private static bool[] ChannelDataUpdated = new bool[StudioOneMidiPlugin.ChannelCount];
+
         private static HashSet<string> _actionParameterUpdateSet = new();
         private static SemaphoreSlim _actionParameterUpdateSetLock = new SemaphoreSlim(1, 1);
 
@@ -455,7 +454,11 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
             plugin.ActiveUserPagesReceived += (Object? sender, Int32 e) =>
             {
                 var umbd = this.GetButtonData(idxUserSendsUserModeButton) as UserModeButtonData;
-                if (umbd != null) umbd.ActiveUserPages = e;
+                if (umbd != null)
+                {
+                    umbd.ActiveUserPages = e;
+                    umbd.SetUserPage(1);
+                }
                 this.UpdateUserPageButton();
             };
 
@@ -463,7 +466,7 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
             {
                 // Menu button
                 var umbd = (UserModeButtonData)GetButtonData(idxUserSendsUserModeButton);
-                umbd.setUserPage(e);
+                umbd.SetUserPage(e);
                 this.UpdateUserPageButton();
 
                 // Select button
@@ -499,7 +502,7 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
                 {
                     this.CurrentUserSendsLayerMode = UserSendsLayerMode.User;
                     ((ModeButtonData)GetButtonData(idxUserSendsPluginsButton)).Activated = false;
-                    ((UserModeButtonData)GetButtonData(idxUserSendsUserModeButton)).sendUserPage();
+                    ((UserModeButtonData)GetButtonData(idxUserSendsUserModeButton)).SendUserPage();
                     this.UpdateAllCommandImages(MenuButtons);
                 }
                 else if (this.CurrentLayer != ButtonLayer.ChannelPropertiesPlay)
@@ -523,18 +526,18 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
                     for (var mode = 1; mode < 3; mode++)
                     {
                         var bd = (ModeTopCommandButtonData)this.GetMenuButtonData(ButtonLayer.FaderModesSend, mode, i);
-                        bd.setTopDisplay(e);
-                        bd.setPluginName(pluginName);
+                        bd.SetTopDisplay(e);
+                        bd.SetPluginName(pluginName);
                     }
                     this.UpdateCommandImage($"menu:{i}");
                 }
 
                 var pf = new PlugSettingsFinder();
                 var deviceEntry = pf.GetPlugParamDeviceEntry(pluginName);
-
-                var ubd = (UserModeButtonData)this.GetButtonData(idxUserSendsUserModeButton);
-                ubd.resetUserPage();
-                if (deviceEntry != null) ubd.setPageNames(deviceEntry.UserPageNames);
+                var umbd = (UserModeButtonData)this.GetButtonData(idxUserSendsUserModeButton);
+                
+                umbd.ResetUserPage(deviceEntry?.UserPageCount ?? 1);
+                umbd.SetPageNames(deviceEntry?.UserPageNames);
 
                 if (this.CurrentLayer == ButtonLayer.FaderModesSend && this.CurrentUserSendsLayerMode == UserSendsLayerMode.PluginSelectionActivated)
                 {
@@ -680,7 +683,8 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
 
             plugin.PluginSettingsReloaded += (Object? sender, EventArgs e) =>
             {
-                SelectButtonData.UserPlugSettingsFinder.ClearCache();
+                SelectButtonData.ClearCache();
+                ModeTopUserButtonData.ClearCache();
                 this.UpdateAllCommandImages(SelectButtons);
                 this.UpdateAllCommandImages(MenuButtons);
             };
@@ -881,7 +885,7 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
                     this.CurrentUserSendsLayerMode = UserSendsLayerMode.User;
                     ((ModeButtonData)GetButtonData(idxUserSendsPluginsButton)).Activated = false;
                     ((StudioOneMidiPlugin)Plugin).EmitSelectModeChanged(SelectButtonMode.User);
-                    ((UserModeButtonData)GetButtonData(idxUserSendsUserModeButton)).sendUserPage();
+                    ((UserModeButtonData)GetButtonData(idxUserSendsUserModeButton)).SendUserPage();
                 }
                 this.UpdateAllCommandImages(SelectButtons);
                 this.UpdateAllCommandImages(MenuButtons);
@@ -1161,7 +1165,7 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
                                 // Turn off plugin selection
                                 this.CurrentUserSendsLayerMode = UserSendsLayerMode.User;
                                 plugin.EmitSelectModeChanged(SelectButtonMode.User);
-                                ((UserModeButtonData)GetButtonData(idxUserSendsUserModeButton)).sendUserPage();
+                                ((UserModeButtonData)GetButtonData(idxUserSendsUserModeButton)).SendUserPage();
                             }
                             ((ModeButtonData)GetButtonData(idxUserSendsPluginsButton)).Activated = this.CurrentUserSendsLayerMode == UserSendsLayerMode.PluginSelectionActivated;
                             this.UpdateAllCommandImages(MenuButtons);
@@ -1228,7 +1232,7 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
                                 {
                                     this.CurrentUserSendsLayerMode = UserSendsLayerMode.Sends;
                                     LastUserSendsMode = UserSendsMode.Sends;
-                                    ((UserModeButtonData)GetButtonData(idxUserSendsUserModeButton)).clearActive();
+                                    ((UserModeButtonData)GetButtonData(idxUserSendsUserModeButton)).ClearActive();
                                     this.UpdateAllCommandImages(MenuButtons);
                                 }
                                 plugin.EmitSelectModeChanged(SelectButtonMode.Send);

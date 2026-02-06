@@ -280,6 +280,11 @@
             this.CurrentMode = SelectButtonMode.Custom;
         }
 
+        public static void ClearCache()
+        {
+            UserPlugSettingsFinder.ClearCache();
+        }
+
         public override BitmapImage getImage(PluginImageSize imageSize)
         {
             ChannelData cd = this.Plugin.CurrentChannelData[this.ChannelIndex.ToString()];
@@ -403,19 +408,23 @@
                 var userLabelText = userButtonActive ? UserPlugSettingsFinder.GetLabelOnShort(userLabelParamSettings, cd.UserLabel)
                                                      : UserPlugSettingsFinder.GetLabelShort(userLabelParamSettings, cd.UserLabel);
 
+                var userButtonAssigned = userLabelText.Length > 0;
+
                 // User Pot
                 //
+                var lh = userButtonAssigned ? uby : bb.Height;
+
                 if (UserPlugSettingsFinder.GetLabel(deviceEntry, cd.Label, buttonIdx).Length > 0)
                 {
                     if (UserPlugSettingsFinder.GetPaintLabelBg(deviceEntry, cd.Label, buttonIdx))
                     {
-                        bb.FillRectangle(0, 0, bb.Width, bb.Height, buttonEnabled ? ColorConv.Convert(UserPlugSettingsFinder.GetOnColor(labelParamSettings))
+                        bb.FillRectangle(0, 0, bb.Width, lh, buttonEnabled ? ColorConv.Convert(UserPlugSettingsFinder.GetOnColor(labelParamSettings))
                                                                                   : ColorConv.Convert(UserPlugSettingsFinder.GetOffColor(labelParamSettings)));
                     }
                 }
                 bb.DrawText(cd.Description, 0, 0, bb.Width, TitleHeight, TextDescColor, DescFontSize);
                 bb.DrawText(userLabelText.Length > 0 ? UserPlugSettingsFinder.GetLabelShort(labelParamSettings, cd.Label) :
-                                                       UserPlugSettingsFinder.GetLabel(labelParamSettings, cd.Label), 0, bb.Height / 2 - TitleHeight / 2, bb.Width, TitleHeight,
+                                                       UserPlugSettingsFinder.GetLabel(labelParamSettings, cd.Label), 0, lh / 2 - TitleHeight / 2, bb.Width, TitleHeight,
                             buttonEnabled ? ColorConv.Convert(UserPlugSettingsFinder.GetTextOnColor(labelParamSettings))
                                           : ColorConv.Convert(UserPlugSettingsFinder.GetTextOffColor(labelParamSettings)), LabelFontSize);
 
@@ -450,24 +459,24 @@
                     bb.FillRectangle(0, uby, bb.Width, ubh, new BitmapColor(120, 120, 120));
                     bb.FillRectangle(0, uby + stroke, bb.Width, ubh - 2 * stroke - 2, new BitmapColor(40, 40, 40));
                 }
-                else if (userLabelText.Length > 0)
+                else if (userButtonAssigned)
                 {
                     bb.FillRectangle(0, uby, bb.Width, ubh, drawCircle ? BgColorUserCircle : bc);
-                }
-                if (drawCircle)
-                {
-                    var cx = ubh / 2;
-                    if (cd.ChannelID >= 3) cx = bb.Width - ubh / 2;
-                    var cy = uby + ubh / 2;
-                    var cr = ubh / 2 - 5;
-                    if (userButtonActive) bb.FillCircle(cx, cy, cr, tc);
-                    else bb.DrawArc(cx, cy, cr, 0, 360, tc, 2);
-                    //                    tx = ubh;
-                    tw = bb.Width - tx * 2;
-                }
+                    if (drawCircle)
+                    {
+                        var cx = ubh / 2;
+                        if (cd.ChannelID >= 3) cx = bb.Width - ubh / 2;
+                        var cy = uby + ubh / 2;
+                        var cr = ubh / 2 - 5;
+                        if (userButtonActive) bb.FillCircle(cx, cy, cr, tc);
+                        else bb.DrawArc(cx, cy, cr, 0, 360, tc, 2);
+                        //                    tx = ubh;
+                        tw = bb.Width - tx * 2;
+                    }
 
-                bb.DrawImage(LabelImageLoader.GetImage(userLabelText, tw, TitleHeight, tc), tx, uby);
-                // Debug.WriteLine($"SelectButtonData: User button {cd.UserLabel} ({cd.UserValue}) at {cd.ChannelID + 1} with text '{userLabelText}'");
+                    bb.DrawImage(LabelImageLoader.GetImage(userLabelText, tw, TitleHeight, tc), tx, uby);
+                    // Debug.WriteLine($"SelectButtonData: User button {cd.UserLabel} ({cd.UserValue}) at {cd.ChannelID + 1} with text '{userLabelText}'");
+                }
             }
             else
             {
@@ -1091,10 +1100,13 @@
         String TopDisplayText = "";
         protected Boolean IsUserButton = false;
         protected String PluginName = "";
-        protected PlugSettingsFinder UserPlugSettingsFinder = new PlugSettingsFinder(new PlugSettingsFinder.PlugParamSetting { OnColor = new FinderColorOnColor(FinderColor.Black),
-                                                                                                                               OffColor = FinderColor.Black,
-                                                                                                                               TextOnColor = FinderColor.White,
-                                                                                                                               TextOffColor = FinderColor.Black});
+        protected static readonly PlugSettingsFinder UserPlugSettingsFinder = new PlugSettingsFinder(new PlugSettingsFinder.PlugParamSetting
+        { 
+            OnColor = new FinderColorOnColor(FinderColor.Black),
+            OffColor = FinderColor.Black,
+            TextOnColor = FinderColor.White,
+            TextOffColor = FinderColor.Black
+        });
         enum PluginType { Any, Mono, Stereo, MonoStereo }    // variants of Waves plugins
 
         public ModeTopCommandButtonData(Int32 channel, Int32 code, String name, Location bl, String? iconName = null) : base(channel, code, name, iconName)
@@ -1113,13 +1125,13 @@
             base.OnLoad(plugin);
         }
 
-        public void setTopDisplay(String text)
+        public void SetTopDisplay(String text)
         {
             _userButtonRedrawAccess.Wait();
             this.TopDisplayText = text;
             _userButtonRedrawAccess.Release();
         }
-        public void setPluginName(String text)
+        public void SetPluginName(String text)
         {
             this.PluginName = text;
 
@@ -1132,6 +1144,11 @@
             }
         }
 
+        public static void ClearCache()
+        {
+            UserPlugSettingsFinder.ClearCache();
+        }
+
         public override BitmapImage getImage(PluginImageSize imageSize)
         {
             var bb = new BitmapBuilder(imageSize);
@@ -1141,14 +1158,14 @@
             var bgX = this.IsUserButton ? dispTxtH + 6 : 0;
             var bgH = bb.Height - bgX;
 
-            var deviceEntry = this.UserPlugSettingsFinder.GetPlugParamDeviceEntry(this.PluginName);
+            var deviceEntry = UserPlugSettingsFinder.GetPlugParamDeviceEntry(this.PluginName);
             var buttonIdx = (Int32)this.ButtonLocation;
 
             if (deviceEntry == null) return bb.ToImage(); // No device entry found (should never happen, could throw an exception here)
 
             _userButtonRedrawAccess.Wait();
 
-            var paramSettings = this.UserPlugSettingsFinder.GetPlugParamSettings(deviceEntry, this.Name, isUser: true, buttonIdx);
+            var paramSettings = UserPlugSettingsFinder.GetPlugParamSettings(deviceEntry, this.Name, isUser: true, buttonIdx);
 
             if (this.IsUserButton)
             {
@@ -1158,8 +1175,8 @@
                 }
                 else
                 {
-                    bb.FillRectangle(0, bgX, bb.Width, bgH, Activated ? ColorConv.Convert(this.UserPlugSettingsFinder.GetOnColor(paramSettings))
-                                                                      : ColorConv.Convert(this.UserPlugSettingsFinder.GetOffColor(paramSettings)));
+                    bb.FillRectangle(0, bgX, bb.Width, bgH, Activated ? ColorConv.Convert(UserPlugSettingsFinder.GetOnColor(paramSettings))
+                                                                      : ColorConv.Convert(UserPlugSettingsFinder.GetOffColor(paramSettings)));
                 }
             }
             else
@@ -1177,11 +1194,11 @@
             }
             else
             {
-                bb.DrawText(this.Activated ? this.UserPlugSettingsFinder.GetLabelOn(paramSettings, this.Name) :
+                bb.DrawText(this.Activated ? UserPlugSettingsFinder.GetLabelOn(paramSettings, this.Name) :
                                              paramSettings.Label ?? this.Name, 
                                              0, dispTxtH, bb.Width, bb.Height - dispTxtH, 
-                            this.Activated ? ColorConv.Convert(this.UserPlugSettingsFinder.GetTextOnColor(paramSettings))
-                                           : ColorConv.Convert(this.UserPlugSettingsFinder.GetTextOffColor(paramSettings)), LabelFontSize);
+                            this.Activated ? ColorConv.Convert(UserPlugSettingsFinder.GetTextOnColor(paramSettings))
+                                           : ColorConv.Convert( UserPlugSettingsFinder.GetTextOffColor(paramSettings)), LabelFontSize);
             }
 
             if (this.TopDisplayText != null)
@@ -1230,8 +1247,8 @@
         public ModeTopUserButtonData(Int32 channel, Int32 code, String name, Location bl) : base(channel, code, name, bl)
         {
             this.IsUserButton = true;
-            this.UserPlugSettingsFinder.DefaultPlugParamSettings.OnColor = new FinderColorOnColor(SelectButtonData.BgColorAssigned);
-            this.UserPlugSettingsFinder.DefaultPlugParamSettings.OffColor = SelectButtonData.BgColorAssigned;
+            UserPlugSettingsFinder.DefaultPlugParamSettings.OnColor = new FinderColorOnColor(SelectButtonData.BgColorAssigned);
+            UserPlugSettingsFinder.DefaultPlugParamSettings.OffColor = SelectButtonData.BgColorAssigned;
         }
     }
 
@@ -1479,39 +1496,37 @@
         {
         }
 
-        public void clearActive() => this.IsActive = false;
-        public void setPageNames(String[]? pageNames) => this.PageNames = pageNames != null && pageNames.Length > 0 ? pageNames : null;
+        public void ClearActive() => this.IsActive = false;
+        public void SetPageNames(String[]? pageNames) => this.PageNames = pageNames != null && pageNames.Length > 0 ? pageNames : null;
 
-        public void setUserPage(Int32 userPage)
+        public void SetUserPage(Int32 userPage)
         {
-            this.UserPage = userPage;
+            UserPage = userPage;
             if (userPage > 0)
             {
-                this.LastUserPage = userPage;
-                if (userPage > this.ActiveUserPages)
-                {
-                    this.ActiveUserPages = userPage;
-                }
+                LastUserPage = userPage;
             }
         }
 
         // Gets called when the focus device changes
-        public void resetUserPage()
+        public void ResetUserPage(int userPageCount = 1)
         {
-            this.UserPage = 0;      // current user page in Studio One is unknown
-            this.LastUserPage = 1;
-            this.PageNames = null;
-            if (this.IsActive && this.Plugin.CurrentChannelFaderMode == ChannelFaderMode.User)
+            UserPage = 0;      // current user page in Studio One is unknown
+            LastUserPage = 1;
+            PageNames = null;
+            if (IsActive && Plugin.CurrentChannelFaderMode == ChannelFaderMode.User)
             {
-                this.UserPage = 1;
-                this.Plugin.SetChannelFaderMode(ChannelFaderMode.User, this.UserPage);
+                UserPage = 1;
+                Plugin.SetChannelFaderMode(ChannelFaderMode.User, UserPage);
             }
+            if (userPageCount > ActiveUserPages) ActiveUserPages = userPageCount;
         }
-        public void sendUserPage()
+
+        public void SendUserPage()
         {
             // Actively set the page if current page is unknown
-            this.UserPage = this.UserPage > 0 ? this.UserPage : this.LastUserPage > 0 ? this.LastUserPage : 1;
-            this.Plugin.SetChannelFaderMode(ChannelFaderMode.User, this.UserPage);
+            UserPage = UserPage > 0 ? UserPage : LastUserPage > 0 ? LastUserPage : 1;
+            Plugin.SetChannelFaderMode(ChannelFaderMode.User, UserPage);
         }
         public override BitmapImage getImage(PluginImageSize imageSize)
         {
@@ -1523,29 +1538,29 @@
             var rH = (bb.Height - 2 * rY) / 2;
             var rX = (bb.Width - rW) / 2;
 
-            bb.FillRectangle(rX, rY, rW, rH, this.UserPage == 0 ? CommandButtonData.cRectOff : CommandButtonData.cRectOn);
-            bb.DrawText("USER", rX, rY, rW, rH, this.UserPage == 0 ? CommandButtonData.cTextOff : CommandButtonData.cTextOn, FontSize, FontSize);
+            bb.FillRectangle(rX, rY, rW, rH, UserPage == 0 ? CommandButtonData.cRectOff : CommandButtonData.cRectOn);
+            bb.DrawText("USER", rX, rY, rW, rH, UserPage == 0 ? CommandButtonData.cTextOff : CommandButtonData.cTextOn, FontSize, FontSize);
 
             rY += rH;
             bb.FillRectangle(rX, rY, rW, rH, CommandButtonData.cRectOff);
 
             var rW2 = rW / 3 + 1;
 
-            if (this.PageNames != null && this.PageNames.Length >= this.UserPage)
+            if (PageNames != null && PageNames.Length >= UserPage)
             {
-                bb.DrawText(this.PageNames[(this.UserPage > 0 ? this.UserPage : this.LastUserPage) - 1], rX, rY, rW, rH, CommandButtonData.cTextOff, FontSize, FontSize);
+                bb.DrawText(PageNames[(UserPage > 0 ? UserPage : LastUserPage) - 1], rX, rY, rW, rH, CommandButtonData.cTextOff, FontSize, FontSize);
             }
             else
             {
                 bb.DrawText("1", rX, rY, rW2, rH, CommandButtonData.cTextOff, FontSize, FontSize);
 
-                if (this.ActiveUserPages > 1)
+                if (ActiveUserPages > 1)
                 {
-                    if (this.ActiveUserPages > 2)
+                    if (ActiveUserPages > 2)
                     {
-                        bb.DrawText(this.ActiveUserPages.ToString(), rX + rW - rW2, rY, rW2, rH, CommandButtonData.cTextOff, FontSize, FontSize);
+                        bb.DrawText(ActiveUserPages.ToString(), rX + rW - rW2, rY, rW2, rH, CommandButtonData.cTextOff, FontSize, FontSize);
                     }
-                    if (this.ActiveUserPages < 4)
+                    if (ActiveUserPages < 4)
                     {
                         bb.DrawText("2", rX + rW2, rY, rW2, rH, CommandButtonData.cTextOff, FontSize, FontSize);
                     }
@@ -1557,23 +1572,23 @@
                             bb.FillCircle(rX + rW2 + sp * i, rY + rH / 2 + 2, 1, CommandButtonData.cTextOff);
                         }
                     }
-                    if (this.ActiveUserPages < 3)
+                    if (ActiveUserPages < 3)
                     {
-                        rX += rW2 * (this.UserPage - 1);
+                        rX += rW2 * (UserPage - 1);
                     }
                     else
                     {
-                        if (this.UserPage == this.ActiveUserPages)
+                        if (UserPage == ActiveUserPages)
                             rX = rX + rW - rW2;
                         else
-                            rX += (rW - rW2) / (this.ActiveUserPages - 1) * (this.UserPage - 1);
+                            rX += (rW - rW2) / (ActiveUserPages - 1) * (UserPage - 1);
                     }
                 }
 
-                if (this.UserPage > 0)
+                if (UserPage > 0)
                 {
                     bb.FillRectangle(rX, rY, rW2, rH, CommandButtonData.cRectOn);
-                    bb.DrawText(this.UserPage.ToString(), rX, rY, rW2, rH, CommandButtonData.cTextOn, FontSize, FontSize);
+                    bb.DrawText(UserPage.ToString(), rX, rY, rW2, rH, CommandButtonData.cTextOn, FontSize, FontSize);
                 }
             }
 
@@ -1582,28 +1597,28 @@
         }
         public override void runCommand()
         {
-            if (this.IsActive)
+            if (IsActive)
             {
-                if (this.PageNames != null)
+                if (PageNames != null)
                 {
                     // Display value selection menu.
                     var ubmp = new UserButtonMenuParams();
-                    ubmp.MenuItems = this.PageNames;
-                    this.Plugin.EmitUserButtonMenuActivated(ubmp);
+                    ubmp.MenuItems = PageNames;
+                    Plugin.EmitUserButtonMenuActivated(ubmp);
                     return;
                 }
                 else
                 {
-                    this.UserPage = (this.Plugin as StudioOneMidiPlugin).ShiftPressed
-                        ? this.UserPage <= 1 ? this.ActiveUserPages : this.UserPage - 1
-                        : this.UserPage > this.ActiveUserPages - 1 ? 1 : this.UserPage + 1;
+                    UserPage = (Plugin as StudioOneMidiPlugin).ShiftPressed
+                        ? UserPage <= 1 ? ActiveUserPages : UserPage - 1
+                        : UserPage > ActiveUserPages - 1 ? 1 : UserPage + 1;
                 }
             }
             else
             {
-                this.IsActive = true;   // activate on first click
+                IsActive = true;   // activate on first click
             }
-            this.sendUserPage();
+            SendUserPage();
         }
     }
     public class UserPageMenuSelectButtonData : UserMenuSelectButtonData
@@ -1613,19 +1628,19 @@
             var bb = new BitmapBuilder(imageSize);
             bb.FillRectangle(0, 0, bb.Width, bb.Height, BitmapColor.Black);
 
-            if (this.Label != null)
+            if (Label != null)
             {
                 var height = bb.Height / 2 + 4;
                 bb.FillRectangle(0, (bb.Height - height) / 2, bb.Width, height, CommandButtonData.cRectOff);
-                bb.DrawImage(LabelImageLoader.GetImage(this.Label, bb.Width, bb.Height));
+                bb.DrawImage(LabelImageLoader.GetImage(Label, bb.Width, bb.Height));
             }
             return bb.ToImage();
         }
         public override void runCommand()
         {
-            this.Plugin.SetChannelFaderMode(ChannelFaderMode.User, this.Value);
+            Plugin.SetChannelFaderMode(ChannelFaderMode.User, Value);
 
-            this.Plugin.EmitUserButtonMenuActivated(new UserButtonMenuParams { ChannelIndex = -1, IsActive = false });
+            Plugin.EmitUserButtonMenuActivated(new UserButtonMenuParams { ChannelIndex = -1, IsActive = false });
         }
     }
 

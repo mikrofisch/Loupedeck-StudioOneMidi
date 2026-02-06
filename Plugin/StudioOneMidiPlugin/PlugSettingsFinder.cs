@@ -117,18 +117,18 @@
                 this.A = reader.GetAttribute("transparency") != null ? Convert.ToByte(reader.GetAttribute("transparency")) : A_default;
             }
 
-            var content = reader.ReadElementContentAsString().ToLowerInvariant();
-            if (content == "white")
+            var content = reader.ReadElementContentAsString();
+            if (content.Equals("white", StringComparison.OrdinalIgnoreCase))
             {
                 R = G = B = 255;
                 Name = "white";
             }
-            else if (content == "black")
+            else if (content.Equals("black", StringComparison.OrdinalIgnoreCase))
             {
                 R = G = B = 0;
                 Name = "black";
             }
-            else if (content.StartsWith("rgb("))
+            else if (content.ToLowerInvariant().StartsWith("rgb("))
             {
                 var rgb = content.Substring(4, content.Length - 5).Split(',');
                 R = Convert.ToByte(rgb[0]);
@@ -251,33 +251,77 @@
                 using var ms = new MemoryStream();
                 serializer.WriteObject(ms, this);
                 ms.Seek(0, SeekOrigin.Begin);
-                return (PlugParamSetting)serializer.ReadObject(ms)!;
+                var clone = (PlugParamSetting)serializer.ReadObject(ms)!;
+
+                // Need to copy the colors separately as the serializer will not copy RGB values if the
+                // color is referenced by name.
+                if (OnColor != null) clone.OnColor = new FinderColorOnColor(OnColor);
+                if (OffColor != null) clone.OffColor = new FinderColor(OffColor);
+                if (TextOnColor != null) clone.TextOnColor = new FinderColor(TextOnColor);
+                if (TextOffColor != null) clone.TextOffColor = new FinderColor(TextOffColor);
+                if (BarOnColor != null) clone.BarOnColor = new FinderColor(BarOnColor);
+
+                return clone;
             }
         }
 
         public class PlugParamDeviceEntry
         {
+            string? _pluginName = null;
             public string? PluginName
             {
                 get
                 {
-                    // Find the key in PlugParamDict whose value is this instance
-                    foreach (var kvp in PlugParamDict)
+                    if (_pluginName == null)
                     {
-                        if (object.ReferenceEquals(kvp.Value, this))
+                        // Not initialised, or this is not in the dictionary.
+                        // Try to find this instance in PlugParamDict.
+                        // This was actually a clever attempt at handling the plugin name
+                        // dynamically, which fails when the dictionary is reloaded and
+                        // local PlugParamDeviceEntry variables that reference dictionary
+                        // entries break. The class now keeps a local copy of the plugin name
+                        // and I don't think we'll ever get here...
+                        foreach (var kvp in PlugParamDict)
                         {
-                            return kvp.Key;
+                            if (object.ReferenceEquals(kvp.Value, this))
+                            {
+                                // Found this instance in PlugParamDict - remember the plugin name and return it
+                                _pluginName = kvp.Key;
+                                return _pluginName;
+                            }
                         }
                     }
-                    return null;
+
+                    return _pluginName;
                 }
-                set { }
+                set
+                {
+                    if (_pluginName != value)
+                    {
+                        _pluginName = value;
+                    }
+                }
             }
 
             public String ManufacturerName = "";    // Used for categorizing the plugin in the Loupedeck plugin configuration app
+            public int UserPageCount = 1;           // Number of user pages
             public String[]? UserPageNames;         // Names for user pages, if any
             public List<FinderColor> Colors = [];
             public ConcurrentDictionary<String, PlugParamSetting> ParamSettings = [];
+
+            public void Reload()
+            {
+                _plugParamDictAccess.Wait();
+                if (!string.IsNullOrEmpty(_pluginName) && PlugParamDict.TryGetValue(_pluginName, out var deviceEntry))
+                {
+                    // Update this instance with the data from the dictionary
+                    ManufacturerName = deviceEntry.ManufacturerName;
+                    UserPageNames = deviceEntry.UserPageNames;
+                    Colors = deviceEntry.Colors;
+                    ParamSettings = deviceEntry.ParamSettings;
+                }
+                _plugParamDictAccess.Release();
+            }
         }
         private static readonly ConcurrentDictionary<String, PlugParamDeviceEntry> PlugParamDict = [];
         private static SemaphoreSlim _plugParamDictAccess = new SemaphoreSlim(1, 1);
@@ -330,6 +374,8 @@
                 [XmlAttribute]
                 public String ManufacturerName = "";    // Used for categorizing the plugin in the Loupedeck plugin configuration app
 
+                public int UserPageCount = 1;           // Number of user pages 
+
                 [XmlArray("UserPageNames")]
                 [XmlArrayItem("Page")]
                 public String[]? UserPageNames;         // Names for user pages, if any
@@ -374,21 +420,23 @@
                 {
                     if (c.Name == "black")
                     {
-                        c = new FinderColor(FinderColor.Black);
+                        c = new FinderColor(FinderColor.Black, c.A);
                     }
                     else if (c.Name == "white")
                     {
-                        c = new FinderColor(FinderColor.White);
+                        c = new FinderColor(FinderColor.White, c.A);
                     }
                     else
                     {
                         // Find RGB values in colour list
+                        // colors.FirstOrDefault()
+
                         foreach (var cc in colors)
                         {
                             if (string.Equals(cc.Name, c.Name, StringComparison.OrdinalIgnoreCase))
                             {
                                 // Make a copy of the referenced colour
-                                c = new FinderColor(cc);
+                                c = new FinderColor(cc, c.A);
                                 break;
                             }
                         }
@@ -432,6 +480,8 @@
 
                     var deviceEntry = new PlugParamDeviceEntry { };
                     deviceEntry.ManufacturerName = cfgDeviceEntry.ManufacturerName;
+                    deviceEntry.PluginName = cfgDeviceEntry.PluginName;
+                    deviceEntry.UserPageCount = cfgDeviceEntry.UserPageCount;
                     deviceEntry.UserPageNames = cfgDeviceEntry.UserPageNames ?? [];
                     deviceEntry.Colors = cfgDeviceEntry.Colors;
 
@@ -455,6 +505,8 @@
                     Directory.CreateDirectory(ConfigFolderPath);
                 }
                 var configFilePath = System.IO.Path.Combine(ConfigFolderPath, configFileName);
+
+                WaitForFile(new FileInfo(configFilePath));
                 var writer = new StreamWriter(configFilePath);
 
                 foreach (var deviceEntry in plugParamDict)
@@ -464,6 +516,7 @@
                         PluginName = deviceEntry.Key,
                         ManufacturerName = deviceEntry.Value.ManufacturerName,
                         Colors = deviceEntry.Value.Colors,
+                        UserPageCount = deviceEntry.Value.UserPageCount,
                         UserPageNames = deviceEntry.Value.UserPageNames
                     };
                     foreach (var paramSettings in deviceEntry.Value.ParamSettings)
@@ -511,6 +564,7 @@
                 PlugParamDict.Clear();
 
                 var configFilePath = System.IO.Path.Combine(XmlConfig.ConfigFolderPath, XmlConfig.ConfigFileName);
+                WaitForFile(new FileInfo(configFilePath));
                 using (Stream reader = new FileStream(configFilePath, FileMode.Open))
                 {
                     xmlCfg.ReadXmlStream(reader, PlugParamDict);
@@ -522,10 +576,37 @@
             }
         }
 
+        static void WaitForFile(FileInfo file)
+        {
+            var locked = true;
+
+            while (locked)
+            {
+                locked = false;
+                try
+                {
+                    using (FileStream stream = file.Open(FileMode.Open, FileAccess.Read, FileShare.None))
+                    {
+                        stream.Close();
+                    }
+                }
+                catch (IOException)
+                {
+                    //the file is unavailable because it is:
+                    //still being written to
+                    //or being processed by another thread
+                    //or does not exist (has already been processed)
+                    locked = true;
+                }
+                if (locked) System.Threading.Thread.Sleep(100);
+            }
+        }
+
+
         public static void AddPlugin(String manufacturerName, String pluginName)
         {
             _plugParamDictAccess.Wait();
-            PlugParamDict[pluginName] = new PlugParamDeviceEntry { ManufacturerName = manufacturerName };
+            PlugParamDict[pluginName] = new PlugParamDeviceEntry { ManufacturerName = manufacturerName, PluginName = pluginName };
             _plugParamDictAccess.Release();
         }
 

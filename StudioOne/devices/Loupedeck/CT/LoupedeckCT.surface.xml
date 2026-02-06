@@ -153,7 +153,7 @@
 
 		<Control name="U1Text"  type="textdisplay" options="transmit public"/>
 		<Control name="U2Text"  type="textdisplay" options="transmit public"/>
-		<Control name="ActiveUserPages"  options="transmit public"> <MidiMessage status="#B0" address="#60" channel="0"/> </Control>
+		<Control name="ActiveUserPages"  options="transmit receive public"> <MidiMessage status="#B0" address="#60" channel="0"/> </Control>
 
 		<!-- ******************************************************************************************** -->
 		<!-- Selected Channel Controls -->

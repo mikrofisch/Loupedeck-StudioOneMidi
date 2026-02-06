@@ -656,7 +656,7 @@ namespace Loupedeck.StudioOneMidiPlugin
                             break;
                     }
                 }
-                // Focus channel name
+                // Focus device name
                 else if (ce.Data.Length > 5 && ce.Data[4] == 0x13)
                 {
                     byte[] str = ce.Data.SubArray(5, ce.Data.Length - 6);
@@ -669,6 +669,10 @@ namespace Loupedeck.StudioOneMidiPlugin
                         _currentAutoAddPluginName = null;
                         _autoSendParameterNames = false;
                     }
+
+                    // Reset the active user pages count
+                    // SendMidiControlChange(0, 0x60, 0);
+
                     SendFocusDeviceToConfigApp(this._currentPluginName!);
                     this.FocusDeviceChanged?.Invoke(this, receivedString);
                 }
@@ -695,6 +699,17 @@ namespace Loupedeck.StudioOneMidiPlugin
             e.Channel = (FourBitNumber)midiChannel;
             e.Velocity = (SevenBitNumber)velocity;
             e.NoteNumber = (SevenBitNumber)note;
+            this.S1MidiOut.SendEvent(e);
+        }
+
+        public void SendMidiControlChange(Int32 midiChannel, Int32 control, Int32 value)
+        {
+            if (this.S1MidiOut == null) throw new NullReferenceException("LoupedeckMidiOut is not initialized.");
+
+            var e = new ControlChangeEvent();
+            e.Channel = (FourBitNumber)midiChannel;
+            e.ControlNumber = (SevenBitNumber)control;
+            e.ControlValue = (SevenBitNumber)value;
             this.S1MidiOut.SendEvent(e);
         }
 

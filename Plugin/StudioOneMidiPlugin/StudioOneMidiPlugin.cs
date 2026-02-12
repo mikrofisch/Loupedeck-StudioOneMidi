@@ -105,6 +105,7 @@ namespace Loupedeck.StudioOneMidiPlugin
             public Int32 ChannelIndex { get; set; } = -1;
             public String[]? MenuItems { get; set; }
             public Boolean IsActive { get; set; } = true;
+            public Int32 MenuItemSelected { get; set; } = -1;
         }
         public event EventHandler<UserButtonMenuParams>? UserButtonMenuActivated;
 

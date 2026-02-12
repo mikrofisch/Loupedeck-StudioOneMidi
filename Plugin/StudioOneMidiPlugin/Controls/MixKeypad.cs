@@ -31,6 +31,8 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
         private ButtonLayer LastButtonLayer1 = ButtonLayer.ViewSelector;
         private ButtonLayer LastButtonLayer2 = ButtonLayer.ViewSelector;
 
+        private int LastSelectedUserPage = 0;
+
         private enum UserSendsMode
         {
             Sends = 0,
@@ -638,6 +640,7 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
                 }
                 else
                 {
+                    LastSelectedUserPage = e.MenuItemSelected;
                     this.DeactivateUserMenu = true;
                 }
 
@@ -959,7 +962,7 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
                             else
                             {
                                 selectMode = SelectButtonMode.User;
-                                this.GetButtonData(idxUserButton).runCommand();
+                                plugin.SetChannelFaderMode(ChannelFaderMode.User, LastSelectedUserPage);
                             }
                             plugin.EmitSelectModeChanged(selectMode);
                             break;
@@ -1178,6 +1181,14 @@ namespace Loupedeck.StudioOneMidiPlugin.Controls
                                     this.CurrentUserSendsLayerMode = UserSendsLayerMode.User;
                                     LastUserSendsMode = UserSendsMode.User;
                                     this.UpdateAllCommandImages(MenuButtons);
+                                }
+                                else
+                                {
+                                    var umbd = bd as UserModeButtonData;
+                                    if (umbd != null)
+                                    {
+                                        LastSelectedUserPage = umbd.UserPage;
+                                    }
                                 }
                                 plugin.EmitSelectModeChanged(SelectButtonMode.User);
                             }

@@ -1487,7 +1487,7 @@
     {
         private const Int32 FontSize = LabelFontSize;
         public Int32 ActiveUserPages { get; set; } = 3;
-        Int32 UserPage { get; set; } = 0;
+        public Int32 UserPage { get; private set; } = 0;
         Int32 LastUserPage { get; set; } = 0;
         String[]? PageNames;
         Boolean IsActive { get; set; } = false;
@@ -1640,7 +1640,7 @@
         {
             Plugin.SetChannelFaderMode(ChannelFaderMode.User, Value);
 
-            Plugin.EmitUserButtonMenuActivated(new UserButtonMenuParams { ChannelIndex = -1, IsActive = false });
+            Plugin.EmitUserButtonMenuActivated(new UserButtonMenuParams { ChannelIndex = -1, IsActive = false, MenuItemSelected = Value });
         }
     }
 

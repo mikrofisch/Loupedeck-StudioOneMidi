@@ -1,5 +1,6 @@
 include_file("resource://com.presonus.musicdevices/sdk/midiprotocol.js");
 include_file("resource://com.presonus.musicdevices/sdk/controlsurfacedevice.js");
+include_file("resource://com.presonus.musicdevices/sdk/controlsurfacecomponent.js");
 include_file("LoupedeckProtocol.js");
 
 class ChannelTextHandler extends PreSonus.ControlHandler {
@@ -35,6 +36,22 @@ class FunctionTextHandler extends PreSonus.ControlHandler {
     }
 }
 
+class TriggerHostCommandReceiveHandler extends PreSonus.ControlHandler {
+    constructor(name) {
+        super();
+        this.name = name;
+    }
+    receiveSysex(data, length) {
+        if (LoupedeckHostCommandMessage.isMessage(data, length)) {
+            let cmdGroup = LoupedeckHostCommandMessage.getCommandGroup(data, length);
+            let cmdName = LoupedeckHostCommandMessage.getCommandName(data, length);
+            // No further action for now, updateValue() does not update string parameters.
+            return true;
+        }
+        return super.receiveSysex(data, length);
+    }
+}
+
 class LoupedeckMidiDevice extends PreSonus.ControlSurfaceDevice {
     constructor() {
         super();
@@ -59,6 +76,7 @@ class LoupedeckMidiDevice extends PreSonus.ControlSurfaceDevice {
         this.addHandler(new FunctionTextHandler("U1Text", 12));
         this.addHandler(new FunctionTextHandler("U2Text", 13));
         this.addHandler(new FocusDeviceTextHandler("focusDeviceText"));
+        this.addReceiveHandler(new TriggerHostCommandReceiveHandler("triggerHostCommandReceiver"));
     }
     onMidiOutConnected(state) {
         super.onMidiOutConnected(state);

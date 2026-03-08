@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Macro title="Pan All Channels - Left" group="Set Pan for All Channels" description="">
+	<CommandElement category="Console" name="Set Pan for All Channels">
+		<CommandArgument name="Pan" value="0"/>
+	</CommandElement>
+</Macro>

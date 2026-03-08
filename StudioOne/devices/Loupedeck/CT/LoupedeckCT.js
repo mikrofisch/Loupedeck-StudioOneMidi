@@ -1,5 +1,7 @@
 include_file("resource://com.presonus.musicdevices/sdk/controlsurfacecomponent.js");
 include_file("LoupedeckShared.js");
+include_file("LoupedeckProtocol.js");
+
 const kLoupedeckCTMixerBanks = [
     PreSonus.MixerConsoleBankID.kRemoteAll,
     PreSonus.MixerConsoleBankID.kAudioInput,
@@ -36,6 +38,8 @@ class LoupedeckCTComponent extends LoupedeckSharedComponent {
         this.panModeLED = paramList.addParam("panModeLED");
         this.panSelectedValue = paramList.addAlias("panSelectedValue");
         this.activeUserPagesParam = paramList.addInteger(0, 127, "activeUserPages");
+        // this.triggerHostCommand = paramList.addParam("triggerHostCommand");
+        // this.triggerHostCommand.setSignalAlways(true);
         this.updateModeParams();
         
         this.bankList = paramList.addList("bankList");
@@ -65,16 +69,22 @@ class LoupedeckCTComponent extends LoupedeckSharedComponent {
     // automatically adapt to zoom level.
     onSnapStepFwd(value) {
         if (!value) return;
-        Host.GUI.Commands.deferCommand("Edit", "Create Range from Cursor");               
-        Host.GUI.Commands.deferCommand("Transport", "Locate Selection End");
-        Host.GUI.Commands.deferCommand("Edit", "Deselect All");
+        // #jr24feb26 "Create Range from Cursor" is broken in Studio Pro 8
+        // Host.Console.writeLine("onSnapStepFwd(" + value + ")");
+        // Host.GUI.Commands.deferCommand("Edit", "Create Range from Cursor");               
+        // Host.GUI.Commands.deferCommand("Transport", "Locate Selection End");
+        // Host.GUI.Commands.deferCommand("Edit", "Deselect All");
+        Host.GUI.Commands.deferCommand("Scoring Tools", "Forward Grid");    
     }
     onSnapStepRev(value) {
         if (!value) return;
-        Host.GUI.Commands.deferCommand("Edit", "Create Range from Cursor");               
-        Host.GUI.Commands.deferCommand("Edit", "Move Range Back");
-        Host.GUI.Commands.deferCommand("Transport", "Locate Selection");
-        Host.GUI.Commands.deferCommand("Edit", "Deselect All");
+        // #jr24feb26 "Create Range from Cursor" is broken in Studio Pro 8
+        // Host.Console.writeLine("onSnapStepRev(" + value + ")");
+        // Host.GUI.Commands.deferCommand("Edit", "Create Range from Cursor");               
+        // Host.GUI.Commands.deferCommand("Edit", "Move Range Back");
+        // Host.GUI.Commands.deferCommand("Transport", "Locate Selection");
+        // Host.GUI.Commands.deferCommand("Edit", "Deselect All");
+        Host.GUI.Commands.deferCommand("Scoring Tools", "Reverse Grid");    
     }
     // Split across all tracks at cursor and select all events from split point to end of song
     onSplitAllAndSelectToEnd(value) {
@@ -143,6 +153,20 @@ class LoupedeckCTComponent extends LoupedeckSharedComponent {
         }
         else if (param == this.bankList) {
             this.channelBankElement.selectBank(this.bankList.string);
+        }
+        else if (param == this.triggerHostCommand) {
+            // #jr23feb26 This currently does not work beause the string value does not come through.
+            Host.Console.writeLine("LoupedeckCTComponent.paramChanged triggerHostCommand: " + this.triggerHostCommand.string + " value: " + this.triggerHostCommand.value);
+            let separator = LoupedeckHostCommandMessage.kSeparator;
+            let separatorIndex = value.indexOf(separator);
+            if (separatorIndex < 0)
+                return;
+            let cmdGroup = value.substring(0, separatorIndex);
+            let cmdName = value.substring(separatorIndex + 1);
+            Host.Console.writeLine("LoupedeckCTComponent.paramChanged triggerHostCommand: " + cmdGroup + ", " + cmdName);
+            if (!cmdGroup.length || !cmdName.length)
+                return;
+            // Host.GUI.Commands.deferCommand(cmdGroup, cmdName);
         }
     }
 }

@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ClassFactory><ScriptClass classID="{90712296-5FB4-49BF-B628-3E71F56D9193}" category="EditTask" subCategory="MusicEdit" name="Nudge Notes" sourceFile="NudgeEvents.js" functionName="createNudgeTaskInstance">
+<Attribut id="hidden" value="1"/>
+</ScriptClass><ScriptClass classID="{C56F3D1F-3723-478D-B42E-5B92F2743BE1}" category="EditTask" subCategory="EventEdit" name="Nudge Events" sourceFile="NudgeEvents.js" functionName="createNudgeTaskInstance">
+<Attribut id="hidden" value="1"/>
+</ScriptClass><ScriptClass classID="{F5ECF6C0-9B3C-4602-8011-3A4CC89278FF}" category="EditTask" subCategory="TrackEdit" name="Nudge Events" sourceFile="NudgeEvents.js" functionName="createNudgeMetaTaskInstance">
+    <Attribute id="menuFollow" value="1"/>
+    <Attribute id="arguments" value="..."/>
+    <Attribute id="commandCategory" value="Scoring Tools"/>
+    <Attribute id="menuPriority" value="-1"/>
+</ScriptClass>
+<ScriptClass classID="{0DC8C9C8-6984-49AE-A792-4B0111B2625B}" category="EditTask" subCategory="TrackEdit" name="Nudge Events" sourceFile="NudgeEvents.js" functionName="createNudgeMetaTaskInstance">
+    <Attribute id="menuFollow" value="1"/>\r
+    <Attribute id="arguments" value="..."/>
+    <Attribute id="hidden" value="1"/>\r
+</ScriptClass>
+<ScriptClass classID="{FBCA7598-1617-49A5-A31E-FABA44674CBC}" category="EditTask" subCategory="TrackEdit" name="Toggle Audition Notes" sourceFile="ToggleAuditionNotes.js" functionName="createToggleAuditionNotesTaskInstance">
+    <Attribute id="arguments" value="State"/>
+    <Attribute id="menuPriority" value="-1"/>
+</ScriptClass>
+<ScriptClass classID="{DB1BDF6B-F765-4A65-8901-E5587BBC88E8}" category="EditTask" subCategory="MusicEdit" name="Extend Notes by Grid" sourceFile="ExtendNotesByGrid.js" functionName="createExtendInstance">
+    <Attribute id="menuPriority" value="-1"/>
+</ScriptClass>
+<ScriptClass classID="{295F3D5A-91E2-47FD-89A1-25E7839C4F8D}" category="EditTask" subCategory="MusicEdit" name="Shorten Notes by Grid" sourceFile="ExtendNotesByGrid.js" functionName="createShortenInstance">
+    <Attribute id="menuPriority" value="-1"/>
+</ScriptClass>
+<ScriptClass classID="{3EB921BF-33A4-421C-95A9-0F5C7E160227}" category="EditTask" subCategory="TrackEdit" name="Rewind Beat" sourceFile="ForwardRewind.js" functionName="createRewindBeatTaskInstance">
+    <Attribute id="arguments" value="Beats"/>
+    <Attribute id="commandCategory" value="Scoring Tools"/>
+    <Attribute id="menuPriority" value="-1"/>
+</ScriptClass>
+<ScriptClass classID="{7FF869A7-F6A8-4526-9349-81C6804FC346}" category="EditTask" subCategory="TrackEdit" name="Rewind Beat" sourceFile="ForwardRewind.js" functionName="createRewindBeatTaskInstance">
+    <Attribute id="arguments" value="Beats"/>
+    <Attribute id="hidden" value="1"/>
+    <Attribute id="menuPriority" value="-1"/>
+</ScriptClass>
+<ScriptClass classID="{A9B1633D-926A-4B57-8936-586258876027}" category="EditTask" subCategory="TrackEdit" name="Forward Beat" sourceFile="ForwardRewind.js" functionName="createForwardBeatTaskInstance">
+    <Attribute id="arguments" value="Beats"/>
+    <Attribute id="commandCategory" value="Scoring Tools"/>
+    <Attribute id="menuPriority" value="-1"/>
+</ScriptClass>
+<ScriptClass classID="{6C05A01B-81C4-4DBF-B3BC-348AFA29CE97}" category="EditTask" subCategory="TrackEdit" name="Forward Beat" sourceFile="ForwardRewind.js" functionName="createForwardBeatTaskInstance">
+	<Attribute id="arguments" value="Beats"/>
+	<Attribute id="hidden" value="1"/>
+	<Attribute id="menuPriority" value="-1"/>
+</ScriptClass>
+<ScriptClass classID="{2CF8180A-DFC2-42AA-8202-7927563B90EE}" category="EditTask" subCategory="TrackEdit" name="Rewind Grid" sourceFile="ForwardRewind.js" functionName="createRewindGridTaskInstance">
+    <Attribute id="arguments" value="Steps"/>
+	<Attribute id="commandCategory" value="Scoring Tools"/>
+	<Attribute id="menuPriority" value="-1"/>
+</ScriptClass>
+<ScriptClass classID="{B11F6092-66AD-4A48-B285-FEF50BBADAC6}" category="EditTask" subCategory="TrackEdit" name="Rewind Grid" sourceFile="ForwardRewind.js" functionName="createRewindGridTaskInstance">
+	<Attribute id="arguments" value="Steps"/>
+	<Attribute id="hidden" value="1"/>
+	<Attribute id="menuPriority" value="-1"/>
+</ScriptClass>
+<ScriptClass classID="{90F9BF22-35D9-4E81-940A-C535C3A675D0}" category="EditTask" subCategory="TrackEdit" name="Forward Grid" sourceFile="ForwardRewind.js" functionName="createForwardGridTaskInstance">
+	<Attribute id="arguments" value="Steps"/>
+	<Attribute id="commandCategory" value="Scoring Tools"/>
+	<Attribute id="menuPriority" value="-1"/>
+</ScriptClass>
+<ScriptClass classID="{475CEAB9-BC00-4EDE-8E82-80A7297F352F}" category="EditTask" subCategory="TrackEdit" name="Forward Grid" sourceFile="ForwardRewind.js" functionName="createForwardGridTaskInstance">
+	<Attribute id="arguments" value="Steps"/>
+	<Attribute id="hidden" value="1"/>
+	<Attribute id="menuPriority" value="-1"/>
+</ScriptClass>
+<ScriptClass classID="{08C7054D-7443-454D-B796-B7CFA20B1B5A}" category="EditTask" subCategory="TrackEdit" name="Rewind Frame" sourceFile="ForwardRewind.js" functionName="createRewindFrameTaskInstance">
+	<Attribute id="arguments" value="Frames"/>
+	<Attribute id="commandCategory" value="Scoring Tools"/>
+	<Attribute id="menuPriority" value="-1"/>
+</ScriptClass>
+<ScriptClass classID="{8CD79164-5249-4C1B-B2C8-6879B8F41EF8}" category="EditTask" subCategory="TrackEdit" name="Rewind Frame" sourceFile="ForwardRewind.js" functionName="createRewindFrameTaskInstance">
+	<Attribute id="arguments" value="Frames"/>
+	<Attribute id="hidden" value="1"/>
+	<Attribute id="menuPriority" value="-1"/>
+</ScriptClass>
+<ScriptClass classID="{88699F82-9B19-4EC9-AAB5-90768733EF21}" category="EditTask" subCategory="TrackEdit" name="Forward Frame" sourceFile="ForwardRewind.js" functionName="createForwardFrameTaskInstance">
+	<Attribute id="arguments" value="Frames"/>
+	<Attribute id="commandCategory" value="Scoring Tools"/>
+	<Attribute id="menuPriority" value="-1"/>
+</ScriptClass>
+<ScriptClass classID="{2BFB6123-F244-4FBF-831A-D9C66AF450A1}" category="EditTask" subCategory="TrackEdit" name="Forward Frame" sourceFile="ForwardRewind.js" functionName="createForwardFrameTaskInstance">
+	<Attribute id="arguments" value="Frames"/>
+	<Attribute id="hidden" value="1"/>
+	<Attribute id="menuPriority" value="-1"/>
+</ScriptClass>
+<ScriptClass classID="{BB117BAA-8088-42CD-BC1A-EB8565A65FB0}" category="EditTask" subCategory="TrackEdit" name="Rewind Second" sourceFile="ForwardRewind.js" functionName="createRewindSecondTaskInstance">
+	<Attribute id="arguments" value="Seconds"/>
+	<Attribute id="commandCategory" value="Scoring Tools"/>
+	<Attribute id="menuPriority" value="-1"/>
+</ScriptClass>
+<ScriptClass classID="{FA75CDB7-6AB7-4194-A3E6-B324562C9285}" category="EditTask" subCategory="TrackEdit" name="Rewind Second" sourceFile="ForwardRewind.js" functionName="createRewindSecondTaskInstance">
+	<Attribute id="arguments" value="Seconds"/>
+	<Attribute id="hidden" value="1"/>
+	<Attribute id="menuPriority" value="-1"/>
+</ScriptClass>
+<ScriptClass classID="{E01051A1-44DA-4A09-B06E-7F14E8D61362}" category="EditTask" subCategory="TrackEdit" name="Forward Second" sourceFile="ForwardRewind.js" functionName="createForwardSecondTaskInstance">
+	<Attribute id="arguments" value="Seconds"/>
+	<Attribute id="commandCategory" value="Scoring Tools"/>
+	<Attribute id="menuPriority" value="-1"/>
+</ScriptClass>
+<ScriptClass classID="{CFE76478-0094-4750-96F8-A6D21A447DD2}" category="EditTask" subCategory="TrackEdit" name="Forward Second" sourceFile="ForwardRewind.js" functionName="createForwardSecondTaskInstance">
+	<Attribute id="arguments" value="Seconds"/>
+	<Attribute id="hidden" value="1"/>
+	<Attribute id="menuPriority" value="-1"/>
+</ScriptClass>
+<ScriptClass classID="{85B9F963-9BEC-4BBC-A267-068789F70414}" category="EditTask" subCategory="EventEdit" name="Select Tracks with Selected Events" sourceFile="SelectTracksWithSelectedEvents.js" functionName="createSelectTracksWithSelectedEventsTaskInstance">
+	<Attribute id="commandCategory" value="Scoring Tools"/>
+	<Attribute id="menuPriority" value="-1"/>
+</ScriptClass>
+<ScriptClass classID="{17FE93A8-D44F-4D3B-B9B7-1BC65E93A22E}" category="EditTask" subCategory="TrackEdit" name="Assign MIDI Channels" sourceFile="AssignInstrumentChannels.js" functionName="createAssignInAscendingOrderTaskInstance">
+	<Attribute id="arguments" value="PortNumber"/>
+	<Attribute id="commandCategory" value="Scoring Tools"/>
+	<Attribute id="menuPriority" value="-1"/>
+</ScriptClass>
+<ScriptClass classID="{BABD675C-A372-4371-8767-55D5FE473645}" category="EditTask" subCategory="TrackEdit" name="Select Tracks by Color" sourceFile="SelectTracksByColor.js" functionName="createSelectTracksByColorInstance">
+	<Attribute id="menuFollow" value="1"/>
+	<Attribute id="arguments" value="..."/>
+    
+	<Attribute id="menuPriority" value="-1"/>
+</ScriptClass>
+<ScriptClass classID="{14C5399A-D1DD-4BC9-971D-313E80BA46FC}" category="EditTask" subCategory="TrackEdit" name="Select Tracks with Same Color" sourceFile="SelectTracksByColor.js" functionName="createSelectTracksWithSameColorInstance">
+	<Attribute id="menuPriority" value="-1"/>
+</ScriptClass>
+<ScriptClass classID="{E85F1C08-533E-4CAF-8935-605E9879747C}" category="EditTask" subCategory="TrackEdit" name="Reset Volume for Selected Channels" sourceFile="SetChannelVolumePan.js" functionName="createResetVolumeForSelectedChannelsTaskInstance">
+	<Attribute id="commandCategory" value="Console"/>
+	<Attribute id="menuPriority" value="-1"/>
+</ScriptClass>
+<ScriptClass classID="{05C66CB9-7A57-48B2-9737-6111FD5E93EF}" category="EditTask" subCategory="TrackEdit" name="Reset Volume for All Channels" sourceFile="SetChannelVolumePan.js" functionName="createResetVolumeForAllChannelsTaskInstance">
+	<Attribute id="commandCategory" value="Console"/>
+	<Attribute id="menuPriority" value="-1"/>
+</ScriptClass>
+<ScriptClass classID="{724A0E4A-2617-49F6-94CE-CB7F735C4321}" category="EditTask" subCategory="TrackEdit" name="Set Volume to Infinity for Selected Channels" sourceFile="SetChannelVolumePan.js" functionName="createSetVolumeToInfinityForSelectedChannelsTaskInstance">
+	<Attribute id="commandCategory" value="Console"/>
+	<Attribute id="menuPriority" value="-1"/>
+</ScriptClass>
+<ScriptClass classID="{E2A93D40-8EA1-4E60-92D0-B951173BDB21}" category="EditTask" subCategory="TrackEdit" name="Set Volume to Infinity for All Channels" sourceFile="SetChannelVolumePan.js" functionName="createSetVolumeToInfinityForAllChannelsTaskInstance">
+	<Attribute id="commandCategory" value="Console"/>
+	<Attribute id="menuPriority" value="-1"/>
+</ScriptClass>
+<ScriptClass classID="{6E7D8295-7272-4517-B544-06BECE9EE764}" category="EditTask" subCategory="TrackEdit" name="Set Volume for Selected Channels" sourceFile="SetChannelVolumePan.js" functionName="createSetVolumeForSelectedChannelsTaskInstance">
+	<Attribute id="arguments" value="Volume"/>
+	<Attribute id="commandCategory" value="Console"/>
+	<Attribute id="menuPriority" value="-1"/>
+</ScriptClass>
+<ScriptClass classID="{7861324D-F6DC-4F9E-8D9A-7EE375ABDAB8}" category="EditTask" subCategory="TrackEdit" name="Set Pan for Selected Channels" sourceFile="SetChannelVolumePan.js" functionName="createSetPanForSelectedChannelsTaskInstance">
+	<Attribute id="arguments" value="Pan"/>
+	<Attribute id="commandCategory" value="Console"/>
+	<Attribute id="menuPriority" value="-1"/>
+</ScriptClass>
+<ScriptClass classID="{4B2601B2-2E4A-4755-A596-49112CEE6978}" category="EditTask" subCategory="TrackEdit" name="Set Pan for All Channels" sourceFile="SetChannelVolumePan.js" functionName="createSetPanForAllChannelsTaskInstance">
+	<Attribute id="arguments" value="Pan"/>
+	<Attribute id="commandCategory" value="Console"/>
+	<Attribute id="menuPriority" value="-1"/>
+</ScriptClass>
+<ScriptClass classID="{8C745523-3710-475E-A20F-FCC4F4B4FCCF}" category="EditTask" subCategory="TrackEdit" name="Colorize Tracks" sourceFile="ColorizeTracks.js" functionName="createColorizeTracksTaskInstance">
+	<Attribute id="menuFollow" value="1"/>
+	<Attribute id="arguments" value="..."/>
+	<Attribute id="menuPriority" value="-1"/>
+</ScriptClass>
+<ScriptClass classID="{CB286907-7E28-4BA6-A6B2-078AC4BED628}" category="EditTask" subCategory="TrackEdit" name="Toggle Start with Preroll" sourceFile="ToggleStartWithPreroll.js" functionName="createToggleStartWithPrerollInstance">
+	<Attribute id="arguments" value="Bars,Seconds"/>
+	<Attribute id="menuPriority" value="-1"/>
+</ScriptClass>
+<ScriptClass classID="{93F7A306-C039-4A57-A7FE-E22049ED7F17}" category="EditTask" subCategory="TrackEdit" name="Apply Track Names to Instruments" sourceFile="ApplyTrackNamesToInstruments.js" functionName="createApplyTrackNamesToInstrumentsTaskInstance">
+	<Attribute id="commandCategory" value="Scoring Tools"/>
+	<Attribute id="menuPriority" value="14"/>
+</ScriptClass>
+<ScriptClass classID="{5839D918-E759-4575-B35D-F3DB4A4FBC42}" category="EditTask" subCategory="MusicEdit" name="Select Notes with Same Pitches" sourceFile="SelectSamePitches.js" functionName="createSelectSamePitchesTaskInstance">
+	<Attribute id="musicEditorOnly" value="1"/>
+	<Attribute id="menuPriority" value="-1"/>
+</ScriptClass>
+<ScriptClass classID="{70FA1B21-172B-47AB-A44B-63C75B39ED2E}" category="EditTask" subCategory="MusicEdit" name="Select Following Notes with Same Pitches" sourceFile="SelectSamePitches.js" functionName="createSelectFollowingNotesWithSamePitchesTaskInstance">
+	<Attribute id="musicEditorOnly" value="1"/>
+	<Attribute id="hidden" value="1"/>
+	<Attribute id="menuPriority" value="-1"/>
+</ScriptClass>
+<ScriptClass classID="{A405780E-B3C9-44D7-93CB-7EC92701BE22}" category="EditTask" subCategory="MusicEdit" name="Select Previous Notes with Same Pitches" sourceFile="SelectSamePitches.js" functionName="createSelectPreviousNotesWithSamePitchesTaskInstance">
+	<Attribute id="musicEditorOnly" value="1"/>
+	<Attribute id="hidden" value="1"/>
+	<Attribute id="menuPriority" value="-1"/>
+</ScriptClass>
+<ScriptClass classID="{8EE55223-F568-4446-AF69-36BACB0E769D}" category="EditTask" subCategory="TrackEdit" name="Apply Track Names to Events" sourceFile="ApplyTrackAndEventNames.js" functionName="createApplyTrackNamesToEventsTaskInstance">
+	<Attribute id="menuPriority" value="-1"/>
+</ScriptClass>
+<ScriptClass classID="{3F201CF2-2013-47D4-BC48-08837DE04078}" category="EditTask" subCategory="TrackEdit" name="Apply Event Names to Tracks" sourceFile="ApplyTrackAndEventNames.js" functionName="createApplyEventNamesToTracksTaskInstance">
+	<Attribute id="hidden" value="1"/>
+	<Attribute id="menuPriority" value="-1"/>
+</ScriptClass>
+<ScriptClass classID="{9F7E6019-357F-4215-A27B-E5FEAE69C6AB}" category="EditTask" subCategory="TrackEdit" name="Add Part Automation" sourceFile="AddPartAutomation.js" functionName="createAddPartAutomationTaskInstance">
+	<Attribute id="menuFollow" value="1"/>
+	<Attribute id="arguments" value="..."/>
+	<Attribute id="commandCategory" value="Automation"/>
+	<Attribute id="menuPriority" value="-1"/>
+</ScriptClass>
+<ScriptClass classID="{DD6CEF06-417B-4F35-A4D3-A9ECE1D7860B}" category="EditTask" subCategory="TrackEdit" name="Select All Tracks" sourceFile="SelectAllTracks.js" functionName="createSelectAllTracksTaskInstance">
+	<Attribute id="menuPriority" value="-1"/>
+</ScriptClass>
+<ScriptClass classID="{4D965EB6-6A92-49A3-B94C-F9E7B932CEDC}" category="EditTask" subCategory="TrackEdit" name="Deselect All Tracks" sourceFile="SelectAllTracks.js" functionName="createDeselectAllTracksTaskInstance">
+	<Attribute id="menuPriority" value="-1"/>
+</ScriptClass>
+<ScriptClass classID="{BC50581D-62F7-4E4D-9667-3DA3CAFEB185}" category="EditTask" subCategory="TrackEdit" name="Open All Channels" sourceFile="OpenAllChannels.js" functionName="createOpenAllChannelsTaskInstance">
+	<Attribute id="arguments" value="State"/>
+	<Attribute id="commandCategory" value="Console"/>
+	<Attribute id="menuPriority" value="-1"/>
+</ScriptClass>
+<ScriptClass classID="{4CC39988-05F5-4955-B9D6-A7603417111D}" category="EditTask" subCategory="AudioEdit" name="Bounce Events" sourceFile="BounceEvents.js" functionName="createBounceEventsTaskInstance">
+	<Attribute id="wantAudioParts" value="1"/>
+	<Attribute id="menuGroup" value="AudioOther"/>
+	<Attribute id="menuPriority" value="0"/>
+</ScriptClass>
+<ScriptClass classID="{B573F39E-112B-4B1F-B076-391F0786DC10}" category="EditTask" subCategory="TrackEdit" name="Set Quick Nudge Value" sourceFile="QuickNudge.js" functionName="createSetQuickNudgeValueTaskInstance">
+	<Attribute id="arguments" value="Value"/>
+	<Attribute id="commandCategory" value="Pro Navigator"/>
+	<Attribute id="menuPriority" value="-1"/>
+</ScriptClass>
+<ScriptClass classID="{D2406C18-C507-4A1D-8EFB-A9895B60517C}" category="EditTask" subCategory="TrackEdit" name="Quick Nudge" sourceFile="QuickNudge.js" functionName="createQuickNudgeTaskInstance">
+	<Attribute id="commandCategory" value="Pro Navigator"/>
+    <Attribute id="menuPriority" value="-1"/>
+</ScriptClass>
+<ScriptClass classID="{0189E80D-5FF3-4EB4-8A2A-0CC7812AA1C8}" category="EditTask" subCategory="TrackEdit" name="Quick Nudge Back" sourceFile="QuickNudge.js" functionName="createQuickNudgeBackTaskInstance">
+    <Attribute id="commandCategory" value="Pro Navigator"/>
+    <Attribute id="menuPriority" value="-1"/>
+</ScriptClass>
+<ScriptClass classID="{1B7B8CF0-FE27-4EDB-AAC7-E636B711AF85}" category="EditTask" subCategory="TrackEdit" name="Show Studio One Scripts" sourceFile="ShowStudioOneScripts.js" functionName="createShowStudioOneScriptsTaskInstance">
+    <Attribute id="menuPriority" value="-1"/>
+</ScriptClass>
+<ScriptClass classID="{EE99A974-7C31-48B7-BFC5-88C9D1DBAD5F}" category="EditTask" subCategory="TrackEdit" name="Navigation Essentials Info" sourceFile="NavigationEssentialsInfo.js" functionName="createNavigationEssentialsInfoTaskInstance">
+    <Attribute id="menuPriority" value="-1"/>
+</ScriptClass>
+</ClassFactory>

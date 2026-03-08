@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Macro title="Quick Nudge 1 Frame" group="Quick Nudge" description="">
+	<CommandElement category="Pro Navigator" name="Set Quick Nudge Value">
+		<CommandArgument name="Value" value="1 frame"/>
+	</CommandElement>
+</Macro>

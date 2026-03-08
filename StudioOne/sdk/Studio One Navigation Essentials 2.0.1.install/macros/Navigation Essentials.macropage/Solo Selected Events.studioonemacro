@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Macro title="Solo Selected Events" group="" description="">
+	<CommandElement category="Scoring Tools" name="Select Tracks with Selected Events"/>
+	<CommandElement category="Track" name="Solo">
+		<CommandArgument name="State" value=""/>
+	</CommandElement>
+</Macro>

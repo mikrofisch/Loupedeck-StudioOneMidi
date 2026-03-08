@@ -188,6 +188,8 @@
 
 		<Control name="focusDeviceText" type="textdisplay" options="transmit public"/>
 
+		<Control name="triggerHostCommandReceiver" options="receive"/>
+
 		<!--
  		<Control name="commandControlSet" options="receive public"> <MidiMessage status="#B0" address="#00" options="plain" channel="0"/> </Control>
 		<Control name="commandControlTrigger" type="trigger" options="receive"> <MidiMessage status="#90" address="#72" channel="0"/> </Control>
@@ -363,6 +365,8 @@
 
 			<Value control="ActiveUserPages" param="activeUserPages"/>
 
+			<PlainValue control="triggerHostCommandReceiver" param="triggerHostCommand"/>
+			
 			<include template="ChannelStripAliasMapping"/>
 			<include template="S1CommandMapping"/>
 		</Global>

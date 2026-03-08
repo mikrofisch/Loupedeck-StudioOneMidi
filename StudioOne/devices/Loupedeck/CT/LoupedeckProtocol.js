@@ -49,3 +49,48 @@ class LoupedeckProtocol {
     }
 }
 LoupedeckProtocol.kSysexHeader = [0x00, 0x00, 0x66];
+
+class LoupedeckHostCommandMessage {
+    static isMessage(data, length) {
+        if (length < LoupedeckHostCommandMessage.kMinLength)
+            return false;
+        return data[0] == 0xF0 &&
+            data[1] == LoupedeckProtocol.kSysexHeader[0] &&
+            data[2] == LoupedeckProtocol.kSysexHeader[1] &&
+            data[3] == LoupedeckProtocol.kSysexHeader[2] &&
+            data[4] == LoupedeckHostCommandMessage.kMessageType &&
+            data[5] == LoupedeckHostCommandMessage.kMessageAction &&
+            data[length - 1] == 0xF7;
+    }
+    static getPayload(data, length) {
+        if (!LoupedeckHostCommandMessage.isMessage(data, length))
+            return null;
+        let payload = "";
+        for (let i = LoupedeckHostCommandMessage.kPayloadStartIndex; i < length - 1; i++)
+            payload += String.fromCharCode(data[i]);
+        return payload;
+    }
+    static getCommandGroup(data, length) {
+        let payload = LoupedeckHostCommandMessage.getPayload(data, length);
+        if (payload == null)
+            return "";
+        let separatorIndex = payload.indexOf(LoupedeckHostCommandMessage.kSeparator);
+        if (separatorIndex < 0)
+            return payload;
+        return payload.substring(0, separatorIndex);
+    }
+    static getCommandName(data, length) {
+        let payload = LoupedeckHostCommandMessage.getPayload(data, length);
+        if (payload == null)
+            return "";
+        let separatorIndex = payload.indexOf(LoupedeckHostCommandMessage.kSeparator);
+        if (separatorIndex < 0)
+            return "";
+        return payload.substring(separatorIndex + 1);
+    }
+}
+LoupedeckHostCommandMessage.kMessageType = 0x15;
+LoupedeckHostCommandMessage.kMessageAction = 0x01;
+LoupedeckHostCommandMessage.kPayloadStartIndex = 6;
+LoupedeckHostCommandMessage.kSeparator = String.fromCharCode(0x1F);
+LoupedeckHostCommandMessage.kMinLength = 8;

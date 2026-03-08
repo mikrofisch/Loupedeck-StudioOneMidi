@@ -1,0 +1,5 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Macro title="Show Tracks with Selected Events" group="" description="">
+	<CommandElement category="Scoring Tools" name="Select Tracks with Selected Events"/>
+	<CommandElement category="Edit" name="Show Selected Tracks"/>
+</Macro>

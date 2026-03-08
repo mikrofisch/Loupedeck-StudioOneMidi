@@ -24,8 +24,8 @@ namespace Loupedeck.StudioOneMidiPlugin
         // Gets a value indicating whether this is a Universal plugin or an Application plugin.
         public override Boolean HasNoApplication => true;
 
-		public InputDevice? ConfigMidiIn = null, S1MidiIn = null;
-		public OutputDevice? ConfigMidiOut = null, S1MidiOut = null;
+		public InputDevice? ConfigMidiIn = null, SPMidiIn = null;
+		public OutputDevice? ConfigMidiOut = null, SPMidiOut = null;
 
         Midi2Connection _midi2Connection = new Midi2Connection();
 
@@ -202,50 +202,50 @@ namespace Loupedeck.StudioOneMidiPlugin
 			}
 		}
 
-        string _s1MidiInName = "";
-        public String S1MidiInName
+        string _spMidiInName = "";
+        public String SPMidiInName
         {
-			get => this._s1MidiInName;
+			get => this._spMidiInName;
 			set {
-				if (this.S1MidiIn != null)
+				if (this.SPMidiIn != null)
                 {
-                    this.S1MidiIn.StopEventsListening();
-                    this.S1MidiIn.Dispose();
+                    this.SPMidiIn.StopEventsListening();
+                    this.SPMidiIn.Dispose();
 				}
 
-                this._s1MidiInName = value;
+                this._spMidiInName = value;
 				try
                 {
-                    this.S1MidiIn = InputDevice.GetByName(value);
-                    this.S1MidiIn.EventReceived += OnS1MidiEvent;
-                    this.S1MidiIn.StartEventsListening();
+                    this.SPMidiIn = InputDevice.GetByName(value);
+                    this.SPMidiIn.EventReceived += OnSPMidiEvent;
+                    this.SPMidiIn.StartEventsListening();
                     // this.SetPluginSetting("LoupedeckMidiIn", value, false);
 				}
 				catch (Exception)
                 {
-                    this.S1MidiIn = null;
+                    this.SPMidiIn = null;
 				}
 			}
 		}
 
-        string _s1MidiOutName = "";
-        public String S1MidiOutName
+        string _spMidiOutName = "";
+        public String SPMidiOutName
         {
-			get => this._s1MidiOutName;
+			get => this._spMidiOutName;
 			set {
-				if (this.S1MidiOut != null)
+				if (this.SPMidiOut != null)
                 {
-                    this.S1MidiOut.Dispose();
+                    this.SPMidiOut.Dispose();
 				}
 
-                this._s1MidiOutName = value;
+                this._spMidiOutName = value;
 				try
                 {
-                    this.S1MidiOut = OutputDevice.GetByName(value);
+                    this.SPMidiOut = OutputDevice.GetByName(value);
 				}
 				catch (Exception)
                 {
-                    this.S1MidiOut = null;
+                    this.SPMidiOut = null;
 				}
 			}
 		}
@@ -301,7 +301,7 @@ namespace Loupedeck.StudioOneMidiPlugin
 
             this.KeyHookTask = keyHook.RunAsync();
 
-            _midi2Connection.CreateEndpointPair("Loupedeck S1");
+            _midi2Connection.CreateEndpointPair("Loupedeck SP");
             _midi2Connection.CreateEndpointPair("Loupedeck Config");
 
             this.LoadSettings();
@@ -410,14 +410,14 @@ namespace Loupedeck.StudioOneMidiPlugin
 //
 //			if (TryGetPluginSetting("LoupedeckMidiIn", out loupedeckMidiInName))
 //                LoupedeckMidiInName = loupedeckMidiInName;
-            this.S1MidiInName = "Loupedeck S1 In";
+            this.SPMidiInName = "Loupedeck SP In";
 
 //            if (TryGetPluginSetting("MidiOut", out midiOutName))
 //				MidiOutName = midiOutName;
 
 //			if (TryGetPluginSetting("LoupedeckMidiOut", out loupedeckMidiOutName))
 //				LoupedeckMidiOutName = loupedeckMidiOutName;
-            this.S1MidiOutName = "Loupedeck S1 Out";
+            this.SPMidiOutName = "Loupedeck SP Out";
 
             this.ConfigMidiInName = "Loupedeck Config In";
             this.ConfigMidiOutName = "Loupedeck Config Out";
@@ -473,7 +473,7 @@ namespace Loupedeck.StudioOneMidiPlugin
             }
         }
 
-        private void OnS1MidiEvent(object? sender, MidiEventReceivedEventArgs args)
+        private void OnSPMidiEvent(object? sender, MidiEventReceivedEventArgs args)
         {
             MidiEvent e = args.Event;
 
@@ -699,24 +699,24 @@ namespace Loupedeck.StudioOneMidiPlugin
 
         public void SendMidiNote(Int32 midiChannel, Int32 note, Int32 velocity = 127)
         {
-            if (this.S1MidiOut == null) throw new NullReferenceException("LoupedeckMidiOut is not initialized.");
+            if (this.SPMidiOut == null) throw new NullReferenceException("LoupedeckMidiOut is not initialized.");
 
             var e = new NoteOnEvent();
             e.Channel = (FourBitNumber)midiChannel;
             e.Velocity = (SevenBitNumber)velocity;
             e.NoteNumber = (SevenBitNumber)note;
-            this.S1MidiOut.SendEvent(e);
+            this.SPMidiOut.SendEvent(e);
         }
 
         public void SendMidiControlChange(Int32 midiChannel, Int32 control, Int32 value)
         {
-            if (this.S1MidiOut == null) throw new NullReferenceException("LoupedeckMidiOut is not initialized.");
+            if (this.SPMidiOut == null) throw new NullReferenceException("LoupedeckMidiOut is not initialized.");
 
             var e = new ControlChangeEvent();
             e.Channel = (FourBitNumber)midiChannel;
             e.ControlNumber = (SevenBitNumber)control;
             e.ControlValue = (SevenBitNumber)value;
-            this.S1MidiOut.SendEvent(e);
+            this.SPMidiOut.SendEvent(e);
         }
 
         public void SetChannelFaderMode(ChannelFaderMode mode, Int32 userPage = 1)
@@ -769,16 +769,16 @@ namespace Loupedeck.StudioOneMidiPlugin
             this.ConfigMidiOut.SendEvent(sysex);
         }
 
-        public void SendTextToS1(String text)
+        public void SendTextToSP(String text)
         {
-            if (this.S1MidiOut == null) throw new NullReferenceException("LoupedeckMidiOut is not initialized.");
+            if (this.SPMidiOut == null) throw new NullReferenceException("SPMidiOut is not initialized.");
             var sysexData = new byte[text.Length + 6];
             Array.Copy(new byte[] { 0x00, 0x00, 0x66, 0x00 }, 0, sysexData, 0, 4);
             sysexData[4] = (byte)text.Length;
             Array.Copy(Encoding.UTF8.GetBytes(text), 0, sysexData, 5, text.Length);
             sysexData[sysexData.Length - 1] = 0xF7;     // End of SysEx
             var sysex = new NormalSysExEvent(sysexData);
-            this.S1MidiOut.SendEvent(sysex);
+            this.SPMidiOut.SendEvent(sysex);
         }
 
         // public override bool TryProcessTouchEvent(string actionName, string actionParameter, DeviceTouchEvent deviceTouchEvent)

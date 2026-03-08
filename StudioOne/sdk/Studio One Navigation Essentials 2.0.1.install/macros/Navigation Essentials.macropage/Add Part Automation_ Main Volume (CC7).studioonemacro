@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Macro title="Add Part Automation: Main Volume (CC7)" group="Part Automation" description="">
+	<CommandElement category="Automation" name="Add Part Automation">
+		<CommandArgument name="CCs" value="7"/>
+	</CommandElement>
+</Macro>

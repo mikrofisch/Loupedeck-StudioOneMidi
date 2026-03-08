@@ -27,7 +27,9 @@ namespace Loupedeck.StudioOneMidiPlugin
 		public InputDevice? ConfigMidiIn = null, S1MidiIn = null;
 		public OutputDevice? ConfigMidiOut = null, S1MidiOut = null;
 
-		public const Int32 ChannelCount = 6;
+        Midi2Connection _midi2Connection = new Midi2Connection();
+
+        public const Int32 ChannelCount = 6;
 
         public ConcurrentDictionary<String, ChannelData> CurrentChannelData = new ConcurrentDictionary<String, ChannelData>();
 
@@ -152,10 +154,10 @@ namespace Loupedeck.StudioOneMidiPlugin
         }
         public ChannelFaderMode CurrentChannelFaderMode = ChannelFaderMode.Pan;
 
-        string configMidiInName = "";
+        string _configMidiInName = "";
         public String ConfigMidiInName
         {
-			get => this.configMidiInName;
+			get => this._configMidiInName;
 			set {
                 if (this.ConfigMidiIn != null)
                 {
@@ -163,7 +165,7 @@ namespace Loupedeck.StudioOneMidiPlugin
                     this.ConfigMidiIn.Dispose();
 				}
 
-                this.configMidiInName = value;
+                this._configMidiInName = value;
 				try
                 {
                     this.ConfigMidiIn = InputDevice.GetByName(value);
@@ -178,17 +180,17 @@ namespace Loupedeck.StudioOneMidiPlugin
 			}
 		}
 
-        string configMidiOutName = "";
+        string _configMidiOutName = "";
         public String ConfigMidiOutName
         {
-			get => this.configMidiOutName;
+			get => this._configMidiOutName;
 			set {
 				if (this.ConfigMidiOut != null)
                 {
                     this.ConfigMidiOut.Dispose();
 				}
 
-                this.configMidiOutName = value;
+                this._configMidiOutName = value;
 				try {
                     this.ConfigMidiOut = OutputDevice.GetByName(value);
                     this.SetPluginSetting("ConfigMidiOut", value, false);
@@ -200,10 +202,10 @@ namespace Loupedeck.StudioOneMidiPlugin
 			}
 		}
 
-        string s1MidiInName = "";
+        string _s1MidiInName = "";
         public String S1MidiInName
         {
-			get => this.s1MidiInName;
+			get => this._s1MidiInName;
 			set {
 				if (this.S1MidiIn != null)
                 {
@@ -211,7 +213,7 @@ namespace Loupedeck.StudioOneMidiPlugin
                     this.S1MidiIn.Dispose();
 				}
 
-                this.s1MidiInName = value;
+                this._s1MidiInName = value;
 				try
                 {
                     this.S1MidiIn = InputDevice.GetByName(value);
@@ -226,17 +228,17 @@ namespace Loupedeck.StudioOneMidiPlugin
 			}
 		}
 
-        string s1MidiOutName = "";
+        string _s1MidiOutName = "";
         public String S1MidiOutName
         {
-			get => this.s1MidiOutName;
+			get => this._s1MidiOutName;
 			set {
 				if (this.S1MidiOut != null)
                 {
                     this.S1MidiOut.Dispose();
 				}
 
-                this.s1MidiOutName = value;
+                this._s1MidiOutName = value;
 				try
                 {
                     this.S1MidiOut = OutputDevice.GetByName(value);
@@ -299,7 +301,10 @@ namespace Loupedeck.StudioOneMidiPlugin
 
             this.KeyHookTask = keyHook.RunAsync();
 
-			this.LoadSettings();
+            _midi2Connection.CreateEndpointPair("Loupedeck S1");
+            _midi2Connection.CreateEndpointPair("Loupedeck Config");
+
+            this.LoadSettings();
         }
 
         // This method is called when the plugin is unloaded during the Loupedeck service shutdown.
@@ -405,14 +410,14 @@ namespace Loupedeck.StudioOneMidiPlugin
 //
 //			if (TryGetPluginSetting("LoupedeckMidiIn", out loupedeckMidiInName))
 //                LoupedeckMidiInName = loupedeckMidiInName;
-            this.S1MidiInName = "Loupedeck S1 Out";
+            this.S1MidiInName = "Loupedeck S1 In";
 
 //            if (TryGetPluginSetting("MidiOut", out midiOutName))
 //				MidiOutName = midiOutName;
 
 //			if (TryGetPluginSetting("LoupedeckMidiOut", out loupedeckMidiOutName))
 //				LoupedeckMidiOutName = loupedeckMidiOutName;
-            this.S1MidiOutName = "Loupedeck S1 In";
+            this.S1MidiOutName = "Loupedeck S1 Out";
 
             this.ConfigMidiInName = "Loupedeck Config In";
             this.ConfigMidiOutName = "Loupedeck Config Out";
@@ -762,6 +767,18 @@ namespace Loupedeck.StudioOneMidiPlugin
             sysexData[sysexData.Length - 1] = 0xF7;     // End of SysEx
             var sysex = new NormalSysExEvent(sysexData);
             this.ConfigMidiOut.SendEvent(sysex);
+        }
+
+        public void SendTextToS1(String text)
+        {
+            if (this.S1MidiOut == null) throw new NullReferenceException("LoupedeckMidiOut is not initialized.");
+            var sysexData = new byte[text.Length + 6];
+            Array.Copy(new byte[] { 0x00, 0x00, 0x66, 0x00 }, 0, sysexData, 0, 4);
+            sysexData[4] = (byte)text.Length;
+            Array.Copy(Encoding.UTF8.GetBytes(text), 0, sysexData, 5, text.Length);
+            sysexData[sysexData.Length - 1] = 0xF7;     // End of SysEx
+            var sysex = new NormalSysExEvent(sysexData);
+            this.S1MidiOut.SendEvent(sysex);
         }
 
         // public override bool TryProcessTouchEvent(string actionName, string actionParameter, DeviceTouchEvent deviceTouchEvent)

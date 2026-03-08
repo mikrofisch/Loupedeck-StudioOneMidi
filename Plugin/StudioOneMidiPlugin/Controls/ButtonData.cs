@@ -758,19 +758,27 @@
     {
         public enum StepDir { StepFwd, StepRev };
         private StepDir DirMode;
-        public SnapStepCommandButtonData(StepDir stepDir) : base(stepDir == StepDir.StepFwd ? 0x37 : 0x38,
+        public SnapStepCommandButtonData(StepDir stepDir) : base(stepDir == StepDir.StepFwd ? 0x45 : 0x46,
                                                                  "Snap Step " + (stepDir == StepDir.StepFwd ? "Fwd" : "Rev"))
         {
             this.DirMode = stepDir;
+            MidiChannel = 14;
         }
         public override void runCommand()
         {
-            if ((this.Plugin as StudioOneMidiPlugin).ShiftPressed)
+            if ((this.Plugin as StudioOneMidiPlugin).ControlPressed)
             {
+                // Beat step
+                this.Plugin.SendMidiNote(14, this.DirMode == StepDir.StepFwd ? 0x47 : 0x48);
+            }
+            else if ((this.Plugin as StudioOneMidiPlugin).ShiftPressed)
+            {
+                // Nudge
                 this.Plugin.SendMidiNote(15, this.DirMode == StepDir.StepFwd ? 0x00 : 0x01);
             }
             else
             {
+                // Grid step
                 base.runCommand();
             }
         }
